@@ -10,6 +10,10 @@
 		E425663921CD671700469232 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
+		E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
+		E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E425664E21CE66A200469232 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
+		E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664F21CE6F9A00469232 /* DefaultKey.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
 		E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BE21C6D9C1001AF4CD /* SensorData.swift */; };
@@ -25,10 +29,51 @@
 		E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E425664421CE65A400469232 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = FF94F2D41BDE2633009AD0C9;
+			remoteInfo = Sqlable;
+		};
+		E425664621CE65A400469232 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = FF94F2DE1BDE2634009AD0C9;
+			remoteInfo = SqlableTests;
+		};
+		E425664A21CE65CA00469232 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
+			remoteInfo = Sqlable;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E425664C21CE65CB00469232 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
+		E425663F21CE65A400469232 /* Sqlable.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sqlable.xcodeproj; path = Sqlable/Sqlable.xcodeproj; sourceTree = "<group>"; };
+		E425664D21CE66A200469232 /* GlucosePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucosePoint.swift; sourceTree = "<group>"; };
+		E425664F21CE6F9A00469232 /* DefaultKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultKey.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
 		E48F42BE21C6D9C1001AF4CD /* SensorData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorData.swift; sourceTree = "<group>"; };
@@ -51,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,8 +106,18 @@
 		E425663E21CE61D600469232 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				E425663F21CE65A400469232 /* Sqlable.xcodeproj */,
 			);
 			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		E425664021CE65A400469232 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E425664521CE65A400469232 /* Sqlable.framework */,
+				E425664721CE65A400469232 /* SqlableTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		E4E35A5721C3F8D300336CE8 = {
@@ -84,6 +140,7 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E425664F21CE6F9A00469232 /* DefaultKey.swift */,
 				E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */,
 				E425663C21CD702900469232 /* SensorSerialNumber.swift */,
 				E48F42C221C6DA5E001AF4CD /* CRC.swift */,
@@ -101,6 +158,7 @@
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
 				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
 				E425663821CD671700469232 /* Extensions.swift */,
+				E425664D21CE66A200469232 /* GlucosePoint.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -115,10 +173,12 @@
 				E4E35A5C21C3F8D300336CE8 /* Sources */,
 				E4E35A5D21C3F8D300336CE8 /* Frameworks */,
 				E4E35A5E21C3F8D300336CE8 /* Resources */,
+				E425664C21CE65CB00469232 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E425664B21CE65CA00469232 /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
@@ -156,12 +216,35 @@
 			mainGroup = E4E35A5721C3F8D300336CE8;
 			productRefGroup = E4E35A6121C3F8D300336CE8 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E425664021CE65A400469232 /* Products */;
+					ProjectRef = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E4E35A5F21C3F8D300336CE8 /* WoofWoof */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		E425664521CE65A400469232 /* Sqlable.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sqlable.framework;
+			remoteRef = E425664421CE65A400469232 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E425664721CE65A400469232 /* SqlableTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SqlableTests.xctest;
+			remoteRef = E425664621CE65A400469232 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E4E35A5E21C3F8D300336CE8 /* Resources */ = {
@@ -192,12 +275,22 @@
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
+				E425664E21CE66A200469232 /* GlucosePoint.swift in Sources */,
 				E425663921CD671700469232 /* Extensions.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
+				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E425664B21CE65CA00469232 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sqlable;
+			targetProxy = E425664A21CE65CA00469232 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E4E35A6721C3F8D300336CE8 /* Main.storyboard */ = {
@@ -338,6 +431,7 @@
 		E4E35A7321C3F8DA00336CE8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
@@ -356,6 +450,7 @@
 		E4E35A7421C3F8DA00336CE8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;

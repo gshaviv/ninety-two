@@ -7,12 +7,19 @@
 //
 
 import Foundation
-
+import Sqlable
 
 class MiaoMiao {
     public static var hardware: String = ""
     public static var firmware: String = ""
     public static var batteryLevel: Int = 0 // 0 - 100
+
+    private static var db: SqliteDatabase = {
+        let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
+        db.queue = DispatchQueue(label: "db")
+        try! db.createTable(GlocusePoint.self)
+        return db
+    }()
 
     class Command {
         static func startReading() {
@@ -70,14 +77,70 @@ class MiaoMiao {
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: 1, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
-                log("Trend:\n\(data.trendMeasurements().map { "\($0)" }.joined(separator: "\n"))")
-                log("History:\n\(data.historyMeasurements().map { "\($0)" }.joined(separator: "\n"))")
+                log("Trend:\n\(data.trendMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
+                log("History:\n\(data.historyMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
                 log("Sensor age \(data.minutesSinceStart / 60):\(data.minutesSinceStart % 60)")
                 log("Sensor start date \(Date(timeIntervalSinceNow: TimeInterval(-data.minutesSinceStart * 60)))")
+                let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
+                let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
+                record(trend: trendPoints, history: historyPoints)
             } else {
                 logError("Failed to read data")
             }
             packetData = []
+        }
+    }
+
+    static private func record(trend: [GlocusePoint], history: [GlocusePoint]) {
+        guard let db = try? db.createChild() else {
+            return
+        }
+        DispatchQueue.global().async {
+            if let last = UserDefaults.standard.last {
+                let filteredHistory = history.filter { $0.date > last + 60 }
+                var storeInterval = 5.m
+                if let readings = try? GlocusePoint.read().filter(GlocusePoint.date == last).run(db) {
+                    if let lastReading = readings.last {
+                        storeInterval = lastReading.value > 70 ? 5.m : 2.m
+                    }
+                }
+
+                if !filteredHistory.isEmpty {
+                    do {
+                        try db.beginTransaction()
+                        try filteredHistory.forEach {
+                            try $0.insert().run(db)
+                            log("Writing history \($0)")
+                        }
+                        try db.commitTransaction()
+                        UserDefaults.standard.last = filteredHistory[0].date
+                    } catch let error {
+                        logError("\(error)")
+                    }
+                }
+
+
+                var threshHold = last + storeInterval
+
+                try? trend.reversed().forEach {
+                    if $0.date >= threshHold {
+                        try $0.insert().run(db)
+                        UserDefaults.standard.last = $0.date
+                        log("Wrote from trend \($0)")
+                        storeInterval = $0.value > 70 ? 5.m : 2.m
+                        threshHold = threshHold + storeInterval
+                    }
+                }
+            } else {
+                do {
+                    try db.beginTransaction()
+                    try history.forEach { try $0.insert().run(db) }
+                    try db.commitTransaction()
+                    UserDefaults.standard.last = history[0].date
+                } catch let error {
+                    logError("\(error)")
+                }
+            }
         }
     }
 }

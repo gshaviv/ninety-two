@@ -86,9 +86,7 @@ struct Measurement {
             self.oopSlope = 0
             self.oopOffset = 0
             self.temperatureAlgorithmGlucose = 0
-        }
-        
-        print(self.description)
+        }        
     }
     
 //
