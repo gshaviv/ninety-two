@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E425663921CD671700469232 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
+		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
+		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
+		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
+		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
+		E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BE21C6D9C1001AF4CD /* SensorData.swift */; };
+		E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C021C6DA03001AF4CD /* Measurement.swift */; };
+		E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C221C6DA5E001AF4CD /* CRC.swift */; };
+		E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */; };
+		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
+		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
 		E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6521C3F8D300336CE8 /* ViewController.swift */; };
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
@@ -15,6 +26,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
+		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
+		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
+		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
+		E48F42BE21C6D9C1001AF4CD /* SensorData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorData.swift; sourceTree = "<group>"; };
+		E48F42C021C6DA03001AF4CD /* Measurement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Measurement.swift; sourceTree = "<group>"; };
+		E48F42C221C6DA5E001AF4CD /* CRC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CRC.swift; sourceTree = "<group>"; };
+		E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibreSensor.swift; sourceTree = "<group>"; };
+		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
+		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
 		E4E35A6021C3F8D300336CE8 /* WoofWoof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WoofWoof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -35,9 +57,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E425663E21CE61D600469232 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
+				E425663E21CE61D600469232 /* Dependencies */,
 				E4E35A6221C3F8D300336CE8 /* WoofWoof */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
 			);
@@ -54,12 +84,23 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */,
+				E425663C21CD702900469232 /* SensorSerialNumber.swift */,
+				E48F42C221C6DA5E001AF4CD /* CRC.swift */,
+				E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */,
+				E48F42C021C6DA03001AF4CD /* Measurement.swift */,
+				E48F42BE21C6D9C1001AF4CD /* SensorData.swift */,
+				E48F42BC21C6D96E001AF4CD /* SensorState.swift */,
+				E4DBF59121C3FC52006AF3CF /* Central.swift */,
+				E4DBF59321C408A4006AF3CF /* log.swift */,
 				E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */,
 				E4E35A6521C3F8D300336CE8 /* ViewController.swift */,
 				E4E35A6721C3F8D300336CE8 /* Main.storyboard */,
 				E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */,
 				E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */,
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
+				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
+				E425663821CD671700469232 /* Extensions.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -96,6 +137,11 @@
 				TargetAttributes = {
 					E4E35A5F21C3F8D300336CE8 = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -136,7 +182,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
+				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
+				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
+				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
+				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
+				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
+				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
+				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
+				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
+				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
+				E425663921CD671700469232 /* Extensions.swift in Sources */,
+				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,7 +270,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -268,7 +325,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
