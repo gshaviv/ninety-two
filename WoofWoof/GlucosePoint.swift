@@ -53,6 +53,10 @@ extension GlocusePoint: CustomStringConvertible {
     }
 }
 
+extension GlocusePoint: Equatable {
+
+}
+
 extension Measurement {
     var glucosePoint: GlocusePoint {
         return GlocusePoint(date: date, value: temperatureAlgorithmGlucose)
@@ -61,3 +65,4 @@ extension Measurement {
 
 
 
+// zcode fingerprint = 5c5cf8358f02ee38ab296f630204397b

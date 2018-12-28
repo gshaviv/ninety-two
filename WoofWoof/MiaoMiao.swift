@@ -9,12 +9,17 @@
 import Foundation
 import Sqlable
 
+protocol MiaoMiaoDelegate {
+    func didUpdate()
+}
+
 class MiaoMiao {
     public static var hardware: String = ""
     public static var firmware: String = ""
     public static var batteryLevel: Int = 0 // 0 - 100
+    public static var delgate: MiaoMiaoDelegate? = nil
 
-    private static var db: SqliteDatabase = {
+    static var db: SqliteDatabase = {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlocusePoint.self)
@@ -91,6 +96,7 @@ class MiaoMiao {
         }
     }
 
+    static public var currentGlucose: GlocusePoint?
     static private func record(trend: [GlocusePoint], history: [GlocusePoint]) {
         guard let db = try? db.createChild() else {
             return
@@ -140,6 +146,10 @@ class MiaoMiao {
                 } catch let error {
                     logError("\(error)")
                 }
+            }
+            currentGlucose = trend.first
+            DispatchQueue.main.async {
+                MiaoMiao.delgate?.didUpdate()
             }
         }
     }

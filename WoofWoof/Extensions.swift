@@ -7,8 +7,79 @@
 //
 
 import Foundation
+import UIKit
 
 private let hexDigits = "0123456789ABCDEF".map { $0 }
+
+extension UIColor {
+    /**
+     Create a ligher color
+     */
+    func lighter(by percentage: CGFloat = 30.0) -> UIColor {
+        return self.adjustBrightness(by: abs(percentage))
+    }
+
+    /**
+     Create a darker color
+     */
+    func darker(by percentage: CGFloat = 30.0) -> UIColor {
+        return self.adjustBrightness(by: -abs(percentage))
+    }
+
+    /**
+     Try to increase brightness or decrease saturation
+     */
+    func adjustBrightness(by percentage: CGFloat = 30.0) -> UIColor {
+        var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        if self.getHue(&h, saturation: &s, brightness: &b, alpha: &a) {
+            let newB = (1 + percentage / 100.0) * b
+            if newB > 0 && newB < 1 {
+                return UIColor(hue: h, saturation: s, brightness: newB, alpha: a)
+            } else {
+                let newS: CGFloat = min(max(s - (percentage/100.0)*s, 0.0), 1.0)
+                return UIColor(hue: h, saturation: newS, brightness: b, alpha: a)
+            }
+        }
+        return self
+    }
+}
+
+extension Date {
+    static private var compKey = false
+    var components: DateComponents {
+        if let comp = objc_getAssociatedObject(self, &Date.compKey) as? DateComponents {
+            return comp
+        } else {
+            let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond, .year, .month, .day], from: self)
+            objc_setAssociatedObject(self, &Date.compKey, comp, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return comp
+        }
+    }
+    var day: Int {
+        return components.day ?? 0
+    }
+    var month: Int {
+        return components.month ?? 0
+    }
+    var year: Int {
+        return components.year ?? 0
+    }
+    var hour: Int {
+        return components.hour ?? 0
+    }
+    var minute: Int {
+        return components.minute ?? 0
+    }
+    var second: Int {
+        return components.second ?? 0
+    }
+}
+
+extension DateComponents {
+    var date: Date {
+        return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
+    }
+}
 
 
 extension Data {
@@ -61,6 +132,49 @@ extension UserDefaults {
     static let keys = [
         DefaultKey("last", type: .date, options: [.write])
     ]
+}
+
+
+extension UIView {
+    var width: CGFloat {
+        return frame.width
+    }
+    var height: CGFloat {
+        return frame.height
+    }
+}
+
+func - (lhs:Date, rhs:Date) -> TimeInterval {
+    return lhs.timeIntervalSince1970 - rhs.timeIntervalSince1970
+}
+
+func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+    return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+}
+
+extension CGPoint {
+    func distance(to: CGPoint) -> CGFloat {
+        return ((x - to.x) ** 2 + (y - to.y) ** 2) ** 0.5
+    }
+}
+
+
+precedencegroup PowerPrecedence {
+    higherThan: MultiplicationPrecedence
+}
+
+infix operator **: PowerPrecedence
+
+func ** (lhs: CGFloat, rhs: CGFloat) -> CGFloat {
+    return pow(lhs, rhs)
+}
+
+func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+    return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+}
+
+func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
+    return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
 
 // MARK: - Generated accessors
