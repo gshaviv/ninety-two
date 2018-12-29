@@ -8,8 +8,18 @@
 
 import Foundation
 import UIKit
-
+import Sqlable
 private let hexDigits = "0123456789ABCDEF".map { $0 }
+
+extension SqliteDatabase {
+    @discardableResult func perform<T,R>(_ statement: @autoclosure () throws -> Statement<T,R>) throws -> R {
+        return try statement().run(self)
+    }
+
+    @discardableResult func evaluate<T,R>(_ statement: @autoclosure () throws -> Statement<T,R>) -> R? {
+        return try? statement().run(self)
+    }
+}
 
 extension UIColor {
     /**

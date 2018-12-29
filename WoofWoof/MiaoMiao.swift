@@ -18,17 +18,21 @@ class MiaoMiao {
     public static var firmware: String = ""
     public static var batteryLevel: Int = 0 // 0 - 100
     public static var delgate: MiaoMiaoDelegate? = nil
+    private static var shortRefresh = false
 
     static var db: SqliteDatabase = {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
         db.queue = DispatchQueue(label: "db")
-        try! db.createTable(GlocusePoint.self)
+        try! db.createTable(GlucosePoint.self)
         return db
     }()
 
     class Command {
         static func startReading() {
             Central.manager.send(bytes: Code.startReading)
+        }
+        static func send(_ bytes: [Byte]) {
+            Central.manager.send(bytes: bytes)
         }
     }
     class Code {
@@ -38,6 +42,9 @@ class MiaoMiao {
         static let endPacket: Byte = 0x29
         static let startReading: [Byte] = [0xf0]
         static let allowSensor: [Byte] = [0xd3, 0x01]
+        static let normalFrequency: [Byte] = [0xD1, 5]
+        static let shortFrequency: [Byte] = [0xd1, 1]
+        static let frequencyResponse: Byte = 0xd1
     }
 
     private static var packetData:[Byte] = []
@@ -56,6 +63,19 @@ class MiaoMiao {
 
             case Code.startPacket:
                 packetData = bytes
+
+            case Code.frequencyResponse:
+                if bytes.count < 2  {
+                    break
+                }
+                switch bytes[1] {
+                case 0x01:
+                    log("Success changing frequency")
+
+                default:
+                    logError("Failed to change frequency")
+                    shortRefresh = !shortRefresh
+                }
 
             default:
                 logError("Bad data")
@@ -85,6 +105,7 @@ class MiaoMiao {
                 log("Trend:\n\(data.trendMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
                 log("History:\n\(data.historyMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
                 log("Sensor age \(data.minutesSinceStart / 60):\(data.minutesSinceStart % 60)")
+                sensorAge = data.minutesSinceStart
                 log("Sensor start date \(Date(timeIntervalSinceNow: TimeInterval(-data.minutesSinceStart * 60)))")
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
@@ -96,8 +117,22 @@ class MiaoMiao {
         }
     }
 
-    static public var currentGlucose: GlocusePoint?
-    static private func record(trend: [GlocusePoint], history: [GlocusePoint]) {
+    static public var sensorAge: Int?
+
+    static public var currentGlucose: GlucosePoint? {
+        didSet {
+            if let current = currentGlucose {
+                if current.value < 60 && !shortRefresh {
+                    shortRefresh = true
+                    Command.send(Code.shortFrequency)
+                } else if current.value > 70 && shortRefresh {
+                    shortRefresh = false
+                    Command.send(Code.normalFrequency)
+                }
+            }
+        }
+    }
+    static private func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         guard let db = try? db.createChild() else {
             return
         }
@@ -105,7 +140,7 @@ class MiaoMiao {
             if let last = UserDefaults.standard.last {
                 let filteredHistory = history.filter { $0.date > last + 60 }
                 var storeInterval = 5.m
-                if let readings = try? GlocusePoint.read().filter(GlocusePoint.date == last).run(db) {
+                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date == last)) {
                     if let lastReading = readings.last {
                         storeInterval = lastReading.value > 70 ? 5.m : 2.m
                     }
@@ -115,7 +150,7 @@ class MiaoMiao {
                     do {
                         try db.beginTransaction()
                         try filteredHistory.forEach {
-                            try $0.insert().run(db)
+                            try db.perform($0.insert())
                             log("Writing history \($0)")
                         }
                         try db.commitTransaction()
@@ -130,7 +165,7 @@ class MiaoMiao {
 
                 try? trend.reversed().forEach {
                     if $0.date >= threshHold {
-                        try $0.insert().run(db)
+                        try db.perform($0.insert())
                         UserDefaults.standard.last = $0.date
                         log("Wrote from trend \($0)")
                         storeInterval = $0.value > 70 ? 5.m : 2.m
@@ -140,7 +175,7 @@ class MiaoMiao {
             } else {
                 do {
                     try db.beginTransaction()
-                    try history.forEach { try $0.insert().run(db) }
+                    try history.forEach { try db.perform($0.insert()) }
                     try db.commitTransaction()
                     UserDefaults.standard.last = history[0].date
                 } catch let error {

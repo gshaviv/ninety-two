@@ -9,12 +9,12 @@
 import Foundation
 import Sqlable
 
-struct GlocusePoint {
+struct GlucosePoint {
     let date: Date
     let value: Double
 }
 
-extension GlocusePoint: Sqlable {
+extension GlucosePoint: Sqlable {
     static let date = Column("date", .date)
     static let value = Column("value", .real)
 
@@ -22,10 +22,10 @@ extension GlocusePoint: Sqlable {
 
     func valueForColumn(_ column: Column) -> SqlValue? {
         switch column {
-        case GlocusePoint.date:
+        case GlucosePoint.date:
             return date
 
-        case GlocusePoint.value:
+        case GlucosePoint.value:
             return value
 
         default:
@@ -34,12 +34,12 @@ extension GlocusePoint: Sqlable {
     }
 
     init(row: ReadRow) throws {
-        date = try row.get(GlocusePoint.date)
-        value = try row.get(GlocusePoint.value)
+        date = try row.get(GlucosePoint.date)
+        value = try row.get(GlucosePoint.value)
     }
 }
 
-extension GlocusePoint: CustomStringConvertible {
+extension GlucosePoint: CustomStringConvertible {
     static let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.timeStyle = .long
@@ -49,17 +49,17 @@ extension GlocusePoint: CustomStringConvertible {
     }()
 
     var description: String {
-        return String(format: "<%@: %.1lf>", GlocusePoint.dateFormatter.string(from: date), value)
+        return String(format: "<%@: %.1lf>", GlucosePoint.dateFormatter.string(from: date), value)
     }
 }
 
-extension GlocusePoint: Equatable {
+extension GlucosePoint: Equatable {
 
 }
 
 extension Measurement {
-    var glucosePoint: GlocusePoint {
-        return GlocusePoint(date: date, value: temperatureAlgorithmGlucose)
+    var glucosePoint: GlucosePoint {
+        return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
     }
 }
 

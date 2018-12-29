@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E425663921CD671700469232 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
@@ -75,6 +76,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E40021B821D7BA6C001AB34D /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
 		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E40021B821D7BA6C001AB34D /* Repeater.swift */,
 				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
 				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
 				E45907DE21D550FA00B139CF /* GlucoseGraph.swift */,
@@ -306,6 +309,7 @@
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4B5023421D61E9800E18DDD /* AttributedStringConstruction.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
+				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
