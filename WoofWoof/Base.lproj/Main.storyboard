@@ -62,7 +62,7 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="248" verticalHuggingPriority="251" text="+4.2" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="goz-Lk-GC9">
-                                                        <rect key="frame" x="116" y="0.0" width="126" height="39.5"/>
+                                                        <rect key="frame" x="160" y="0.0" width="126" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.58081901069999997" green="0.088427625600000004" blue="0.31863921880000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -85,15 +85,16 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HS6-O8-9Lv" customClass="GlucoseGraph" customModule="WoofWoof" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="47.5" width="375" height="483.5"/>
+                                        <rect key="frame" x="0.0" y="47.5" width="375" height="435.5"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="tintColor" red="0.57380741830000004" green="0.56553578380000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e6r-xQ-IQs">
-                                        <rect key="frame" x="107" y="267" width="161" height="68"/>
+                                        <rect key="frame" x="0.0" y="483" width="375" height="48"/>
                                         <subviews>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="t4g-Xt-sNc">
-                                                <rect key="frame" x="20" y="20" width="121" height="28"/>
+                                                <rect key="frame" x="20" y="10" width="335" height="29"/>
+                                                <color key="backgroundColor" red="0.90037679291786032" green="0.90037679291786032" blue="0.90037679291786032" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <segments>
                                                     <segment title="24h"/>
                                                     <segment title="12h"/>
@@ -102,6 +103,7 @@
                                                     <segment title="2h"/>
                                                     <segment title="1h"/>
                                                 </segments>
+                                                <color key="tintColor" red="0.2537295262191876" green="0.76810172872340421" blue="0.18796733320149264" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <connections>
                                                     <action selector="selectedTimeSpan:" destination="BYZ-38-t0r" eventType="valueChanged" id="kra-Tn-xhi"/>
                                                 </connections>

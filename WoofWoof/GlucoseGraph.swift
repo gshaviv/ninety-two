@@ -95,16 +95,16 @@ class GlucoseGraph: UIView {
             let curve = UIBezierPath()
             if self.holes.isEmpty {
                 curve.move(to: p[0])
-                curve.addCurveThrough(points: p[1...], contractionFactor: 0.6)
+                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
             } else {
                 var idx = 0
                 for hole in self.holes {
                     curve.move(to: p[idx])
-                    curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.6)
+                    curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
                     idx = hole
                 }
                 curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx...], contractionFactor: 0.6)
+                curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
             }
             UIColor.darkGray.set()
             curve.lineWidth = self.lineWidth
