@@ -57,6 +57,7 @@ class MiaoMiao {
             case Code.newSensor:
                 log("New sensor detected")
                 Central.manager.send(bytes: Code.allowSensor)
+                UserDefaults.standard.additionalSlope = 1
 
             case Code.noSensor:
                 logError("No Sensor detected")
@@ -99,7 +100,7 @@ class MiaoMiao {
             log("hardware: \(hardware), firmware: \(firmware)")
             log("Battery level \(batteryLevel)%")
 
-            let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: 1, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
+            let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: UserDefaults.standard.additionalSlope, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
                 log("Trend:\n\(data.trendMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
@@ -187,7 +188,7 @@ class MiaoMiao {
             let diffs = trend.map { $0.value }.diff()
             if diffs.count > 3 {
                 let sum = diffs[0 ..< 3].reduce(0) { $1 + $0 }
-                currentTrend = sum / 3
+                currentTrend = -sum / 3
             }
             DispatchQueue.main.async {
                 MiaoMiao.delgate?.didUpdate()

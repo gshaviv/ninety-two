@@ -135,6 +135,9 @@ extension Central : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String : Any], rssi RSSI: NSNumber) {
         // Step 2
+        if gcmDevice == nil {
+            log("Found \(peripheral.name ?? peripheral.identifier.uuidString)")
+        }
         if gcmDevice == nil && peripheral.name?.hasPrefix("miaomiao") == true {
             gcmDevice = peripheral
             peripheral.delegate = self

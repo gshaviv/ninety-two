@@ -148,11 +148,6 @@ extension Int {
 }
 
 
-extension UserDefaults {
-    static let keys = [
-        DefaultKey("last", type: .date, options: [.write])
-    ]
-}
 
 
 extension UIView {
@@ -205,6 +200,16 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: "last")
+        }
+    }
+
+    var additionalSlope: Double {
+        get {
+            let v = double(forKey: "slope")
+            return v == 0 ? 1 : v
+        }
+        set {
+            set(newValue, forKey: "slope")
         }
     }
 }

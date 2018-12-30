@@ -23,7 +23,7 @@ class ViewController: UIViewController {
     @IBOutlet var percentHighLabel: UILabel!
     @IBOutlet var pieChart: PieChart!
     private var updater: Repeater!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         update()
@@ -47,7 +47,23 @@ class ViewController: UIViewController {
             }
         }
         if let current = MiaoMiao.currentGlucose {
-            currentGlucoseLabel.text = "\(Int(round(current.value)))"
+            let trendIcon: String
+            if let trend = MiaoMiao.currentTrend {
+                if trend > 2 {
+                    trendIcon = "↑"
+                } else if trend > 1 {
+                    trendIcon = "↗︎"
+                } else if trend > -1 {
+                    trendIcon = "→"
+                } else if trend > -2 {
+                    trendIcon = "↘︎"
+                } else {
+                    trendIcon = "↓"
+                }
+            } else {
+                trendIcon = ""
+            }
+            currentGlucoseLabel.text = "\(Int(round(current.value)))\(trendIcon)"
             agoLabel.text = "0 Ago"
             UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
         } else {
@@ -65,7 +81,7 @@ class ViewController: UIViewController {
             sensorAgeLabel.text = "?"
         }
         if let trend = MiaoMiao.currentTrend {
-            trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "-", trend)
+            trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "", trend)
         } else {
             trendLabel.text = ""
         }
@@ -111,13 +127,25 @@ class ViewController: UIViewController {
             agoLabel.text = ""
         }
     }
+
+    @IBAction func calibrate() {
+        let alert = UIAlertController(title: "Calibrate", message: "Enter BG measurement", preferredStyle: .alert)
+        alert.addTextField {
+            $0.keyboardType = .numberPad
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
+            if let text = alert.textFields![0].text, let bg = Double(text), let current = MiaoMiao.currentGlucose {
+                UserDefaults.standard.additionalSlope = bg / current.value
+            }
+        }))
+        present(alert, animated: true, completion: nil)
+    }
 }
 
 extension ViewController: MiaoMiaoDelegate {
     func didUpdate() {
         update()
     }
-
-
 }
 
