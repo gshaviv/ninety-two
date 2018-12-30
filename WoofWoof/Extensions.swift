@@ -21,6 +21,16 @@ extension SqliteDatabase {
     }
 }
 
+extension Collection where Element: SignedNumeric {
+    func diff() -> [Element] {
+        guard var last = first else { return [] }
+        return dropFirst().reduce(into: []) {
+            $0.append($1 - last)
+            last = $1
+        }
+    }
+}
+
 extension UIColor {
     /**
      Create a ligher color

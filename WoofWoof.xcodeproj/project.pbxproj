@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
+		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
 		E425663921CD671700469232 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
@@ -77,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		E40021B821D7BA6C001AB34D /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
+		E40021BD21D89DAA001AB34D /* PieChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChart.swift; sourceTree = "<group>"; };
 		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				E4B5023121D61A1900E18DDD /* DrawingView.swift */,
 				E4B5022C21D6160C00E18DDD /* Calculation.swift */,
 				E425664D21CE66A200469232 /* GlucosePoint.swift */,
+				E40021BD21D89DAA001AB34D /* PieChart.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
+				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E45907E021D550FA00B139CF /* GlucoseGraph.swift in Sources */,

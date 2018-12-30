@@ -118,6 +118,7 @@ class MiaoMiao {
     }
 
     static public var sensorAge: Int?
+    static public var currentTrend: Double?
 
     static public var currentGlucose: GlucosePoint? {
         didSet {
@@ -161,7 +162,7 @@ class MiaoMiao {
                 }
 
 
-                var threshHold = last + storeInterval
+                var threshHold = history.last!.date + storeInterval
 
                 try? trend.reversed().forEach {
                     if $0.date >= threshHold {
@@ -169,7 +170,7 @@ class MiaoMiao {
                         UserDefaults.standard.last = $0.date
                         log("Wrote from trend \($0)")
                         storeInterval = $0.value > 70 ? 5.m : 2.m
-                        threshHold = threshHold + storeInterval
+                        threshHold = $0.date + storeInterval
                     }
                 }
             } else {
@@ -183,6 +184,11 @@ class MiaoMiao {
                 }
             }
             currentGlucose = trend.first
+            let diffs = trend.map { $0.value }.diff()
+            if diffs.count > 3 {
+                let sum = diffs[0 ..< 3].reduce(0) { $1 + $0 }
+                currentTrend = sum / 3
+            }
             DispatchQueue.main.async {
                 MiaoMiao.delgate?.didUpdate()
             }
