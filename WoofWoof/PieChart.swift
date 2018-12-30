@@ -40,7 +40,7 @@ class PieChart: UIView {
             slice.color.setFill()
             ctx?.beginPath()
             ctx?.move(to: center)
-            ctx?.addArc(center: center, radius: radius, startAngle: angle, endAngle: endAngle, clockwise: false)
+            ctx?.addArc(center: center, radius: radius, startAngle: angle - .pi / 2, endAngle: endAngle - .pi / 2, clockwise: false)
             ctx?.fillPath()
             angle = endAngle
         }
