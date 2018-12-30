@@ -203,11 +203,9 @@ class GlucoseGraph: UIView {
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
                 ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: 5))
-//                for i in 1 ... 3 {
-                    let tick = xCoor(xDate + step / 2)
-                    ctx?.move(to: CGPoint(x: tick, y: 0))
-                    ctx?.addLine(to: CGPoint(x: tick, y: 3))
-//                }
+                let tick = xCoor(xDate + step / 2)
+                ctx?.move(to: CGPoint(x: tick, y: 0))
+                ctx?.addLine(to: CGPoint(x: tick, y: 3))
                 ctx?.strokePath()
                 let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14)
                 let size = str.size()
@@ -319,7 +317,8 @@ class GlucoseGraph: UIView {
         let xScale = size.width / CGFloat(self.xRange.max - self.xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
         let pts = self.points!.map { (CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))), $0) }
-        let inside = pts.filter { $0.0 - touchPoint < 30 }
+        let inside = pts.filter { $0.0 - touchPoint < 50 }
+        log("Found \(inside.count) points less than 50")
         if inside.isEmpty {
             self.touchPoint = nil
             return

@@ -23,7 +23,7 @@ class ViewController: UIViewController {
     @IBOutlet var percentHighLabel: UILabel!
     @IBOutlet var pieChart: PieChart!
     @IBOutlet var timeSpanSelector: UISegmentedControl!
-    private var updater: Repeater!
+    private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
     override func viewDidLoad() {
@@ -32,6 +32,9 @@ class ViewController: UIViewController {
         MiaoMiao.delgate = self
         timeSpanSelector.selectedSegmentIndex = UserDefaults.standard.timeSpanIndex
         graphView.xTimeSpan = timeSpan[UserDefaults.standard.timeSpanIndex]
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -41,9 +44,10 @@ class ViewController: UIViewController {
 
     func update() {
         if let last = UserDefaults.standard.last {
-            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > last - 1.d).orderBy(GlucosePoint.date)),
+            let end =  Date().timeIntervalSince(last) < 12.h ? Date() : last
+            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
                 let calibrations = MiaoMiao.db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d)) {
-                updater = Repeater.every(10, queue: DispatchQueue.main) { (_) in
+                updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
                     self.updateTimeAgo()
                 }
                 var together = [GlucoseReading]()
@@ -64,16 +68,16 @@ class ViewController: UIViewController {
                     if rIdx < readings.count {
                         readings[rIdx...].forEach { together.append($0) }
                     }
-                    if let current = MiaoMiao.currentGlucose, current != readings.last {
-                        together.append(current)
-                    }
+                }
+                if let current = MiaoMiao.currentGlucose, current != readings.last {
+                    together.append(current)
                 }
 
                 graphView.points = together
                 graphView.yRange.max = max(graphView.yRange.max, 180)
                 graphView.yRange.min = min(graphView.yRange.min, 60)
                 if !readings.isEmpty {
-                    graphView.xRange.max = readings.last!.date
+                    graphView.xRange.max = end
                     graphView.xRange.min = graphView.xRange.max - 24.h
                 }
             }
@@ -96,11 +100,12 @@ class ViewController: UIViewController {
                 trendIcon = ""
             }
             currentGlucoseLabel.text = "\(Int(round(current.value)))\(trendIcon)"
-            agoLabel.text = "0 Ago"
             UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
+            updateTimeAgo()
         } else {
             currentGlucoseLabel.text = "--"
             UIApplication.shared.applicationIconBadgeNumber = 0
+            agoLabel.text = ""
         }
         if MiaoMiao.batteryLevel > 0 {
             batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
@@ -196,6 +201,14 @@ class ViewController: UIViewController {
             }
         }))
         present(alert, animated: true, completion: nil)
+    }
+
+    @objc private func didEnterForeground() {
+        update()
+    }
+
+    @objc private func didEnterBackground() {
+        updater = nil
     }
 }
 

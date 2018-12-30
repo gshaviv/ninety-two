@@ -53,7 +53,6 @@ class MiaoMiao {
 
     static func decode(_ data: Data) {
         let bytes = data.bytes
-        log("Got data: \(bytes.grouped(count: 4))")
         if packetData.isEmpty {
             switch bytes[0] {
             case Code.newSensor:
@@ -87,7 +86,6 @@ class MiaoMiao {
             packetData += bytes
         }
         if packetData.last == Code.endPacket {
-            log("Got packet length=\(packetData.count) <\(packetData.grouped())>")
             if packetData.count < 363 {
                 // bad packet
                 logError("Bad packet - length = \(packetData.count)")
@@ -99,17 +97,11 @@ class MiaoMiao {
             firmware = packetData[14...15].hexString
             batteryLevel = Int(packetData[13])
 
-            log("hardware: \(hardware), firmware: \(firmware)")
-            log("Battery level \(batteryLevel)%")
-
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: UserDefaults.standard.additionalSlope, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
                 log("Trend:\n\(data.trendMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
-                log("History:\n\(data.historyMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
-                log("Sensor age \(data.minutesSinceStart / 60):\(data.minutesSinceStart % 60)")
                 sensorAge = data.minutesSinceStart
-                log("Sensor start date \(Date(timeIntervalSinceNow: TimeInterval(-data.minutesSinceStart * 60)))")
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
@@ -147,8 +139,8 @@ class MiaoMiao {
         }
         DispatchQueue.global().async {
             if let last = UserDefaults.standard.last {
-                let filteredHistory = history.filter { $0.date > last + 60 }
                 let storeInterval = 5.m
+                let filteredHistory = history.filter { $0.date > last + storeInterval }
 
                 if !filteredHistory.isEmpty {
                     do {
@@ -171,7 +163,7 @@ class MiaoMiao {
                     if $0.date >= threshHold {
                         try db.perform($0.insert())
                         UserDefaults.standard.last = $0.date
-                        log("Wrote from trend \($0)")
+                        log("Wrote trend \($0)")
                         threshHold = $0.date + storeInterval
                     }
                 }
@@ -187,9 +179,10 @@ class MiaoMiao {
             }
             currentGlucose = trend.first
             let diffs = trend.map { $0.value }.diff()
-            if diffs.count > 3 {
-                let sum = diffs[0 ..< 3].reduce(0) { $1 + $0 }
-                currentTrend = -sum / 3
+            if diffs.count > 4 {
+                let sum = diffs[0 ..< 4].reduce(0) { $1 + $0 }
+                let ave = -sum / 4
+                currentTrend = abs(diffs[0]) > 3 * abs(ave) ? -diffs[0] : ave
             }
             DispatchQueue.main.async {
                 MiaoMiao.delgate?.didUpdate()
