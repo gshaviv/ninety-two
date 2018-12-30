@@ -10,7 +10,7 @@ import CoreGraphics
 
 @IBDesignable
 class GlucoseGraph: UIView {
-    var points: [GlucosePoint]! {
+    var points: [GlucoseReading]! {
         didSet {
             guard !points.isEmpty else {
                 return
@@ -18,7 +18,9 @@ class GlucoseGraph: UIView {
             let (gmin,gmax) = points.reduce((999.0,0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
             holes = []
             for (idx, gp) in points[1...].enumerated() {
-                if gp.date - points[idx].date > 30.m {
+                if gp.isCalibration {
+                    holes.append(idx + 1)
+                } else if gp.date - points[idx].date > 30.m {
                     holes.append(idx + 1)
                 }
             }
@@ -41,6 +43,7 @@ class GlucoseGraph: UIView {
         didSet {
             contentWidthConstraint?.isActive = false
             contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
+            setNeedsLayout()
         }
     }
 
@@ -67,7 +70,7 @@ class GlucoseGraph: UIView {
         contentHolder.delegate = self
 
         contentView = DrawingView { [weak self] (rect) in
-            guard let self = self else {
+            guard let self = self, let points = self.points else {
                 return
             }
             let ctx = UIGraphicsGetCurrentContext()
@@ -88,7 +91,7 @@ class GlucoseGraph: UIView {
                 ctx?.addLine(to: CGPoint(x: rect.width, y: yc))
             }
             ctx?.strokePath()
-            let p = self.points!.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
+            let p = points.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
             let curve = UIBezierPath()
             if self.holes.isEmpty {
                 curve.move(to: p[0])
@@ -185,25 +188,35 @@ class GlucoseGraph: UIView {
             components.second = 0
             components.minute = 0
             var xDate = components.date
+            let step: TimeInterval
+            if self.xTimeSpan < 3.h {
+                step = 30.m
+            } else if self.xTimeSpan < 7.h {
+                step = 1.h
+            } else if self.xTimeSpan < 13.h {
+                step = 2.h
+            } else {
+                step = 3.h
+            }
             repeat {
                 UIColor.black.set()
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
                 ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: 5))
-                for i in 1 ... 3 {
-                    let tick = xCoor(xDate + Double(i) * 15.m)
+//                for i in 1 ... 3 {
+                    let tick = xCoor(xDate + step / 2)
                     ctx?.move(to: CGPoint(x: tick, y: 0))
-                    ctx?.addLine(to: CGPoint(x: tick, y: i % 2 == 0 ? 3 : 2))
-                }
+                    ctx?.addLine(to: CGPoint(x: tick, y: 3))
+//                }
                 ctx?.strokePath()
-                let str = String(format: "%02ld:00", xDate.hour).styled.systemFont(size: 14)
+                let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14)
                 let size = str.size()
                 let p = CGPoint(x: xCoor(xDate) - size.width / 2, y: 6)
                 let stringRect = CGRect(origin: p, size: size)
-                if rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
+                if  rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
                     str.draw(in: stringRect)
                 }
-                xDate += 1.h
+                xDate += step
             } while xDate < self.xRange.max
         }
         xAxisHolder.addSubview(xAxis)
@@ -245,6 +258,9 @@ class GlucoseGraph: UIView {
             }
 
             for y in self.yReference {
+                if CGFloat(y) < self.yRange.min || CGFloat(y) > self.yRange.max {
+                    continue
+                }
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: 0, y: yCoor(y)))
                 ctx?.addLine(to: CGPoint(x: 5, y: yCoor(y)))
@@ -285,12 +301,12 @@ class GlucoseGraph: UIView {
         yAxis.setNeedsDisplay()
     }
 
-    var touchPoint: GlucosePoint? {
+    var touchPoint: GlucoseReading? {
         didSet {
-            if oldValue != touchPoint {
-            contentView.setNeedsDisplay()
-            xAxis.setNeedsDisplay()
-            yAxis.setNeedsDisplay()
+            if let oldValue = oldValue, oldValue.date != touchPoint?.date || oldValue.value != touchPoint?.value {
+                contentView.setNeedsDisplay()
+                xAxis.setNeedsDisplay()
+                yAxis.setNeedsDisplay()
             }
         }
     }

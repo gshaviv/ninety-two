@@ -9,7 +9,17 @@
 import Foundation
 import Sqlable
 
-struct GlucosePoint {
+protocol GlucoseReading {
+    var date: Date { get }
+    var value: Double { get }
+    var isCalibration: Bool { get }
+}
+
+struct GlucosePoint: GlucoseReading {
+    var isCalibration: Bool {
+        return false
+    }
+
     let date: Date
     let value: Double
 }
@@ -42,8 +52,8 @@ extension GlucosePoint: Sqlable {
 extension GlucosePoint: CustomStringConvertible {
     static let dateFormatter: DateFormatter = {
         let df = DateFormatter()
-        df.timeStyle = .long
-        df.dateStyle = .medium
+        df.timeStyle = .short
+        df.dateStyle = .short
         df.timeZone = TimeZone.current
         return df
     }()
@@ -63,6 +73,36 @@ extension Measurement {
     }
 }
 
+struct Calibration: GlucoseReading {
+    var isCalibration: Bool {
+        return true
+    }
 
+    let date: Date
+    let value: Double
+}
 
-// zcode fingerprint = 5c5cf8358f02ee38ab296f630204397b
+extension Calibration: Sqlable {
+    static let date = Column("date", .date)
+    static let value = Column("value", .real)
+
+    static var tableLayout = [date, value]
+
+    func valueForColumn(_ column: Column) -> SqlValue? {
+        switch column {
+        case GlucosePoint.date:
+            return date
+
+        case GlucosePoint.value:
+            return value
+
+        default:
+            return nil
+        }
+    }
+
+    init(row: ReadRow) throws {
+        date = try row.get(GlucosePoint.date)
+        value = try row.get(GlucosePoint.value)
+    }
+}

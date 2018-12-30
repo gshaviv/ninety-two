@@ -192,7 +192,6 @@ func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
     return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
 
-// MARK: - Generated accessors
 extension UserDefaults {
     public var last: Date? {
         get {
@@ -212,5 +211,13 @@ extension UserDefaults {
             set(newValue, forKey: "slope")
         }
     }
+
+    var timeSpanIndex: Int {
+        get {
+            return integer(forKey: "timeSpan")
+        }
+        set {
+            set(newValue, forKey: "timeSpan")
+        }
+    }
 }
-// zcode defaults fingerprint = 73ae0c246eb2aed3f75462e0ce2c59c1

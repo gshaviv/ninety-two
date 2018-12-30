@@ -24,6 +24,7 @@ class MiaoMiao {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)
+        try! db.createTable(Calibration.self)
         return db
     }()
 
@@ -48,6 +49,7 @@ class MiaoMiao {
     }
 
     private static var packetData:[Byte] = []
+    private static var retrying = false
 
     static func decode(_ data: Data) {
         let bytes = data.bytes
@@ -111,8 +113,13 @@ class MiaoMiao {
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
+                retrying = false
+            } else if !retrying {
+                retrying = true
+                Command.startReading()
             } else {
                 logError("Failed to read data")
+                retrying = false
             }
             packetData = []
         }
@@ -127,7 +134,7 @@ class MiaoMiao {
                 if current.value < 60 && !shortRefresh {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
-                } else if current.value > 70 && shortRefresh {
+                } else if current.value > 60 && shortRefresh {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
                 }
@@ -141,12 +148,7 @@ class MiaoMiao {
         DispatchQueue.global().async {
             if let last = UserDefaults.standard.last {
                 let filteredHistory = history.filter { $0.date > last + 60 }
-                var storeInterval = 5.m
-                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date == last)) {
-                    if let lastReading = readings.last {
-                        storeInterval = lastReading.value > 70 ? 5.m : 2.m
-                    }
-                }
+                let storeInterval = 5.m
 
                 if !filteredHistory.isEmpty {
                     do {
@@ -163,14 +165,13 @@ class MiaoMiao {
                 }
 
 
-                var threshHold = history.last!.date + storeInterval
+                var threshHold = max(history.first!.date, last) + storeInterval
 
                 try? trend.reversed().forEach {
                     if $0.date >= threshHold {
                         try db.perform($0.insert())
                         UserDefaults.standard.last = $0.date
                         log("Wrote from trend \($0)")
-                        storeInterval = $0.value > 70 ? 5.m : 2.m
                         threshHold = $0.date + storeInterval
                     }
                 }

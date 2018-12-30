@@ -22,22 +22,54 @@ class ViewController: UIViewController {
     @IBOutlet var a1cLabel: UILabel!
     @IBOutlet var percentHighLabel: UILabel!
     @IBOutlet var pieChart: PieChart!
+    @IBOutlet var timeSpanSelector: UISegmentedControl!
     private var updater: Repeater!
+    private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         update()
         MiaoMiao.delgate = self
-        updater = Repeater.every(10, queue: DispatchQueue.main) { (_) in
-            self.updateTimeAgo()
-        }
-        graphView.xTimeSpan = 5.h
+        timeSpanSelector.selectedSegmentIndex = UserDefaults.standard.timeSpanIndex
+        graphView.xTimeSpan = timeSpan[UserDefaults.standard.timeSpanIndex]
+    }
+
+    @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
+        UserDefaults.standard.timeSpanIndex = sender.selectedSegmentIndex
+        graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
     }
 
     func update() {
         if let last = UserDefaults.standard.last {
-            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > last - 1.d).orderBy(GlucosePoint.date)) {
-                graphView.points = readings
+            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > last - 1.d).orderBy(GlucosePoint.date)),
+                let calibrations = MiaoMiao.db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d)) {
+                updater = Repeater.every(10, queue: DispatchQueue.main) { (_) in
+                    self.updateTimeAgo()
+                }
+                var together = [GlucoseReading]()
+                if calibrations.isEmpty {
+                    together = readings
+                } else {
+                    var rIdx = 0
+                    var cIdx = 0
+                    repeat {
+                        if readings[rIdx].date < calibrations[cIdx].date {
+                            together.append(readings[rIdx])
+                            rIdx += 1
+                        } else {
+                            together.append(calibrations[cIdx])
+                            cIdx += 1
+                        }
+                    } while rIdx < readings.count && cIdx < calibrations.count
+                    if rIdx < readings.count {
+                        readings[rIdx...].forEach { together.append($0) }
+                    }
+                    if let current = MiaoMiao.currentGlucose, current != readings.last {
+                        together.append(current)
+                    }
+                }
+
+                graphView.points = together
                 graphView.yRange.max = max(graphView.yRange.max, 180)
                 graphView.yRange.min = min(graphView.yRange.min, 60)
                 if !readings.isEmpty {
@@ -49,13 +81,13 @@ class ViewController: UIViewController {
         if let current = MiaoMiao.currentGlucose {
             let trendIcon: String
             if let trend = MiaoMiao.currentTrend {
-                if trend > 2 {
+                if trend > 1.5 {
                     trendIcon = "↑"
-                } else if trend > 1 {
+                } else if trend > 0.75 {
                     trendIcon = "↗︎"
-                } else if trend > -1 {
+                } else if trend > -0.75 {
                     trendIcon = "→"
-                } else if trend > -2 {
+                } else if trend > -1.5 {
                     trendIcon = "↘︎"
                 } else {
                     trendIcon = "↓"
@@ -88,7 +120,7 @@ class ViewController: UIViewController {
         do {
             let child = try MiaoMiao.db.createChild()
             DispatchQueue.global().async {
-                if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)) {
+                if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                     let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                     let withTime = zip(readings.dropLast(), diffs)
                     let withGoodTime = withTime.filter { $0.1 < 20.m }
@@ -129,6 +161,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func calibrate() {
+        MiaoMiao.Command.startReading()
         let alert = UIAlertController(title: "Calibrate", message: "Enter BG measurement", preferredStyle: .alert)
         alert.addTextField {
             $0.keyboardType = .numberPad
@@ -136,7 +169,30 @@ class ViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
             if let text = alert.textFields![0].text, let bg = Double(text), let current = MiaoMiao.currentGlucose {
-                UserDefaults.standard.additionalSlope = bg / current.value
+                do {
+                    let c = Calibration(date: Date(), value: bg)
+                    try MiaoMiao.db.perform(c.insert())
+                    UserDefaults.standard.additionalSlope = bg / current.value
+                    let trendIcon: String
+                    if let trend = MiaoMiao.currentTrend {
+                        if trend > 1.5 {
+                            trendIcon = "↑"
+                        } else if trend > 0.75 {
+                            trendIcon = "↗︎"
+                        } else if trend > -0.75 {
+                            trendIcon = "→"
+                        } else if trend > -1.5 {
+                            trendIcon = "↘︎"
+                        } else {
+                            trendIcon = "↓"
+                        }
+                    } else {
+                        trendIcon = ""
+                    }
+                    self.currentGlucoseLabel.text = "\(Int(round(bg)))\(trendIcon)"
+                    UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
+
+                } catch _ {}
             }
         }))
         present(alert, animated: true, completion: nil)
@@ -145,7 +201,9 @@ class ViewController: UIViewController {
 
 extension ViewController: MiaoMiaoDelegate {
     func didUpdate() {
-        update()
+        if UIApplication.shared.applicationState != .background {
+            update()
+        }
     }
 }
 
