@@ -100,7 +100,6 @@ class ViewController: UIViewController {
                 trendIcon = ""
             }
             currentGlucoseLabel.text = "\(Int(round(current.value)))\(trendIcon)"
-            UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
             updateTimeAgo()
         } else {
             currentGlucoseLabel.text = "--"
