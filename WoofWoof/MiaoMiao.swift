@@ -100,7 +100,6 @@ class MiaoMiao {
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: UserDefaults.standard.additionalSlope, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
-                log("Trend:\n\(data.trendMeasurements().map { "\($0.glucosePoint)" }.joined(separator: "\n"))")
                 sensorAge = data.minutesSinceStart
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
@@ -118,11 +117,12 @@ class MiaoMiao {
     }
 
     static public var sensorAge: Int?
-    static public var currentTrend: Double?
+    static public var trend: [GlucosePoint]?
 
     static public var currentGlucose: GlucosePoint? {
         didSet {
             if let current = currentGlucose {
+                log("currentGlucose=\(current.value)")
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
                 }
@@ -162,18 +162,6 @@ class MiaoMiao {
                         logError("\(error)")
                     }
                 }
-
-
-                var threshHold = max(history.first!.date, last) + storeInterval
-
-                try? trend.reversed().forEach {
-                    if $0.date >= threshHold {
-                        try db.perform($0.insert())
-                        UserDefaults.standard.last = $0.date
-                        log("Wrote trend \($0)")
-                        threshHold = $0.date + storeInterval
-                    }
-                }
             } else {
                 do {
                     try db.beginTransaction()
@@ -185,12 +173,7 @@ class MiaoMiao {
                 }
             }
             currentGlucose = trend.first
-            let diffs = trend.map { $0.value }.diff()
-            if diffs.count > 4 {
-                let sum = diffs[0 ..< 4].reduce(0) { $1 + $0 }
-                let ave = -sum / 4
-                currentTrend = abs(diffs[0]) > 3 * abs(ave) ? -diffs[0] : ave
-            }
+            MiaoMiao.trend = trend
             DispatchQueue.main.async {
                 MiaoMiao.delgate?.didUpdate()
             }
