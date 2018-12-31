@@ -6,7 +6,7 @@
 //  Copyright © 2018 TivStudio. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import Sqlable
 
 protocol MiaoMiaoDelegate {
@@ -123,12 +123,19 @@ class MiaoMiao {
     static public var currentGlucose: GlucosePoint? {
         didSet {
             if let current = currentGlucose {
+                DispatchQueue.main.async {
+                    UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
+                }
                 if current.value < 60 && !shortRefresh {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
                 } else if current.value > 60 && shortRefresh {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    UIApplication.shared.applicationIconBadgeNumber = 0
                 }
             }
         }
