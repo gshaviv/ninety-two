@@ -182,7 +182,7 @@ class ViewController: UIViewController {
                     UserDefaults.standard.additionalSlope *= bg / current.value
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
-
+                    self.last24hReadings.append(c)
                 } catch _ {}
             }
         }))
