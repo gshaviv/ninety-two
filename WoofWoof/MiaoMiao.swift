@@ -19,6 +19,13 @@ class MiaoMiao {
     public static var batteryLevel: Int = 0 // 0 - 100
     public static var delgate: MiaoMiaoDelegate? = nil
     private static var shortRefresh = false
+    static var serial: String? {
+        didSet {
+            if let serial = serial, serial != UserDefaults.standard.sensorSerial {
+                UserDefaults.standard.additionalSlope = 1
+            }
+        }
+    }
 
     static var db: SqliteDatabase = {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
@@ -103,6 +110,7 @@ class MiaoMiao {
                 sensorAge = data.minutesSinceStart
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
+                serial = data.serialNumber
                 record(trend: trendPoints, history: historyPoints)
                 retrying = false
             } else if !retrying {

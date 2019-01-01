@@ -43,26 +43,23 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="m3w-JE-fXm">
                                                 <rect key="frame" x="8" y="4" width="359" height="39.5"/>
                                                 <subviews>
+                                                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" image="battery-0" translatesAutoresizingMaskIntoConstraints="NO" id="kW8-4j-jwz">
+                                                        <rect key="frame" x="0.0" y="0.0" width="20" height="39.5"/>
+                                                    </imageView>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="8d:2h" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tss-jP-hB5">
-                                                        <rect key="frame" x="0.0" y="0.0" width="54" height="39.5"/>
+                                                        <rect key="frame" x="28" y="0.0" width="54" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.10980392160000001" green="0.1137254902" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tkr-3O-eMH">
-                                                        <rect key="frame" x="62" y="0.0" width="52" height="39.5"/>
-                                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
-                                                        <color key="textColor" red="0.57380741830000004" green="0.56553578380000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0m" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bao-Kz-rgZ">
-                                                        <rect key="frame" x="122" y="0.0" width="30" height="39.5"/>
+                                                        <rect key="frame" x="90" y="0.0" width="25.5" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                         <color key="textColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="248" verticalHuggingPriority="251" text="+4.2" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="goz-Lk-GC9">
-                                                        <rect key="frame" x="160" y="0.0" width="126" height="39.5"/>
+                                                        <rect key="frame" x="123.5" y="0.0" width="162.5" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.58081901069999997" green="0.088427625600000004" blue="0.31863921880000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -248,7 +245,7 @@
                         <outlet property="a1cLabel" destination="Mf1-sP-6BU" id="UBP-5w-b5Y"/>
                         <outlet property="agoLabel" destination="Bao-Kz-rgZ" id="gIb-ob-HQL"/>
                         <outlet property="aveGlucoseLabel" destination="dFH-vN-ElU" id="A9S-sA-ViU"/>
-                        <outlet property="batteryLevelLabel" destination="tkr-3O-eMH" id="3eS-1G-ajX"/>
+                        <outlet property="batteryLevelImage" destination="kW8-4j-jwz" id="7TE-pN-rDg"/>
                         <outlet property="currentGlucoseLabel" destination="fnn-TC-0vP" id="Odb-U7-Egd"/>
                         <outlet property="graphView" destination="HS6-O8-9Lv" id="SRV-c8-c8t"/>
                         <outlet property="percentHighLabel" destination="yw3-dY-D11" id="cMr-Ta-dML"/>
@@ -265,4 +262,7 @@
             <point key="canvasLocation" x="-364" y="44"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="battery-0" width="20" height="20"/>
+    </resources>
 </document>

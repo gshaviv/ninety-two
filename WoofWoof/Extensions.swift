@@ -229,4 +229,13 @@ extension UserDefaults {
             set(newValue, forKey: "lastCalc")
         }
     }
+
+    var sensorSerial: String? {
+        get {
+            return object(forKey: "serial") as? String
+        }
+        set {
+            set(newValue, forKey: "serial")
+        }
+    }
 }

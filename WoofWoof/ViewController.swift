@@ -12,7 +12,7 @@ import Sqlable
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var currentGlucoseLabel: UILabel!
-    @IBOutlet var batteryLevelLabel: UILabel!
+    @IBOutlet var batteryLevelImage: UIImageView!
     @IBOutlet var sensorAgeLabel: UILabel!
     @IBOutlet var agoLabel: UILabel!
     @IBOutlet var trendLabel: UILabel!
@@ -26,6 +26,28 @@ class ViewController: UIViewController {
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
     private var last24hReadings: [GlucoseReading] = []
+
+    private func batteryLevelIcon(for level: Int) -> UIImage {
+        switch level {
+        case 81...:
+            return UIImage(named: "battery-5")!
+
+        case 61...80:
+            return UIImage(named: "battery-4")!
+
+        case 41...60:
+            return UIImage(named: "battery-3")!
+
+        case 21...40:
+            return UIImage(named: "battery-2")!
+
+        case 11...20:
+            return UIImage(named: "battery-1")!
+
+        default:
+            return UIImage(named: "battery-0")!
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,11 +99,8 @@ class ViewController: UIViewController {
             UIApplication.shared.applicationIconBadgeNumber = 0
             agoLabel.text = ""
         }
-        if MiaoMiao.batteryLevel > 0 {
-            batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
-        } else {
-            batteryLevelLabel.text = "?%"
-        }
+        batteryLevelImage.image = batteryLevelIcon(for: MiaoMiao.batteryLevel)
+
         updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
             self.updateTimeAgo()
         }
@@ -157,6 +176,7 @@ class ViewController: UIViewController {
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                     self.last24hReadings.append(c)
+                    UserDefaults.standard.sensorSerial = MiaoMiao.serial
                 } catch _ {}
             }
         }))
@@ -209,6 +229,11 @@ extension ViewController: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
         guard let last = UserDefaults.standard.last else {
             return
+        }
+        if MiaoMiao.serial != UserDefaults.standard.sensorSerial {
+            let alert = UIAlertController(title: "Please Calibrate", message: "New sensor detected, calibration needed", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
         }
         if last24hReadings.isEmpty {
             let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
