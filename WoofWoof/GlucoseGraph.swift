@@ -63,6 +63,177 @@ class GlucoseGraph: UIView {
 
     var yReference = [35, 40, 50, 60, 70, 90, 110, 125, 140, 160, 180, 200, 250, 300, 350, 400, 500]
 
+    private func drawContent(_ rect: CGRect) {
+        guard let points = self.points else {
+            return
+        }
+        let ctx = UIGraphicsGetCurrentContext()
+        let size = self.contentView.bounds.size
+        let yScale = size.height / (self.yRange.max - self.yRange.min)
+        let yCoor = { (self.yRange.max - $0) * yScale }
+        let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
+        let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
+        for (range, color) in self.colors {
+            color.set()
+            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
+        }
+        UIColor(white: 0.5, alpha: 0.5).set()
+        ctx?.beginPath()
+        for y in self.yReference {
+            let yc = yCoor(CGFloat(y))
+            ctx?.move(to: CGPoint(x: 0, y: yc))
+            ctx?.addLine(to: CGPoint(x: rect.width, y: yc))
+        }
+        ctx?.strokePath()
+        let p = points.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
+        if p.isEmpty {
+            return
+        }
+        let curve = UIBezierPath()
+        if self.holes.isEmpty {
+            curve.move(to: p[0])
+            curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+        } else {
+            var idx = 0
+            for hole in self.holes {
+                curve.move(to: p[idx])
+                curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
+                idx = hole
+            }
+            curve.move(to: p[idx])
+            curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
+        }
+        UIColor.darkGray.set()
+        curve.lineWidth = self.lineWidth
+        curve.stroke()
+
+        UIColor.black.set()
+        let fill = UIBezierPath()
+        let dotSize = CGSize(width: 2 * self.dotRadius, height: 2 * self.dotRadius)
+        for point in p {
+            fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: self.dotRadius, y: self.dotRadius), size: dotSize)))
+        }
+        fill.lineWidth = 0
+        fill.fill()
+
+        if let touchPoint = self.touchPoint {
+            let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
+            UIColor.darkGray.set()
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: coor.x, y: rect.height))
+            ctx?.addLine(to: coor)
+            ctx?.addLine(to: CGPoint(x: rect.width, y: coor.y))
+            ctx?.strokePath()
+        }
+    }
+
+    private func drawXAxis(_ rect: CGRect) {
+        let ctx = UIGraphicsGetCurrentContext()
+        UIColor.white.setFill()
+        ctx?.fill(rect)
+        UIColor.black.set()
+        ctx?.setLineWidth(1)
+        ctx?.beginPath()
+        ctx?.move(to: CGPoint(x: 0, y: 0))
+        ctx?.addLine(to: CGPoint(x: rect.width, y: 0))
+        let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
+        let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
+        ctx?.strokePath()
+
+        var touchLabelFrame: CGRect?
+        if let touchPoint = self.touchPoint {
+            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
+            let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
+            let size = str.size()
+            let p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
+            touchLabelFrame = CGRect(origin: p, size: size)
+            if touchLabelFrame!.maxY > rect.maxY {
+                touchLabelFrame = CGRect(origin: CGPoint(x: rect.width - size.width, y: 3), size: size)
+            }
+            str.draw(in: touchLabelFrame!)
+        }
+
+        var components = self.xRange.min.components
+        components.second = 0
+        components.minute = 0
+        var xDate = components.date
+        let step: TimeInterval
+        if self.xTimeSpan < 3.h {
+            step = 30.m
+        } else if self.xTimeSpan < 7.h {
+            step = 1.h
+        } else if self.xTimeSpan < 13.h {
+            step = 2.h
+        } else {
+            step = 3.h
+        }
+        repeat {
+            UIColor.black.set()
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
+            ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: 5))
+            let tick = xCoor(xDate + step / 2)
+            ctx?.move(to: CGPoint(x: tick, y: 0))
+            ctx?.addLine(to: CGPoint(x: tick, y: 3))
+            ctx?.strokePath()
+            let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14)
+            let size = str.size()
+            let p = CGPoint(x: xCoor(xDate) - size.width / 2, y: 6)
+            let stringRect = CGRect(origin: p, size: size)
+            if  rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
+                str.draw(in: stringRect)
+            }
+            xDate += step
+        } while xDate < self.xRange.max
+    }
+
+    private func drawYAxis(_ rect: CGRect) {
+        let ctx = UIGraphicsGetCurrentContext()
+        UIColor.white.setFill()
+        ctx?.fill(rect)
+        let size = self.contentView.bounds.size
+        let yScale = size.height / (self.yRange.max - self.yRange.min)
+        let yCoor = { (y: Int) in (self.yRange.max - CGFloat(y)) * yScale }
+
+        UIColor(white: 0.9, alpha: 1).set()
+        let inner = CGRect(x: 0, y: 0, width: rect.width, height: rect.height - xAxisHeight)
+        ctx?.fill(inner)
+
+        UIColor.black.set()
+        ctx?.beginPath()
+        ctx?.move(to: CGPoint(x: 0, y: 0))
+        ctx?.addLine(to: CGPoint(x: 0, y: size.height))
+        ctx?.strokePath()
+
+        let touchLabelFrame: CGRect?
+        if let touchPoint = self.touchPoint {
+            let v = Int(round(touchPoint.value))
+            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
+            let str = "\(v)".styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
+            let size = str.size()
+            touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height/2), size: size)
+            str.draw(in: touchLabelFrame!)
+        } else {
+            touchLabelFrame = nil
+        }
+
+        for y in self.yReference {
+            if CGFloat(y) < self.yRange.min || CGFloat(y) > self.yRange.max {
+                continue
+            }
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: 0, y: yCoor(y)))
+            ctx?.addLine(to: CGPoint(x: 5, y: yCoor(y)))
+            ctx?.strokePath()
+            let label = "\(y)".styled.systemFont(size: 14)
+            let size = label.size()
+            let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height/2), size: size)
+            if inner.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
+                label.draw(in: labelFrame)
+            }
+        }
+    }
+
     private func commonInit() {
         contentHolder = UIScrollView(frame: .zero)
         contentHolder.translatesAutoresizingMaskIntoConstraints = false
@@ -70,67 +241,7 @@ class GlucoseGraph: UIView {
         contentHolder.delegate = self
 
         contentView = DrawingView { [weak self] (rect) in
-            guard let self = self, let points = self.points else {
-                return
-            }
-            let ctx = UIGraphicsGetCurrentContext()
-            let size = self.contentView.bounds.size
-            let yScale = size.height / (self.yRange.max - self.yRange.min)
-            let yCoor = { (self.yRange.max - $0) * yScale }
-            let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
-            let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
-            for (range, color) in self.colors {
-                color.set()
-                ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
-            }
-            UIColor(white: 0.5, alpha: 0.5).set()
-            ctx?.beginPath()
-            for y in self.yReference {
-                let yc = yCoor(CGFloat(y))
-                ctx?.move(to: CGPoint(x: 0, y: yc))
-                ctx?.addLine(to: CGPoint(x: rect.width, y: yc))
-            }
-            ctx?.strokePath()
-            let p = points.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
-            if p.isEmpty {
-                return
-            }
-            let curve = UIBezierPath()
-            if self.holes.isEmpty {
-                curve.move(to: p[0])
-                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
-            } else {
-                var idx = 0
-                for hole in self.holes {
-                    curve.move(to: p[idx])
-                    curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
-                    idx = hole
-                }
-                curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
-            }
-            UIColor.darkGray.set()
-            curve.lineWidth = self.lineWidth
-            curve.stroke()
-
-            UIColor.black.set()
-            let fill = UIBezierPath()
-            let dotSize = CGSize(width: 2 * self.dotRadius, height: 2 * self.dotRadius)
-            for point in p {
-                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: self.dotRadius, y: self.dotRadius), size: dotSize)))
-            }
-            fill.lineWidth = 0
-            fill.fill()
-
-            if let touchPoint = self.touchPoint {
-                let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
-                UIColor.darkGray.set()
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: coor.x, y: rect.height))
-                ctx?.addLine(to: coor)
-                ctx?.addLine(to: CGPoint(x: rect.width, y: coor.y))
-                ctx?.strokePath()
-            }
+            self?.drawContent(rect)
         }
         contentHolder.addSubview(contentView)
 
@@ -159,66 +270,7 @@ class GlucoseGraph: UIView {
         }
 
         xAxis = DrawingView { [weak self] (rect) in
-            guard let self = self else {
-                return
-            }
-            let ctx = UIGraphicsGetCurrentContext()
-            UIColor.white.setFill()
-            ctx?.fill(rect)
-            UIColor.black.set()
-            ctx?.setLineWidth(1)
-            ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: 0, y: 0))
-            ctx?.addLine(to: CGPoint(x: rect.width, y: 0))
-            let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
-            let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
-            ctx?.strokePath()
-
-            var touchLabelFrame: CGRect?
-            if let touchPoint = self.touchPoint {
-                let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
-                let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
-                let size = str.size()
-                let p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
-                touchLabelFrame = CGRect(origin: p, size: size)
-                if touchLabelFrame!.maxY > rect.maxY {
-                    touchLabelFrame = CGRect(origin: CGPoint(x: rect.width - size.width, y: 3), size: size)
-                }
-                str.draw(in: touchLabelFrame!)
-            }
-
-            var components = self.xRange.min.components
-            components.second = 0
-            components.minute = 0
-            var xDate = components.date
-            let step: TimeInterval
-            if self.xTimeSpan < 3.h {
-                step = 30.m
-            } else if self.xTimeSpan < 7.h {
-                step = 1.h
-            } else if self.xTimeSpan < 13.h {
-                step = 2.h
-            } else {
-                step = 3.h
-            }
-            repeat {
-                UIColor.black.set()
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
-                ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: 5))
-                let tick = xCoor(xDate + step / 2)
-                ctx?.move(to: CGPoint(x: tick, y: 0))
-                ctx?.addLine(to: CGPoint(x: tick, y: 3))
-                ctx?.strokePath()
-                let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14)
-                let size = str.size()
-                let p = CGPoint(x: xCoor(xDate) - size.width / 2, y: 6)
-                let stringRect = CGRect(origin: p, size: size)
-                if  rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
-                    str.draw(in: stringRect)
-                }
-                xDate += step
-            } while xDate < self.xRange.max
+            self?.drawXAxis(rect)
         }
         xAxisHolder.addSubview(xAxis)
         makeConstraints {
@@ -231,48 +283,7 @@ class GlucoseGraph: UIView {
         }
 
         yAxis = DrawingView { [weak self] (rect) in
-            guard let self = self else {
-                return
-            }
-            let ctx = UIGraphicsGetCurrentContext()
-            UIColor.white.setFill()
-            ctx?.fill(rect)
-            let size = self.contentView.bounds.size
-            let yScale = size.height / (self.yRange.max - self.yRange.min)
-            let yCoor = { (y: Int) in (self.yRange.max - CGFloat(y)) * yScale }
-            UIColor.black.set()
-            ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: 0, y: 0))
-            ctx?.addLine(to: CGPoint(x: 0, y: size.height))
-            ctx?.strokePath()
-
-            let touchLabelFrame: CGRect?
-            if let touchPoint = self.touchPoint {
-                let v = Int(round(touchPoint.value))
-                let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
-                let str = "\(v)".styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
-                let size = str.size()
-                touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height/2), size: size)
-                str.draw(in: touchLabelFrame!)
-            } else {
-                touchLabelFrame = nil
-            }
-
-            for y in self.yReference {
-                if CGFloat(y) < self.yRange.min || CGFloat(y) > self.yRange.max {
-                    continue
-                }
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: 0, y: yCoor(y)))
-                ctx?.addLine(to: CGPoint(x: 5, y: yCoor(y)))
-                ctx?.strokePath()
-                let label = "\(y)".styled.systemFont(size: 14)
-                let size = label.size()
-                let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height/2), size: size)
-                if rect.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
-                    label.draw(in: labelFrame)
-                }
-            }
+            self?.drawYAxis(rect)
         }
         addSubview(yAxis)
         makeConstraints {
