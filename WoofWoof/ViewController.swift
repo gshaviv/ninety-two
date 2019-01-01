@@ -46,36 +46,7 @@ class ViewController: UIViewController {
     func update() {
         if let last = UserDefaults.standard.last {
             let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
-            if last24hReadings.isEmpty {
-                if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
-                    let calibrations = MiaoMiao.db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d)) {
-                    if calibrations.isEmpty {
-                        last24hReadings = readings
-                    } else {
-                        var rIdx = 0
-                        var cIdx = 0
-                        var together = [GlucoseReading]()
-                        repeat {
-                            if readings[rIdx].date < calibrations[cIdx].date {
-                                together.append(readings[rIdx])
-                                rIdx += 1
-                            } else {
-                                together.append(calibrations[cIdx])
-                                cIdx += 1
-                            }
-                        } while rIdx < readings.count && cIdx < calibrations.count
-                        if rIdx < readings.count {
-                            readings[rIdx...].forEach { together.append($0) }
-                        }
 
-                        last24hReadings = together
-                    }
-                }
-            } else {
-                while last24hReadings[0].date < Date() - 24.h {
-                    _ = last24hReadings.dropFirst()
-                }
-            }
             var together = last24hReadings
             let trendData = MiaoMiao.trend ?? []
             if var latest = last24hReadings.last {
@@ -213,17 +184,17 @@ class ViewController: UIViewController {
         guard let trend = trend else {
             return ""
         }
-        if trend > 3 {
+        if trend > 2.8 {
             return "⇈"
-        } else if trend > 1.5 {
+        } else if trend > 1.4 {
             return "↑"
-        } else if trend > 0.75 {
+        } else if trend > 0.7 {
             return "↗︎"
-        } else if trend > -0.75 {
+        } else if trend > -0.7 {
             return "→"
-        } else if trend > -1.5 {
+        } else if trend > -1.4 {
             return "↘︎"
-        } else if trend > -3 {
+        } else if trend > -2.8 {
             return "↓"
         } else {
             return "⇊"
@@ -232,7 +203,42 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: MiaoMiaoDelegate {
-    func didUpdate() {
+    func didUpdate(addedHistory: [GlucosePoint]) {
+        guard let last = UserDefaults.standard.last else {
+            return
+        }
+        if last24hReadings.isEmpty {
+            let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
+            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
+                let calibrations = MiaoMiao.db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d)) {
+                if calibrations.isEmpty {
+                    last24hReadings = readings
+                } else {
+                    var rIdx = 0
+                    var cIdx = 0
+                    var together = [GlucoseReading]()
+                    repeat {
+                        if readings[rIdx].date < calibrations[cIdx].date {
+                            together.append(readings[rIdx])
+                            rIdx += 1
+                        } else {
+                            together.append(calibrations[cIdx])
+                            cIdx += 1
+                        }
+                    } while rIdx < readings.count && cIdx < calibrations.count
+                    if rIdx < readings.count {
+                        readings[rIdx...].forEach { together.append($0) }
+                    }
+
+                    last24hReadings = together
+                }
+            }
+        } else {
+            last24hReadings.append(contentsOf: addedHistory)
+        }
+        if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h} ), idx > 0 {
+            last24hReadings = Array(last24hReadings[idx...])
+        }
         if UIApplication.shared.applicationState != .background {
             update()
         } else {

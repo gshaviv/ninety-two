@@ -37,8 +37,8 @@ class GlucoseGraph: UIView {
     private var holes: [Int] = []
     var yRange = (min: CGFloat(70), max: CGFloat(180))
     var xRange = (min: Date() - 1.d, max: Date())
-    var lineWidth:CGFloat = 1
-    var dotRadius:CGFloat = 1.5
+    var lineWidth:CGFloat = 1.5
+    var dotRadius:CGFloat = 3
     var xTimeSpan = 6.h {
         didSet {
             contentWidthConstraint?.isActive = false
@@ -92,6 +92,9 @@ class GlucoseGraph: UIView {
             }
             ctx?.strokePath()
             let p = points.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
+            if p.isEmpty {
+                return
+            }
             let curve = UIBezierPath()
             if self.holes.isEmpty {
                 curve.move(to: p[0])

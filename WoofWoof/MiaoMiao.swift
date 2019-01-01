@@ -10,7 +10,7 @@ import UIKit
 import Sqlable
 
 protocol MiaoMiaoDelegate {
-    func didUpdate()
+    func didUpdate(addedHistory: [GlucosePoint])
 }
 
 class MiaoMiao {
@@ -145,6 +145,7 @@ class MiaoMiao {
             return
         }
         DispatchQueue.global().async {
+            var added = [GlucosePoint]()
             if let last = UserDefaults.standard.last {
                 let storeInterval = 5.m
                 let filteredHistory = history.filter { $0.date > last + storeInterval }
@@ -154,6 +155,7 @@ class MiaoMiao {
                         try db.beginTransaction()
                         try filteredHistory.forEach {
                             try db.perform($0.insert())
+                            added.append($0)
                             log("Writing history \($0)")
                         }
                         try db.commitTransaction()
@@ -165,7 +167,10 @@ class MiaoMiao {
             } else {
                 do {
                     try db.beginTransaction()
-                    try history.forEach { try db.perform($0.insert()) }
+                    try history.forEach {
+                        try db.perform($0.insert())
+                        added.append($0)
+                    }
                     try db.commitTransaction()
                     UserDefaults.standard.last = history[0].date
                 } catch let error {
@@ -175,7 +180,7 @@ class MiaoMiao {
             currentGlucose = trend.first
             MiaoMiao.trend = trend
             DispatchQueue.main.async {
-                MiaoMiao.delgate?.didUpdate()
+                MiaoMiao.delgate?.didUpdate(addedHistory: added)
             }
         }
     }
