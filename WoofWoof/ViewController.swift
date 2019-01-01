@@ -95,38 +95,41 @@ class ViewController: UIViewController {
         } else {
             trendLabel.text = ""
         }
-        do {
-            let child = try MiaoMiao.db.createChild()
-            DispatchQueue.global().async {
-                if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
-                    let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
-                    let withTime = zip(readings.dropLast(), diffs)
-                    let withGoodTime = withTime.filter { $0.1 < 20.m }
-                    let (sumG,totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0,0.0,0.0,0.0,0.0)) { (result, arg) -> (Double,Double,Double,Double,Double) in
-                        let (sum, total, below, inRange, above) = result
-                        let (gp, duration) = arg
-                        let x0 = sum + gp.value * duration
-                        let x1 = total + duration
-                        let x2 = gp.value < 70 ? below + duration : below
-                        let x3 = gp.value >= 70 && gp.value < 140 ? inRange + duration : inRange
-                        let x4 = gp.value >= 140 ? above + duration : above
-                        return (x0, x1, x2 , x3, x4)
-                    }
-                    let aveG = sumG / totalT
-                    let a1c = (aveG / 18.05 + 2.52) / 1.583
-                    DispatchQueue.main.async {
-                        self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
-                        self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
-                        self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
-                        self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
-                        self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeBelow), color: .red),
-                                                PieChart.Slice(value: CGFloat(timeIn), color: .green),
-                                                PieChart.Slice(value: CGFloat(timeAbove), color: .yellow)]
+        if UserDefaults.standard.lastStatisticsCalculation == nil || Date() > UserDefaults.standard.lastStatisticsCalculation! + 1.h {
+            do {
+                UserDefaults.standard.lastStatisticsCalculation = Date()
+                let child = try MiaoMiao.db.createChild()
+                DispatchQueue.global().async {
+                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
+                        let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
+                        let withTime = zip(readings.dropLast(), diffs)
+                        let withGoodTime = withTime.filter { $0.1 < 20.m }
+                        let (sumG,totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0,0.0,0.0,0.0,0.0)) { (result, arg) -> (Double,Double,Double,Double,Double) in
+                            let (sum, total, below, inRange, above) = result
+                            let (gp, duration) = arg
+                            let x0 = sum + gp.value * duration
+                            let x1 = total + duration
+                            let x2 = gp.value < 70 ? below + duration : below
+                            let x3 = gp.value >= 70 && gp.value < 140 ? inRange + duration : inRange
+                            let x4 = gp.value >= 140 ? above + duration : above
+                            return (x0, x1, x2 , x3, x4)
+                        }
+                        let aveG = sumG / totalT
+                        let a1c = (aveG / 18.05 + 2.52) / 1.583
+                        DispatchQueue.main.async {
+                            self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
+                            self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
+                            self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
+                            self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
+                            self.a1cLabel.text = String(format: "%.1lf%%", a1c)
+                            self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeBelow), color: .red),
+                                                    PieChart.Slice(value: CGFloat(timeIn), color: .green),
+                                                    PieChart.Slice(value: CGFloat(timeAbove), color: .yellow)]
+                        }
                     }
                 }
-            }
-        } catch _ { }
+            } catch { }
+        }
     }
 
     private func updateTimeAgo() {

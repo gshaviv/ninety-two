@@ -220,4 +220,13 @@ extension UserDefaults {
             set(newValue, forKey: "timeSpan")
         }
     }
+
+    var lastStatisticsCalculation: Date? {
+        get {
+            return object(forKey: "lastCalc") as? Date
+        }
+        set {
+            set(newValue, forKey: "lastCalc")
+        }
+    }
 }
