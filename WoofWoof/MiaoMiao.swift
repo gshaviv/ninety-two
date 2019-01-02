@@ -8,6 +8,7 @@
 
 import UIKit
 import Sqlable
+import UserNotifications
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
@@ -26,6 +27,49 @@ class MiaoMiao {
             }
         }
     }
+    private static var _last24: [GlucoseReading] = []
+    static var last24hReadings: [GlucoseReading] {
+        get {
+            guard let last = UserDefaults.standard.last else {
+                return []
+            }
+            if _last24.isEmpty {
+                let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
+                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
+                    let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d).orderBy(Calibration.date)) {
+                    if let first = assertOrder(readings) {
+                        log("order read is wrong at \(first)")
+                    }
+                    if calibrations.isEmpty {
+                        _last24 = readings
+                    } else {
+                        var rIdx = 0
+                        var cIdx = 0
+                        var together = [GlucoseReading]()
+                        repeat {
+                            if readings[rIdx].date < calibrations[cIdx].date {
+                                together.append(readings[rIdx])
+                                rIdx += 1
+                            } else {
+                                together.append(calibrations[cIdx])
+                                cIdx += 1
+                            }
+                        } while rIdx < readings.count && cIdx < calibrations.count
+                        if rIdx < readings.count {
+                            readings[rIdx...].forEach { together.append($0) }
+                        }
+
+                        _last24 = together
+                    }
+                }
+            }
+            return _last24
+        }
+        set {
+            _last24 = newValue
+        }
+    }
+
 
     static var db: SqliteDatabase = {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
@@ -69,6 +113,18 @@ class MiaoMiao {
 
             case Code.noSensor:
                 logError("No Sensor detected")
+                DispatchQueue.main.async {
+                    let notification = UNMutableNotificationContent()
+                    notification.title = "No Sensor Detected"
+                    notification.body = "Check MiaoMiao is placed properly on top of the sensor"
+                    notification.categoryIdentifier = "nosensor"
+                    let request = UNNotificationRequest(identifier: "noSensor", content: notification, trigger: nil)
+                    UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                        if let err = err {
+                            logError("\(err)")
+                        }
+                    })
+                }
 
             case Code.startPacket:
                 packetData = bytes
@@ -154,6 +210,7 @@ class MiaoMiao {
         }
         DispatchQueue.global().async {
             var added = [GlucosePoint]()
+            _ = last24hReadings // so it will read before we write
             if let last = UserDefaults.standard.last {
                 let storeInterval = 5.m
                 let filteredHistory = history.filter { $0.date > last + storeInterval }
@@ -187,6 +244,10 @@ class MiaoMiao {
             }
             currentGlucose = trend.first
             MiaoMiao.trend = trend
+            _last24.append(contentsOf: added)
+            if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h} ), idx > 0 {
+                _last24 = Array(last24hReadings[idx...])
+            }
             DispatchQueue.main.async {
                 MiaoMiao.delgate?.didUpdate(addedHistory: added)
             }

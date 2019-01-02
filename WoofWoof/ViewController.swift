@@ -25,7 +25,6 @@ class ViewController: UIViewController {
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
-    private var last24hReadings: [GlucoseReading] = []
 
     private func batteryLevelIcon(for level: Int) -> UIImage {
         switch level {
@@ -69,9 +68,9 @@ class ViewController: UIViewController {
         if let last = UserDefaults.standard.last {
             let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
 
-            var together = last24hReadings
+            var together = MiaoMiao.last24hReadings
             let trendData = MiaoMiao.trend ?? []
-            if var latest = last24hReadings.last {
+            if var latest = MiaoMiao.last24hReadings.last {
                 for point in trendData.reversed() {
                     if (point.date > latest.date + 5.m && point.date < trendData.first!.date - 5.m) || point == trendData.first {
                         together.append(point)
@@ -175,7 +174,7 @@ class ViewController: UIViewController {
                     UserDefaults.standard.additionalSlope *= bg / current.value
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
-                    self.last24hReadings.append(c)
+                    MiaoMiao.last24hReadings.append(c)
                     UserDefaults.standard.sensorSerial = MiaoMiao.serial
                 } catch _ {}
             }
@@ -225,48 +224,23 @@ class ViewController: UIViewController {
     }
 }
 
+func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
+    let pairs = Array(zip(list[0 ..< list.count - 1], list[1...]))
+    if let idx = pairs.firstIndex(where: { $0.date > $1.date }) {
+        return idx
+    } else {
+        return nil
+    }
+}
+
 extension ViewController: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
-        guard let last = UserDefaults.standard.last else {
-            return
-        }
         if MiaoMiao.serial != UserDefaults.standard.sensorSerial {
             let alert = UIAlertController(title: "Please Calibrate", message: "New sensor detected, calibration needed", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
             present(alert, animated: true, completion: nil)
         }
-        if last24hReadings.isEmpty {
-            let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
-            if let readings = MiaoMiao.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
-                let calibrations = MiaoMiao.db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d)) {
-                if calibrations.isEmpty {
-                    last24hReadings = readings
-                } else {
-                    var rIdx = 0
-                    var cIdx = 0
-                    var together = [GlucoseReading]()
-                    repeat {
-                        if readings[rIdx].date < calibrations[cIdx].date {
-                            together.append(readings[rIdx])
-                            rIdx += 1
-                        } else {
-                            together.append(calibrations[cIdx])
-                            cIdx += 1
-                        }
-                    } while rIdx < readings.count && cIdx < calibrations.count
-                    if rIdx < readings.count {
-                        readings[rIdx...].forEach { together.append($0) }
-                    }
 
-                    last24hReadings = together
-                }
-            }
-        } else {
-            last24hReadings.append(contentsOf: addedHistory)
-        }
-        if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h} ), idx > 0 {
-            last24hReadings = Array(last24hReadings[idx...])
-        }
         if UIApplication.shared.applicationState != .background {
             update()
         } else {
