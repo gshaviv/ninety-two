@@ -21,10 +21,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     override init() {
         super.init()
-        UserDefaults.standard.lastStatisticsCalculation = nil
+        defaults[.lastStatisticsCalculation] = nil
         trendCalculator = Calculation {
             return self.trendValue()
         }
+        defaults.register(defaults: [UserDefaults.DoubleKey.additionalSlope.rawValue: 1])
     }
 
 
@@ -187,12 +188,14 @@ extension AppDelegate: MiaoMiaoDelegate {
     func didUpdateGlucose() {
         trendCalculator.invalidate()
         if let current = MiaoMiao.trend?.first {
-            let payload:[String:Any] = ["d": current.date.timeIntervalSince1970, "v": current.value, "t": self.trendSymbol()]
-            if (current.value < 80 || current.value > 180) && WCSession.default.isComplicationEnabled {
-                WCSession.default.transferCurrentComplicationUserInfo(payload)
-            } else {
-                if WCSession.default.isWatchAppInstalled {
-                    pendingWatchPoints.append(payload)
+            if WCSession.default.activationState == .activated {
+                let payload:[String:Any] = ["d": current.date.timeIntervalSince1970, "v": current.value, "t": self.trendSymbol()]
+                if (current.value < 80 || current.value > 180) && WCSession.default.isComplicationEnabled {
+                    WCSession.default.transferCurrentComplicationUserInfo(payload)
+                } else {
+                    if WCSession.default.isWatchAppInstalled {
+                        pendingWatchPoints.append(payload)
+                    }
                 }
             }
         }

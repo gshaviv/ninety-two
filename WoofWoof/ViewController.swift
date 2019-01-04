@@ -52,15 +52,15 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         update()
         MiaoMiao.addDelegate(self)
-        timeSpanSelector.selectedSegmentIndex = UserDefaults.standard.timeSpanIndex
-        graphView.xTimeSpan = timeSpan[UserDefaults.standard.timeSpanIndex]
+        timeSpanSelector.selectedSegmentIndex = defaults[.timeSpanIndex]
+        graphView.xTimeSpan = timeSpan[defaults[.timeSpanIndex]]
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
-        UserDefaults.standard.timeSpanIndex = sender.selectedSegmentIndex
+        defaults[.timeSpanIndex] = sender.selectedSegmentIndex
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
     }
 
@@ -114,9 +114,9 @@ class ViewController: UIViewController {
         } else {
             trendLabel.text = ""
         }
-        if UserDefaults.standard.lastStatisticsCalculation == nil || Date() > UserDefaults.standard.lastStatisticsCalculation! + 1.h {
+        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 1.h {
             do {
-                UserDefaults.standard.lastStatisticsCalculation = Date()
+                defaults[.lastStatisticsCalculation] = Date()
                 let child = try MiaoMiao.db.createChild()
                 DispatchQueue.global().async {
                     if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
@@ -172,11 +172,11 @@ class ViewController: UIViewController {
                 do {
                     let c = Calibration(date: Date(), value: bg)
                     try MiaoMiao.db.perform(c.insert())
-                    UserDefaults.standard.additionalSlope *= bg / current.value
+                    defaults[.additionalSlope] *= bg / current.value
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                     MiaoMiao.last24hReadings.append(c)
-                    UserDefaults.standard.sensorSerial = MiaoMiao.serial
+                    defaults[.sensorSerial] = MiaoMiao.serial
                 } catch _ {}
             }
         }))
@@ -211,7 +211,7 @@ func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
 
 extension ViewController: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
-        if MiaoMiao.serial != UserDefaults.standard.sensorSerial {
+        if MiaoMiao.serial != defaults[.sensorSerial] {
             let alert = UIAlertController(title: "Please Calibrate", message: "New sensor detected, calibration needed", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
             present(alert, animated: true, completion: nil)

@@ -34,8 +34,8 @@ class MiaoMiao {
     private static var shortRefresh = false
     static var serial: String? {
         didSet {
-            if let serial = serial, serial != UserDefaults.standard.sensorSerial {
-                UserDefaults.standard.additionalSlope = 1
+            if let serial = serial, serial != defaults[.sensorSerial] {
+                defaults[.additionalSlope] = 1
             }
         }
     }
@@ -116,7 +116,7 @@ class MiaoMiao {
             case Code.newSensor:
                 log("New sensor detected")
                 Central.manager.send(bytes: Code.allowSensor)
-                UserDefaults.standard.additionalSlope = 1
+                defaults[.additionalSlope] = 1
 
             case Code.noSensor:
                 logError("No Sensor detected")
@@ -167,7 +167,7 @@ class MiaoMiao {
             firmware = packetData[14...15].hexString
             batteryLevel = Int(packetData[13])
 
-            let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: UserDefaults.standard.additionalSlope, additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
+            let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
                 sensorAge = data.minutesSinceStart

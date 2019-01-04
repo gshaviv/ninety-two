@@ -192,50 +192,52 @@ func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
     return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
 
+public let defaults = UserDefaults.standard
 extension UserDefaults {
-    var additionalSlope: Double {
+    enum StringKey: String {
+        case sensorSerial
+    }
+    enum DateKey: String {
+        case lastStatisticsCalculation
+        case lastLowBatteryNofication
+    }
+    enum DoubleKey: String {
+        case additionalSlope
+    }
+    enum IntKey: String {
+        case timeSpanIndex
+    }
+    subscript(key: StringKey) -> String? {
         get {
-            let v = double(forKey: "slope")
-            return v == 0 ? 1 : v
+            return object(forKey: key.rawValue) as? String
         }
         set {
-            set(newValue, forKey: "slope")
+            set(newValue, forKey: key.rawValue)
         }
     }
-
-    var timeSpanIndex: Int {
+    subscript(key: DateKey) -> Date? {
         get {
-            return integer(forKey: "timeSpan")
+            return object(forKey: key.rawValue) as? Date
         }
         set {
-            set(newValue, forKey: "timeSpan")
+            set(newValue, forKey: key.rawValue)
         }
     }
-
-    var lastStatisticsCalculation: Date? {
+    subscript(key: DoubleKey) -> Double {
         get {
-            return object(forKey: "lastCalc") as? Date
+            return double(forKey: key.rawValue)
         }
         set {
-            set(newValue, forKey: "lastCalc")
+            set(newValue, forKey: key.rawValue)
         }
     }
-
-    var sensorSerial: String? {
+    subscript(key: IntKey) -> Int {
         get {
-            return object(forKey: "serial") as? String
+            return integer(forKey: key.rawValue)
         }
         set {
-            set(newValue, forKey: "serial")
-        }
-    }
-
-    var lastLowBatteryNofication: Date? {
-        get {
-            return object(forKey: "lastLow") as? Date
-        }
-        set {
-            set(newValue, forKey: "lastLow")
+            set(newValue, forKey: key.rawValue)
         }
     }
 }
+

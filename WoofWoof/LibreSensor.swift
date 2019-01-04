@@ -58,8 +58,9 @@ class LibreSensor {
         
         
         let lookupTable = ["0","1","2","3","4","5","6","7","8","9","A","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","Z"]
-        let uidString = self.uid.substring(from: self.uid.index(self.uid.startIndex, offsetBy: 4)) // "E007A0000025905E" -> "A0000025905E"
-        
+//        let uidString = self.uid.substring(from: self.uid.index(self.uid.startIndex, offsetBy: 4)) // "E007A0000025905E" -> "A0000025905E"
+        let uidString = self.uid[self.uid.index(self.uid.startIndex, offsetBy: 4)...] // "E007A0000025905E" -> "A0000025905E"
+
         var serialNumber = ""
         
         guard uidString.lengthOfBytes(using: String.Encoding.ascii) == 12,
@@ -90,7 +91,7 @@ class LibreSensor {
         var prettyUid = self.uid
         let length = self.uid.lengthOfBytes(using: String.Encoding.ascii)
         for index in stride(from: 2, to: length, by: 2).reversed() {
-            prettyUid.insert(Character(":"), at: prettyUid.characters.index(prettyUid.startIndex, offsetBy: index))
+            prettyUid.insert(Character(":"), at: prettyUid.index(prettyUid.startIndex, offsetBy: index))
         }
         return prettyUid
     }()
