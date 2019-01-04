@@ -193,15 +193,6 @@ func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
 }
 
 extension UserDefaults {
-    public var last: Date? {
-        get {
-            return object(forKey: "last") as? Date
-        }
-        set {
-            set(newValue, forKey: "last")
-        }
-    }
-
     var additionalSlope: Double {
         get {
             let v = double(forKey: "slope")
@@ -236,6 +227,15 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: "serial")
+        }
+    }
+
+    var lastLowBatteryNofication: Date? {
+        get {
+            return object(forKey: "lastLow") as? Date
+        }
+        set {
+            set(newValue, forKey: "lastLow")
         }
     }
 }

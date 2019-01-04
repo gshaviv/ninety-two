@@ -30,13 +30,10 @@ class MiaoMiao {
     private static var _last24: [GlucoseReading] = []
     static var last24hReadings: [GlucoseReading] {
         get {
-            guard let last = UserDefaults.standard.last else {
-                return []
-            }
             if _last24.isEmpty {
-                let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
+                let end =  Date()
                 if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
-                    let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > last - 1.d).orderBy(Calibration.date)) {
+                    let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
                     if let first = assertOrder(readings) {
                         log("order read is wrong at \(first)")
                     }
@@ -69,6 +66,7 @@ class MiaoMiao {
             _last24 = newValue
         }
     }
+    static private var pendingReadings: [GlucosePoint] = []
 
 
     static var db: SqliteDatabase = {
@@ -210,25 +208,10 @@ class MiaoMiao {
         }
         DispatchQueue.global().async {
             var added = [GlucosePoint]()
-            _ = last24hReadings // so it will read before we write
-            if let last = UserDefaults.standard.last {
+            if let last = last24hReadings.last?.date {
                 let storeInterval = 5.m
-                let filteredHistory = history.filter { $0.date > last + storeInterval }
-
-                if !filteredHistory.isEmpty {
-                    do {
-                        try db.beginTransaction()
-                        try filteredHistory.forEach {
-                            try db.perform($0.insert())
-                            added.append($0)
-                            log("Writing history \($0)")
-                        }
-                        try db.commitTransaction()
-                        UserDefaults.standard.last = filteredHistory[0].date
-                    } catch let error {
-                        logError("\(error)")
-                    }
-                }
+                let filteredHistory = history.filter { $0.date > last + storeInterval }.reversed()
+                added.append(contentsOf: filteredHistory)
             } else {
                 do {
                     try db.beginTransaction()
@@ -237,7 +220,6 @@ class MiaoMiao {
                         added.append($0)
                     }
                     try db.commitTransaction()
-                    UserDefaults.standard.last = history[0].date
                 } catch let error {
                     logError("\(error)")
                 }
@@ -245,6 +227,21 @@ class MiaoMiao {
             currentGlucose = trend.first
             MiaoMiao.trend = trend
             _last24.append(contentsOf: added)
+            pendingReadings.append(contentsOf: added)
+            if pendingReadings.count > 3 {
+                do {
+                    try db.beginTransaction()
+                    try pendingReadings.forEach {
+                        try db.perform($0.insert())
+                        added.append($0)
+                        log("Writing history \($0)")
+                    }
+                    try db.commitTransaction()
+                    pendingReadings = []
+                } catch let error {
+                    logError("\(error)")
+                }
+            }
             if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h} ), idx > 0 {
                 _last24 = Array(last24hReadings[idx...])
             }

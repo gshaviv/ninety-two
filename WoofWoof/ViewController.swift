@@ -65,7 +65,8 @@ class ViewController: UIViewController {
     }
 
     func update() {
-        if let last = UserDefaults.standard.last {
+        if let lastH = MiaoMiao.last24hReadings.last?.date {
+            let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
             let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
 
             var together = MiaoMiao.last24hReadings
@@ -196,7 +197,7 @@ class ViewController: UIViewController {
         }
         let diffs = trend.map { $0.value }.diff()
         if diffs.count > 4 {
-            let ave = diffs[0 ..< 4].reduce(0) { $1 == 0 ? $0 : ($1 + $0) / 2 }
+            let ave = diffs[0 ..< 4].reversed().reduce(0) { $1 == 0 ? $0 : ($1 + $0) / 2 }
             return -ave
         }
         return nil
