@@ -42,14 +42,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var lastHistoryDate = Date() - 20.m
         MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: 70 + Double(arc4random_uniform(40))))
         updater = Repeater.every(60, perform: { (_) in
-            let currentValue = MiaoMiao.trend?.last?.value ?? 100
-            let newValue = currentValue + Double(arc4random_uniform(9)) - 4
+            let newValue = 70 + Double(arc4random_uniform(40))
             let gp = GlucosePoint(date: Date(), value: newValue)
-            MiaoMiao.currentGlucose = gp
-            MiaoMiao.trend = [gp]
-            for _ in 0 ..< 14 {
-                MiaoMiao.trend?.append(gp)
-            }
+            MiaoMiao.trend = [gp,
+            GlucosePoint(date: Date() - 1.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
+            GlucosePoint(date: Date() - 2.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
+            GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
+            GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100))/50 - 1)]
+            
             MiaoMiao.delegate?.forEach { $0.didUpdateGlucose() }
             if Date() - lastHistoryDate > 5.m {
                 MiaoMiao.last24hReadings.append(gp)

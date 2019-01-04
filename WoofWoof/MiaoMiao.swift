@@ -188,9 +188,7 @@ class MiaoMiao {
     }
 
     static public var sensorAge: Int?
-    static public var trend: [GlucosePoint]?
-
-    static public var currentGlucose: GlucosePoint? {
+    static public var trend: [GlucosePoint]? {
         didSet {
             if let current = currentGlucose {
                 log("currentGlucose=\(current.value)")
@@ -211,6 +209,10 @@ class MiaoMiao {
                 }
             }
         }
+    }
+
+    static public var currentGlucose: GlucosePoint? {
+        return trend?.first
     }
     static private func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         guard let db = try? db.createChild() else {
@@ -235,7 +237,6 @@ class MiaoMiao {
                 }
             }
             MiaoMiao.trend = trend
-            currentGlucose = trend.first
             _last24.append(contentsOf: added)
             pendingReadings.append(contentsOf: added)
             if pendingReadings.count > 3 {
