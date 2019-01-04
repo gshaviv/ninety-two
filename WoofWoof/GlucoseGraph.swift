@@ -103,7 +103,7 @@ class GlucoseGraph: UIView {
             }
             if idx < p.count - 1 {
                 curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
+                curve.addCurveThrough(points: p[idx ..< p.count], contractionFactor: 0.65)
             }
         }
         UIColor.darkGray.set()

@@ -12,13 +12,25 @@ import UserNotifications
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
+    func didUpdateGlucose()
+}
+
+extension MiaoMiaoDelegate {
+    func didUpdate(addedHistory: [GlucosePoint]) {}
+    func didUpdateGlucose() {}
 }
 
 class MiaoMiao {
     public static var hardware: String = ""
     public static var firmware: String = ""
     public static var batteryLevel: Int = 0 // 0 - 100
-    public static var delgate: MiaoMiaoDelegate? = nil
+    static var delegate: [MiaoMiaoDelegate]? = nil
+    public static func addDelegate(_ obj: MiaoMiaoDelegate) {
+        if delegate == nil {
+            delegate = []
+        }
+        delegate?.append(obj)
+    }
     private static var shortRefresh = false
     static var serial: String? {
         didSet {
@@ -34,9 +46,6 @@ class MiaoMiao {
                 let end =  Date()
                 if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)), // DEBUG
                     let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
-                    if let first = assertOrder(readings) {
-                        log("order read is wrong at \(first)")
-                    }
                     if calibrations.isEmpty {
                         _last24 = readings
                     } else {
@@ -195,6 +204,7 @@ class MiaoMiao {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
                 }
+                delegate?.forEach { $0.didUpdateGlucose() }
             } else {
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = 0
@@ -224,8 +234,8 @@ class MiaoMiao {
                     logError("\(error)")
                 }
             }
-            currentGlucose = trend.first
             MiaoMiao.trend = trend
+            currentGlucose = trend.first
             _last24.append(contentsOf: added)
             pendingReadings.append(contentsOf: added)
             if pendingReadings.count > 3 {
@@ -246,7 +256,7 @@ class MiaoMiao {
                 _last24 = Array(last24hReadings[idx...])
             }
             DispatchQueue.main.async {
-                MiaoMiao.delgate?.didUpdate(addedHistory: added)
+                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }
             }
         }
     }

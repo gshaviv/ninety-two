@@ -8,11 +8,14 @@
 
 import UIKit
 import UserNotifications
+import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     var window: UIWindow?
+    #if targetEnvironment(simulator)
+    var updater: Repeater?
+    #endif
 
     override init() {
         super.init()
@@ -29,6 +32,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .sound, .alert], completionHandler: { granted, _ in
             log("Notifications granted=\(granted)")
         })
+
+        WCSession.default.delegate = self
+        WCSession.default.activate()
+
+        MiaoMiao.addDelegate(self)
+
+        #if targetEnvironment(simulator)
+        var lastHistoryDate = Date() - 20.m
+        MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: 70 + Double(arc4random_uniform(40))))
+        updater = Repeater.every(60, perform: { (_) in
+            let currentValue = MiaoMiao.trend?.last?.value ?? 100
+            let newValue = currentValue + Double(arc4random_uniform(9)) - 4
+            let gp = GlucosePoint(date: Date(), value: newValue)
+            MiaoMiao.currentGlucose = gp
+            MiaoMiao.trend = [gp]
+            for _ in 0 ..< 14 {
+                MiaoMiao.trend?.append(gp)
+            }
+            MiaoMiao.delegate?.forEach { $0.didUpdateGlucose() }
+            if Date() - lastHistoryDate > 5.m {
+                MiaoMiao.last24hReadings.append(gp)
+                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+                lastHistoryDate = Date()
+            }
+        })
+        #endif
+
         return true
     }
 
@@ -60,5 +90,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.badge, .sound, .alert])
+    }
+}
+
+extension AppDelegate: WCSessionDelegate {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+
+    }
+
+    func sessionDidBecomeInactive(_ session: WCSession) {
+        if WCSession.default.isComplicationEnabled, let current = MiaoMiao.trend?.first {
+            WCSession.default.transferUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c":true])
+        }
+    }
+
+    func sessionDidDeactivate(_ session: WCSession) {
+
+    }
+}
+
+
+extension AppDelegate: MiaoMiaoDelegate {
+    func didUpdateGlucose() {
+        if WCSession.default.isComplicationEnabled, let current = MiaoMiao.trend?.first {
+            WCSession.default.transferCurrentComplicationUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c":true])
+        }
     }
 }

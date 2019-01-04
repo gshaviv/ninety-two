@@ -51,7 +51,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         update()
-        MiaoMiao.delgate = self
+        MiaoMiao.addDelegate(self)
         timeSpanSelector.selectedSegmentIndex = UserDefaults.standard.timeSpanIndex
         graphView.xTimeSpan = timeSpan[UserDefaults.standard.timeSpanIndex]
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
