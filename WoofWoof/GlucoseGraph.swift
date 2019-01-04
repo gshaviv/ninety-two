@@ -51,14 +51,15 @@ class GlucoseGraph: UIView {
     var contentView: DrawingView!
     var xAxisHolder: UIScrollView!
     var xAxis: DrawingView!
-    var xAxisHeight: CGFloat = 40
+    var xAxisHeight: CGFloat = 30
     var yAxis: DrawingView!
 
     let colors = [ 0 ... 55 : UIColor.red,
                    55 ... 70: UIColor.red.lighter(),
                    70 ... 110: UIColor.green,
                    110 ... 140: UIColor.green.lighter(by: 40),
-                   140 ... 999: UIColor.yellow ]
+                   140 ... 180: UIColor.green.lighter(by: 70),
+                   180 ... 999: UIColor.yellow ]
     var contentWidthConstraint: NSLayoutConstraint?
 
     var yReference = [35, 40, 50, 60, 70, 90, 110, 125, 140, 160, 180, 200, 250, 300, 350, 400, 500]
@@ -129,7 +130,7 @@ class GlucoseGraph: UIView {
 
     private func drawXAxis(_ rect: CGRect) {
         let ctx = UIGraphicsGetCurrentContext()
-        UIColor.white.setFill()
+        backgroundColor?.set()
         ctx?.fill(rect)
         UIColor.black.set()
         ctx?.setLineWidth(1)
@@ -195,9 +196,8 @@ class GlucoseGraph: UIView {
         let yScale = size.height / (self.yRange.max - self.yRange.min)
         let yCoor = { (y: Int) in (self.yRange.max - CGFloat(y)) * yScale }
 
-        UIColor(white: 0.9, alpha: 1).set()
-        let inner = CGRect(x: 0, y: 0, width: rect.width, height: rect.height - xAxisHeight)
-        ctx?.fill(inner)
+        backgroundColor?.set()
+        ctx?.fill(rect)
 
         UIColor.black.set()
         ctx?.beginPath()
@@ -228,7 +228,7 @@ class GlucoseGraph: UIView {
             let label = "\(y)".styled.systemFont(size: 14)
             let size = label.size()
             let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height/2), size: size)
-            if inner.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
+            if rect.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
                 label.draw(in: labelFrame)
             }
         }
@@ -315,11 +315,9 @@ class GlucoseGraph: UIView {
 
     var touchPoint: GlucoseReading? {
         didSet {
-            if let oldValue = oldValue, oldValue.date != touchPoint?.date || oldValue.value != touchPoint?.value {
-                contentView.setNeedsDisplay()
-                xAxis.setNeedsDisplay()
-                yAxis.setNeedsDisplay()
-            }
+            contentView.setNeedsDisplay()
+            xAxis.setNeedsDisplay()
+            yAxis.setNeedsDisplay()
         }
     }
 
@@ -332,7 +330,6 @@ class GlucoseGraph: UIView {
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
         let pts = self.points!.map { (CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))), $0) }
         let inside = pts.filter { $0.0 - touchPoint < 50 }
-        log("Found \(inside.count) points less than 50")
         if inside.isEmpty {
             self.touchPoint = nil
             return
