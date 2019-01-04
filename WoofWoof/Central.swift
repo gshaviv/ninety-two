@@ -61,13 +61,7 @@ public class Central: NSObject {
 
             switch (oldValue, state) {
             case (_, .bluetoothOn):
-                 if gcmDevice == nil {
-                    centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey:true])
-                } else {
-                    DispatchQueue.main.async {
-                        self.state = self.readChannel == nil ? .found : .ready
-                    }
-                }
+                    centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey:false])
 
             case (_, .found):
                 break
