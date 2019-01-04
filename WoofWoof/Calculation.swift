@@ -53,7 +53,7 @@ class Calculation<Value> : NSObject {
         }
         return self
     }
-    @objc private func invalidate() {
+    @objc  func invalidate() {
         last = nil
     }
     @discardableResult func watch<S>(_ target: Calculation<S>) -> Calculation<Value> {
