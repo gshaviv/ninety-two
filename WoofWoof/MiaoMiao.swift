@@ -32,7 +32,7 @@ class MiaoMiao {
         get {
             if _last24.isEmpty {
                 let end =  Date()
-                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d).orderBy(GlucosePoint.date)),
+                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)), // DEBUG
                     let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
                     if let first = assertOrder(readings) {
                         log("order read is wrong at \(first)")
@@ -210,7 +210,7 @@ class MiaoMiao {
             var added = [GlucosePoint]()
             if let last = last24hReadings.last?.date {
                 let storeInterval = 5.m
-                let filteredHistory = history.filter { $0.date > last + storeInterval }.reversed()
+                let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
                 do {

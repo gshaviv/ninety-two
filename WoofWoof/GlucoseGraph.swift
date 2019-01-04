@@ -24,7 +24,7 @@ class GlucoseGraph: UIView {
                     holes.append(idx + 1)
                 }
             }
-            yRange.min = CGFloat(floor(gmin / 5) * 5)
+            yRange.min = max(CGFloat(floor(gmin / 5) * 5), 10)
             yRange.max = CGFloat(ceil(gmax / 5) * 5)
             contentWidthConstraint?.isActive = false
             contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
@@ -101,8 +101,10 @@ class GlucoseGraph: UIView {
                 curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
                 idx = hole
             }
-            curve.move(to: p[idx])
-            curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
+            if idx < p.count - 1 {
+                curve.move(to: p[idx])
+                curve.addCurveThrough(points: p[idx...], contractionFactor: 0.65)
+            }
         }
         UIColor.darkGray.set()
         curve.lineWidth = self.lineWidth
