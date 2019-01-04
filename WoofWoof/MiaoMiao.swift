@@ -188,10 +188,10 @@ class MiaoMiao {
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
                 }
-                if current.value < 60 && !shortRefresh {
+                if current.value < 70 && !shortRefresh {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
-                } else if current.value > 60 && shortRefresh {
+                } else if current.value > 70 && shortRefresh {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
                 }
