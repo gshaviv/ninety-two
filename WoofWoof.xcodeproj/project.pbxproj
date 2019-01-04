@@ -26,6 +26,7 @@
 		E42E2AB321DF28C8004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AB221DF28C8004FD560 /* Assets.xcassets */; };
 		E42E2AB821DF28C8004FD560 /* woofWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E42E2A9921DF28C5004FD560 /* woofWatch.app */; };
 		E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */; };
+		E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AD221DFB568004FD560 /* WatchExtensions.swift */; };
 		E45907E021D550FA00B139CF /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
 		E45907E221D5536400B139CF /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
@@ -144,6 +145,7 @@
 		E42E2AB421DF28C8004FD560 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E42E2AB521DF28C8004FD560 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayValue.swift; sourceTree = "<group>"; };
+		E42E2AD221DFB568004FD560 /* WatchExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchExtensions.swift; sourceTree = "<group>"; };
 		E45907DE21D550FA00B139CF /* GlucoseGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseGraph.swift; sourceTree = "<group>"; };
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				E42E2AB421DF28C8004FD560 /* Info.plist */,
 				E42E2AB521DF28C8004FD560 /* PushNotificationPayload.apns */,
 				E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */,
+				E42E2AD221DFB568004FD560 /* WatchExtensions.swift */,
 			);
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
@@ -452,6 +455,7 @@
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
 				E42E2AAB21DF28C7004FD560 /* InterfaceController.swift in Sources */,
+				E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

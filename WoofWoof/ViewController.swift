@@ -192,36 +192,11 @@ class ViewController: UIViewController {
     }
 
     private func trendValue() -> Double? {
-        guard let trend = MiaoMiao.trend else {
-            return nil
-        }
-        let diffs = trend.map { $0.value }.diff()
-        if diffs.count > 4 {
-            let ave = diffs[0 ..< 4].reversed().reduce(0) { $1 == 0 ? $0 : ($1 + $0) / 2 }
-            return -ave
-        }
-        return nil
+        return UIApplication.theDelegate.trendCalculator.value
     }
 
     private func trendSymbol(for trend: Double?) -> String {
-        guard let trend = trend else {
-            return ""
-        }
-        if trend > 2.8 {
-            return "⇈"
-        } else if trend > 1.4 {
-            return "↑"
-        } else if trend > 0.7 {
-            return "↗︎"
-        } else if trend > -0.7 {
-            return "→"
-        } else if trend > -1.4 {
-            return "↘︎"
-        } else if trend > -2.8 {
-            return "↓"
-        } else {
-            return "⇊"
-        }
+        return UIApplication.theDelegate.trendSymbol(for: trend)
     }
 }
 

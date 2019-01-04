@@ -16,10 +16,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #if targetEnvironment(simulator)
     var updater: Repeater?
     #endif
+    private(set) public var trendCalculator: Calculation<Double?>!
+    private var pendingWatchPoints = [[String:Any]]()
 
     override init() {
         super.init()
         UserDefaults.standard.lastStatisticsCalculation = nil
+        trendCalculator = Calculation {
+            return self.trendValue()
+        }
     }
 
 
@@ -85,6 +90,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+    private func trendValue() -> Double? {
+        guard let trend = MiaoMiao.trend else {
+            return nil
+        }
+        let diffs = trend.map { $0.value }.diff()
+        if diffs.count > 4 {
+            let ave = diffs[0 ..< 4].reversed().reduce(0) { $1 == 0 ? $0 : ($1 + $0) / 2 }
+            return -ave
+        }
+        return nil
+    }
+
+    func trendSymbol(for inputTrend: Double? = nil) -> String {
+        guard let trend = inputTrend ?? trendCalculator.value else {
+            return ""
+        }
+        if trend > 2.8 {
+            return "⇈"
+        } else if trend > 1.4 {
+            return "↑"
+        } else if trend > 0.7 {
+            return "↗︎"
+        } else if trend > -0.7 {
+            return "→"
+        } else if trend > -1.4 {
+            return "↘︎"
+        } else if trend > -2.8 {
+            return "↓"
+        } else {
+            return "⇊"
+        }
+    }
+
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
@@ -107,13 +145,62 @@ extension AppDelegate: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) {
 
     }
+
+//    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+//        guard let  op = message["op"] as? String else {
+//            replyHandler([:])
+//            return
+//        }
+//        switch op {
+//        case "refresh":
+//            replyHandler(["d": pendingWatchPoints])
+//            pendingWatchPoints = []
+//
+//        default:
+//            replyHandler([:])
+//        }
+//    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        guard let  op = message["op"] as? String else {
+            return
+        }
+        switch op {
+        case "refresh":
+            let pending = pendingWatchPoints
+            pendingWatchPoints = []
+            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
+                logError("Error seding response: \(err.localizedDescription)")
+                self.pendingWatchPoints.append(contentsOf: pending)
+            })
+
+        default:
+            break
+        }
+    }
+
+
 }
 
 
 extension AppDelegate: MiaoMiaoDelegate {
     func didUpdateGlucose() {
-        if WCSession.default.isComplicationEnabled, let current = MiaoMiao.trend?.first {
-            WCSession.default.transferCurrentComplicationUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c":true])
+        trendCalculator.invalidate()
+        if let current = MiaoMiao.trend?.first {
+            let payload:[String:Any] = ["d": current.date.timeIntervalSince1970, "v": current.value, "t": self.trendSymbol()]
+            if (current.value < 80 || current.value > 180) && WCSession.default.isComplicationEnabled {
+                WCSession.default.transferCurrentComplicationUserInfo(payload)
+            } else {
+                if WCSession.default.isWatchAppInstalled {
+                    pendingWatchPoints.append(payload)
+                }
+            }
         }
+    }
+}
+
+extension UIApplication {
+    static var theDelegate: AppDelegate {
+        return UIApplication.shared.delegate as! AppDelegate
     }
 }
