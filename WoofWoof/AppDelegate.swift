@@ -228,18 +228,18 @@ extension AppDelegate: MiaoMiaoDelegate {
                 switch Int(current.value) {
                 case 250...:
                     if current.value > defaults[.extremeLevel] {
-                        show = "H⤒"
+                        show = "H⤴︎"
                         defaults[.extremeLevel] = current.value
                     } else {
-                        show = "H↧"
+                        show = "H⤵︎"
                     }
 
                 case 180 ..< 250:
                     if current.value > defaults[.extremeLevel] {
-                        show = "h⤒"
+                        show = "h⤴︎"
                         defaults[.extremeLevel] = current.value
                     } else {
-                        show = "h↧"
+                        show = "h⤵︎"
                     }
                 case 75 ..< 180:
                     show = "Ok"
@@ -248,10 +248,10 @@ extension AppDelegate: MiaoMiaoDelegate {
                 default:
                     let sym: String
                     if current.value < defaults[.extremeLevel] {
-                        sym = "↧"
+                        sym = "⤵︎"
                         defaults[.extremeLevel] = current.value
                    } else {
-                        sym = "⤒"
+                        sym = "⤴︎"
                     }
                     if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
                         show = "L\(sym)"
