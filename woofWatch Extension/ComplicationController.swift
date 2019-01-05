@@ -69,7 +69,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
         // This method will be called once per supported complication, and the results will be cached
-        if let template = getTemplates(family: complication.family, data: DisplayValue(date: Date(), string: "OK")) {
+        if let template = getTemplates(family: complication.family, data: DisplayValue(date: Date(), string: "Ok")) {
             handler(template)
         } else {
             handler(nil)

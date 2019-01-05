@@ -17,7 +17,7 @@ class GlucoseGraph: UIView {
             }
             let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
             holes = []
-            for (idx, gp) in points[1 ... ].enumerated() {
+            for (idx, gp) in points[1...].enumerated() {
                 if gp.isCalibration {
                     holes.append(idx + 1)
                 } else if gp.date - points[idx].date > 30.m {
@@ -93,7 +93,7 @@ class GlucoseGraph: UIView {
         let curve = UIBezierPath()
         if self.holes.isEmpty {
             curve.move(to: p[0])
-            curve.addCurveThrough(points: p[1 ... ], contractionFactor: 0.65)
+            curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
         } else {
             var idx = 0
             for hole in self.holes {
@@ -338,7 +338,7 @@ class GlucoseGraph: UIView {
         }
         var best = inside[0].1
         var dist: CGFloat = touchPoint.distance(to: inside[0].0)
-        for point in inside[1 ... ] {
+        for point in inside[1...] {
             let h = touchPoint.distance(to: point.0)
             if h < dist {
                 dist = h

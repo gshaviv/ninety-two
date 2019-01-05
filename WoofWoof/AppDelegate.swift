@@ -207,11 +207,11 @@ extension AppDelegate: MiaoMiaoDelegate {
         if let current = MiaoMiao.currentGlucose {
             if let trend = trendValue() {
                 switch current.value {
-                case ... defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
+                case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
                     defaults[.didAlertEvent] = true
                     showAlert(title: "Low Glucose", body: nil, sound: UNNotificationSound.lowGlucose)
 
-                case defaults[.highAlertLevel] ... where !defaults[.didAlertEvent] && trend > 0.25:
+                case defaults[.highAlertLevel]... where !defaults[.didAlertEvent] && trend > 0.25:
                     defaults[.didAlertEvent] = true
                     showAlert(title: "High Glucose", body: nil, sound: UNNotificationSound.highGlucose)
 
@@ -228,7 +228,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                 case 180 ..< 250:
                     payload["v"] = "H"
 
-                case 250 ... :
+                case 250...:
                     payload["v"] = "H+"
 
                 case 75 ..< 180:

@@ -67,7 +67,7 @@ class MiaoMiao {
                             }
                         } while rIdx < readings.count && cIdx < calibrations.count
                         if rIdx < readings.count {
-                            readings[rIdx ... ].forEach { together.append($0) }
+                            readings[rIdx...].forEach { together.append($0) }
                         }
 
                         _last24 = together
@@ -230,7 +230,7 @@ class MiaoMiao {
                 showCalibrationAlert()
                 defaults[.didAlertCalibrateSecond12h] = true
 
-            case Int(24.m) ... where !defaults[.didAlertCalibrateAfter24h]:
+            case Int(24.m)... where !defaults[.didAlertCalibrateAfter24h]:
                 showCalibrationAlert()
                 defaults[.didAlertCalibrateAfter24h] = true
 
@@ -306,7 +306,7 @@ class MiaoMiao {
                 }
             }
             if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h }), idx > 0 {
-                _last24 = Array(last24hReadings[idx ... ])
+                _last24 = Array(last24hReadings[idx...])
             }
             DispatchQueue.main.async {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }

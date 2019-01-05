@@ -160,6 +160,26 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func handleMore(_ sender: Any) {
+        let sheet = UIAlertController(title: "Action", message: nil, preferredStyle: .actionSheet)
+        sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in
+            self.calibrate()
+        }))
+
+        if let current = MiaoMiao.currentGlucose, Date().timeIntervalSince(current.date) > 1.m {
+            sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
+                MiaoMiao.Command.startReading()
+            }))
+        }
+
+        sheet.addAction(UIAlertAction(title: "Reconnect Sensor", style: .default, handler: { (_) in
+            Central.manager.restart()
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(sheet, animated: true, completion: nil)
+    }
+    
     @IBAction func calibrate() {
         MiaoMiao.Command.startReading()
         let alert = UIAlertController(title: "Calibrate", message: "Enter BG measurement", preferredStyle: .alert)

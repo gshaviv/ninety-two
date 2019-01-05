@@ -53,19 +53,19 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="247" verticalHuggingPriority="251" text="0m" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bao-Kz-rgZ">
-                                                        <rect key="frame" x="100" y="0.0" width="25.5" height="39.5"/>
+                                                        <rect key="frame" x="100" y="0.0" width="134.5" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                         <color key="textColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="100" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fnn-TC-0vP">
-                                                        <rect key="frame" x="294" y="0.0" width="65" height="39.5"/>
+                                                        <rect key="frame" x="242.5" y="0.0" width="65" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="black" pointSize="33"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="+4.2" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="goz-Lk-GC9">
-                                                        <rect key="frame" x="133.5" y="0.0" width="152.5" height="39.5"/>
+                                                        <rect key="frame" x="315.5" y="0.0" width="43.5" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.58081901069999997" green="0.088427625600000004" blue="0.31863921880000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -235,9 +235,9 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" title="Glucose" id="e7z-8L-uZo">
-                        <barButtonItem key="rightBarButtonItem" systemItem="organize" id="xWw-ea-cgT">
+                        <barButtonItem key="rightBarButtonItem" title="More" image="more" id="xWw-ea-cgT">
                             <connections>
-                                <action selector="calibrate" destination="BYZ-38-t0r" id="Ipr-Rp-61Q"/>
+                                <action selector="handleMore:" destination="BYZ-38-t0r" id="GNQ-gQ-5FC"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -264,5 +264,6 @@
     </scenes>
     <resources>
         <image name="battery-0" width="30" height="21"/>
+        <image name="more" width="30" height="30"/>
     </resources>
 </document>

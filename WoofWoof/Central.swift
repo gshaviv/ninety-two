@@ -52,7 +52,14 @@ public class Central: NSObject {
     }
 
     public func start() {
-        // nothing to do
+      
+    }
+
+    public func restart() {
+        centralManager.cancelPeripheralConnection(gcmDevice)
+        readChannel = nil
+        writeChannel = nil
+        state = .found
     }
 
     public var state: State {
@@ -61,10 +68,10 @@ public class Central: NSObject {
 
             switch (oldValue, state) {
             case (_, .bluetoothOn):
-                    centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey:false])
+                    centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey:true])
 
             case (_, .found):
-                break
+                centralManager.connect(gcmDevice, options: nil)
 
             case (_,.ready):
                 break
@@ -135,7 +142,6 @@ extension Central : CBCentralManagerDelegate {
         if gcmDevice == nil && peripheral.name?.hasPrefix("miaomiao") == true {
             gcmDevice = peripheral
             peripheral.delegate = self
-            centralManager.connect(peripheral)
             log("Connecting to \(peripheral)")
             state = .found
         }
@@ -151,8 +157,7 @@ extension Central : CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         switch state {
         case .ready, .sending(_):
-            gcmDevice = nil
-            state = .bluetoothOn
+            state = .found
 
         default:
             break
