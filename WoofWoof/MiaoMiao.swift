@@ -36,7 +36,7 @@ class MiaoMiao {
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
                 defaults[.additionalSlope] = 1
-                defaults[.didCalibrateAfter24h] = false
+                defaults[.didAlertCalibrateAfter24h] = false
                 defaults[.didAlertCalibrateFirst12h] = false
                 defaults[.didAlertCalibrateSecond12h] = false
             }

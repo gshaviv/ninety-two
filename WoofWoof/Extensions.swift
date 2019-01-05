@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Sqlable
+import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
 extension SqliteDatabase {
@@ -192,100 +193,10 @@ func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
     return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
 
-public let defaults = UserDefaults.standard
-extension UserDefaults {
-    enum StringKey: String {
-        case sensorSerial
-    }
-    enum DateKey: String {
-        case lastStatisticsCalculation
-        case lastLowBatteryNofication
-    }
-    enum DoubleKey: String {
-        case additionalSlope
-    }
-    enum IntKey: String {
-        case timeSpanIndex
-        case watchWakeupTime
-        case watchSleepTime
-    }
-    enum BoolKey: String {
-        case didAlertCalibrateFirst12h
-        case didAlertCalibrateSecond12h
-        case didAlertCalibrateAfter24h
-    }
-    func register() {
-        let defaults = [DoubleKey.additionalSlope.key: 1,
-                        IntKey.watchWakeupTime.key: 5*60 + 15,
-                        IntKey.watchSleepTime.key: 11*60]
 
-        register(defaults: defaults)
-    }
-    subscript(key: StringKey) -> String? {
-        get {
-            return object(forKey: key.rawValue) as? String
-        }
-        set {
-            set(newValue, forKey: key.rawValue)
-        }
-    }
-    subscript(key: DateKey) -> Date? {
-        get {
-            return object(forKey: key.rawValue) as? Date
-        }
-        set {
-            set(newValue, forKey: key.rawValue)
-        }
-    }
-    subscript(key: DoubleKey) -> Double {
-        get {
-            return double(forKey: key.rawValue)
-        }
-        set {
-            set(newValue, forKey: key.rawValue)
-        }
-    }
-    subscript(key: IntKey) -> Int {
-        get {
-            return integer(forKey: key.rawValue)
-        }
-        set {
-            set(newValue, forKey: key.rawValue)
-        }
-    }
-    subscript(key: BoolKey) -> Bool {
-        get {
-            return bool(forKey: key.rawValue)
-        }
-        set {
-            set(newValue, forKey: key.rawValue)
-        }
-    }
-    
-}
 
-extension UserDefaults.StringKey {
-    var key: String {
-        return rawValue
-    }
-}
-extension UserDefaults.DateKey {
-    var key: String {
-        return rawValue
-    }
-}
-extension UserDefaults.DoubleKey {
-    var key: String {
-        return rawValue
-    }
-}
-extension UserDefaults.IntKey {
-    var key: String {
-        return rawValue
-    }
-}
-extension UserDefaults.BoolKey {
-    var key: String {
-        return rawValue
-    }
+extension UNNotificationSound {
+    static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed")
+    static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose")
+    static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose")
 }

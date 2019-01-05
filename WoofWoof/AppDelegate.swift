@@ -185,32 +185,72 @@ extension AppDelegate: WCSessionDelegate {
 
 
 extension AppDelegate: MiaoMiaoDelegate {
+    func showAlert(title: String?, body: String?, sound: UNNotificationSoundName?) {
+        DispatchQueue.main.async {
+            let notification = UNMutableNotificationContent()
+            if let title = title {
+                notification.title = title
+            }
+            if let body = body {
+                notification.body = body
+            }
+            if let sound = sound {
+                notification.sound = UNNotificationSound(named: sound)
+            }
+            notification.categoryIdentifier = "event"
+            let request = UNNotificationRequest(identifier: "event", content: notification, trigger: nil)
+            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                if let err = err {
+                    logError("\(err)")
+                }
+            })
+        }
+    }
+
     func didUpdateGlucose() {
         trendCalculator.invalidate()
-        if let current = MiaoMiao.trend?.first, WCSession.default.isComplicationEnabled {
-            var payload: [String:Any] = ["d": current.date.timeIntervalSince1970]
-            switch Int(current.value) {
-            case 180 ..< 250:
-                payload["v"] = "H"
+        if let current = MiaoMiao.currentGlucose {
+            if let trend = trendValue() {
+                switch current.value {
+                case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
+                    defaults[.didAlertEvent] = true
+                    showAlert(title: "Low Glucose", body: nil, sound: UNNotificationSound.lowGlucose)
 
-            case 250...:
-                payload["v"] = "H+"
+                case defaults[.highAlertLevel]... where !defaults[.didAlertEvent] && trend > 0.25:
+                    defaults[.didAlertEvent] = true
+                    showAlert(title: "High Glucose", body: nil, sound: UNNotificationSound.highGlucose)
 
-            case 75 ..< 180:
-                payload["v"] = "Ok"
+                case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
+                    defaults[.didAlertEvent] = false
 
-            default:
-                payload["v"] = "\(Int(round(current.value)))"
-            }
-            if let v = payload["v"] as? String, v != watchState {
-                let now = Date()
-                let nowTime = now.hour * 60 + now.minute
-                if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
-                    watchState = v
-                    WCSession.default.transferCurrentComplicationUserInfo(payload)
+                default:
+                    break
                 }
             }
+            if WCSession.default.isComplicationEnabled {
+                var payload: [String:Any] = ["d": current.date.timeIntervalSince1970]
+                switch Int(current.value) {
+                case 180 ..< 250:
+                    payload["v"] = "H"
 
+                case 250...:
+                    payload["v"] = "H+"
+
+                case 75 ..< 180:
+                    payload["v"] = "Ok"
+
+                default:
+                    payload["v"] = "\(Int(round(current.value)))"
+                }
+                if let v = payload["v"] as? String, v != watchState {
+                    let now = Date()
+                    let nowTime = now.hour * 60 + now.minute
+                    if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
+                        watchState = v
+                        WCSession.default.transferCurrentComplicationUserInfo(payload)
+                    }
+                }
+            }
         }
     }
 }

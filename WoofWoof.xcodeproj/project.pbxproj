@@ -27,6 +27,17 @@
 		E42E2AB821DF28C8004FD560 /* woofWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E42E2A9921DF28C5004FD560 /* woofWatch.app */; };
 		E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */; };
 		E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AD221DFB568004FD560 /* WatchExtensions.swift */; };
+		E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE221E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf */; };
+		E42E2AED21E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE321E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf */; };
+		E42E2AEE21E0A33A004FD560 /* Siri_High_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE421E0A33A004FD560 /* Siri_High_Glucose.caf */; };
+		E42E2AEF21E0A33A004FD560 /* Siri_Device_Muted.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE521E0A33A004FD560 /* Siri_Device_Muted.caf */; };
+		E42E2AF021E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE621E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf */; };
+		E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE721E0A33A004FD560 /* Siri_Low_Glucose.caf */; };
+		E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE821E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf */; };
+		E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */; };
+		E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */; };
+		E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */; };
+		E42E2AF721E0A58C004FD560 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
 		E45907E021D550FA00B139CF /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
 		E45907E221D5536400B139CF /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
@@ -146,6 +157,17 @@
 		E42E2AB521DF28C8004FD560 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayValue.swift; sourceTree = "<group>"; };
 		E42E2AD221DFB568004FD560 /* WatchExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchExtensions.swift; sourceTree = "<group>"; };
+		E42E2AE221E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Transmitter_Battery_Low.caf; sourceTree = "<group>"; };
+		E42E2AE321E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Urgent_High_Glucose.caf; sourceTree = "<group>"; };
+		E42E2AE421E0A33A004FD560 /* Siri_High_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_High_Glucose.caf; sourceTree = "<group>"; };
+		E42E2AE521E0A33A004FD560 /* Siri_Device_Muted.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Device_Muted.caf; sourceTree = "<group>"; };
+		E42E2AE621E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Glucose_Dropping_Fast.caf; sourceTree = "<group>"; };
+		E42E2AE721E0A33A004FD560 /* Siri_Low_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Low_Glucose.caf; sourceTree = "<group>"; };
+		E42E2AE821E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Glucose_Rising_Fast.caf; sourceTree = "<group>"; };
+		E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Missed_Readings.caf; sourceTree = "<group>"; };
+		E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Calibration_Needed.caf; sourceTree = "<group>"; };
+		E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Urgent_Low_Glucose.caf; sourceTree = "<group>"; };
+		E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
 		E45907DE21D550FA00B139CF /* GlucoseGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseGraph.swift; sourceTree = "<group>"; };
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
@@ -232,6 +254,23 @@
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
 		};
+		E42E2AE121E0A305004FD560 /* sounds */ = {
+			isa = PBXGroup;
+			children = (
+				E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */,
+				E42E2AE521E0A33A004FD560 /* Siri_Device_Muted.caf */,
+				E42E2AE621E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf */,
+				E42E2AE821E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf */,
+				E42E2AE421E0A33A004FD560 /* Siri_High_Glucose.caf */,
+				E42E2AE721E0A33A004FD560 /* Siri_Low_Glucose.caf */,
+				E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */,
+				E42E2AE221E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf */,
+				E42E2AE321E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf */,
+				E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */,
+			);
+			path = sounds;
+			sourceTree = "<group>";
+		};
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
@@ -280,10 +319,12 @@
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
 				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
 				E425663821CD671700469232 /* Extensions.swift */,
+				E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */,
 				E4B5023121D61A1900E18DDD /* DrawingView.swift */,
 				E4B5022C21D6160C00E18DDD /* Calculation.swift */,
 				E425664D21CE66A200469232 /* GlucosePoint.swift */,
 				E40021BD21D89DAA001AB34D /* PieChart.swift */,
+				E42E2AE121E0A305004FD560 /* sounds */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -437,8 +478,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */,
+				E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */,
+				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
+				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
+				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
 				E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */,
+				E42E2AEF21E0A33A004FD560 /* Siri_Device_Muted.caf in Resources */,
+				E42E2AEE21E0A33A004FD560 /* Siri_High_Glucose.caf in Resources */,
 				E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */,
+				E42E2AF021E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf in Resources */,
+				E42E2AED21E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf in Resources */,
+				E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */,
 				E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -485,6 +536,7 @@
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4B5023421D61E9800E18DDD /* AttributedStringConstruction.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
+				E42E2AF721E0A58C004FD560 /* UserDefaultsExtensions.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 			);
