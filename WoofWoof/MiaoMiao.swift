@@ -197,7 +197,7 @@ class MiaoMiao {
 
     private static func removeNoSensorNotification() {
         DispatchQueue.main.async {
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["nosensor"])
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["nosensor"])
         }
     }
 

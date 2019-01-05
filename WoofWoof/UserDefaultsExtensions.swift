@@ -26,6 +26,7 @@ extension UserDefaults {
         case additionalSlope
         case lowAlertLevel
         case highAlertLevel
+        case extremeLevel
     }
 
     enum IntKey: String {
@@ -44,9 +45,9 @@ extension UserDefaults {
     func register() {
         let defaults: [String: Any] = [DoubleKey.additionalSlope.key: 1,
                                      IntKey.watchWakeupTime.key: 5 * 60 + 15,
-                                     IntKey.watchSleepTime.key: 11 * 60,
+                                     IntKey.watchSleepTime.key: 23 * 60,
                                      DoubleKey.lowAlertLevel.key: 75.0,
-                                     DoubleKey.highAlertLevel.key: 200.0]
+                                     DoubleKey.highAlertLevel.key: 190.0]
 
         register(defaults: defaults)
     }

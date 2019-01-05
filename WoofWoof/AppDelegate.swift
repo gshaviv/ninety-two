@@ -216,27 +216,45 @@ extension AppDelegate: MiaoMiaoDelegate {
 
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     defaults[.didAlertEvent] = false
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["event"])
 
                 default:
                     break
                 }
             }
-            if WCSession.default.isComplicationEnabled {
+            if  WCSession.default.isComplicationEnabled {
                 var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
                 var show: String
                 switch Int(current.value) {
                 case 250...:
-                    show = "H+"
+                    if current.value > defaults[.extremeLevel] {
+                        show = "H⤒"
+                        defaults[.extremeLevel] = current.value
+                    } else {
+                        show = "H↧"
+                    }
 
                 case 180 ..< 250:
-                    show = "H"
-
+                    if current.value > defaults[.extremeLevel] {
+                        show = "h⤒"
+                        defaults[.extremeLevel] = current.value
+                    } else {
+                        show = "h↧"
+                    }
                 case 75 ..< 180:
                     show = "Ok"
+                    defaults[.extremeLevel] = current.value
                     
                 default:
+                    let sym: String
+                    if current.value < defaults[.extremeLevel] {
+                        sym = "↧"
+                        defaults[.extremeLevel] = current.value
+                   } else {
+                        sym = "⤒"
+                    }
                     if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
-                        show = "L"
+                        show = "L\(sym)"
                     } else {
                         show = "\(Int(round(current.value)))"
                     }
