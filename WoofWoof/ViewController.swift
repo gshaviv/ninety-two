@@ -211,17 +211,9 @@ func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
 
 extension ViewController: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
-        if MiaoMiao.serial != defaults[.sensorSerial] {
-            let alert = UIAlertController(title: "Please Calibrate", message: "New sensor detected, calibration needed", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-            present(alert, animated: true, completion: nil)
-        }
-
         if UIApplication.shared.applicationState != .background {
             update()
-        } else {
-            log("skipping cause in background")
-        }
+        } 
     }
 }
 

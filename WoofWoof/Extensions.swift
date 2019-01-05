@@ -209,6 +209,18 @@ extension UserDefaults {
         case watchWakeupTime
         case watchSleepTime
     }
+    enum BoolKey: String {
+        case didAlertCalibrateFirst12h
+        case didAlertCalibrateSecond12h
+        case didAlertCalibrateAfter24h
+    }
+    func register() {
+        let defaults = [DoubleKey.additionalSlope.key: 1,
+                        IntKey.watchWakeupTime.key: 5*60 + 15,
+                        IntKey.watchSleepTime.key: 11*60]
+
+        register(defaults: defaults)
+    }
     subscript(key: StringKey) -> String? {
         get {
             return object(forKey: key.rawValue) as? String
@@ -241,5 +253,39 @@ extension UserDefaults {
             set(newValue, forKey: key.rawValue)
         }
     }
+    subscript(key: BoolKey) -> Bool {
+        get {
+            return bool(forKey: key.rawValue)
+        }
+        set {
+            set(newValue, forKey: key.rawValue)
+        }
+    }
+    
 }
 
+extension UserDefaults.StringKey {
+    var key: String {
+        return rawValue
+    }
+}
+extension UserDefaults.DateKey {
+    var key: String {
+        return rawValue
+    }
+}
+extension UserDefaults.DoubleKey {
+    var key: String {
+        return rawValue
+    }
+}
+extension UserDefaults.IntKey {
+    var key: String {
+        return rawValue
+    }
+}
+extension UserDefaults.BoolKey {
+    var key: String {
+        return rawValue
+    }
+}

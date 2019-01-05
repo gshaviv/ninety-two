@@ -25,11 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         trendCalculator = Calculation {
             return self.trendValue()
         }
-        defaults.register(defaults:
-            [UserDefaults.DoubleKey.additionalSlope.rawValue: 1,
-             UserDefaults.IntKey.watchWakeupTime.rawValue: 5*60 + 15,
-                UserDefaults.IntKey.watchSleepTime.rawValue: 11*60
-            ])
+        defaults.register()
     }
 
 

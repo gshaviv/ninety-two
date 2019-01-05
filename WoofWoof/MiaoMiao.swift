@@ -36,6 +36,9 @@ class MiaoMiao {
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
                 defaults[.additionalSlope] = 1
+                defaults[.didCalibrateAfter24h] = false
+                defaults[.didAlertCalibrateFirst12h] = false
+                defaults[.didAlertCalibrateSecond12h] = false
             }
         }
     }
@@ -162,6 +165,7 @@ class MiaoMiao {
                 packetData = []
                 return
             }
+            removeNoSensorNotification()
 
             hardware = packetData[16...17].hexString
             firmware = packetData[14...15].hexString
@@ -170,10 +174,10 @@ class MiaoMiao {
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
+                serial = data.serialNumber
                 sensorAge = data.minutesSinceStart
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
-                serial = data.serialNumber
                 record(trend: trendPoints, history: historyPoints)
                 retrying = false
             } else if !retrying {
@@ -187,7 +191,50 @@ class MiaoMiao {
         }
     }
 
-    static public var sensorAge: Int?
+    static private func removeNoSensorNotification() {
+        DispatchQueue.main.async {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["nosensor"])
+        }
+    }
+
+    static private func showCalibrationAlert() {
+        DispatchQueue.main.async {
+            let notification = UNMutableNotificationContent()
+            notification.title = "Calibration needed"
+            notification.body = "Please Calibrate BG"
+            notification.categoryIdentifier = "calibrate"
+            let request = UNNotificationRequest(identifier: "calibrate", content: notification, trigger: nil)
+            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                if let err = err {
+                    logError("\(err)")
+                }
+            })
+        }
+    }
+
+    static public var sensorAge: Int? {
+        didSet {
+            guard let sensorAge = sensorAge else {
+                return
+            }
+            switch sensorAge {
+            case 0 ..< Int(12.m) where !defaults[.didAlertCalibrateFirst12h]:
+                showCalibrationAlert()
+                defaults[.didAlertCalibrateFirst12h] = true
+
+            case Int(12.m) ..< Int(24.m) where !defaults[.didAlertCalibrateSecond12h]:
+                showCalibrationAlert()
+                defaults[.didAlertCalibrateSecond12h] = true
+
+            case Int(24.m)... where !defaults[.didAlertCalibrateAfter24h]:
+                showCalibrationAlert()
+                defaults[.didAlertCalibrateAfter24h] = true
+
+            default:
+                break
+            }
+        }
+    }
     static public var trend: [GlucosePoint]? {
         didSet {
             if let current = currentGlucose {
