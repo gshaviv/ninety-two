@@ -195,7 +195,7 @@ func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
 }
 
 extension UNNotificationSound {
-    static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed")
-    static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose")
-    static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose")
+    static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed.caf")
+    static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose.caf")
+    static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose.caf")
 }

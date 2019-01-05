@@ -235,7 +235,11 @@ extension AppDelegate: MiaoMiaoDelegate {
                     show = "Ok"
 
                 default:
-                    show = "\(Int(round(current.value)))"
+                    if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
+                        show = "L"
+                    } else {
+                        show = "\(Int(round(current.value)))"
+                    }
                 }
                 if show != defaults[.complicationState] {
                     let now = Date()
