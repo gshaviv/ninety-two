@@ -14,6 +14,7 @@ extension UserDefaults {
 
     enum StringKey: String {
         case sensorSerial
+        case complicationState
     }
 
     enum DateKey: String {

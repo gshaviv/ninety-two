@@ -17,7 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var updater: Repeater?
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
-    private var watchState: String = ""
 
     override init() {
         super.init()
@@ -238,12 +237,12 @@ extension AppDelegate: MiaoMiaoDelegate {
                 default:
                     show = "\(Int(round(current.value)))"
                 }
-                if show != watchState {
+                if show != defaults[.complicationState] {
                     let now = Date()
                     let nowTime = now.hour * 60 + now.minute
                     if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
                         payload["v"] = show
-                        watchState = show
+                        defaults[.complicationState] = show
                         WCSession.default.transferCurrentComplicationUserInfo(payload)
                     }
                 }
