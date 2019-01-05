@@ -1,6 +1,6 @@
 //
 //  GlucoseGraph.swift
-//  
+//
 //
 //  Created by Guy on 27/12/2018.
 //
@@ -15,9 +15,9 @@ class GlucoseGraph: UIView {
             guard !points.isEmpty else {
                 return
             }
-            let (gmin,gmax) = points.reduce((999.0,0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
+            let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
             holes = []
-            for (idx, gp) in points[1...].enumerated() {
+            for (idx, gp) in points[1 ... ].enumerated() {
                 if gp.isCalibration {
                     holes.append(idx + 1)
                 } else if gp.date - points[idx].date > 30.m {
@@ -37,8 +37,8 @@ class GlucoseGraph: UIView {
     private var holes: [Int] = []
     var yRange = (min: CGFloat(70), max: CGFloat(180))
     var xRange = (min: Date() - 1.d, max: Date())
-    var lineWidth:CGFloat = 1.5
-    var dotRadius:CGFloat = 3
+    var lineWidth: CGFloat = 1.5
+    var dotRadius: CGFloat = 3
     var xTimeSpan = 6.h {
         didSet {
             contentWidthConstraint?.isActive = false
@@ -54,12 +54,12 @@ class GlucoseGraph: UIView {
     var xAxisHeight: CGFloat = 30
     var yAxis: DrawingView!
 
-    let colors = [ 0 ... 55 : UIColor.red,
+    let colors = [0 ... 55: UIColor.red,
                    55 ... 70: UIColor.red.lighter(),
                    70 ... 110: UIColor.green,
                    110 ... 140: UIColor.green.lighter(by: 40),
                    140 ... 180: UIColor.green.lighter(by: 70),
-                   180 ... 999: UIColor.yellow ]
+                   180 ... 999: UIColor.yellow]
     var contentWidthConstraint: NSLayoutConstraint?
 
     var yReference = [35, 40, 50, 60, 70, 90, 110, 125, 140, 160, 180, 200, 250, 300, 350, 400, 500]
@@ -86,14 +86,14 @@ class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: rect.width, y: yc))
         }
         ctx?.strokePath()
-        let p = points.map { CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))) }
+        let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if p.isEmpty {
             return
         }
         let curve = UIBezierPath()
         if self.holes.isEmpty {
             curve.move(to: p[0])
-            curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+            curve.addCurveThrough(points: p[1 ... ], contractionFactor: 0.65)
         } else {
             var idx = 0
             for hole in self.holes {
@@ -145,7 +145,7 @@ class GlucoseGraph: UIView {
 
         var touchLabelFrame: CGRect?
         if let touchPoint = self.touchPoint {
-            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
+            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value)) }).last?.value ?? UIColor.blue.darker(by: 70)
             let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
             let size = str.size()
             let p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
@@ -183,7 +183,7 @@ class GlucoseGraph: UIView {
             let size = str.size()
             let p = CGPoint(x: xCoor(xDate) - size.width / 2, y: 6)
             let stringRect = CGRect(origin: p, size: size)
-            if  rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
+            if rect.contains(stringRect) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(stringRect)) {
                 str.draw(in: stringRect)
             }
             xDate += step
@@ -210,10 +210,10 @@ class GlucoseGraph: UIView {
         let touchLabelFrame: CGRect?
         if let touchPoint = self.touchPoint {
             let v = Int(round(touchPoint.value))
-            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value))}).last?.value ?? UIColor.blue.darker(by: 70)
+            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value)) }).last?.value ?? UIColor.blue.darker(by: 70)
             let str = "\(v)".styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
             let size = str.size()
-            touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height/2), size: size)
+            touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height / 2), size: size)
             str.draw(in: touchLabelFrame!)
         } else {
             touchLabelFrame = nil
@@ -229,7 +229,7 @@ class GlucoseGraph: UIView {
             ctx?.strokePath()
             let label = "\(y)".styled.systemFont(size: 14)
             let size = label.size()
-            let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height/2), size: size)
+            let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height / 2), size: size)
             if rect.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
                 label.draw(in: labelFrame)
             }
@@ -330,7 +330,7 @@ class GlucoseGraph: UIView {
         let yCoor = { (self.yRange.max - $0) * yScale }
         let xScale = size.width / CGFloat(self.xRange.max - self.xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
-        let pts = self.points!.map { (CGPoint(x: xCoor($0.date) , y: yCoor(CGFloat($0.value))), $0) }
+        let pts = self.points!.map { (CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))), $0) }
         let inside = pts.filter { $0.0 - touchPoint < 50 }
         if inside.isEmpty {
             self.touchPoint = nil
@@ -338,7 +338,7 @@ class GlucoseGraph: UIView {
         }
         var best = inside[0].1
         var dist: CGFloat = touchPoint.distance(to: inside[0].0)
-        for point in inside[1...] {
+        for point in inside[1 ... ] {
             let h = touchPoint.distance(to: point.0)
             if h < dist {
                 dist = h
@@ -350,6 +350,7 @@ class GlucoseGraph: UIView {
 }
 
 extension GlucoseGraph: UIScrollViewDelegate {
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         xAxisHolder.contentOffset = scrollView.contentOffset
         if touchPoint != nil {
@@ -359,6 +360,7 @@ extension GlucoseGraph: UIScrollViewDelegate {
 }
 
 extension GlucoseGraph {
+
     override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
         points = [
@@ -384,4 +386,3 @@ extension GlucoseGraph {
         ]
     }
 }
-

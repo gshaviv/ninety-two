@@ -13,16 +13,18 @@ import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
 extension SqliteDatabase {
-    @discardableResult func perform<T,R>(_ statement: @autoclosure () throws -> Statement<T,R>) throws -> R {
+
+    @discardableResult func perform<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) throws -> R {
         return try statement().run(self)
     }
 
-    @discardableResult func evaluate<T,R>(_ statement: @autoclosure () throws -> Statement<T,R>) -> R? {
+    @discardableResult func evaluate<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) -> R? {
         return try? statement().run(self)
     }
 }
 
 extension Collection where Element: SignedNumeric {
+
     func diff() -> [Element] {
         guard var last = first else { return [] }
         return dropFirst().reduce(into: []) {
@@ -33,6 +35,7 @@ extension Collection where Element: SignedNumeric {
 }
 
 extension UIColor {
+
     /**
      Create a ligher color
      */
@@ -57,7 +60,7 @@ extension UIColor {
             if newB > 0 && newB < 1 {
                 return UIColor(hue: h, saturation: s, brightness: newB, alpha: a)
             } else {
-                let newS: CGFloat = min(max(s - (percentage/100.0)*s, 0.0), 1.0)
+                let newS: CGFloat = min(max(s - (percentage / 100.0) * s, 0.0), 1.0)
                 return UIColor(hue: h, saturation: newS, brightness: b, alpha: a)
             }
         }
@@ -66,7 +69,7 @@ extension UIColor {
 }
 
 extension Date {
-    static private var compKey = false
+    private static var compKey = false
     var components: DateComponents {
         if let comp = objc_getAssociatedObject(self, &Date.compKey) as? DateComponents {
             return comp
@@ -102,7 +105,6 @@ extension DateComponents {
     }
 }
 
-
 extension Data {
     public var hexString: String {
         return reduce(into: "") {
@@ -116,9 +118,11 @@ extension ArraySlice where Element == UInt8 {
     var uint16: UInt16 {
         return UInt16(self[0]) << 8 + UInt16(self[1])
     }
+
     func uint16(_ idx: Int) -> UInt16 {
-        return UInt16(self[idx*2]) << 8 + UInt16(self[idx * 2 + 1])
+        return UInt16(self[idx * 2]) << 8 + UInt16(self[idx * 2 + 1])
     }
+
     var hexString: String {
         return reduce(into: "") {
             $0.append(hexDigits[Int($1 / 16)])
@@ -148,9 +152,6 @@ extension Int {
     }
 }
 
-
-
-
 extension UIView {
     var width: CGFloat {
         return frame.width
@@ -160,7 +161,7 @@ extension UIView {
     }
 }
 
-func - (lhs:Date, rhs:Date) -> TimeInterval {
+func - (lhs: Date, rhs: Date) -> TimeInterval {
     return lhs.timeIntervalSince1970 - rhs.timeIntervalSince1970
 }
 
@@ -169,11 +170,11 @@ func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
 }
 
 extension CGPoint {
+
     func distance(to: CGPoint) -> CGFloat {
         return ((x - to.x) ** 2 + (y - to.y) ** 2) ** 0.5
     }
 }
-
 
 precedencegroup PowerPrecedence {
     higherThan: MultiplicationPrecedence
@@ -192,8 +193,6 @@ func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
 func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
     return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
-
-
 
 extension UNNotificationSound {
     static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed")

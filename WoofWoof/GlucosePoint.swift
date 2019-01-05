@@ -64,7 +64,6 @@ extension GlucosePoint: CustomStringConvertible {
 }
 
 extension GlucosePoint: Equatable {
-
 }
 
 extension Measurement {

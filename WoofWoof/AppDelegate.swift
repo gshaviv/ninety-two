@@ -14,7 +14,7 @@ import WatchConnectivity
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     #if targetEnvironment(simulator)
-    var updater: Repeater?
+        var updater: Repeater?
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
     private var watchState: String = ""
@@ -27,7 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         defaults.register()
     }
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -45,24 +44,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MiaoMiao.addDelegate(self)
 
         #if targetEnvironment(simulator)
-        var lastHistoryDate = Date() - 20.m
-        MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: 70 + Double(arc4random_uniform(40))))
-        updater = Repeater.every(60, perform: { (_) in
-            let newValue = 70 + Double(arc4random_uniform(40))
-            let gp = GlucosePoint(date: Date(), value: newValue)
-            MiaoMiao.trend = [gp,
-            GlucosePoint(date: Date() - 1.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
-            GlucosePoint(date: Date() - 2.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
-            GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100))/50 - 1),
-            GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100))/50 - 1)]
-            
-            MiaoMiao.delegate?.forEach { $0.didUpdateGlucose() }
-            if Date() - lastHistoryDate > 5.m {
-                MiaoMiao.last24hReadings.append(gp)
-                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
-                lastHistoryDate = Date()
-            }
-        })
+            var lastHistoryDate = Date() - 20.m
+            MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: 70 + Double(arc4random_uniform(40))))
+            updater = Repeater.every(60, perform: { (_) in
+                let newValue = 70 + Double(arc4random_uniform(40))
+                let gp = GlucosePoint(date: Date(), value: newValue)
+                MiaoMiao.trend = [gp,
+                                  GlucosePoint(date: Date() - 1.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
+                                  GlucosePoint(date: Date() - 2.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
+                                  GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
+                                  GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1)]
+
+                MiaoMiao.delegate?.forEach { $0.didUpdateGlucose() }
+                if Date() - lastHistoryDate > 5.m {
+                    MiaoMiao.last24hReadings.append(gp)
+                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+                    lastHistoryDate = Date()
+                }
+            })
         #endif
 
         return true
@@ -89,7 +88,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
 
     private func trendValue() -> Double? {
         guard let trend = MiaoMiao.trend else {
@@ -123,68 +121,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "⇊"
         }
     }
-
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.badge, .sound, .alert])
     }
 }
 
 extension AppDelegate: WCSessionDelegate {
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
 
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {
         if WCSession.default.isComplicationEnabled, let current = MiaoMiao.trend?.first {
-            WCSession.default.transferUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c":true])
+            WCSession.default.transferUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c": true])
         }
     }
 
     func sessionDidDeactivate(_ session: WCSession) {
-
     }
 
-//    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-//        guard let  op = message["op"] as? String else {
-//            replyHandler([:])
-//            return
-//        }
-//        switch op {
-//        case "refresh":
-//            replyHandler(["d": pendingWatchPoints])
-//            pendingWatchPoints = []
-//
-//        default:
-//            replyHandler([:])
-//        }
-//    }
+    //    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+    //        guard let  op = message["op"] as? String else {
+    //            replyHandler([:])
+    //            return
+    //        }
+    //        switch op {
+    //        case "refresh":
+    //            replyHandler(["d": pendingWatchPoints])
+    //            pendingWatchPoints = []
+    //
+    //        default:
+    //            replyHandler([:])
+    //        }
+    //    }
 
-//    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-//        guard let  op = message["op"] as? String else {
-//            return
-//        }
-//        switch op {
-//        case "refresh":
-//            let pending = pendingWatchPoints
-//            pendingWatchPoints = []
-//            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
-//                logError("Error seding response: \(err.localizedDescription)")
-//                self.pendingWatchPoints.append(contentsOf: pending)
-//            })
-//
-//        default:
-//            break
-//        }
-//    }
-
-
+    //    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+    //        guard let  op = message["op"] as? String else {
+    //            return
+    //        }
+    //        switch op {
+    //        case "refresh":
+    //            let pending = pendingWatchPoints
+    //            pendingWatchPoints = []
+    //            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
+    //                logError("Error seding response: \(err.localizedDescription)")
+    //                self.pendingWatchPoints.append(contentsOf: pending)
+    //            })
+    //
+    //        default:
+    //            break
+    //        }
+    //    }
 }
 
-
 extension AppDelegate: MiaoMiaoDelegate {
+
     func showAlert(title: String?, body: String?, sound: UNNotificationSoundName?) {
         DispatchQueue.main.async {
             let notification = UNMutableNotificationContent()
@@ -212,11 +207,11 @@ extension AppDelegate: MiaoMiaoDelegate {
         if let current = MiaoMiao.currentGlucose {
             if let trend = trendValue() {
                 switch current.value {
-                case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
+                case ... defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
                     defaults[.didAlertEvent] = true
                     showAlert(title: "Low Glucose", body: nil, sound: UNNotificationSound.lowGlucose)
 
-                case defaults[.highAlertLevel]... where !defaults[.didAlertEvent] && trend > 0.25:
+                case defaults[.highAlertLevel] ... where !defaults[.didAlertEvent] && trend > 0.25:
                     defaults[.didAlertEvent] = true
                     showAlert(title: "High Glucose", body: nil, sound: UNNotificationSound.highGlucose)
 
@@ -228,12 +223,12 @@ extension AppDelegate: MiaoMiaoDelegate {
                 }
             }
             if WCSession.default.isComplicationEnabled {
-                var payload: [String:Any] = ["d": current.date.timeIntervalSince1970]
+                var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
                 switch Int(current.value) {
                 case 180 ..< 250:
                     payload["v"] = "H"
 
-                case 250...:
+                case 250 ... :
                     payload["v"] = "H+"
 
                 case 75 ..< 180:

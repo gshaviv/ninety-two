@@ -67,7 +67,7 @@ class ViewController: UIViewController {
     func update() {
         if let lastH = MiaoMiao.last24hReadings.last?.date {
             let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
-            let end =  Date().timeIntervalSince(last) < 12.h  ? Date() : last
+            let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
 
             var together = MiaoMiao.last24hReadings
             let trendData = MiaoMiao.trend ?? []
@@ -105,7 +105,7 @@ class ViewController: UIViewController {
             self.updateTimeAgo()
         }
         if let age = MiaoMiao.sensorAge {
-            sensorAgeLabel.text = "\(age/24/60)d:\(age / 60 % 24)h"
+            sensorAgeLabel.text = "\(age / 24 / 60)d:\(age / 60 % 24)h"
         } else {
             sensorAgeLabel.text = "?"
         }
@@ -123,7 +123,7 @@ class ViewController: UIViewController {
                         let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                         let withTime = zip(readings.dropLast(), diffs)
                         let withGoodTime = withTime.filter { $0.1 < 20.m }
-                        let (sumG,totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0,0.0,0.0,0.0,0.0)) { (result, arg) -> (Double,Double,Double,Double,Double) in
+                        let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
                             let (sum, total, below, inRange, above) = result
                             let (gp, duration) = arg
                             let x0 = sum + gp.value * duration
@@ -131,7 +131,7 @@ class ViewController: UIViewController {
                             let x2 = gp.value < 70 ? below + duration : below
                             let x3 = gp.value >= 70 && gp.value < 140 ? inRange + duration : inRange
                             let x4 = gp.value >= 140 ? above + duration : above
-                            return (x0, x1, x2 , x3, x4)
+                            return (x0, x1, x2, x3, x4)
                         }
                         let aveG = sumG / totalT
                         let a1c = (aveG / 18.05 + 2.52) / 1.583
@@ -147,7 +147,7 @@ class ViewController: UIViewController {
                         }
                     }
                 }
-            } catch { }
+            } catch {}
         }
     }
 
@@ -201,7 +201,7 @@ class ViewController: UIViewController {
 }
 
 func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
-    let pairs = Array(zip(list[0 ..< list.count - 1], list[1...]))
+    let pairs = Array(zip(list[0..<list.count - 1], list[1...]))
     if let idx = pairs.firstIndex(where: { $0.date > $1.date }) {
         return idx
     } else {
@@ -210,10 +210,10 @@ func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
 }
 
 extension ViewController: MiaoMiaoDelegate {
+
     func didUpdate(addedHistory: [GlucosePoint]) {
         if UIApplication.shared.applicationState != .background {
             update()
-        } 
+        }
     }
 }
-

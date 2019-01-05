@@ -9,7 +9,7 @@
 import Foundation
 
 extension Date {
-    static private var compKey = false
+    private static var compKey = false
     var components: DateComponents {
         if let comp = objc_getAssociatedObject(self, &Date.compKey) as? DateComponents {
             return comp

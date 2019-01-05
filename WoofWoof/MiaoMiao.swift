@@ -25,12 +25,14 @@ class MiaoMiao {
     public static var firmware: String = ""
     public static var batteryLevel: Int = 0 // 0 - 100
     static var delegate: [MiaoMiaoDelegate]? = nil
+
     public static func addDelegate(_ obj: MiaoMiaoDelegate) {
         if delegate == nil {
             delegate = []
         }
         delegate?.append(obj)
     }
+
     private static var shortRefresh = false
     static var serial: String? {
         didSet {
@@ -46,7 +48,7 @@ class MiaoMiao {
     static var last24hReadings: [GlucoseReading] {
         get {
             if _last24.isEmpty {
-                let end =  Date()
+                let end = Date()
                 if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)), // DEBUG
                     let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
                     if calibrations.isEmpty {
@@ -65,7 +67,7 @@ class MiaoMiao {
                             }
                         } while rIdx < readings.count && cIdx < calibrations.count
                         if rIdx < readings.count {
-                            readings[rIdx...].forEach { together.append($0) }
+                            readings[rIdx ... ].forEach { together.append($0) }
                         }
 
                         _last24 = together
@@ -78,8 +80,7 @@ class MiaoMiao {
             _last24 = newValue
         }
     }
-    static private var pendingReadings: [GlucosePoint] = []
-
+    private static var pendingReadings: [GlucosePoint] = []
 
     static var db: SqliteDatabase = {
         let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
@@ -90,13 +91,16 @@ class MiaoMiao {
     }()
 
     class Command {
+
         static func startReading() {
             Central.manager.send(bytes: Code.startReading)
         }
+
         static func send(_ bytes: [Byte]) {
             Central.manager.send(bytes: bytes)
         }
     }
+
     class Code {
         static let newSensor: Byte = 0x32
         static let noSensor: Byte = 0x34
@@ -109,7 +113,7 @@ class MiaoMiao {
         static let frequencyResponse: Byte = 0xd1
     }
 
-    private static var packetData:[Byte] = []
+    private static var packetData: [Byte] = []
     private static var retrying = false
 
     static func decode(_ data: Data) {
@@ -140,7 +144,7 @@ class MiaoMiao {
                 packetData = bytes
 
             case Code.frequencyResponse:
-                if bytes.count < 2  {
+                if bytes.count < 2 {
                     break
                 }
                 switch bytes[1] {
@@ -167,8 +171,8 @@ class MiaoMiao {
             }
             removeNoSensorNotification()
 
-            hardware = packetData[16...17].hexString
-            firmware = packetData[14...15].hexString
+            hardware = packetData[16 ... 17].hexString
+            firmware = packetData[14 ... 15].hexString
             batteryLevel = Int(packetData[13])
 
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
@@ -191,13 +195,13 @@ class MiaoMiao {
         }
     }
 
-    static private func removeNoSensorNotification() {
+    private static func removeNoSensorNotification() {
         DispatchQueue.main.async {
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["nosensor"])
         }
     }
 
-    static private func showCalibrationAlert() {
+    private static func showCalibrationAlert() {
         DispatchQueue.main.async {
             let notification = UNMutableNotificationContent()
             notification.title = "Calibration needed"
@@ -212,7 +216,7 @@ class MiaoMiao {
         }
     }
 
-    static public var sensorAge: Int? {
+    public static var sensorAge: Int? {
         didSet {
             guard let sensorAge = sensorAge else {
                 return
@@ -226,7 +230,7 @@ class MiaoMiao {
                 showCalibrationAlert()
                 defaults[.didAlertCalibrateSecond12h] = true
 
-            case Int(24.m)... where !defaults[.didAlertCalibrateAfter24h]:
+            case Int(24.m) ... where !defaults[.didAlertCalibrateAfter24h]:
                 showCalibrationAlert()
                 defaults[.didAlertCalibrateAfter24h] = true
 
@@ -235,7 +239,7 @@ class MiaoMiao {
             }
         }
     }
-    static public var trend: [GlucosePoint]? {
+    public static var trend: [GlucosePoint]? {
         didSet {
             if let current = currentGlucose {
                 log("currentGlucose=\(current.value)")
@@ -258,10 +262,11 @@ class MiaoMiao {
         }
     }
 
-    static public var currentGlucose: GlucosePoint? {
+    public static var currentGlucose: GlucosePoint? {
         return trend?.first
     }
-    static private func record(trend: [GlucosePoint], history: [GlucosePoint]) {
+
+    private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         guard let db = try? db.createChild() else {
             return
         }
@@ -300,8 +305,8 @@ class MiaoMiao {
                     logError("\(error)")
                 }
             }
-            if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h} ), idx > 0 {
-                _last24 = Array(last24hReadings[idx...])
+            if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h }), idx > 0 {
+                _last24 = Array(last24hReadings[idx ... ])
             }
             DispatchQueue.main.async {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }
@@ -309,5 +314,3 @@ class MiaoMiao {
         }
     }
 }
-
-

@@ -10,10 +10,12 @@ import UIKit
 
 @IBDesignable
 class PieChart: UIView {
+
     struct Slice {
         let value: CGFloat
         let color: UIColor
     }
+
     var slices: [Slice] = [] {
         didSet {
             sum = slices.reduce(0) { $0 + $1.value }
@@ -45,11 +47,12 @@ class PieChart: UIView {
             angle = endAngle
         }
         UIColor.lightGray.set()
-        UIBezierPath(ovalIn: CGRect(origin: center - CGPoint(x: radius, y: radius), size: CGSize(width: 2*radius, height: 2*radius))).stroke()
+        UIBezierPath(ovalIn: CGRect(origin: center - CGPoint(x: radius, y: radius), size: CGSize(width: 2 * radius, height: 2 * radius))).stroke()
     }
 }
 
 extension PieChart {
+
     override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
         slices = [Slice(value: 1, color: .red),
