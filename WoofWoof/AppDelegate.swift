@@ -224,24 +224,26 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             if WCSession.default.isComplicationEnabled {
                 var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
+                var show: String
                 switch Int(current.value) {
                 case 180 ..< 250:
-                    payload["v"] = "H"
+                    show = "H"
 
                 case 250...:
-                    payload["v"] = "H+"
+                    show = "H+"
 
                 case 75 ..< 180:
-                    payload["v"] = "Ok"
+                    show = "Ok"
 
                 default:
-                    payload["v"] = "\(Int(round(current.value)))"
+                    show = "\(Int(round(current.value)))"
                 }
-                if let v = payload["v"] as? String, v != watchState {
+                if show != watchState {
                     let now = Date()
                     let nowTime = now.hour * 60 + now.minute
                     if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
-                        watchState = v
+                        payload["v"] = show
+                        watchState = show
                         WCSession.default.transferCurrentComplicationUserInfo(payload)
                     }
                 }
