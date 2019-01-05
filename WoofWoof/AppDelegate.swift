@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var updater: Repeater?
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
-    private var pendingWatchPoints = [[String:Any]]()
+    private var watchState: String = ""
 
     override init() {
         super.init()
@@ -25,7 +25,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         trendCalculator = Calculation {
             return self.trendValue()
         }
-        defaults.register(defaults: [UserDefaults.DoubleKey.additionalSlope.rawValue: 1])
+        defaults.register(defaults:
+            [UserDefaults.DoubleKey.additionalSlope.rawValue: 1,
+             UserDefaults.IntKey.watchWakeupTime.rawValue: 5*60 + 15,
+                UserDefaults.IntKey.watchSleepTime.rawValue: 11*60
+            ])
     }
 
 
@@ -162,23 +166,23 @@ extension AppDelegate: WCSessionDelegate {
 //        }
 //    }
 
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        guard let  op = message["op"] as? String else {
-            return
-        }
-        switch op {
-        case "refresh":
-            let pending = pendingWatchPoints
-            pendingWatchPoints = []
-            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
-                logError("Error seding response: \(err.localizedDescription)")
-                self.pendingWatchPoints.append(contentsOf: pending)
-            })
-
-        default:
-            break
-        }
-    }
+//    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+//        guard let  op = message["op"] as? String else {
+//            return
+//        }
+//        switch op {
+//        case "refresh":
+//            let pending = pendingWatchPoints
+//            pendingWatchPoints = []
+//            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
+//                logError("Error seding response: \(err.localizedDescription)")
+//                self.pendingWatchPoints.append(contentsOf: pending)
+//            })
+//
+//        default:
+//            break
+//        }
+//    }
 
 
 }
@@ -187,17 +191,30 @@ extension AppDelegate: WCSessionDelegate {
 extension AppDelegate: MiaoMiaoDelegate {
     func didUpdateGlucose() {
         trendCalculator.invalidate()
-        if let current = MiaoMiao.trend?.first {
-            if WCSession.default.activationState == .activated {
-                let payload:[String:Any] = ["d": current.date.timeIntervalSince1970, "v": current.value, "t": self.trendSymbol()]
-                if (current.value < 80 || current.value > 180) && WCSession.default.isComplicationEnabled {
+        if let current = MiaoMiao.trend?.first, WCSession.default.isComplicationEnabled {
+            var payload: [String:Any] = ["d": current.date.timeIntervalSince1970]
+            switch Int(current.value) {
+            case 180 ..< 250:
+                payload["v"] = "H"
+
+            case 250...:
+                payload["v"] = "H+"
+
+            case 75 ..< 180:
+                payload["v"] = "Ok"
+
+            default:
+                payload["v"] = "\(Int(round(current.value)))"
+            }
+            if let v = payload["v"] as? String, v != watchState {
+                let now = Date()
+                let nowTime = now.hour * 60 + now.minute
+                if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
+                    watchState = v
                     WCSession.default.transferCurrentComplicationUserInfo(payload)
-                } else {
-                    if WCSession.default.isWatchAppInstalled {
-                        pendingWatchPoints.append(payload)
-                    }
                 }
             }
+
         }
     }
 }

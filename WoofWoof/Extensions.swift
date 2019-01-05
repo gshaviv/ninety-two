@@ -206,6 +206,8 @@ extension UserDefaults {
     }
     enum IntKey: String {
         case timeSpanIndex
+        case watchWakeupTime
+        case watchSleepTime
     }
     subscript(key: StringKey) -> String? {
         get {

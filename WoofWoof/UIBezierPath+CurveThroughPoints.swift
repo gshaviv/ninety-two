@@ -20,9 +20,9 @@ extension UIBezierPath {
             switch points.count {
             
             case 1:
-                addLine(to: points[0])
+                addLine(to: points[points.startIndex])
             case 2:
-                addLine(to: points[1])
+                addLine(to: points[points.startIndex + 1])
             default:
                 break
             }

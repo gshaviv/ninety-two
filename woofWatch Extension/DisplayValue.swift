@@ -10,6 +10,5 @@ import Foundation
 
 struct DisplayValue {
     let date: Date
-    let value: Double
-    let trendSymbol: String
+    let string: String
 }
