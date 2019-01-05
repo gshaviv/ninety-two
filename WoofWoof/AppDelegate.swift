@@ -225,15 +225,15 @@ extension AppDelegate: MiaoMiaoDelegate {
                 var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
                 var show: String
                 switch Int(current.value) {
-                case 180 ..< 250:
-                    show = "H"
-
                 case 250...:
                     show = "H+"
 
+                case 180 ..< 250:
+                    show = "H"
+
                 case 75 ..< 180:
                     show = "Ok"
-
+                    
                 default:
                     if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
                         show = "L"
