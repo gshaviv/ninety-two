@@ -20,6 +20,7 @@ extension UserDefaults {
     enum DateKey: String {
         case lastStatisticsCalculation
         case lastLowBatteryNofication
+        case lastEventAlertTime
     }
 
     enum DoubleKey: String {
@@ -33,6 +34,7 @@ extension UserDefaults {
         case timeSpanIndex
         case watchWakeupTime
         case watchSleepTime
+        case noSensorReadingCount
     }
 
     enum BoolKey: String {

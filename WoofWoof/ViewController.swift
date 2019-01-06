@@ -158,7 +158,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func handleMore(_ sender: Any) {
-        let sheet = UIAlertController(title: "Action", message: nil, preferredStyle: .actionSheet)
+        let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in
             self.calibrate()
         }))

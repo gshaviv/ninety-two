@@ -191,6 +191,7 @@ extension AppDelegate: MiaoMiaoDelegate {
             if let sound = sound {
                 notification.sound = UNNotificationSound(named: sound)
             }
+            defaults[.lastEventAlertTime] = Date()
             notification.categoryIdentifier = "event"
             let request = UNNotificationRequest(identifier: "event", content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
@@ -201,7 +202,7 @@ extension AppDelegate: MiaoMiaoDelegate {
         }
     }
 
-    func didUpdateGlucose() {
+    func didUpdate(addedHistory: [GlucosePoint]) {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
             if let trend = trendValue() {
@@ -212,7 +213,7 @@ extension AppDelegate: MiaoMiaoDelegate {
 
                 case defaults[.highAlertLevel]... where !defaults[.didAlertEvent] && trend > 0.25:
                     defaults[.didAlertEvent] = true
-                    showAlert(title: "High Glucose", body: nil, sound: UNNotificationSound.highGlucose)
+                    showAlert(title: "High Glucose", body: "Current level is \(Int(current.value))", sound: UNNotificationSound.highGlucose)
 
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     defaults[.didAlertEvent] = false
@@ -226,23 +227,21 @@ extension AppDelegate: MiaoMiaoDelegate {
                 var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
                 var show: String
                 switch Int(current.value) {
-                case 250...:
+                case 180...:
                     if current.value > defaults[.extremeLevel] {
-                        show = "H⤴︎"
+                        show = "\(current.value > 250 ? "H" : "h")⤴︎"
                         defaults[.extremeLevel] = current.value
+                        if let last = defaults[.lastEventAlertTime], Date() > last + 15.m {
+                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: UNNotificationSound.highGlucose)
+                        }
+
                     } else {
-                        show = "H⤵︎"
+                        show = "\(current.value > 250 ? "H" : "h")⤵︎"
                     }
 
-                case 180 ..< 250:
-                    if current.value > defaults[.extremeLevel] {
-                        show = "h⤴︎"
-                        defaults[.extremeLevel] = current.value
-                    } else {
-                        show = "h⤵︎"
-                    }
+
                 case 75 ..< 180:
-                    show = "Ok"
+                    show = "✔︎"
                     defaults[.extremeLevel] = current.value
                     
                 default:
@@ -256,7 +255,8 @@ extension AppDelegate: MiaoMiaoDelegate {
                     if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
                         show = "L\(sym)"
                     } else {
-                        show = "\(Int(round(current.value)))"
+                        let level = Int(ceil(round(current.value) / 5) * 5)
+                        show = "⦤\(level)"
                     }
                 }
                 if show != defaults[.complicationState] {

@@ -12,12 +12,6 @@ import UserNotifications
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
-    func didUpdateGlucose()
-}
-
-extension MiaoMiaoDelegate {
-    func didUpdate(addedHistory: [GlucosePoint]) {}
-    func didUpdateGlucose() {}
 }
 
 class MiaoMiao {
@@ -127,17 +121,20 @@ class MiaoMiao {
 
             case Code.noSensor:
                 logError("No Sensor detected")
-                DispatchQueue.main.async {
-                    let notification = UNMutableNotificationContent()
-                    notification.title = "No Sensor Detected"
-                    notification.body = "Check MiaoMiao is placed properly on top of the sensor"
-                    notification.categoryIdentifier = "nosensor"
-                    let request = UNNotificationRequest(identifier: "noSensor", content: notification, trigger: nil)
-                    UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
-                        if let err = err {
-                            logError("\(err)")
-                        }
-                    })
+                defaults[.noSensorReadingCount] += 1
+                if defaults[.noSensorReadingCount] == 2 {
+                    DispatchQueue.main.async {
+                        let notification = UNMutableNotificationContent()
+                        notification.title = "No Sensor Detected"
+                        notification.body = "Check MiaoMiao is placed properly on top of the sensor"
+                        notification.categoryIdentifier = "nosensor"
+                        let request = UNNotificationRequest(identifier: "noSensor", content: notification, trigger: nil)
+                        UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                            if let err = err {
+                                logError("\(err)")
+                            }
+                        })
+                    }
                 }
 
             case Code.startPacket:
@@ -196,6 +193,7 @@ class MiaoMiao {
     }
 
     private static func removeNoSensorNotification() {
+        defaults[.noSensorReadingCount] = 0
         DispatchQueue.main.async {
             UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["nosensor"])
         }
@@ -253,7 +251,6 @@ class MiaoMiao {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
                 }
-                delegate?.forEach { $0.didUpdateGlucose() }
             } else {
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = 0
