@@ -27,7 +27,6 @@ extension UserDefaults {
         case additionalSlope
         case lowAlertLevel
         case highAlertLevel
-        case extremeLevel
     }
 
     enum IntKey: String {

@@ -228,13 +228,15 @@ extension AppDelegate: MiaoMiaoDelegate {
                 var show: String
                 switch Int(current.value) {
                 case 180...:
-                    if current.value > defaults[.extremeLevel] {
-                        show = "\(current.value > 250 ? "H" : "h")⤴︎"
-                        defaults[.extremeLevel] = current.value
-                        if let last = defaults[.lastEventAlertTime], Date() > last + 15.m {
-                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: UNNotificationSound.highGlucose)
+                    guard let trend = MiaoMiao.trend else {
+                        return
+                    }
+                    let highest = max(trend[1...].reduce(0.0) { max($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(0.0) { max($0, $1.value) })
+                    if current.value > highest {
+                    show = "\(current.value > 250 ? "H" : "h")⤴︎"
+                        if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
+                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
                         }
-
                     } else {
                         show = "\(current.value > 250 ? "H" : "h")⤵︎"
                     }
@@ -242,13 +244,15 @@ extension AppDelegate: MiaoMiaoDelegate {
 
                 case 75 ..< 180:
                     show = "✔︎"
-                    defaults[.extremeLevel] = current.value
-                    
+
                 default:
+                    guard let trend = MiaoMiao.trend else {
+                        return
+                    }
+                    let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(100.0) { min($0, $1.value) })
                     let sym: String
-                    if current.value < defaults[.extremeLevel] {
+                    if current.value < lowest {
                         sym = "⤵︎"
-                        defaults[.extremeLevel] = current.value
                    } else {
                         sym = "⤴︎"
                     }
@@ -256,17 +260,21 @@ extension AppDelegate: MiaoMiaoDelegate {
                         show = "L\(sym)"
                     } else {
                         let level = Int(ceil(round(current.value) / 5) * 5)
-                        show = "⦤\(level)"
+                        show = "≤\(level)"
                     }
                 }
+                let now = Date()
+                let nowTime = now.hour * 60 + now.minute
+                if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
+                    show = "🌙"
+                }
                 if show != defaults[.complicationState] {
-                    let now = Date()
-                    let nowTime = now.hour * 60 + now.minute
-                    if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
-                        payload["v"] = show
-                        defaults[.complicationState] = show
-                        WCSession.default.transferCurrentComplicationUserInfo(payload)
+                    if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
+                        show = "❌"
                     }
+                    defaults[.complicationState] = show
+                    payload["v"] = show
+                    WCSession.default.transferCurrentComplicationUserInfo(payload)
                 }
             }
         }
