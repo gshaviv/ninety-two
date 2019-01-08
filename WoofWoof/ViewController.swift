@@ -66,21 +66,10 @@ class ViewController: UIViewController {
             let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
             let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
 
-            var together = MiaoMiao.last24hReadings
-            let trendData = MiaoMiao.trend ?? []
-            if var latest = MiaoMiao.last24hReadings.last {
-                for point in trendData.reversed() {
-                    if (point.date > latest.date + 5.m && point.date < trendData.first!.date - 5.m) || point == trendData.first {
-                        together.append(point)
-                        latest = point
-                    }
-                }
-            }
-
-            graphView.points = together
+            graphView.points = MiaoMiao.allReadings
             graphView.yRange.max = max(graphView.yRange.max, 180)
             graphView.yRange.min = min(graphView.yRange.min, 60)
-            if !together.isEmpty {
+            if !MiaoMiao.allReadings.isEmpty {
                 graphView.xRange.max = end
                 graphView.xRange.min = graphView.xRange.max - 24.h
             }

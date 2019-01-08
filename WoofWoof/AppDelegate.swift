@@ -54,10 +54,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                   GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
                                   GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1)]
 
-                MiaoMiao.delegate?.forEach { $0.didUpdateGlucose() }
+                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
                 if Date() - lastHistoryDate > 5.m {
                     MiaoMiao.last24hReadings.append(gp)
-                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
                     lastHistoryDate = Date()
                 }
             })
@@ -143,38 +142,29 @@ extension AppDelegate: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) {
     }
 
-    //    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-    //        guard let  op = message["op"] as? String else {
-    //            replyHandler([:])
-    //            return
-    //        }
-    //        switch op {
-    //        case "refresh":
-    //            replyHandler(["d": pendingWatchPoints])
-    //            pendingWatchPoints = []
-    //
-    //        default:
-    //            replyHandler([:])
-    //        }
-    //    }
+    func appState() -> [String:Any] {
+        let now = Date()
+        let relevant = MiaoMiao.allReadings.filter { $0.date > now - 4.h && !$0.isCalibration }.map { [$0.date, $0.value] }
+        let state:[String:Any] = ["v": relevant, "t": trendValue() ?? 0, "s": trendSymbol()]
+        return state
+    }
 
-    //    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-    //        guard let  op = message["op"] as? String else {
-    //            return
-    //        }
-    //        switch op {
-    //        case "refresh":
-    //            let pending = pendingWatchPoints
-    //            pendingWatchPoints = []
-    //            session.sendMessage(["d": pending], replyHandler: nil, errorHandler: { (err) in
-    //                logError("Error seding response: \(err.localizedDescription)")
-    //                self.pendingWatchPoints.append(contentsOf: pending)
-    //            })
-    //
-    //        default:
-    //            break
-    //        }
-    //    }
+    func sendAppState() {
+        try? WCSession.default.updateApplicationContext(appState())
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        guard let op = message["op"] as? String else {
+            return
+        }
+        switch op {
+        case "state":
+            replyHandler(appState())
+
+        default:
+            break
+        }
+    }
 }
 
 extension AppDelegate: MiaoMiaoDelegate {
@@ -223,58 +213,63 @@ extension AppDelegate: MiaoMiaoDelegate {
                     break
                 }
             }
-            if  WCSession.default.isComplicationEnabled {
-                var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
-                var show: String
-                switch Int(current.value) {
-                case 180...:
-                    guard let trend = MiaoMiao.trend else {
-                        return
-                    }
-                    let highest = max(trend[1...].reduce(0.0) { max($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(0.0) { max($0, $1.value) })
-                    if current.value > highest {
-                    show = "\(current.value > 250 ? "H" : "h")⤴︎"
-                        if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
+            if WCSession.default.activationState == .activated {
+                if  WCSession.default.isComplicationEnabled {
+                    var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
+                    var show: String
+                    switch Int(current.value) {
+                    case 180...:
+                        guard let trend = MiaoMiao.trend else {
+                            return
                         }
-                    } else {
-                        show = "\(current.value > 250 ? "H" : "h")⤵︎"
-                    }
+                        let highest = max(trend[1...].reduce(0.0) { max($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(0.0) { max($0, $1.value) })
+                        if current.value > highest {
+                            show = "\(current.value > 250 ? "H" : "h")⤴︎"
+                            if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
+                                showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
+                            }
+                        } else {
+                            show = "\(current.value > 250 ? "H" : "h")⤵︎"
+                        }
 
 
-                case 75 ..< 180:
-                    show = "✔︎"
+                    case 75 ..< 180:
+                        show = "✔︎"
 
-                default:
-                    guard let trend = MiaoMiao.trend else {
-                        return
+                    default:
+                        guard let trend = MiaoMiao.trend else {
+                            return
+                        }
+                        let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(100.0) { min($0, $1.value) })
+                        let sym: String
+                        if current.value < lowest {
+                            sym = "⤵︎"
+                        } else {
+                            sym = "⤴︎"
+                        }
+                        if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
+                            show = "L\(sym)"
+                        } else {
+                            let level = Int(ceil(round(current.value) / 5) * 5)
+                            show = "≤\(level)"
+                        }
                     }
-                    let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(100.0) { min($0, $1.value) })
-                    let sym: String
-                    if current.value < lowest {
-                        sym = "⤵︎"
-                   } else {
-                        sym = "⤴︎"
+                    let now = Date()
+                    let nowTime = now.hour * 60 + now.minute
+                    if nowTime < defaults[.watchWakeupTime] || nowTime > defaults[.watchSleepTime] {
+                        show = "🌘"
                     }
-                    if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
-                        show = "L\(sym)"
-                    } else {
-                        let level = Int(ceil(round(current.value) / 5) * 5)
-                        show = "≤\(level)"
+                    if show != defaults[.complicationState] {
+                        if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
+                            show = "❌"
+                        }
+                        defaults[.complicationState] = show
+                        payload["v"] = show
+                        WCSession.default.transferCurrentComplicationUserInfo(payload)
                     }
                 }
-                let now = Date()
-                let nowTime = now.hour * 60 + now.minute
-                if nowTime > defaults[.watchWakeupTime] && nowTime < defaults[.watchSleepTime] {
-                    show = "🌙"
-                }
-                if show != defaults[.complicationState] {
-                    if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
-                        show = "❌"
-                    }
-                    defaults[.complicationState] = show
-                    payload["v"] = show
-                    WCSession.default.transferCurrentComplicationUserInfo(payload)
+                if WCSession.default.isReachable {
+                    sendAppState()
                 }
             }
         }

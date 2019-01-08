@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if os(iOS)
 import Sqlable
+#endif
 
 protocol GlucoseReading {
     var date: Date { get }
@@ -24,6 +26,7 @@ struct GlucosePoint: GlucoseReading {
     let value: Double
 }
 
+#if os(iOS)
 extension GlucosePoint: Sqlable {
     static let date = Column("date", .date)
     static let value = Column("value", .real)
@@ -48,6 +51,7 @@ extension GlucosePoint: Sqlable {
         value = try row.get(GlucosePoint.value)
     }
 }
+#endif
 
 extension GlucosePoint: CustomStringConvertible {
     static let dateFormatter: DateFormatter = {
@@ -66,6 +70,7 @@ extension GlucosePoint: CustomStringConvertible {
 extension GlucosePoint: Equatable {
 }
 
+#if os(iOS)
 extension Measurement {
     var glucosePoint: GlucosePoint {
         return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
@@ -105,3 +110,4 @@ extension Calibration: Sqlable {
         value = try row.get(GlucosePoint.value)
     }
 }
+#endif

@@ -9,26 +9,54 @@
 import WatchKit
 import WatchConnectivity
 
-// #if targetEnvironment(simulator)
-// let refreshInterval = 30.s
-// #else
-// let refreshInterval: TimeInterval = {
-//    if let last = WKExtension.extensionDelegate.data.last, last.value < 70 {
-//        return 1.m
-//    }
-//    return 5.m
-// }()
-// #endif
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var data = DisplayValue(date: Date(), string: "-")
+    private(set) public var trendValue: Double = 0
+    private(set) public var trendSymbol: String = ""
+    private(set) public var readings =  [GlucosePoint]()
 
     func applicationDidFinishLaunching() {
         WCSession.default.delegate = self
         WCSession.default.activate()
     }
 
-    func applicationDidBecomeActive() {
+    func applicationWillEnterForeground() {
+        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            if readings.isEmpty {
+                ctr.blank()
+            } else {
+                ctr.updateTime()
+            }
+            refresh()
+        }
+    }
+
+    func refresh() {
+        WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
+            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any] else {
+                return
+            }
+            self.trendValue = t
+            self.trendSymbol = s
+            self.readings = m.compactMap {
+                guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                    return nil
+                }
+                return GlucosePoint(date: d, value: v)
+            }
+            if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
+                DispatchQueue.main.async {
+                    controller.update()
+                }
+            }
+        }) { (_) in
+            if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
+                DispatchQueue.main.async {
+                    controller.showError()
+                }
+            }
+        }
     }
 
     func applicationWillResignActive() {
@@ -106,39 +134,37 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 extension ExtensionDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        if session.activationState == .activated, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            ctr.updateTime()
+            refresh()
+        }
     }
 
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
         if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? String {
             data = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
             reloadComplication()
-            //            if !session.hasContentPending {
-            //                WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date() + refreshInterval, userInfo: nil) { (err) in
-            //
-            //                }
-            //                pendingTasks.forEach { $0.setTaskCompletedWithSnapshot(false) }
-            //                pendingTasks = []
-            //            }
         }
     }
 
-    //    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-    //        if let got = message["d"] as? [[String:Any]] {
-    //            for userInfo in got {
-    //                if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? Double, let sym = userInfo["t"] as? String {
-    //                    let val = DisplayValue(date: Date(timeIntervalSince1970: d), value: v, trendSymbol: sym)
-    //                    insert(data: val)
-    //                }
-    //            }
-    //            self.reloadComplication()
-    //        }
-    //        if let last = self.data.last?.date {
-    //            WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: last + refreshInterval, userInfo: nil) { (err) in
-    //
-    //            }
-    //        }
-    //
-    //    }
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any] else {
+            return
+        }
+        trendValue = t
+        trendSymbol = s
+        readings = m.compactMap {
+            guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                return nil
+            }
+            return GlucosePoint(date: d, value: v)
+        }
+        if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            DispatchQueue.main.async {
+                controller.update()
+            }
+        }
+    }
 }
 
 extension WKExtension {

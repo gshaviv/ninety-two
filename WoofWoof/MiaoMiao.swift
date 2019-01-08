@@ -38,7 +38,11 @@ class MiaoMiao {
             }
         }
     }
-    private static var _last24: [GlucoseReading] = []
+    private static var _last24: [GlucoseReading] = [] {
+        didSet {
+            allReadingsCalculater.invalidate()
+        }
+    }
     static var last24hReadings: [GlucoseReading] {
         get {
             if _last24.isEmpty {
@@ -257,6 +261,39 @@ class MiaoMiao {
                 }
             }
         }
+    }
+    public static var allReadings: [GlucoseReading] {
+        return allReadingsCalculater.value
+    }
+    private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
+        var together = last24hReadings
+        let trendData = trend ?? []
+
+        if var latest = last24hReadings.last, last24hReadings.count > 2 {
+            let inrange = trendData.filter { $0.date < latest.date }
+            let before = last24hReadings[last24hReadings.count - 2]
+            var maxValue = max(before.value, latest.value) * 1.05
+            var minValue = min(before.value, latest.value) * 0.95
+            var maxP: GlucosePoint? = nil
+            var minP: GlucosePoint? = nil
+            for gp in inrange {
+                if gp.value > maxValue {
+                    maxP = gp
+                    maxValue = gp.value
+                } else if gp.value < minValue {
+                    minP = gp
+                    minValue = gp.value
+                }
+            }
+
+            if let p = maxP {
+                together.insert(p, at: last24hReadings.count - 1)
+            } else if let p = minP {
+                together.insert(p, at: last24hReadings.count - 1)
+            }
+            together.append(latest)
+        }
+        return together
     }
 
     public static var currentGlucose: GlucosePoint? {
