@@ -175,6 +175,7 @@ class MiaoMiao {
             hardware = packetData[16 ... 17].hexString
             firmware = packetData[14 ... 15].hexString
             batteryLevel = Int(packetData[13])
+            log("MiaoMiao battery level = \(batteryLevel)")
 
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
@@ -243,6 +244,7 @@ class MiaoMiao {
     }
     public static var trend: [GlucosePoint]? {
         didSet {
+            allReadingsCalculater.invalidate()
             if let current = currentGlucose {
                 log("currentGlucose=\(current.value)")
                 DispatchQueue.main.async {
@@ -265,11 +267,13 @@ class MiaoMiao {
     public static var allReadings: [GlucoseReading] {
         return allReadingsCalculater.value
     }
+    private static var lastDate: Date = Date.distantPast
     private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
         var together = last24hReadings
         let trendData = trend ?? []
 
-        if var latest = last24hReadings.last, last24hReadings.count > 2 {
+        if var latest = last24hReadings.last, last24hReadings.count > 2 && latest.date > lastDate {
+            lastDate = latest.date
             let inrange = trendData.filter { $0.date < latest.date }
             let before = last24hReadings[last24hReadings.count - 2]
             var maxValue = max(before.value, latest.value) * 1.05
@@ -288,11 +292,16 @@ class MiaoMiao {
 
             if let p = maxP {
                 together.insert(p, at: last24hReadings.count - 1)
+                pendingReadings.append(p)
             } else if let p = minP {
                 together.insert(p, at: last24hReadings.count - 1)
+                pendingReadings.append(p)
             }
-            together.append(latest)
         }
+        if let current = currentGlucose {
+            together.append(current)
+        }
+
         return together
     }
 
@@ -323,8 +332,10 @@ class MiaoMiao {
                 }
             }
             MiaoMiao.trend = trend
-            _last24.append(contentsOf: added)
-            pendingReadings.append(contentsOf: added)
+            if !added.isEmpty {
+                _last24.append(contentsOf: added)
+                pendingReadings.append(contentsOf: added)
+            }
             if pendingReadings.count > 3 {
                 do {
                     try db.beginTransaction()

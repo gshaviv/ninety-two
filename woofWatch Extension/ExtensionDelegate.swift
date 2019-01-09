@@ -15,6 +15,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var trendValue: Double = 0
     private(set) public var trendSymbol: String = ""
     private(set) public var readings =  [GlucosePoint]()
+    private var lastRefreshDate = Date.distantPast
 
     func applicationDidFinishLaunching() {
         WCSession.default.delegate = self
@@ -23,20 +24,31 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     func applicationWillEnterForeground() {
         if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            if readings.isEmpty {
-                ctr.blank()
-            } else {
+            if !readings.isEmpty {
                 ctr.updateTime()
             }
-            refresh()
+            refresh(blank: true)
         }
     }
 
-    func refresh() {
+    func applicationDidEnterBackground() {
+        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            ctr.blank()
+        }
+    }
+
+    func refresh(blank: Bool = false) {
+        guard Date() - lastRefreshDate > 5.s else {
+            return
+        }
+        if blank, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            ctr.blank()
+        }
         WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any] else {
                 return
             }
+            self.lastRefreshDate = Date()
             self.trendValue = t
             self.trendSymbol = s
             self.readings = m.compactMap {
@@ -74,40 +86,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             // Use a switch statement to check the task type
             switch task {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
-                //                WCSession.default.sendMessage(["op": "refresh"], replyHandler: nil) { (err) in
-                //                    print("\(err)")
-                //                }
-                //                WCSession.default.sendMessage(["op": "refresh"], replyHandler: { (response) in
-                //                    if let got = response["d"] as? [[String:Any]] {
-                //                        for info in got {
-                //                            self.session(WCSession.default, didReceiveUserInfo: info)
-                //                        }
-                //                        self.reloadComplication()
-                //                    }
-                //                    if let last = self.data.last?.date {
-                //                        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: last + refreshInterval, userInfo: nil) { (err) in
-                //
-                //                        }
-                //                    }
-                //                }) { (_) in
-                //                    self.pendingTasks.forEach { $0.setTaskCompletedWithSnapshot(false) }
-                //                    self.pendingTasks = []
-                //                }
-                //                WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date() + refreshInterval, userInfo: nil) { (err) in
-                //
-                //                }
-                backgroundTask.setTaskCompletedWithSnapshot(false)
+                 backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
+                if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+                    ctr.blank()
+                }
+                
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
-                //                if WCSession.default.hasContentPending {
-                //                    pendingTasks.insert(connectivityTask)
-                //                } else {
-                //                    WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date() + refreshInterval, userInfo: nil) { (err) in
-                //
-                //                    }
                 connectivityTask.setTaskCompletedWithSnapshot(false)
-                //                }
             case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
                 urlSessionTask.setTaskCompletedWithSnapshot(false)
             case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
@@ -136,7 +123,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if session.activationState == .activated, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
             ctr.updateTime()
-            refresh()
+            refresh(blank: true)
         }
     }
 

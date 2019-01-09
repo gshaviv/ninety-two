@@ -23,11 +23,12 @@
                                 </label>
                             </items>
                         </group>
-                        <imageView width="1" height="110" alignment="left" id="o4d-03-Fc5"/>
+                        <imageView width="1" height="110" alignment="left" contentMode="scaleAspectFit" id="o4d-03-Fc5"/>
                     </items>
                     <connections>
                         <outlet property="agoLabel" destination="8eL-2P-Wbi" id="7iU-O3-LL7"/>
                         <outlet property="glucoseLabel" destination="CJy-43-4iV" id="y26-F5-hqC"/>
+                        <outlet property="imageView" destination="o4d-03-Fc5" id="vuh-oA-KOj"/>
                         <outlet property="trendLabel" destination="LeA-KA-RyD" id="hHp-NI-9f3"/>
                     </connections>
                 </controller>

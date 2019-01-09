@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import CoreGraphics
+import WatchKit
 
 extension Date {
     private static var compKey = false
@@ -52,4 +54,46 @@ extension Int {
     var d: TimeInterval {
         return self.h * 24
     }
+}
+
+func - (lhs: Date, rhs: Date) -> TimeInterval {
+    return lhs.timeIntervalSince1970 - rhs.timeIntervalSince1970
+}
+
+extension UIColor {
+
+    /**
+     Create a ligher color
+     */
+    func lighter(by percentage: CGFloat = 30.0) -> UIColor {
+        return self.adjustBrightness(by: abs(percentage))
+    }
+
+    /**
+     Create a darker color
+     */
+    func darker(by percentage: CGFloat = 30.0) -> UIColor {
+        return self.adjustBrightness(by: -abs(percentage))
+    }
+
+    /**
+     Try to increase brightness or decrease saturation
+     */
+    func adjustBrightness(by percentage: CGFloat = 30.0) -> UIColor {
+        var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        if self.getHue(&h, saturation: &s, brightness: &b, alpha: &a) {
+            let newB = (1 + percentage / 100.0) * b
+            if newB > 0 && newB < 1 {
+                return UIColor(hue: h, saturation: s, brightness: newB, alpha: a)
+            } else {
+                let newS: CGFloat = min(max(s - (percentage / 100.0) * s, 0.0), 1.0)
+                return UIColor(hue: h, saturation: newS, brightness: b, alpha: a)
+            }
+        }
+        return self
+    }
+}
+
+func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+    return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
 }

@@ -13,20 +13,11 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var glucoseLabel: WKInterfaceLabel!
     @IBOutlet var trendLabel: WKInterfaceLabel!
     @IBOutlet var agoLabel: WKInterfaceLabel!
+    @IBOutlet var imageView: WKInterfaceImage!
+
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-
     }
-
-//    override func willActivate() {
-//        super.willActivate()
-//    }
-//
-//    override func didAppear() {
-//        super.didAppear()
-//        updateTime()
-//        WKExtension.extensionDelegate.refresh()
-//    }
 
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
@@ -53,16 +44,29 @@ class InterfaceController: WKInterfaceController {
         glucoseLabel.setAlpha(1)
         trendLabel.setAlpha(1)
         agoLabel.setAlpha(1)
-        
-            glucoseLabel.setText("\(Int(round(last.value)))\(WKExtension.extensionDelegate.trendSymbol)")
+        imageView.setAlpha(1)
+
+        glucoseLabel.setText("\(Int(round(last.value)))\(WKExtension.extensionDelegate.trendSymbol)")
         trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
         updateTime()
+        DispatchQueue.global().async {
+            if let image = self.createImage() {
+                DispatchQueue.main.async {
+                    self.imageView.setImage(image)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.imageView.setImage(nil)
+                }
+            }
+        }
     }
 
     func showError() {
         glucoseLabel.setAlpha(1)
         trendLabel.setAlpha(1)
         agoLabel.setAlpha(1)
+        imageView.setAlpha(1)
         glucoseLabel.setText("?")
         trendLabel.setText("")
         agoLabel.setText("")
@@ -72,6 +76,66 @@ class InterfaceController: WKInterfaceController {
         glucoseLabel.setAlpha(0.3)
         trendLabel.setAlpha(0.3)
         agoLabel.setAlpha(0.3)
+        imageView.setAlpha(0.5)
+    }
 
+    func createImage() -> UIImage? {
+        let colors = [0 ... 55: UIColor.red,
+                      55 ... 70: UIColor.red.lighter(),
+                      70 ... 110: UIColor.green,
+                      110 ... 140: UIColor.green.lighter(by: 40),
+                      140 ... 180: UIColor.green.lighter(by: 70),
+                      180 ... 999: UIColor.yellow]
+        let yReference = [35, 40, 50, 60, 70, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+        let lineWidth:CGFloat = 3
+        let dotRadius:CGFloat = 4
+
+        let width = WKInterfaceDevice.current().screenBounds.size.width * WKInterfaceDevice.current().screenScale
+        let points = WKExtension.extensionDelegate.readings
+        let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
+        let yRange = (min: min(max(CGFloat(floor(gmin / 5) * 5), 10), 70), max: max(CGFloat(ceil(gmax / 5) * 5), 180))
+        let xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
+
+        let size = CGSize(width: width, height: 110 * WKInterfaceDevice.current().screenScale)
+        UIGraphicsBeginImageContext(size)
+
+        let ctx = UIGraphicsGetCurrentContext()
+        let yScale = size.height / (yRange.max - yRange.min)
+        let yCoor = { (yRange.max - $0) * yScale }
+        let xScale = size.width / CGFloat(xRange.max - xRange.min)
+        let xCoor = { (d: Date) in CGFloat(d - xRange.min) * xScale }
+        for (range, color) in colors {
+            color.set()
+            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
+        }
+        UIColor(white: 0.5, alpha: 0.5).set()
+        ctx?.beginPath()
+        for y in yReference {
+            let yc = yCoor(CGFloat(y))
+            ctx?.move(to: CGPoint(x: 0, y: yc))
+            ctx?.addLine(to: CGPoint(x: size.width, y: yc))
+        }
+        ctx?.strokePath()
+        let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        if !p.isEmpty {
+            let curve = UIBezierPath()
+                curve.move(to: p[0])
+                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+            UIColor.darkGray.set()
+            curve.lineWidth = lineWidth
+            curve.stroke()
+
+            UIColor.black.set()
+            let fill = UIBezierPath()
+            let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
+            for point in p {
+                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+            }
+            fill.lineWidth = 0
+            fill.fill()
+        }
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
 }

@@ -4,7 +4,11 @@
 //
 
 import Foundation
+#if os(iOS)
 import UIKit
+#else
+import WatchKit
+#endif
 
 
 extension UIBezierPath {

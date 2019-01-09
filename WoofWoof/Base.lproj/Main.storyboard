@@ -43,7 +43,7 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="m3w-JE-fXm">
                                                 <rect key="frame" x="8" y="4" width="359" height="39.5"/>
                                                 <subviews>
-                                                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" image="battery-0" translatesAutoresizingMaskIntoConstraints="NO" id="kW8-4j-jwz">
+                                                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" image="battery-1" translatesAutoresizingMaskIntoConstraints="NO" id="kW8-4j-jwz">
                                                         <rect key="frame" x="0.0" y="0.0" width="30" height="39.5"/>
                                                     </imageView>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="8d:2h" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tss-jP-hB5">
@@ -263,7 +263,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="battery-0" width="30" height="21"/>
-        <image name="more" width="30" height="30"/>
+        <image name="battery-1" width="30" height="18"/>
+        <image name="more" width="30" height="23.5"/>
     </resources>
 </document>

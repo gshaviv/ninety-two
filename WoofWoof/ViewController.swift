@@ -28,10 +28,10 @@ class ViewController: UIViewController {
 
     private func batteryLevelIcon(for level: Int) -> UIImage {
         switch level {
-        case 80...:
+        case 90...:
             return UIImage(named: "battery-5")!
 
-        case 60..<80:
+        case 60..<90:
             return UIImage(named: "battery-4")!
 
         case 30..<60:
@@ -67,8 +67,8 @@ class ViewController: UIViewController {
             let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
 
             graphView.points = MiaoMiao.allReadings
-            graphView.yRange.max = max(graphView.yRange.max, 180)
-            graphView.yRange.min = min(graphView.yRange.min, 60)
+            graphView.yRange.max = max(graphView.yRange.max, 140)
+            graphView.yRange.min = min(graphView.yRange.min, 70)
             if !MiaoMiao.allReadings.isEmpty {
                 graphView.xRange.max = end
                 graphView.xRange.min = graphView.xRange.max - 24.h
