@@ -62,7 +62,7 @@ class GlucoseGraph: UIView {
                    180 ... 999: UIColor.yellow]
     var contentWidthConstraint: NSLayoutConstraint?
 
-    var yReference = [35, 40, 50, 60, 70, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+    var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
 
     private func drawContent(_ rect: CGRect) {
         guard let points = self.points else {

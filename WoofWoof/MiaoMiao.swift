@@ -17,7 +17,13 @@ protocol MiaoMiaoDelegate {
 class MiaoMiao {
     public static var hardware: String = ""
     public static var firmware: String = ""
-    public static var batteryLevel: Int = 0 // 0 - 100
+    public static var batteryLevel: Int = 0 { // 0 - 100
+        didSet {
+            if oldValue != batteryLevel {
+                log("MiaoMiao battery level = \(batteryLevel)")
+            }
+        }
+    }
     static var delegate: [MiaoMiaoDelegate]? = nil
 
     public static func addDelegate(_ obj: MiaoMiaoDelegate) {
@@ -132,7 +138,7 @@ class MiaoMiao {
                         notification.title = "No Sensor Detected"
                         notification.body = "Check MiaoMiao is placed properly on top of the sensor"
                         notification.categoryIdentifier = "nosensor"
-                        let request = UNNotificationRequest(identifier: "noSensor", content: notification, trigger: nil)
+                        let request = UNNotificationRequest(identifier: NotificationIdentifier.noSensor, content: notification, trigger: nil)
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                             if let err = err {
                                 logError("\(err)")
@@ -175,7 +181,6 @@ class MiaoMiao {
             hardware = packetData[16 ... 17].hexString
             firmware = packetData[14 ... 15].hexString
             batteryLevel = Int(packetData[13])
-            log("MiaoMiao battery level = \(batteryLevel)")
 
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
@@ -200,7 +205,7 @@ class MiaoMiao {
     private static func removeNoSensorNotification() {
         defaults[.noSensorReadingCount] = 0
         DispatchQueue.main.async {
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["nosensor"])
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noSensor])
         }
     }
 
@@ -210,7 +215,7 @@ class MiaoMiao {
             notification.title = "Calibration needed"
             notification.body = "Please Calibrate BG"
             notification.categoryIdentifier = "calibrate"
-            let request = UNNotificationRequest(identifier: "calibrate", content: notification, trigger: nil)
+            let request = UNNotificationRequest(identifier: NotificationIdentifier.calibrate, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
                     logError("\(err)")

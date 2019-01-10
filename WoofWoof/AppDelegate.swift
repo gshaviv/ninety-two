@@ -183,7 +183,7 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             defaults[.lastEventAlertTime] = Date()
             notification.categoryIdentifier = "event"
-            let request = UNNotificationRequest(identifier: "event", content: notification, trigger: nil)
+            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
                     logError("\(err)")
@@ -207,7 +207,7 @@ extension AppDelegate: MiaoMiaoDelegate {
 
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     defaults[.didAlertEvent] = false
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["event"])
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
 
                 default:
                     break
@@ -280,4 +280,13 @@ extension UIApplication {
     static var theDelegate: AppDelegate {
         return UIApplication.shared.delegate as! AppDelegate
     }
+}
+
+
+class NotificationIdentifier {
+    static let noSensor = "noSensor"
+    static let event = "event"
+    static let lowBattery = "lowBattery"
+    static let noData = "noData"
+    static let calibrate = "calibrate"
 }

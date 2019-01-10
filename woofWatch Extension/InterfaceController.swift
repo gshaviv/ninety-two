@@ -93,7 +93,7 @@ class InterfaceController: WKInterfaceController {
         let width = WKInterfaceDevice.current().screenBounds.size.width * WKInterfaceDevice.current().screenScale
         let points = WKExtension.extensionDelegate.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
-        let yRange = (min: min(max(CGFloat(floor(gmin / 5) * 5), 10), 70), max: max(CGFloat(ceil(gmax / 5) * 5), 180))
+        let yRange = (min: min(max(CGFloat(floor(gmin / 5) * 5), 10), 80), max: max(CGFloat(ceil(gmax / 5) * 5), 140))
         let xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
 
         let size = CGSize(width: width, height: 110 * WKInterfaceDevice.current().screenScale)
@@ -108,13 +108,23 @@ class InterfaceController: WKInterfaceController {
             color.set()
             ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
         }
-        UIColor(white: 0.5, alpha: 0.5).set()
+        UIColor(white: 0.25, alpha: 0.75).set()
         ctx?.beginPath()
         for y in yReference {
             let yc = yCoor(CGFloat(y))
             ctx?.move(to: CGPoint(x: 0, y: yc))
             ctx?.addLine(to: CGPoint(x: size.width, y: yc))
         }
+        var components = xRange.min.components
+        components.second = 0
+        components.minute = 0
+        var xDate = components.date
+        let step = 1.h
+        repeat {
+            ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
+            ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: size.height))
+            xDate += step
+        } while xDate < xRange.max
         ctx?.strokePath()
         let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !p.isEmpty {

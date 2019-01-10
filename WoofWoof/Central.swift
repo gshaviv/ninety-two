@@ -71,9 +71,7 @@ public class Central: NSObject {
 
             switch (oldValue, state) {
             case (_, .bluetoothOn):
-                if oldValue == .ready || oldValue == .found {
-                    gcmDevice = nil
-                }
+                gcmDevice = nil
                 centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
 
             case (_, .found):
@@ -98,21 +96,27 @@ public class Central: NSObject {
 extension Central: CBCentralManagerDelegate {
 
     public func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
-        //        if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral], let rp = peripherals.first {
-        //            remotePeripheral = rp
-        //            rp.delegate = self
-        //            out: for s in rp.services ?? [] {
-        //                if s.uuid == Central.service {
-        //                    for c in s.characteristics ?? [] {
-        //                        if c.uuid == Central.commUUID {
-        //                            remoteDataChannel = c
-        //                            break out
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        LogVerbose("Restored Central with \(remotePeripheral == nil ? "no " : "")peripheral, with \(remoteDataChannel == nil ? "no " : "")data channel")
+        if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral], let rp = peripherals.first {
+            gcmDevice = rp
+            rp.delegate = self
+            out: for s in rp.services ?? [] {
+                if s.uuid == Central.service {
+                    for c in s.characteristics ?? [] {
+                        switch c.uuid {
+                        case Central.receive:
+                            readChannel = c
+                            gcmDevice.setNotifyValue(true, for: c)
+
+                        case Central.transmit:
+                            writeChannel = c
+
+                        default:
+                            break
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {

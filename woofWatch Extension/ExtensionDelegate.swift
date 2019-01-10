@@ -38,7 +38,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func refresh(blank: Bool = false) {
-        guard Date() - lastRefreshDate > 5.s else {
+        guard Date() - lastRefreshDate > 15.s else {
             return
         }
         if blank, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {

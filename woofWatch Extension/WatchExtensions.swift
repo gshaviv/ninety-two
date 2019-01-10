@@ -10,6 +10,11 @@ import Foundation
 import CoreGraphics
 import WatchKit
 
+extension DateComponents {
+    var date: Date {
+        return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
+    }
+}
 extension Date {
     private static var compKey = false
     var components: DateComponents {
