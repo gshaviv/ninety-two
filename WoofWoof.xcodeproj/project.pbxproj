@@ -146,6 +146,7 @@
 		E425663F21CE65A400469232 /* Sqlable.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sqlable.xcodeproj; path = Sqlable/Sqlable.xcodeproj; sourceTree = "<group>"; };
 		E425664D21CE66A200469232 /* GlucosePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucosePoint.swift; sourceTree = "<group>"; };
 		E425664F21CE6F9A00469232 /* DefaultKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultKey.swift; sourceTree = "<group>"; };
+		E42A290C21E728EB0084D181 /* WoofWoof.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WoofWoof.entitlements; sourceTree = "<group>"; };
 		E42E2A9921DF28C5004FD560 /* woofWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = woofWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42E2A9C21DF28C5004FD560 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		E42E2A9E21DF28C7004FD560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -298,6 +299,7 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E42A290C21E728EB0084D181 /* WoofWoof.entitlements */,
 				E40021B821D7BA6C001AB34D /* Repeater.swift */,
 				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
 				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
@@ -409,6 +411,9 @@
 					E4E35A5F21C3F8D300336CE8 = {
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
@@ -801,6 +806,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WoofWoof/WoofWoof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = WoofWoof/Info.plist;
@@ -820,6 +826,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WoofWoof/WoofWoof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = WoofWoof/Info.plist;

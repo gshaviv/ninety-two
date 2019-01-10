@@ -9,6 +9,7 @@
 import UIKit
 import UserNotifications
 import WatchConnectivity
+import Sqlable
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,7 +18,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var updater: Repeater?
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
-
+    private let sharedDb: SqliteDatabase? = {
+        let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite")
+        let db = try? SqliteDatabase(filepath: path)
+        try! db?.createTable(GlucosePoint.self)
+        return db
+    }()
     override init() {
         super.init()
         defaults[.lastStatisticsCalculation] = nil
@@ -107,9 +113,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "⇈"
         } else if trend > 1.4 {
             return "↑"
-        } else if trend > 0.7 {
+        } else if trend > 0.5 {
             return "↗︎"
-        } else if trend > -0.7 {
+        } else if trend > -0.5 {
             return "→"
         } else if trend > -1.4 {
             return "↘︎"
@@ -195,6 +201,13 @@ extension AppDelegate: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
+            if let sharedDb = self.sharedDb {
+                try? sharedDb.execute("delete from \(GlucosePoint.tableName)")
+                let now = Date()
+                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 3.h && !$0.isCalibration }) as? [GlucosePoint] {
+                    relevant.forEach { sharedDb.evaluate($0.insert()) }
+                }
+            }
             if let trend = trendValue() {
                 switch current.value {
                 case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:

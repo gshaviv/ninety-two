@@ -28,7 +28,7 @@ struct GlucosePoint: GlucoseReading {
 
 #if os(iOS)
 extension GlucosePoint: Sqlable {
-    static let date = Column("date", .date)
+    static let date = Column("date", .date, PrimaryKey(autoincrement: false))
     static let value = Column("value", .real)
 
     static var tableLayout = [date, value]
@@ -87,7 +87,7 @@ struct Calibration: GlucoseReading {
 }
 
 extension Calibration: Sqlable {
-    static let date = Column("date", .date)
+    static let date = Column("date", .date, PrimaryKey(autoincrement: false))
     static let value = Column("value", .real)
 
     static var tableLayout = [date, value]

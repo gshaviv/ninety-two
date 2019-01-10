@@ -21,6 +21,7 @@ extension UserDefaults {
         case lastStatisticsCalculation
         case lastLowBatteryNofication
         case lastEventAlertTime
+        case lastSharedDbEntry
     }
 
     enum DoubleKey: String {

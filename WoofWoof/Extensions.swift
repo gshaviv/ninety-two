@@ -207,3 +207,71 @@ public extension DispatchQueue {
         asyncAfter(deadline: dispatchTime, execute: closure)
     }
 }
+
+public extension String {
+    /// Trimming string whitespace
+    public var trimmed: String {
+        return trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Returns string's path extension. Like NSString but Swift
+    public var pathExtension: String {
+        if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
+            return String(self[idx...])
+        }
+        return ""
+    }
+
+    /// Returns string's last path component. Like NSString but Swift
+    public var lastPathComponent: String {
+        if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
+            return String(self[idx...])
+        }
+        return self
+    }
+
+    /// Delete last path component, like NSString, but swift, return without the trailing /
+    public var deletingLastPathComponent: String {
+        if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
+            return String(self[..<idx])
+        }
+        return ""
+    }
+
+    /// Add path components, like NSString but swift
+    public func appending(pathComponent str: String) -> String {
+        return hasSuffix("/") || str.hasPrefix("/") ? "\(self)\(str)" : "\(self)/\(str)"
+    }
+
+    public mutating func append(pathComponent str: String) {
+        if !hasSuffix("/") && !str.hasPrefix("/") {
+            append("/")
+        }
+        append(str)
+    }
+
+    /// add path extension
+    public func appending(pathExtension ext: String) -> String {
+        return hasSuffix(".") || ext.hasPrefix(".") ? "\(self)\(ext)" : "\(self).\(ext)"
+    }
+
+    public mutating func append(pathExtension ext: String) {
+        if !hasSuffix(".") && !ext.hasPrefix(".") {
+            append(".")
+        }
+        append(ext)
+    }
+
+    /// Delete path extension
+    public var deletingPathExtension: String {
+        if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
+            return String(self[..<idx])
+        }
+        return self
+    }
+
+    /// Convenience method so optionals can be used.. e.g. myString?.toInt()
+    public func toInt() -> Int? {
+        return Int(self)
+    }
+}
