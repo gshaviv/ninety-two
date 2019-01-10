@@ -148,7 +148,10 @@ class GlucoseGraph: UIView {
             let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value)) }).last?.value ?? UIColor.blue.darker(by: 70)
             let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
             let size = str.size()
-            let p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
+            var p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
+            if p.x + size.width > rect.width {
+                p.x = rect.width - size.width
+            }
             touchLabelFrame = CGRect(origin: p, size: size)
             if touchLabelFrame!.maxY > rect.maxY {
                 touchLabelFrame = CGRect(origin: CGPoint(x: rect.width - size.width, y: 3), size: size)

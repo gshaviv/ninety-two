@@ -295,11 +295,13 @@ class MiaoMiao {
             lastDate = latest.date
             let inrange = trendData.filter { $0.date < latest.date }
             let before = last24hReadings[last24hReadings.count - 2]
+            log("last two history points = \(latest.value), \(before.value)")
             var maxValue = max(before.value, latest.value) * 1.05
             var minValue = min(before.value, latest.value) * 0.95
             var maxP: GlucosePoint? = nil
             var minP: GlucosePoint? = nil
             for gp in inrange {
+                log("trend point in range: \(gp)")
                 if gp.value > maxValue {
                     maxP = gp
                     maxValue = gp.value
@@ -312,9 +314,11 @@ class MiaoMiao {
             if let p = maxP {
                 together.insert(p, at: last24hReadings.count - 1)
                 pendingReadings.append(p)
+                log("Inserted trend point \(p)")
             } else if let p = minP {
                 together.insert(p, at: last24hReadings.count - 1)
                 pendingReadings.append(p)
+                log("Inserted trend point \(p)")
             }
         }
         if let current = currentGlucose {
@@ -378,3 +382,5 @@ class MiaoMiao {
         }
     }
 }
+
+

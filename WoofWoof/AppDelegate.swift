@@ -11,6 +11,9 @@ import UserNotifications
 import WatchConnectivity
 import Sqlable
 
+private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
+
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -19,11 +22,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
     private let sharedDb: SqliteDatabase? = {
-        let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite")
-        let db = try? SqliteDatabase(filepath: path)
+        let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
         try! db?.createTable(GlucosePoint.self)
         return db
     }()
+    private let sharedOperationQueue = OperationQueue()
+    private var coordinator: NSFileCoordinator!
     override init() {
         super.init()
         defaults[.lastStatisticsCalculation] = nil
@@ -31,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return self.trendValue()
         }
         defaults.register()
+        coordinator = NSFileCoordinator(filePresenter: self)
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -202,10 +207,19 @@ extension AppDelegate: MiaoMiaoDelegate {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
             if let sharedDb = self.sharedDb {
-                try? sharedDb.execute("delete from \(GlucosePoint.tableName)")
-                let now = Date()
-                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 3.h && !$0.isCalibration }) as? [GlucosePoint] {
-                    relevant.forEach { sharedDb.evaluate($0.insert()) }
+                DispatchQueue.global().async {
+                    var error: NSError?
+                    self.coordinator.coordinate(writingItemAt: sharedDbUrl, options: [], error: &error, byAccessor: { (_) in
+                        do {
+                            try sharedDb.beginTransaction()
+                            try? sharedDb.execute("delete from \(GlucosePoint.tableName)")
+                            let now = Date()
+                            if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 3.h && !$0.isCalibration }) as? [GlucosePoint] {
+                                relevant.forEach { sharedDb.evaluate($0.insert()) }
+                            }
+                            try sharedDb.commitTransaction()
+                        } catch {}
+                    })
                 }
             }
             if let trend = trendValue() {
@@ -286,6 +300,17 @@ extension AppDelegate: MiaoMiaoDelegate {
                 }
             }
         }
+    }
+}
+
+
+extension AppDelegate: NSFilePresenter {
+    var presentedItemURL: URL? {
+        return sharedDbUrl
+    }
+
+    var presentedItemOperationQueue: OperationQueue {
+        return sharedOperationQueue
     }
 }
 

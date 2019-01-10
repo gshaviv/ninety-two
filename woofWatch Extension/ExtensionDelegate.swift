@@ -31,18 +31,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
 
-    func applicationDidEnterBackground() {
-        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.blank()
-        }
-    }
 
     func refresh(blank: Bool = false) {
         guard Date() - lastRefreshDate > 15.s else {
             return
         }
         if blank, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.blank()
+            ctr.setDim()
         }
         WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any] else {
@@ -89,7 +84,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                    ctr.blank()
+                    ctr.setDim()
                 }
                 
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)

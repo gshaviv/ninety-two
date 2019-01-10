@@ -41,10 +41,7 @@ class InterfaceController: WKInterfaceController {
         guard let last = WKExtension.extensionDelegate.readings.last else {
             return
         }
-        glucoseLabel.setAlpha(1)
-        trendLabel.setAlpha(1)
-        agoLabel.setAlpha(1)
-        imageView.setAlpha(1)
+        setDim(false)
 
         glucoseLabel.setText("\(Int(round(last.value)))\(WKExtension.extensionDelegate.trendSymbol)")
         trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
@@ -63,20 +60,17 @@ class InterfaceController: WKInterfaceController {
     }
 
     func showError() {
-        glucoseLabel.setAlpha(1)
-        trendLabel.setAlpha(1)
-        agoLabel.setAlpha(1)
-        imageView.setAlpha(1)
+        setDim(false)
         glucoseLabel.setText("?")
         trendLabel.setText("")
         agoLabel.setText("")
     }
 
-    func blank() {
-        glucoseLabel.setAlpha(0.3)
-        trendLabel.setAlpha(0.3)
-        agoLabel.setAlpha(0.3)
-        imageView.setAlpha(0.5)
+    func setDim(_ dim: Bool = true) {
+        glucoseLabel.setAlpha(dim ? 0.3 : 1)
+        trendLabel.setAlpha(dim ? 0.3 : 1)
+        agoLabel.setAlpha(dim ? 0.3 : 1)
+        imageView.setAlpha(dim ? 0.5 : 1)
     }
 
     func createImage() -> UIImage? {
