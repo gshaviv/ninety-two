@@ -118,7 +118,6 @@ class MiaoMiao {
     }
 
     private static var packetData: [Byte] = []
-    private static var retrying = false
 
     static func decode(_ data: Data) {
         let bytes = data.bytes
@@ -132,18 +131,21 @@ class MiaoMiao {
             case Code.noSensor:
                 logError("No Sensor detected")
                 defaults[.noSensorReadingCount] += 1
-                if defaults[.noSensorReadingCount] == 2 {
+                if defaults[.noSensorReadingCount] > 2 {
                     DispatchQueue.main.async {
                         let notification = UNMutableNotificationContent()
                         notification.title = "No Sensor Detected"
                         notification.body = "Check MiaoMiao is placed properly on top of the sensor"
-                        notification.categoryIdentifier = "nosensor"
                         let request = UNNotificationRequest(identifier: NotificationIdentifier.noSensor, content: notification, trigger: nil)
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                             if let err = err {
                                 logError("\(err)")
                             }
                         })
+                    }
+                } else {
+                    DispatchQueue.global().after(withDelay: shortRefresh ? 30.s : 2.m ) {
+                        Command.startReading()
                     }
                 }
 
@@ -178,6 +180,19 @@ class MiaoMiao {
             }
             removeNoSensorNotification()
 
+            DispatchQueue.main.async {
+                let notification = UNMutableNotificationContent()
+                notification.title = "No Transmitter Detected"
+                notification.body = "Lost connection to the MiaoMiao transmitter"
+                notification.sound = UNNotificationSound(named: UNNotificationSound.missed)
+                let request = UNNotificationRequest(identifier: NotificationIdentifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 20.m, repeats: false))
+                UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                    if let err = err {
+                        logError("\(err)")
+                    }
+                })
+            }
+
             hardware = packetData[16 ... 17].hexString
             firmware = packetData[14 ... 15].hexString
             batteryLevel = Int(packetData[13])
@@ -190,13 +205,12 @@ class MiaoMiao {
                 let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
-                retrying = false
-            } else if !retrying {
-                retrying = true
+                defaults[.badDataCount] = 0
+            } else if defaults[.badDataCount] < 3 {
+                defaults[.badDataCount] += 1
                 Command.startReading()
             } else {
                 logError("Failed to read data")
-                retrying = false
             }
             packetData = []
         }

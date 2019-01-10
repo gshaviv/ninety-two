@@ -34,6 +34,7 @@ extension UserDefaults {
         case watchWakeupTime
         case watchSleepTime
         case noSensorReadingCount
+        case badDataCount
     }
 
     enum BoolKey: String {

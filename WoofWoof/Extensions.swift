@@ -198,4 +198,12 @@ extension UNNotificationSound {
     static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed.caf")
     static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose.caf")
     static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose.caf")
+    static let missed = UNNotificationSoundName(rawValue: "Siri_Missed_Readings.caf")
+}
+
+public extension DispatchQueue {
+    public func after(withDelay delay: Double, closure: @escaping (() -> Void)) {
+        let dispatchTime: DispatchTime = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        asyncAfter(deadline: dispatchTime, execute: closure)
+    }
 }
