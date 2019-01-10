@@ -301,7 +301,6 @@ class MiaoMiao {
             var maxP: GlucosePoint? = nil
             var minP: GlucosePoint? = nil
             for gp in inrange {
-                log("trend point in range: \(gp)")
                 if gp.value > maxValue {
                     maxP = gp
                     maxValue = gp.value
@@ -312,10 +311,12 @@ class MiaoMiao {
             }
 
             if let p = maxP {
+                last24hReadings.insert(p, at: last24hReadings.count - 1)
                 together.insert(p, at: last24hReadings.count - 1)
                 pendingReadings.append(p)
                 log("Inserted trend point \(p)")
             } else if let p = minP {
+                last24hReadings.insert(p, at: last24hReadings.count - 1)
                 together.insert(p, at: last24hReadings.count - 1)
                 pendingReadings.append(p)
                 log("Inserted trend point \(p)")

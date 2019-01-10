@@ -214,7 +214,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                             try sharedDb.beginTransaction()
                             try? sharedDb.execute("delete from \(GlucosePoint.tableName)")
                             let now = Date()
-                            if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 3.h && !$0.isCalibration }) as? [GlucosePoint] {
+                            if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && !$0.isCalibration }) as? [GlucosePoint] {
                                 relevant.forEach { sharedDb.evaluate($0.insert()) }
                             }
                             try sharedDb.commitTransaction()
@@ -327,4 +327,10 @@ class NotificationIdentifier {
     static let lowBattery = "lowBattery"
     static let noData = "noData"
     static let calibrate = "calibrate"
+}
+
+extension Measurement {
+    var glucosePoint: GlucosePoint {
+        return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
+    }
 }

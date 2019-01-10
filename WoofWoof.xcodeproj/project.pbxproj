@@ -17,6 +17,18 @@
 		E425664E21CE66A200469232 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664F21CE6F9A00469232 /* DefaultKey.swift */; };
 		E42A290A21E5C3A60084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
+		E42A291E21E77B2A0084D181 /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A291D21E77B2A0084D181 /* NotificationCenter.framework */; };
+		E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
+		E42A292421E77B2A0084D181 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
+		E42A292821E77B2A0084D181 /* woofWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42A291B21E77B2A0084D181 /* woofWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E42A292E21E77C550084D181 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
+		E42A292F21E77C6F0084D181 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
+		E42A293021E77D6C0084D181 /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
+		E42A293121E784E60084D181 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
+		E42A293221E794CA0084D181 /* DrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023121D61A1900E18DDD /* DrawingView.swift */; };
+		E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
+		E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
+		E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E42E2A9D21DF28C5004FD560 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9B21DF28C5004FD560 /* Interface.storyboard */; };
 		E42E2A9F21DF28C7004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9E21DF28C7004FD560 /* Assets.xcassets */; };
 		E42E2AA621DF28C7004FD560 /* woofWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -85,6 +97,13 @@
 			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
 			remoteInfo = Sqlable;
 		};
+		E42A292621E77B2A0084D181 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E42A291A21E77B2A0084D181;
+			remoteInfo = woofWidget;
+		};
 		E42E2AA721DF28C7004FD560 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
@@ -111,6 +130,17 @@
 				E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E42A292C21E77B2A0084D181 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E42A292821E77B2A0084D181 /* woofWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E42E2ABF21DF28C8004FD560 /* Embed App Extensions */ = {
@@ -147,6 +177,12 @@
 		E425664D21CE66A200469232 /* GlucosePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucosePoint.swift; sourceTree = "<group>"; };
 		E425664F21CE6F9A00469232 /* DefaultKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultKey.swift; sourceTree = "<group>"; };
 		E42A290C21E728EB0084D181 /* WoofWoof.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WoofWoof.entitlements; sourceTree = "<group>"; };
+		E42A291B21E77B2A0084D181 /* woofWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = woofWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E42A291D21E77B2A0084D181 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
+		E42A292021E77B2A0084D181 /* TodayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayViewController.swift; sourceTree = "<group>"; };
+		E42A292321E77B2A0084D181 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		E42A292521E77B2A0084D181 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E42A292D21E77B360084D181 /* woofWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = woofWidget.entitlements; sourceTree = "<group>"; };
 		E42E2A9921DF28C5004FD560 /* woofWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = woofWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42E2A9C21DF28C5004FD560 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		E42E2A9E21DF28C7004FD560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -197,6 +233,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E42A291821E77B2A0084D181 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42A292F21E77C6F0084D181 /* Sqlable.framework in Frameworks */,
+				E42A291E21E77B2A0084D181 /* NotificationCenter.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42E2AA221DF28C7004FD560 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -230,6 +275,25 @@
 				E425664721CE65A400469232 /* SqlableTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E42A291C21E77B2A0084D181 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E42A291D21E77B2A0084D181 /* NotificationCenter.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E42A291F21E77B2A0084D181 /* woofWidget */ = {
+			isa = PBXGroup;
+			children = (
+				E42A292D21E77B360084D181 /* woofWidget.entitlements */,
+				E42A292021E77B2A0084D181 /* TodayViewController.swift */,
+				E42A292221E77B2A0084D181 /* MainInterface.storyboard */,
+				E42A292521E77B2A0084D181 /* Info.plist */,
+			);
+			path = woofWidget;
 			sourceTree = "<group>";
 		};
 		E42E2A9A21DF28C5004FD560 /* woofWatch */ = {
@@ -282,6 +346,8 @@
 				E4E35A6221C3F8D300336CE8 /* WoofWoof */,
 				E42E2A9A21DF28C5004FD560 /* woofWatch */,
 				E42E2AA921DF28C7004FD560 /* woofWatch Extension */,
+				E42A291F21E77B2A0084D181 /* woofWidget */,
+				E42A291C21E77B2A0084D181 /* Frameworks */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -292,6 +358,7 @@
 				E4E35A6021C3F8D300336CE8 /* WoofWoof.app */,
 				E42E2A9921DF28C5004FD560 /* woofWatch.app */,
 				E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */,
+				E42A291B21E77B2A0084D181 /* woofWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -337,6 +404,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		E42A291A21E77B2A0084D181 /* woofWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E42A292921E77B2A0084D181 /* Build configuration list for PBXNativeTarget "woofWidget" */;
+			buildPhases = (
+				E42A291721E77B2A0084D181 /* Sources */,
+				E42A291821E77B2A0084D181 /* Frameworks */,
+				E42A291921E77B2A0084D181 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = woofWidget;
+			productName = woofWidget;
+			productReference = E42A291B21E77B2A0084D181 /* woofWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E42E2A9821DF28C5004FD560 /* woofWatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E42E2AC021DF28C8004FD560 /* Build configuration list for PBXNativeTarget "woofWatch" */;
@@ -380,12 +464,14 @@
 				E4E35A5E21C3F8D300336CE8 /* Resources */,
 				E425664C21CE65CB00469232 /* Embed Frameworks */,
 				E42E2AC121DF28C8004FD560 /* Embed Watch Content */,
+				E42A292C21E77B2A0084D181 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				E425664B21CE65CA00469232 /* PBXTargetDependency */,
 				E42E2AB721DF28C8004FD560 /* PBXTargetDependency */,
+				E42A292721E77B2A0084D181 /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
@@ -402,6 +488,14 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = TivStudio;
 				TargetAttributes = {
+					E42A291A21E77B2A0084D181 = {
+						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
 					E42E2A9821DF28C5004FD560 = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -443,6 +537,7 @@
 				E4E35A5F21C3F8D300336CE8 /* WoofWoof */,
 				E42E2A9821DF28C5004FD560 /* woofWatch */,
 				E42E2AA421DF28C7004FD560 /* woofWatch Extension */,
+				E42A291A21E77B2A0084D181 /* woofWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -465,6 +560,14 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E42A291921E77B2A0084D181 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42A292421E77B2A0084D181 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42E2A9721DF28C5004FD560 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -505,6 +608,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E42A291721E77B2A0084D181 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */,
+				E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E42A292E21E77C550084D181 /* GlucosePoint.swift in Sources */,
+				E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */,
+				E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */,
+				E42A293221E794CA0084D181 /* DrawingView.swift in Sources */,
+				E42A293021E77D6C0084D181 /* GlucoseGraph.swift in Sources */,
+				E42A293121E784E60084D181 /* Extensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42E2AA121DF28C7004FD560 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -561,6 +679,11 @@
 			name = Sqlable;
 			targetProxy = E425664A21CE65CA00469232 /* PBXContainerItemProxy */;
 		};
+		E42A292721E77B2A0084D181 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E42A291A21E77B2A0084D181 /* woofWidget */;
+			targetProxy = E42A292621E77B2A0084D181 /* PBXContainerItemProxy */;
+		};
 		E42E2AA821DF28C7004FD560 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E42E2AA421DF28C7004FD560 /* woofWatch Extension */;
@@ -574,6 +697,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		E42A292221E77B2A0084D181 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E42A292321E77B2A0084D181 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		E42E2A9B21DF28C5004FD560 /* Interface.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -601,6 +732,48 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		E42A292A21E77B2A0084D181 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = woofWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.woofWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E42A292B21E77B2A0084D181 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = woofWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.woofWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		E42E2AB921DF28C8004FD560 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -844,6 +1017,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E42A292921E77B2A0084D181 /* Build configuration list for PBXNativeTarget "woofWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E42A292A21E77B2A0084D181 /* Debug */,
+				E42A292B21E77B2A0084D181 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E42E2ABE21DF28C8004FD560 /* Build configuration list for PBXNativeTarget "woofWatch Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

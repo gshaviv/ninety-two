@@ -71,11 +71,7 @@ extension GlucosePoint: Equatable {
 }
 
 #if os(iOS)
-extension Measurement {
-    var glucosePoint: GlucosePoint {
-        return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
-    }
-}
+
 
 struct Calibration: GlucoseReading {
     var isCalibration: Bool {

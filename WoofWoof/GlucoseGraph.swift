@@ -195,8 +195,6 @@ class GlucoseGraph: UIView {
 
     private func drawYAxis(_ rect: CGRect) {
         let ctx = UIGraphicsGetCurrentContext()
-        UIColor.white.setFill()
-        ctx?.fill(rect)
         let size = self.contentView.bounds.size
         let yScale = size.height / (self.yRange.max - self.yRange.min)
         let yCoor = { (y: Int) in (self.yRange.max - CGFloat(y)) * yScale }
@@ -248,6 +246,7 @@ class GlucoseGraph: UIView {
         contentView = DrawingView { [weak self] (rect) in
             self?.drawContent(rect)
         }
+        contentView.backgroundColor = .clear
         contentHolder.addSubview(contentView)
 
         makeConstraints {
@@ -277,6 +276,7 @@ class GlucoseGraph: UIView {
         xAxis = DrawingView { [weak self] (rect) in
             self?.drawXAxis(rect)
         }
+        xAxis.backgroundColor = .clear
         xAxisHolder.addSubview(xAxis)
         makeConstraints {
             xAxis[.top] == xAxisHolder[.top]
@@ -290,6 +290,7 @@ class GlucoseGraph: UIView {
         yAxis = DrawingView { [weak self] (rect) in
             self?.drawYAxis(rect)
         }
+        yAxis.backgroundColor = .clear
         addSubview(yAxis)
         makeConstraints {
             yAxis[.top] == self.contentHolder[.top]
