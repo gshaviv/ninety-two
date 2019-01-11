@@ -10,6 +10,7 @@ import UIKit
 import UserNotifications
 import WatchConnectivity
 import Sqlable
+import WoofKit
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -333,4 +334,11 @@ extension Measurement {
     var glucosePoint: GlucosePoint {
         return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
     }
+}
+
+extension UNNotificationSound {
+    public static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed.caf")
+    public static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose.caf")
+    public static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose.caf")
+    public static let missed = UNNotificationSoundName(rawValue: "Siri_Missed_Readings.caf")
 }

@@ -9,6 +9,7 @@
 import UIKit
 import Sqlable
 import UserNotifications
+import WoofKit
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
@@ -172,6 +173,7 @@ class MiaoMiao {
             packetData += bytes
         }
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         if packetData.last == Code.endPacket {
             if packetData.count < 363 {
                 // bad packet

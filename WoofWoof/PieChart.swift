@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WoofKit
 
 @IBDesignable
 class PieChart: UIView {

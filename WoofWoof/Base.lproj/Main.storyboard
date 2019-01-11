@@ -4,6 +4,7 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
@@ -81,7 +82,7 @@
                                             <constraint firstItem="m3w-JE-fXm" firstAttribute="leading" secondItem="tgT-du-ZXK" secondAttribute="leading" constant="8" id="uKk-5R-eqW"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HS6-O8-9Lv" customClass="GlucoseGraph" customModule="WoofWoof" customModuleProvider="target">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HS6-O8-9Lv" customClass="GlucoseGraph" customModule="WoofKit">
                                         <rect key="frame" x="0.0" y="47.5" width="375" height="435.5"/>
                                         <color key="backgroundColor" white="0.90000000000000002" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="tintColor" red="0.57380741830000004" green="0.56553578380000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

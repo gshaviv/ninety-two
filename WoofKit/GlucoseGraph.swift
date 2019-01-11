@@ -9,8 +9,8 @@ import UIKit
 import CoreGraphics
 
 @IBDesignable
-class GlucoseGraph: UIView {
-    var points: [GlucoseReading]! {
+public class GlucoseGraph: UIView {
+    public var points: [GlucoseReading]! {
         didSet {
             guard !points.isEmpty else {
                 return
@@ -35,11 +35,11 @@ class GlucoseGraph: UIView {
         }
     }
     private var holes: [Int] = []
-    var yRange = (min: CGFloat(70), max: CGFloat(180))
-    var xRange = (min: Date() - 1.d, max: Date())
-    var lineWidth: CGFloat = 1.5
-    var dotRadius: CGFloat = 3
-    var xTimeSpan = 6.h {
+    public var yRange = (min: CGFloat(70), max: CGFloat(180))
+    public var xRange = (min: Date() - 1.d, max: Date())
+    public var lineWidth: CGFloat = 1.5
+    public var dotRadius: CGFloat = 3
+    public var xTimeSpan = 6.h {
         didSet {
             contentWidthConstraint?.isActive = false
             contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
@@ -47,22 +47,22 @@ class GlucoseGraph: UIView {
         }
     }
 
-    var contentHolder: UIScrollView!
-    var contentView: DrawingView!
-    var xAxisHolder: UIScrollView!
-    var xAxis: DrawingView!
-    var xAxisHeight: CGFloat = 30
-    var yAxis: DrawingView!
+    private var contentHolder: UIScrollView!
+    private var contentView: DrawingView!
+    private var xAxisHolder: UIScrollView!
+    private var xAxis: DrawingView!
+    private var xAxisHeight: CGFloat = 30
+    private var yAxis: DrawingView!
 
-    let colors = [(55, UIColor.red),
+    public let colors = [(55, UIColor.red),
                    (defaults[.minRange] < 110 ? Int(defaults[.minRange]) : 70, UIColor.red.lighter()),
                    (110, UIColor.green),
                    (140, UIColor.green.lighter(by: 40)),
                    (defaults[.maxRange] >= 140 ? Int(defaults[.maxRange]) : 180, UIColor.green.lighter(by: 70)),
                    (999, UIColor.yellow)]
-    var contentWidthConstraint: NSLayoutConstraint?
+    private var contentWidthConstraint: NSLayoutConstraint?
 
-    var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+    public var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
 
     private func drawContent(_ rect: CGRect) {
         guard let points = points else {
@@ -333,14 +333,14 @@ class GlucoseGraph: UIView {
         commonInit()
     }
 
-    override func layoutSubviews() {
+    override public func layoutSubviews() {
         super.layoutSubviews()
         contentView.setNeedsDisplay()
         xAxis.setNeedsDisplay()
         yAxis.setNeedsDisplay()
     }
 
-    var touchPoint: GlucoseReading? {
+    private var touchPoint: GlucoseReading? {
         didSet {
             contentView.setNeedsDisplay()
             xAxis.setNeedsDisplay()
@@ -375,8 +375,7 @@ class GlucoseGraph: UIView {
 }
 
 extension GlucoseGraph: UIScrollViewDelegate {
-
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         xAxisHolder.contentOffset = scrollView.contentOffset
         if touchPoint != nil {
             touchPoint = nil
@@ -386,7 +385,7 @@ extension GlucoseGraph: UIScrollViewDelegate {
 
 extension GlucoseGraph {
 
-    override func prepareForInterfaceBuilder() {
+    override public func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
         points = [
             GlucosePoint(date: Date() - 1.d, value: 70),

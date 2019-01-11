@@ -8,6 +8,7 @@
 
 import UIKit
 import Sqlable
+import WoofKit
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!

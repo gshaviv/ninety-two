@@ -9,27 +9,30 @@
 /* Begin PBXBuildFile section */
 		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
-		E425663921CD671700469232 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
+		E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
+		E417F4A821E88C8C00C6BC9D /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
 		E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
 		E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E425664E21CE66A200469232 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664F21CE6F9A00469232 /* DefaultKey.swift */; };
-		E42A290A21E5C3A60084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
 		E42A291E21E77B2A0084D181 /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A291D21E77B2A0084D181 /* NotificationCenter.framework */; };
 		E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
 		E42A292421E77B2A0084D181 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
 		E42A292821E77B2A0084D181 /* woofWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42A291B21E77B2A0084D181 /* woofWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		E42A292E21E77C550084D181 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E42A292F21E77C6F0084D181 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
-		E42A293021E77D6C0084D181 /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
-		E42A293121E784E60084D181 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
-		E42A293221E794CA0084D181 /* DrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023121D61A1900E18DDD /* DrawingView.swift */; };
-		E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
-		E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
-		E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
-		E42A294021E883370084D181 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
+		E42A294A21E886C70084D181 /* WoofKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E42A294821E886C70084D181 /* WoofKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E42A294D21E886C70084D181 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
+		E42A294E21E886C70084D181 /* WoofKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E42A295221E886F50084D181 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663821CD671700469232 /* Extensions.swift */; };
+		E42A295321E8872B0084D181 /* DrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023121D61A1900E18DDD /* DrawingView.swift */; };
+		E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
+		E42A295621E8873D0084D181 /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
+		E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
+		E42A295821E887550084D181 /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
+		E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
+		E42A295A21E8876E0084D181 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
+		E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E42E2A9D21DF28C5004FD560 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9B21DF28C5004FD560 /* Interface.storyboard */; };
 		E42E2A9F21DF28C7004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9E21DF28C7004FD560 /* Assets.xcassets */; };
 		E42E2AA621DF28C7004FD560 /* woofWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -51,10 +54,6 @@
 		E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */; };
 		E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */; };
 		E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */; };
-		E42E2AF721E0A58C004FD560 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
-		E45907E021D550FA00B139CF /* GlucoseGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907DE21D550FA00B139CF /* GlucoseGraph.swift */; };
-		E45907E221D5536400B139CF /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
-		E4600AA021E3CC4C00CDB7D4 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
@@ -64,9 +63,6 @@
 		E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */; };
 		E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
 		E4B5023021D6167200E18DDD /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
-		E4B5023221D61A1900E18DDD /* DrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023121D61A1900E18DDD /* DrawingView.swift */; };
-		E4B5023421D61E9800E18DDD /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
-		E4D7C42821D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
@@ -105,6 +101,20 @@
 			remoteGlobalIDString = E42A291A21E77B2A0084D181;
 			remoteInfo = woofWidget;
 		};
+		E42A294B21E886C70084D181 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E42A294521E886C70084D181;
+			remoteInfo = WoofKit;
+		};
+		E42A295C21E889D30084D181 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
+			remoteInfo = Sqlable;
+		};
 		E42E2AA721DF28C7004FD560 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
@@ -128,6 +138,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				E42A294E21E886C70084D181 /* WoofKit.framework in Embed Frameworks */,
 				E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -184,6 +195,9 @@
 		E42A292321E77B2A0084D181 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		E42A292521E77B2A0084D181 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E42A292D21E77B360084D181 /* woofWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = woofWidget.entitlements; sourceTree = "<group>"; };
+		E42A294621E886C70084D181 /* WoofKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WoofKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E42A294821E886C70084D181 /* WoofKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WoofKit.h; sourceTree = "<group>"; };
+		E42A294921E886C70084D181 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E42E2A9921DF28C5004FD560 /* woofWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = woofWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42E2A9C21DF28C5004FD560 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		E42E2A9E21DF28C7004FD560 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -238,8 +252,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E42A295A21E8876E0084D181 /* WoofKit.framework in Frameworks */,
 				E42A292F21E77C6F0084D181 /* Sqlable.framework in Frameworks */,
 				E42A291E21E77B2A0084D181 /* NotificationCenter.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E42A294321E886C70084D181 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +276,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E42A294D21E886C70084D181 /* WoofKit.framework in Frameworks */,
 				E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,6 +318,23 @@
 				E42A292521E77B2A0084D181 /* Info.plist */,
 			);
 			path = woofWidget;
+			sourceTree = "<group>";
+		};
+		E42A294721E886C70084D181 /* WoofKit */ = {
+			isa = PBXGroup;
+			children = (
+				E42A294821E886C70084D181 /* WoofKit.h */,
+				E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */,
+				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
+				E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */,
+				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
+				E45907DE21D550FA00B139CF /* GlucoseGraph.swift */,
+				E4B5023121D61A1900E18DDD /* DrawingView.swift */,
+				E425664D21CE66A200469232 /* GlucosePoint.swift */,
+				E425663821CD671700469232 /* Extensions.swift */,
+				E42A294921E886C70084D181 /* Info.plist */,
+			);
+			path = WoofKit;
 			sourceTree = "<group>";
 		};
 		E42E2A9A21DF28C5004FD560 /* woofWatch */ = {
@@ -348,6 +388,7 @@
 				E42E2A9A21DF28C5004FD560 /* woofWatch */,
 				E42E2AA921DF28C7004FD560 /* woofWatch Extension */,
 				E42A291F21E77B2A0084D181 /* woofWidget */,
+				E42A294721E886C70084D181 /* WoofKit */,
 				E42A291C21E77B2A0084D181 /* Frameworks */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
 			);
@@ -360,6 +401,7 @@
 				E42E2A9921DF28C5004FD560 /* woofWatch.app */,
 				E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */,
 				E42A291B21E77B2A0084D181 /* woofWidget.appex */,
+				E42A294621E886C70084D181 /* WoofKit.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -369,10 +411,6 @@
 			children = (
 				E42A290C21E728EB0084D181 /* WoofWoof.entitlements */,
 				E40021B821D7BA6C001AB34D /* Repeater.swift */,
-				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
-				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
-				E45907DE21D550FA00B139CF /* GlucoseGraph.swift */,
-				E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */,
 				E425664F21CE6F9A00469232 /* DefaultKey.swift */,
 				E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */,
 				E425663C21CD702900469232 /* SensorSerialNumber.swift */,
@@ -391,11 +429,7 @@
 				E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */,
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
 				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
-				E425663821CD671700469232 /* Extensions.swift */,
-				E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */,
-				E4B5023121D61A1900E18DDD /* DrawingView.swift */,
 				E4B5022C21D6160C00E18DDD /* Calculation.swift */,
-				E425664D21CE66A200469232 /* GlucosePoint.swift */,
 				E40021BD21D89DAA001AB34D /* PieChart.swift */,
 				E42E2AE121E0A305004FD560 /* sounds */,
 			);
@@ -403,6 +437,17 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E42A294121E886C70084D181 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42A294A21E886C70084D181 /* WoofKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		E42A291A21E77B2A0084D181 /* woofWidget */ = {
@@ -421,6 +466,25 @@
 			productName = woofWidget;
 			productReference = E42A291B21E77B2A0084D181 /* woofWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		E42A294521E886C70084D181 /* WoofKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E42A294F21E886C70084D181 /* Build configuration list for PBXNativeTarget "WoofKit" */;
+			buildPhases = (
+				E42A294121E886C70084D181 /* Headers */,
+				E42A294221E886C70084D181 /* Sources */,
+				E42A294321E886C70084D181 /* Frameworks */,
+				E42A294421E886C70084D181 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E42A295D21E889D30084D181 /* PBXTargetDependency */,
+			);
+			name = WoofKit;
+			productName = WoofKit;
+			productReference = E42A294621E886C70084D181 /* WoofKit.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 		E42E2A9821DF28C5004FD560 /* woofWatch */ = {
 			isa = PBXNativeTarget;
@@ -473,6 +537,7 @@
 				E425664B21CE65CA00469232 /* PBXTargetDependency */,
 				E42E2AB721DF28C8004FD560 /* PBXTargetDependency */,
 				E42A292721E77B2A0084D181 /* PBXTargetDependency */,
+				E42A294C21E886C70084D181 /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
@@ -496,6 +561,9 @@
 								enabled = 1;
 							};
 						};
+					};
+					E42A294521E886C70084D181 = {
+						CreatedOnToolsVersion = 10.1;
 					};
 					E42E2A9821DF28C5004FD560 = {
 						CreatedOnToolsVersion = 10.1;
@@ -539,6 +607,7 @@
 				E42E2A9821DF28C5004FD560 /* woofWatch */,
 				E42E2AA421DF28C7004FD560 /* woofWatch Extension */,
 				E42A291A21E77B2A0084D181 /* woofWidget */,
+				E42A294521E886C70084D181 /* WoofKit */,
 			);
 		};
 /* End PBXProject section */
@@ -566,6 +635,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42A292421E77B2A0084D181 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E42A294421E886C70084D181 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,14 +690,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */,
-				E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
-				E42A294021E883370084D181 /* UserDefaultsExtensions.swift in Sources */,
-				E42A292E21E77C550084D181 /* GlucosePoint.swift in Sources */,
-				E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */,
-				E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */,
-				E42A293221E794CA0084D181 /* DrawingView.swift in Sources */,
-				E42A293021E77D6C0084D181 /* GlucoseGraph.swift in Sources */,
-				E42A293121E784E60084D181 /* Extensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E42A294221E886C70084D181 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42A295821E887550084D181 /* AttributedStringConstruction.swift in Sources */,
+				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
+				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
+				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
+				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
+				E42A295321E8872B0084D181 /* DrawingView.swift in Sources */,
+				E42A295621E8873D0084D181 /* AutoLayoutExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -630,12 +713,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42E2AAF21DF28C7004FD560 /* NotificationController.swift in Sources */,
+				E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */,
 				E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */,
 				E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
-				E4600AA021E3CC4C00CDB7D4 /* GlucosePoint.swift in Sources */,
-				E42A290A21E5C3A60084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E417F4A821E88C8C00C6BC9D /* UIBezierPath+CurveThroughPoints.swift in Sources */,
 				E42E2AAB21DF28C7004FD560 /* InterfaceController.swift in Sources */,
 				E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */,
 			);
@@ -645,10 +728,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4B5023221D61A1900E18DDD /* DrawingView.swift in Sources */,
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
-				E45907E221D5536400B139CF /* AutoLayoutExtension.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
@@ -657,17 +738,11 @@
 				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
-				E45907E021D550FA00B139CF /* GlucoseGraph.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
-				E425664E21CE66A200469232 /* GlucosePoint.swift in Sources */,
-				E425663921CD671700469232 /* Extensions.swift in Sources */,
-				E4D7C42821D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
 				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
-				E4B5023421D61E9800E18DDD /* AttributedStringConstruction.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
-				E42E2AF721E0A58C004FD560 /* UserDefaultsExtensions.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 			);
@@ -685,6 +760,16 @@
 			isa = PBXTargetDependency;
 			target = E42A291A21E77B2A0084D181 /* woofWidget */;
 			targetProxy = E42A292621E77B2A0084D181 /* PBXContainerItemProxy */;
+		};
+		E42A294C21E886C70084D181 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E42A294521E886C70084D181 /* WoofKit */;
+			targetProxy = E42A294B21E886C70084D181 /* PBXContainerItemProxy */;
+		};
+		E42A295D21E889D30084D181 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sqlable;
+			targetProxy = E42A295C21E889D30084D181 /* PBXContainerItemProxy */;
 		};
 		E42E2AA821DF28C7004FD560 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -775,6 +860,66 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E42A295021E886C70084D181 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = WoofKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.WoofKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		E42A295121E886C70084D181 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = WoofKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.WoofKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -913,7 +1058,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -969,7 +1114,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1029,6 +1174,15 @@
 			buildConfigurations = (
 				E42A292A21E77B2A0084D181 /* Debug */,
 				E42A292B21E77B2A0084D181 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E42A294F21E886C70084D181 /* Build configuration list for PBXNativeTarget "WoofKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E42A295021E886C70084D181 /* Debug */,
+				E42A295121E886C70084D181 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -11,29 +11,34 @@ import Foundation
 import Sqlable
 #endif
 
-protocol GlucoseReading {
+public protocol GlucoseReading {
     var date: Date { get }
     var value: Double { get }
     var isCalibration: Bool { get }
 }
 
-struct GlucosePoint: GlucoseReading {
-    var isCalibration: Bool {
+public struct GlucosePoint: GlucoseReading {
+    public var isCalibration: Bool {
         return false
     }
 
-    let date: Date
-    let value: Double
+    public let date: Date
+    public let value: Double
+
+    public init(date: Date, value: Double) {
+        self.date = date
+        self.value = value
+    }
 }
 
 #if os(iOS)
 extension GlucosePoint: Sqlable {
-    static let date = Column("date", .date, PrimaryKey(autoincrement: false))
-    static let value = Column("value", .real)
+    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
+    public static let value = Column("value", .real)
 
-    static var tableLayout = [date, value]
+    public static var tableLayout = [date, value]
 
-    func valueForColumn(_ column: Column) -> SqlValue? {
+    public func valueForColumn(_ column: Column) -> SqlValue? {
         switch column {
         case GlucosePoint.date:
             return date
@@ -46,7 +51,7 @@ extension GlucosePoint: Sqlable {
         }
     }
 
-    init(row: ReadRow) throws {
+    public init(row: ReadRow) throws {
         date = try row.get(GlucosePoint.date)
         value = try row.get(GlucosePoint.value)
     }
@@ -54,7 +59,7 @@ extension GlucosePoint: Sqlable {
 #endif
 
 extension GlucosePoint: CustomStringConvertible {
-    static let dateFormatter: DateFormatter = {
+    static private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.timeStyle = .short
         df.dateStyle = .short
@@ -62,7 +67,7 @@ extension GlucosePoint: CustomStringConvertible {
         return df
     }()
 
-    var description: String {
+    public var description: String {
         return String(format: "<%@: %.1lf>", GlucosePoint.dateFormatter.string(from: date), value)
     }
 }
@@ -73,22 +78,27 @@ extension GlucosePoint: Equatable {
 #if os(iOS)
 
 
-struct Calibration: GlucoseReading {
-    var isCalibration: Bool {
+public struct Calibration: GlucoseReading {
+    public var isCalibration: Bool {
         return true
     }
 
-    let date: Date
-    let value: Double
+    public let date: Date
+    public let value: Double
+
+    public init(date: Date, value: Double) {
+        self.date = date
+        self.value = value
+    }
 }
 
 extension Calibration: Sqlable {
-    static let date = Column("date", .date, PrimaryKey(autoincrement: false))
-    static let value = Column("value", .real)
+    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
+    public static let value = Column("value", .real)
 
-    static var tableLayout = [date, value]
+    public static var tableLayout = [date, value]
 
-    func valueForColumn(_ column: Column) -> SqlValue? {
+    public func valueForColumn(_ column: Column) -> SqlValue? {
         switch column {
         case GlucosePoint.date:
             return date
@@ -101,7 +111,7 @@ extension Calibration: Sqlable {
         }
     }
 
-    init(row: ReadRow) throws {
+    public init(row: ReadRow) throws {
         date = try row.get(GlucosePoint.date)
         value = try row.get(GlucosePoint.value)
     }

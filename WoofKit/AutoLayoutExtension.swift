@@ -10,7 +10,7 @@ import UIKit
 
 private var pendingConstraintsStack: [[NSLayoutConstraint]] = []
 
-@discardableResult internal func makeConstraints(_ identifier: String? = nil, layout: () -> Void) -> [NSLayoutConstraint] {
+@discardableResult public func makeConstraints(_ identifier: String? = nil, layout: () -> Void) -> [NSLayoutConstraint] {
     assert(Thread.isMainThread)
     pendingConstraintsStack.append([])
     layout()
@@ -26,7 +26,7 @@ private var pendingConstraintsStack: [[NSLayoutConstraint]] = []
     return ret
 }
 
-@discardableResult internal func privateConstraints(_ identifier: String? = nil, layout: () -> Void) -> [NSLayoutConstraint] {
+@discardableResult public func privateConstraints(_ identifier: String? = nil, layout: () -> Void) -> [NSLayoutConstraint] {
     assert(Thread.isMainThread)
     pendingConstraintsStack.append([])
     layout()
@@ -39,7 +39,7 @@ private var pendingConstraintsStack: [[NSLayoutConstraint]] = []
     return ret
 }
 
-internal struct LayoutItem {
+public struct LayoutItem {
     let view: AnyObject
     let attribute: NSLayoutConstraint.Attribute
     let multiplier: CGFloat
@@ -101,52 +101,52 @@ internal struct LayoutItem {
 }
 
 /// Multiplies the operand's multiplier by the RHS value
-internal func * (left: LayoutItem, right: CGFloat) -> LayoutItem {
+public func * (left: LayoutItem, right: CGFloat) -> LayoutItem {
     return LayoutItem(view: left.view, attribute: left.attribute, multiplier: left.multiplier * right, constant: left.constant)
 }
 
 /// Divides the operand's multiplier by the RHS value
-internal func / (left: LayoutItem, right: CGFloat) -> LayoutItem {
+public func / (left: LayoutItem, right: CGFloat) -> LayoutItem {
     return LayoutItem(view: left.view, attribute: left.attribute, multiplier: left.multiplier / right, constant: left.constant)
 }
 
 /// Adds the RHS value to the operand's constant
-internal func + (left: LayoutItem, right: CGFloat) -> LayoutItem {
+public func + (left: LayoutItem, right: CGFloat) -> LayoutItem {
     return LayoutItem(view: left.view, attribute: left.attribute, multiplier: left.multiplier, constant: left.constant + right)
 }
 
 /// Subtracts the RHS value from the operand's constant
-internal func - (left: LayoutItem, right: CGFloat) -> LayoutItem {
+public func - (left: LayoutItem, right: CGFloat) -> LayoutItem {
     return LayoutItem(view: left.view, attribute: left.attribute, multiplier: left.multiplier, constant: left.constant - right)
 }
 
 /// Equivalent to NSLayoutRelation.Equal
-@discardableResult internal func == (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
+@discardableResult public func == (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
     return left.equalTo(right).activate()
 }
 
 /// Equivalent to NSLayoutRelation.Equal
-@discardableResult internal func == (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
+@discardableResult public func == (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
     return left.equalToConstant(right).activate()
 }
 
 /// Equivalent to NSLayoutRelation.GreaterThanOrEqual
-@discardableResult internal func >= (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
+@discardableResult public func >= (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
     return left.greaterThanOrEqualTo(right).activate()
 }
 
 /// Equivalent to NSLayoutRelation.GreaterThanOrEqual
-@discardableResult internal func >= (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
+@discardableResult public func >= (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
     return left.greaterThanOrEqualToConstant(right).activate()
 }
 
 /// Equivalent to NSLayoutRelation.LessThanOrEqual
-@discardableResult internal func <= (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
+@discardableResult public func <= (left: LayoutItem, right: LayoutItem) -> NSLayoutConstraint {
     return left.lessThanOrEqualTo(right).activate()
 }
 
 /// Equivalent to NSLayoutRelation.LessThanOrEqual
-@discardableResult internal func <= (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
+@discardableResult public func <= (left: LayoutItem, right: CGFloat) -> NSLayoutConstraint {
     return left.lessThanOrEqualToConstant(right).activate()
 }
 
@@ -156,11 +156,11 @@ precedencegroup LayoutCreation {
 
 infix operator ~: LayoutCreation
 
-@discardableResult internal func ~ (left: NSLayoutConstraint, right: Int) -> NSLayoutConstraint {
+@discardableResult public func ~ (left: NSLayoutConstraint, right: Int) -> NSLayoutConstraint {
     return left ~ UILayoutPriority(rawValue: Float(right))
 }
 
-@discardableResult internal func ~ (left: NSLayoutConstraint, right: UILayoutPriority) -> NSLayoutConstraint {
+@discardableResult public func ~ (left: NSLayoutConstraint, right: UILayoutPriority) -> NSLayoutConstraint {
     if !left.isActive {
         left.priority = right
         return left

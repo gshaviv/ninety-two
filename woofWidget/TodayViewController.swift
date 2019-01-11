@@ -9,6 +9,7 @@
 import UIKit
 import NotificationCenter
 import Sqlable
+import WoofKit
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -28,8 +29,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
             if let current = points.first {
                 updateTime()
                 graphView.points = points
-                graphView.yRange.max = max(graphView.yRange.max, 140)
-                graphView.yRange.min = min(graphView.yRange.min, 70)
+                graphView.yRange.max = ceil(graphView.yRange.max / 10) * 10
+                graphView.yRange.min = floor(graphView.yRange.min / 5) * 5
                 graphView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
                 graphView.xTimeSpan = graphView.xRange.max - graphView.xRange.min
                 let previous = points[points.count - 2]

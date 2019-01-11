@@ -55,7 +55,7 @@
                                             <constraint firstAttribute="bottom" secondItem="CIv-Lx-uby" secondAttribute="bottom" id="tTX-li-2Iy"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" verticalHuggingPriority="240" translatesAutoresizingMaskIntoConstraints="NO" id="sA2-w9-Gbe" customClass="GlucoseGraph" customModule="woofWidget" customModuleProvider="target">
+                                    <view contentMode="scaleToFill" verticalHuggingPriority="240" translatesAutoresizingMaskIntoConstraints="NO" id="sA2-w9-Gbe" customClass="GlucoseGraph" customModule="WoofKit">
                                         <rect key="frame" x="0.0" y="32" width="320" height="268"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
