@@ -171,6 +171,7 @@ class MiaoMiao {
         } else {
             packetData += bytes
         }
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
         if packetData.last == Code.endPacket {
             if packetData.count < 363 {
                 // bad packet
@@ -185,7 +186,7 @@ class MiaoMiao {
                 notification.title = "No Transmitter Detected"
                 notification.body = "Lost connection to the MiaoMiao transmitter"
                 notification.sound = UNNotificationSound(named: UNNotificationSound.missed)
-                let request = UNNotificationRequest(identifier: NotificationIdentifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 20.m, repeats: false))
+                let request = UNNotificationRequest(identifier: NotificationIdentifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 30.m, repeats: false))
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                     if let err = err {
                         logError("\(err)")

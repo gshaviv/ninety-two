@@ -8,7 +8,7 @@
 
 import Foundation
 
-public let defaults = UserDefaults.standard
+public let defaults = UserDefaults(suiteName: "group.com.tivstudio.woof")!
 
 extension UserDefaults {
 
@@ -21,13 +21,14 @@ extension UserDefaults {
         case lastStatisticsCalculation
         case lastLowBatteryNofication
         case lastEventAlertTime
-        case lastSharedDbEntry
     }
 
     enum DoubleKey: String {
         case additionalSlope
         case lowAlertLevel
         case highAlertLevel
+        case minRange
+        case maxRange
     }
 
     enum IntKey: String {
@@ -50,7 +51,9 @@ extension UserDefaults {
                                      IntKey.watchWakeupTime.key: 5 * 60 + 15,
                                      IntKey.watchSleepTime.key: 23 * 60,
                                      DoubleKey.lowAlertLevel.key: 75.0,
-                                     DoubleKey.highAlertLevel.key: 190.0]
+                                     DoubleKey.highAlertLevel.key: 180.0,
+                                     DoubleKey.minRange.key: 70.0,
+                                     DoubleKey.maxRange.key: 180.0]
 
         register(defaults: defaults)
     }

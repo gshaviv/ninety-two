@@ -54,49 +54,70 @@ class GlucoseGraph: UIView {
     var xAxisHeight: CGFloat = 30
     var yAxis: DrawingView!
 
-    let colors = [0 ... 55: UIColor.red,
-                   55 ... 70: UIColor.red.lighter(),
-                   70 ... 110: UIColor.green,
-                   110 ... 140: UIColor.green.lighter(by: 40),
-                   140 ... 180: UIColor.green.lighter(by: 70),
-                   180 ... 999: UIColor.yellow]
+    let colors = [(55, UIColor.red),
+                   (defaults[.minRange] < 110 ? Int(defaults[.minRange]) : 70, UIColor.red.lighter()),
+                   (110, UIColor.green),
+                   (140, UIColor.green.lighter(by: 40)),
+                   (defaults[.maxRange] >= 140 ? Int(defaults[.maxRange]) : 180, UIColor.green.lighter(by: 70)),
+                   (999, UIColor.yellow)]
     var contentWidthConstraint: NSLayoutConstraint?
 
     var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
 
     private func drawContent(_ rect: CGRect) {
-        guard let points = self.points else {
+        guard let points = points else {
             return
         }
         let ctx = UIGraphicsGetCurrentContext()
-        let size = self.contentView.bounds.size
-        let yScale = size.height / (self.yRange.max - self.yRange.min)
+        let size = contentView.bounds.size
+        let yScale = size.height / (yRange.max - yRange.min)
         let yCoor = { (self.yRange.max - $0) * yScale }
-        let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
+        let xScale = rect.size.width / CGFloat(xRange.max - xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
-        for (range, color) in self.colors {
+        var lower = 0
+        for (upper, color) in colors {
             color.set()
-            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
+            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(upper)), width: size.width, height: CGFloat(upper - lower) * yScale))
+            lower = upper
         }
         UIColor(white: 0.5, alpha: 0.5).set()
         ctx?.beginPath()
-        for y in self.yReference {
+        for y in yReference {
             let yc = yCoor(CGFloat(y))
             ctx?.move(to: CGPoint(x: 0, y: yc))
             ctx?.addLine(to: CGPoint(x: rect.width, y: yc))
         }
+        var components = xRange.min.components
+        components.second = 0
+        components.minute = 0
+        var xDate = components.date
+        let step: TimeInterval
+        if xTimeSpan < 3.h {
+            step = 30.m
+        } else if xTimeSpan < 7.h {
+            step = 1.h
+        } else if xTimeSpan < 13.h {
+            step = 2.h
+        } else {
+            step = 3.h
+        }
+        repeat {
+            ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
+            ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: size.height))
+            xDate += step
+        } while xDate < xRange.max
         ctx?.strokePath()
         let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if p.isEmpty {
             return
         }
         let curve = UIBezierPath()
-        if self.holes.isEmpty {
+        if holes.isEmpty {
             curve.move(to: p[0])
             curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
         } else {
             var idx = 0
-            for hole in self.holes {
+            for hole in holes {
                 curve.move(to: p[idx])
                 curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
                 idx = hole
@@ -107,19 +128,19 @@ class GlucoseGraph: UIView {
             }
         }
         UIColor.darkGray.set()
-        curve.lineWidth = self.lineWidth
+        curve.lineWidth = lineWidth
         curve.stroke()
 
         UIColor.black.set()
         let fill = UIBezierPath()
-        let dotSize = CGSize(width: 2 * self.dotRadius, height: 2 * self.dotRadius)
+        let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
         for point in p {
-            fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: self.dotRadius, y: self.dotRadius), size: dotSize)))
+            fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
         }
         fill.lineWidth = 0
         fill.fill()
 
-        if let touchPoint = self.touchPoint {
+        if let touchPoint = touchPoint {
             let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
             UIColor.darkGray.set()
             ctx?.beginPath()
@@ -139,13 +160,13 @@ class GlucoseGraph: UIView {
         ctx?.beginPath()
         ctx?.move(to: CGPoint(x: 0, y: 0))
         ctx?.addLine(to: CGPoint(x: rect.width, y: 0))
-        let xScale = rect.size.width / CGFloat(self.xRange.max - self.xRange.min)
+        let xScale = rect.size.width / CGFloat(xRange.max - xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
         ctx?.strokePath()
 
         var touchLabelFrame: CGRect?
-        if let touchPoint = self.touchPoint {
-            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value)) }).last?.value ?? UIColor.blue.darker(by: 70)
+        if let touchPoint = touchPoint {
+            let c =  UIColor.blue.darker(by: 70)
             let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
             let size = str.size()
             var p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
@@ -159,16 +180,16 @@ class GlucoseGraph: UIView {
             str.draw(in: touchLabelFrame!)
         }
 
-        var components = self.xRange.min.components
+        var components = xRange.min.components
         components.second = 0
         components.minute = 0
         var xDate = components.date
         let step: TimeInterval
-        if self.xTimeSpan < 3.h {
+        if xTimeSpan < 3.h {
             step = 30.m
-        } else if self.xTimeSpan < 7.h {
+        } else if xTimeSpan < 7.h {
             step = 1.h
-        } else if self.xTimeSpan < 13.h {
+        } else if xTimeSpan < 13.h {
             step = 2.h
         } else {
             step = 3.h
@@ -190,13 +211,13 @@ class GlucoseGraph: UIView {
                 str.draw(in: stringRect)
             }
             xDate += step
-        } while xDate < self.xRange.max
+        } while xDate < xRange.max
     }
 
     private func drawYAxis(_ rect: CGRect) {
         let ctx = UIGraphicsGetCurrentContext()
-        let size = self.contentView.bounds.size
-        let yScale = size.height / (self.yRange.max - self.yRange.min)
+        let size = contentView.bounds.size
+        let yScale = size.height / (yRange.max - yRange.min)
         let yCoor = { (y: Int) in (self.yRange.max - CGFloat(y)) * yScale }
 
         backgroundColor?.set()
@@ -209,9 +230,9 @@ class GlucoseGraph: UIView {
         ctx?.strokePath()
 
         let touchLabelFrame: CGRect?
-        if let touchPoint = self.touchPoint {
+        if let touchPoint = touchPoint {
             let v = Int(round(touchPoint.value))
-            let c = self.colors.filter({ $0.key.contains(Int(touchPoint.value)) }).last?.value ?? UIColor.blue.darker(by: 70)
+            let c =  UIColor.blue.darker(by: 70)
             let str = "\(v)".styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
             let size = str.size()
             touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height / 2), size: size)
@@ -220,7 +241,7 @@ class GlucoseGraph: UIView {
             touchLabelFrame = nil
         }
 
-        for y in self.yReference {
+        for y in yReference {
             if CGFloat(y) < self.yRange.min || CGFloat(y) > self.yRange.max {
                 continue
             }

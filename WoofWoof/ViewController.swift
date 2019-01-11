@@ -114,9 +114,9 @@ class ViewController: UIViewController {
                             let (gp, duration) = arg
                             let x0 = sum + gp.value * duration
                             let x1 = total + duration
-                            let x2 = gp.value < 70 ? below + duration : below
-                            let x3 = gp.value >= 70 && gp.value < 140 ? inRange + duration : inRange
-                            let x4 = gp.value >= 140 ? above + duration : above
+                            let x2 = gp.value < defaults[.minRange] ? below + duration : below
+                            let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
+                            let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
                             return (x0, x1, x2, x3, x4)
                         }
                         let aveG = sumG / totalT

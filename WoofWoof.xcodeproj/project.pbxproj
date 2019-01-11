@@ -29,6 +29,7 @@
 		E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45907E121D5536400B139CF /* AutoLayoutExtension.swift */; };
 		E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
 		E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
+		E42A294021E883370084D181 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
 		E42E2A9D21DF28C5004FD560 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9B21DF28C5004FD560 /* Interface.storyboard */; };
 		E42E2A9F21DF28C7004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9E21DF28C7004FD560 /* Assets.xcassets */; };
 		E42E2AA621DF28C7004FD560 /* woofWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -614,6 +615,7 @@
 			files = (
 				E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */,
 				E42A293421E7954E0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E42A294021E883370084D181 /* UserDefaultsExtensions.swift in Sources */,
 				E42A292E21E77C550084D181 /* GlucosePoint.swift in Sources */,
 				E42A293521E795660084D181 /* AttributedStringConstruction.swift in Sources */,
 				E42A293321E795310084D181 /* AutoLayoutExtension.swift in Sources */,
@@ -737,6 +739,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = woofWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
@@ -758,6 +761,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = woofWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
@@ -780,6 +784,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				IBSC_MODULE = woofWatch_Extension;
 				INFOPLIST_FILE = woofWatch/Info.plist;
@@ -799,6 +804,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				IBSC_MODULE = woofWatch_Extension;
 				INFOPLIST_FILE = woofWatch/Info.plist;
@@ -981,6 +987,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = WoofWoof/WoofWoof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = WoofWoof/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
