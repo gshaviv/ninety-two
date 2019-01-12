@@ -22,24 +22,24 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="300"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0mx-oR-qRc">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="28"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="76"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="CIv-Lx-uby">
-                                                <rect key="frame" x="20" y="0.0" width="260" height="28"/>
+                                                <rect key="frame" x="20" y="0.0" width="260" height="76"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0m" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2rb-DP-RXn">
-                                                        <rect key="frame" x="0.0" y="4" width="25.5" height="20.5"/>
+                                                        <rect key="frame" x="0.0" y="28" width="25.5" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="+4.2" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6gH-jG-8gw">
-                                                        <rect key="frame" x="25.5" y="2" width="169.5" height="24"/>
+                                                        <rect key="frame" x="25.5" y="26" width="169.5" height="24"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.58081901069999997" green="0.088427625600000004" blue="0.31863921880000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="100" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qpc-RT-M9q">
-                                                        <rect key="frame" x="195" y="0.0" width="65" height="28"/>
+                                                        <rect key="frame" x="195" y="18.5" width="65" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="black" pointSize="33"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -56,10 +56,10 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" verticalHuggingPriority="240" translatesAutoresizingMaskIntoConstraints="NO" id="sA2-w9-Gbe" customClass="GlucoseGraph" customModule="WoofKit">
-                                        <rect key="frame" x="0.0" y="32" width="320" height="268"/>
+                                        <rect key="frame" x="0.0" y="80" width="320" height="220"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" priority="800" constant="268" id="QfC-bW-pkg"/>
+                                            <constraint firstAttribute="height" priority="800" constant="220" id="QfC-bW-pkg"/>
                                         </constraints>
                                     </view>
                                 </subviews>

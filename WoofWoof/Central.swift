@@ -23,6 +23,8 @@ public class Central: NSObject {
             if gcmDevice == nil {
                 readChannel = nil
                 writeChannel = nil
+            } else {
+                centralManager.stopScan()
             }
         }
     }

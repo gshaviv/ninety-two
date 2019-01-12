@@ -9,6 +9,8 @@
 import UIKit
 import Sqlable
 import WoofKit
+import Intents
+import IntentsUI
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
@@ -163,6 +165,32 @@ class ViewController: UIViewController {
             Central.manager.restart()
         }))
 
+        let group = DispatchGroup()
+        group.enter()
+        var has = false
+        INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
+            for voiceShortcut in results ?? [] {
+                if voiceShortcut.shortcut.intent is CheckGlucoseIntent {
+                    has = true
+                    break
+                }
+            }
+            group.leave()
+        }
+        group.wait()
+
+        if !has {
+            sheet.addAction(UIAlertAction(title: "Add to Siri", style: .default, handler: { (_) in
+                let intent = CheckGlucoseIntent()
+                intent.suggestedInvocationPhrase = "What's my glucose"
+                if let shortcut = INShortcut(intent: intent) {
+                    let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+                    viewController.delegate = self
+                    self.present(viewController, animated: true)
+                }
+            }))
+        }
+
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(sheet, animated: true, completion: nil)
     }
@@ -205,14 +233,14 @@ class ViewController: UIViewController {
     private func trendSymbol(for trend: Double?) -> String {
         return UIApplication.theDelegate.trendSymbol(for: trend)
     }
-}
 
-func assertOrder(_ list: [GlucoseReading]) -> Int? { // DEBUG
-    let pairs = Array(zip(list[0..<list.count - 1], list[1...]))
-    if let idx = pairs.firstIndex(where: { $0.date > $1.date }) {
-        return idx
-    } else {
-        return nil
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let intent = CheckGlucoseIntent()
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate { error in
+            // Handle error
+        }
     }
 }
 
@@ -223,4 +251,19 @@ extension ViewController: MiaoMiaoDelegate {
             update()
         }
     }
+}
+
+extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
+    func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
+        if let voiceShortcut = voiceShortcut {
+            log("Added \(voiceShortcut)")
+        }
+        controller.dismiss(animated: true, completion: nil)
+    }
+
+    func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+
+
 }

@@ -10,6 +10,7 @@ import UIKit
 import NotificationCenter
 import Sqlable
 import WoofKit
+import Intents
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -33,8 +34,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 graphView.yRange.min = floor(graphView.yRange.min / 5) * 5
                 graphView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
                 graphView.xTimeSpan = graphView.xRange.max - graphView.xRange.min
-                let previous = points[points.count - 2]
-                let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : 0)
+                let previous = points[1]
+                let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
                 let symbol = trendSymbol(for: trend)
                 glucoseLabel.text = "\(Int(round(current.value)))\(symbol)"
                 trendLabel.text = String(format: "%.1lf", trend)
@@ -75,6 +76,11 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     override func viewDidLoad() {
         super.viewDidLoad()
         extensionContext?.widgetLargestAvailableDisplayMode = .expanded
+        let intent = CheckGlucoseIntent()
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate { error in
+            // Handle error
+        }
     }
         
     func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {
@@ -87,7 +93,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         DispatchQueue.global().async {
             self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
                 let old = self.points
-                if let p = self.sharedDb?.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date)) {
+                if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
                     DispatchQueue.main.async {
                         self.points = p.sorted(by: { $0.date > $1.date })
                         if old.isEmpty && !self.points.isEmpty {
@@ -101,9 +107,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                     }
                 }
             })
-        }
-        
-        completionHandler(NCUpdateResult.newData)
+        }        
     }
 
     func widgetActiveDisplayModeDidChange(_ activeDisplayMode: NCWidgetDisplayMode, withMaximumSize maxSize: CGSize) {

@@ -131,6 +131,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "⇊"
         }
     }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        return true
+    }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {

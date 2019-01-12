@@ -11,6 +11,13 @@
 		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
 		E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E417F4A821E88C8C00C6BC9D /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
+		E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; };
+		E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
+		E417F4AC21E8CD5000C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
+		E417F4B421E8CFA200C6BC9D /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */; };
+		E417F4B821E8CFA200C6BC9D /* SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E417F4BC21E8CFB200C6BC9D /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
+		E417F4BD21E8CFB200C6BC9D /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
 		E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
@@ -73,6 +80,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E417F4B621E8CFA200C6BC9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E417F4B021E8CFA200C6BC9D;
+			remoteInfo = Intents;
+		};
+		E417F4BE21E8CFC500C6BC9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E42A294521E886C70084D181;
+			remoteInfo = WoofKit;
+		};
+		E417F4C021E8CFC500C6BC9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
+			remoteInfo = Sqlable;
+		};
 		E425664421CE65A400469232 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E425663F21CE65A400469232 /* Sqlable.xcodeproj */;
@@ -150,6 +178,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				E417F4B821E8CFA200C6BC9D /* SiriIntents.appex in Embed App Extensions */,
 				E42A292821E77B2A0084D181 /* woofWidget.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -182,6 +211,11 @@
 /* Begin PBXFileReference section */
 		E40021B821D7BA6C001AB34D /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
 		E40021BD21D89DAA001AB34D /* PieChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChart.swift; sourceTree = "<group>"; };
+		E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
+		E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
+		E417F4B521E8CFA200C6BC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E417F4C221E8D21300C6BC9D /* SiriIntents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntents.entitlements; sourceTree = "<group>"; };
 		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
@@ -248,6 +282,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E417F4AE21E8CFA200C6BC9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E417F4BC21E8CFB200C6BC9D /* WoofKit.framework in Frameworks */,
+				E417F4BD21E8CFB200C6BC9D /* Sqlable.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42A291821E77B2A0084D181 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -284,6 +327,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E417F4B221E8CFA200C6BC9D /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */,
+				E417F4B521E8CFA200C6BC9D /* Info.plist */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 		E425663E21CE61D600469232 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
@@ -323,6 +375,7 @@
 		E42A294721E886C70084D181 /* WoofKit */ = {
 			isa = PBXGroup;
 			children = (
+				E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */,
 				E42A294821E886C70084D181 /* WoofKit.h */,
 				E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */,
 				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
@@ -383,12 +436,14 @@
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
+				E417F4C221E8D21300C6BC9D /* SiriIntents.entitlements */,
 				E425663E21CE61D600469232 /* Dependencies */,
 				E4E35A6221C3F8D300336CE8 /* WoofWoof */,
 				E42E2A9A21DF28C5004FD560 /* woofWatch */,
 				E42E2AA921DF28C7004FD560 /* woofWatch Extension */,
 				E42A291F21E77B2A0084D181 /* woofWidget */,
 				E42A294721E886C70084D181 /* WoofKit */,
+				E417F4B221E8CFA200C6BC9D /* Intents */,
 				E42A291C21E77B2A0084D181 /* Frameworks */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
 			);
@@ -402,6 +457,7 @@
 				E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */,
 				E42A291B21E77B2A0084D181 /* woofWidget.appex */,
 				E42A294621E886C70084D181 /* WoofKit.framework */,
+				E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -450,6 +506,25 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		E417F4B021E8CFA200C6BC9D /* SiriIntents */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E417F4B921E8CFA200C6BC9D /* Build configuration list for PBXNativeTarget "SiriIntents" */;
+			buildPhases = (
+				E417F4AD21E8CFA200C6BC9D /* Sources */,
+				E417F4AE21E8CFA200C6BC9D /* Frameworks */,
+				E417F4AF21E8CFA200C6BC9D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E417F4BF21E8CFC500C6BC9D /* PBXTargetDependency */,
+				E417F4C121E8CFC500C6BC9D /* PBXTargetDependency */,
+			);
+			name = SiriIntents;
+			productName = Intents;
+			productReference = E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E42A291A21E77B2A0084D181 /* woofWidget */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E42A292921E77B2A0084D181 /* Build configuration list for PBXNativeTarget "woofWidget" */;
@@ -538,6 +613,7 @@
 				E42E2AB721DF28C8004FD560 /* PBXTargetDependency */,
 				E42A292721E77B2A0084D181 /* PBXTargetDependency */,
 				E42A294C21E886C70084D181 /* PBXTargetDependency */,
+				E417F4B721E8CFA200C6BC9D /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
@@ -554,6 +630,14 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = TivStudio;
 				TargetAttributes = {
+					E417F4B021E8CFA200C6BC9D = {
+						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
 					E42A291A21E77B2A0084D181 = {
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
@@ -608,6 +692,7 @@
 				E42E2AA421DF28C7004FD560 /* woofWatch Extension */,
 				E42A291A21E77B2A0084D181 /* woofWidget */,
 				E42A294521E886C70084D181 /* WoofKit */,
+				E417F4B021E8CFA200C6BC9D /* SiriIntents */,
 			);
 		};
 /* End PBXProject section */
@@ -630,6 +715,13 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E417F4AF21E8CFA200C6BC9D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42A291921E77B2A0084D181 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -685,10 +777,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E417F4AD21E8CFA200C6BC9D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E417F4B421E8CFA200C6BC9D /* IntentHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42A291721E77B2A0084D181 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E417F4AC21E8CD5000C6BC9D /* Intents.intentdefinition in Sources */,
 				E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -703,6 +804,7 @@
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
+				E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */,
 				E42A295321E8872B0084D181 /* DrawingView.swift in Sources */,
 				E42A295621E8873D0084D181 /* AutoLayoutExtension.swift in Sources */,
 			);
@@ -740,6 +842,7 @@
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
+				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
@@ -751,6 +854,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E417F4B721E8CFA200C6BC9D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E417F4B021E8CFA200C6BC9D /* SiriIntents */;
+			targetProxy = E417F4B621E8CFA200C6BC9D /* PBXContainerItemProxy */;
+		};
+		E417F4BF21E8CFC500C6BC9D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E42A294521E886C70084D181 /* WoofKit */;
+			targetProxy = E417F4BE21E8CFC500C6BC9D /* PBXContainerItemProxy */;
+		};
+		E417F4C121E8CFC500C6BC9D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sqlable;
+			targetProxy = E417F4C021E8CFC500C6BC9D /* PBXContainerItemProxy */;
+		};
 		E425664B21CE65CA00469232 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Sqlable;
@@ -819,6 +937,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		E417F4BA21E8CFA200C6BC9D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SiriIntents.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = Intents/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.Intents;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E417F4BB21E8CFA200C6BC9D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SiriIntents.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = Intents/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.Intents;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		E42A292A21E77B2A0084D181 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1169,6 +1327,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E417F4B921E8CFA200C6BC9D /* Build configuration list for PBXNativeTarget "SiriIntents" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E417F4BA21E8CFA200C6BC9D /* Debug */,
+				E417F4BB21E8CFA200C6BC9D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E42A292921E77B2A0084D181 /* Build configuration list for PBXNativeTarget "woofWidget" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
