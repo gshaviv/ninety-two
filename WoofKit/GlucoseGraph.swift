@@ -10,6 +10,7 @@ import CoreGraphics
 
 @IBDesignable
 public class GlucoseGraph: UIView {
+    @IBInspectable var isScrollEnabled:Bool = true
     public var points: [GlucoseReading]! {
         didSet {
             guard !points.isEmpty else {
@@ -259,28 +260,37 @@ public class GlucoseGraph: UIView {
     }
 
     private func commonInit() {
-        contentHolder = UIScrollView(frame: .zero)
-        contentHolder.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(contentHolder)
-        contentHolder.delegate = self
-
         contentView = DrawingView { [weak self] (rect) in
             self?.drawContent(rect)
         }
         contentView.backgroundColor = .clear
-        contentHolder.addSubview(contentView)
 
-        makeConstraints {
-            contentHolder[.top] == self[.top]
-            contentHolder[.left] == self[.left]
-            self[.bottom] == contentHolder[.bottom] + xAxisHeight
-            contentHolder[.right] == self[.right] - 40 ~ 900
+        if isScrollEnabled {
+            contentHolder = UIScrollView(frame: .zero)
+            contentHolder.translatesAutoresizingMaskIntoConstraints = false
+            addSubview(contentHolder)
+            contentHolder.delegate = self
+            contentHolder.addSubview(contentView)
+            makeConstraints {
+                contentHolder[.top] == self[.top]
+                contentHolder[.left] == self[.left]
+                self[.bottom] == contentHolder[.bottom] + xAxisHeight
+                contentHolder[.right] == self[.right] - 40 ~ 900
 
-            contentView[.top] == contentHolder[.top]
-            contentView[.bottom] == contentHolder[.bottom]
-            contentView[.left] == contentHolder[.left]
-            contentView[.right] == contentHolder[.right]
-            contentView[.height] == self[.height] - xAxisHeight ~ 900
+                contentView[.top] == contentHolder[.top]
+                contentView[.bottom] == contentHolder[.bottom]
+                contentView[.left] == contentHolder[.left]
+                contentView[.right] == contentHolder[.right]
+                contentView[.height] == self[.height] - xAxisHeight ~ 900
+            }
+        } else {
+            addSubview(contentView)
+            makeConstraints {
+                contentView[.top] == self[.top]
+                contentView[.left] == self[.left]
+                contentView[.right] == self[.right] - 40
+                contentView[.height] == self[.height] - xAxisHeight
+            }
         }
 
         xAxisHolder = UIScrollView(frame: .zero)
