@@ -25,5 +25,10 @@ class DrawingView: UIView {
     override func draw(_ rect: CGRect) {
         render(rect)
     }
+
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
+        setNeedsDisplay()
+    }
 }
 
