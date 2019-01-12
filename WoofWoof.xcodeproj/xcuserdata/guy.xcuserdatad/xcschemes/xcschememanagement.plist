@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>7</integer>
 		</dict>
+		<key>PDFCreation.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>9</integer>
+		</dict>
 		<key>SiriIntentUI.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>

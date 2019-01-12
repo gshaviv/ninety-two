@@ -47,6 +47,14 @@ extension NSMutableAttributedString {
         return self
     }
 
+    @discardableResult public final func font(_ font: UIFont?, range: NSRange? = nil) -> NSMutableAttributedString {
+        guard let font = font else {
+            return self
+        }
+        addAttribute(NSAttributedString.Key.font, value: font, range: range ?? NSMakeRange(0, length))
+        return self
+    }
+
     @discardableResult public final func preferredFont(_ textStyle: UIFont.TextStyle, range: NSRange? = nil) -> NSMutableAttributedString {
         let font = UIFont.preferredFont(forTextStyle: textStyle)
         addAttribute(NSAttributedString.Key.font, value: font, range: range ?? NSMakeRange(0, length))

@@ -11,6 +11,8 @@ import Sqlable
 import WoofKit
 import Intents
 import IntentsUI
+import PDFCreation
+import PDFKit
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
@@ -108,7 +110,7 @@ class ViewController: UIViewController {
                 defaults[.lastStatisticsCalculation] = Date()
                 let child = try MiaoMiao.db.createChild()
                 DispatchQueue.global().async {
-                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 90.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
+                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 30.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                         let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                         let withTime = zip(readings.dropLast(), diffs)
                         let withGoodTime = withTime.filter { $0.1 < 20.m }
@@ -190,6 +192,22 @@ class ViewController: UIViewController {
                 }
             }))
         }
+
+        sheet.addAction(UIAlertAction(title: "Report", style: .default, handler: { (_) in
+            let maker = PDFCreator(size: PDFCreator.Size.a4)
+            maker.attributes = [.titleAttribute: "Report"]
+            let data = maker.create({ (sender) in
+                let title = "Report".styled.text(alignment: .center).color(.red).systemFont(size: 30)
+                sender.add(PDFTextSection(title, margin: UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)))
+
+                let text = "This is some text of a sample paragraph".styled.font(UIFont(name: "Baskerville", size: 12))
+                sender.add(PDFTextSection(text))
+            })
+            if let doc = PDFDocument(data: data) {
+            let ctr = PDFViewerViewController.controller(for: doc)
+            self.present(ctr, animated: true, completion: nil)
+            }
+        }))
 
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(sheet, animated: true, completion: nil)
