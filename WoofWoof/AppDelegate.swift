@@ -66,7 +66,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                   GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
                                   GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1)]
 
-                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+                DispatchQueue.main.async {
+                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+                }
                 if Date() - lastHistoryDate > 5.m {
                     MiaoMiao.last24hReadings.append(gp)
                     lastHistoryDate = Date()
@@ -272,7 +274,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                         guard let trend = MiaoMiao.trend else {
                             return
                         }
-                        let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(100.0) { min($0, $1.value) })
+                        let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(max(MiaoMiao.last24hReadings.count - 6,0))...].reduce(100.0) { min($0, $1.value) })
                         let sym: String
                         if current.value < lowest {
                             sym = "⤵︎"

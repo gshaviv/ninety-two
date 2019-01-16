@@ -32,3 +32,9 @@ extension PDFTextSection: PDFCreatorSection {
         attributedString.draw(in: container)
     }
 }
+
+open class PDFTextCell: PDFTextSection, PDFCreatorCell {
+    public var width: CGFloat {
+        return attributedString.size().width
+    }
+}

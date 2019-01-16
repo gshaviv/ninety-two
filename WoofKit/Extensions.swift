@@ -12,6 +12,65 @@ import Sqlable
 import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
+extension String {
+    public subscript(index: Int) -> String {
+        get {
+            return String(self[self.index(self.startIndex, offsetBy: index)])
+        }
+        set {
+            self[index ..< index + 1] = newValue
+        }
+    }
+
+    public subscript(integerRange: Range<Int>) -> String {
+        get {
+            let start = index(startIndex, offsetBy: integerRange.lowerBound)
+            let end = index(startIndex, offsetBy: integerRange.upperBound)
+            return String(self[start ..< end])
+        }
+        set {
+            let start = index(startIndex, offsetBy: integerRange.lowerBound)
+            let end = index(startIndex, offsetBy: integerRange.upperBound)
+            replaceSubrange(start ..< end, with: newValue)
+        }
+    }
+
+    public subscript(from: CountablePartialRangeFrom<Int>) -> String {
+        get {
+            let start = index(startIndex, offsetBy: from.lowerBound)
+            return String(self[start ..< endIndex])
+        }
+        set {
+            let start = index(startIndex, offsetBy: from.lowerBound)
+            replaceSubrange(start ..< endIndex, with: newValue)
+        }
+    }
+
+    public subscript(upTo: PartialRangeUpTo<Int>) -> String {
+        get {
+            guard let upper = index(startIndex, offsetBy: upTo.upperBound, limitedBy: endIndex) else {
+                return ""
+            }
+            return String(self[startIndex ..< upper])
+        }
+        set {
+            guard let upper = index(startIndex, offsetBy: upTo.upperBound, limitedBy: endIndex) else {
+                return
+            }
+            replaceSubrange(startIndex ..< upper, with: newValue)
+        }
+    }
+
+    public subscript(nsrange: NSRange) -> String {
+        get {
+            return String(self[Range(nsrange, in: self) ?? startIndex ..< startIndex])
+        }
+        set {
+            replaceSubrange(Range(nsrange, in: self) ?? startIndex ..< endIndex, with: newValue)
+        }
+    }
+}
+
 extension SqliteDatabase {
 
     @discardableResult public func perform<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) throws -> R {
@@ -79,6 +138,16 @@ extension Date {
             return comp
         }
     }
+    public var midnightBefore: Date {
+        var c = components
+        c.hour = 0
+        c.minute = 0
+        c.second = 0
+        return c.date
+    }
+    public var midnight: Date {
+        return midnightBefore + 1.d
+    }
     public var day: Int {
         return components.day ?? 0
     }
@@ -131,6 +200,40 @@ extension ArraySlice where Element == UInt8 {
     }
 }
 
+extension Array where Element: Numeric, Element: Comparable {
+    public func sum() -> Element {
+        return reduce(0, +)
+    }
+
+    public func biggest() -> Element {
+         return reduce(self[0]) { Swift.max($0, $1) }
+    }
+
+    public func smallest() -> Element {
+        return reduce(self[0]) { Swift.min($0, $1) }
+    }
+}
+
+extension Array where Element == Double {
+    public func median() -> Double {
+        return percentile(0.5)
+    }
+
+    public func percentile(_ p:Double) -> Double {
+        guard count > 1 else {
+            return self[0]
+        }
+        let idx0 = Int(floor(Double(count - 1) * p))
+        let idx1 = Int(ceil(Double(count - 1) * p))
+        if idx0 == idx1 {
+            return self[idx1]
+        } else {
+            let f = 1 / Double(count - 1)
+            return (p - Double(idx0) * f) / f * self[idx0] + (1 - (p - Double(idx0) * f) / f) * self[idx1]
+        }
+    }
+}
+
 extension Bundle {
     public static var documentsPath: String {
         return NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
@@ -158,6 +261,17 @@ extension UIView {
     }
     public var height: CGFloat {
         return frame.height
+    }
+    @objc var borderColor: UIColor? {
+        get {
+            if let c = layer.borderColor {
+                return UIColor(cgColor: c)
+            }
+            return nil
+        }
+        set {
+            layer.borderColor = newValue?.cgColor
+        }
     }
 }
 

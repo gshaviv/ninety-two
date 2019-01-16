@@ -87,7 +87,7 @@ class InterfaceController: WKInterfaceController {
         let width = WKInterfaceDevice.current().screenBounds.size.width * WKInterfaceDevice.current().screenScale
         let points = WKExtension.extensionDelegate.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
-        let yRange = (min: min(max(CGFloat(floor(gmin / 5) * 5), 10), 80), max: max(CGFloat(ceil(gmax / 5) * 5), 140))
+        let yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
         let xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
 
         let size = CGSize(width: width, height: 110 * WKInterfaceDevice.current().screenScale)

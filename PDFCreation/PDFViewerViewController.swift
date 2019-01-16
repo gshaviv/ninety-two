@@ -60,14 +60,14 @@ open class PDFViewerViewController: UIViewController {
     }
 
     @objc private func  nextPage() {
-        if pdfView.canGoForward() {
-            pdfView.goForward(nil)
+        if pdfView.canGoToNextPage() {
+            pdfView.goToNextPage(nil)
         }
     }
 
     @objc private func prevPage() {
-        if pdfView.canGoBack() {
-            pdfView.goBack(nil)
+        if pdfView.canGoToPreviousPage() {
+            pdfView.goToPreviousPage(nil)
         }
     }
 

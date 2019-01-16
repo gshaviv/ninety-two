@@ -33,7 +33,7 @@ public struct GlucosePoint: GlucoseReading {
 
 #if os(iOS)
 extension GlucosePoint: Sqlable {
-    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
+    public static let date = Column("date", .date)
     public static let value = Column("value", .real)
 
     public static var tableLayout = [date, value]

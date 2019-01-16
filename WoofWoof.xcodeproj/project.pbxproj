@@ -28,6 +28,12 @@
 		E4230F9621EA206E00A297A5 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4230F9421EA205100A297A5 /* PDFKit.framework */; };
 		E4230F9821EA26DC00A297A5 /* PDFAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4230F9721EA26DC00A297A5 /* PDFAssets.xcassets */; };
 		E4230F9B21EA47F200A297A5 /* CenteredPageNumberFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230F9A21EA47F200A297A5 /* CenteredPageNumberFooter.swift */; };
+		E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230FBD21EA6A5B00A297A5 /* ActionSheetController.swift */; };
+		E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230FC021EA748C00A297A5 /* DateRangePickerController.swift */; };
+		E4230FC321EA74C000A297A5 /* DateRangePickerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */; };
+		E4230FC521EB04C600A297A5 /* GlucoseReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230FC421EB04C600A297A5 /* GlucoseReport.swift */; };
+		E4230FC721EB56E300A297A5 /* PDFTableSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230FC621EB56E300A297A5 /* PDFTableSection.swift */; };
+		E4230FC921EB850E00A297A5 /* PDFSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4230FC821EB850E00A297A5 /* PDFSections.swift */; };
 		E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */; };
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
 		E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
@@ -86,6 +92,7 @@
 		E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C021C6DA03001AF4CD /* Measurement.swift */; };
 		E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C221C6DA5E001AF4CD /* CRC.swift */; };
 		E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */; };
+		E49023F721EF5B8700846FC4 /* DateFromToPickerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */; };
 		E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
 		E4B5023021D6167200E18DDD /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
@@ -261,6 +268,12 @@
 		E4230F9721EA26DC00A297A5 /* PDFAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = PDFAssets.xcassets; sourceTree = "<group>"; };
 		E4230F9921EA472C00A297A5 /* SiriIntents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntents.entitlements; sourceTree = "<group>"; };
 		E4230F9A21EA47F200A297A5 /* CenteredPageNumberFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CenteredPageNumberFooter.swift; sourceTree = "<group>"; };
+		E4230FBD21EA6A5B00A297A5 /* ActionSheetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetController.swift; sourceTree = "<group>"; };
+		E4230FC021EA748C00A297A5 /* DateRangePickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangePickerController.swift; sourceTree = "<group>"; };
+		E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DateRangePickerController.xib; sourceTree = "<group>"; };
+		E4230FC421EB04C600A297A5 /* GlucoseReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseReport.swift; sourceTree = "<group>"; };
+		E4230FC621EB56E300A297A5 /* PDFTableSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTableSection.swift; sourceTree = "<group>"; };
+		E4230FC821EB850E00A297A5 /* PDFSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSections.swift; sourceTree = "<group>"; };
 		E425663821CD671700469232 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureAlgorithmParameters.swift; sourceTree = "<group>"; };
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
@@ -316,6 +329,7 @@
 		E48F42C021C6DA03001AF4CD /* Measurement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Measurement.swift; sourceTree = "<group>"; };
 		E48F42C221C6DA5E001AF4CD /* CRC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CRC.swift; sourceTree = "<group>"; };
 		E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibreSensor.swift; sourceTree = "<group>"; };
+		E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DateFromToPickerController.xib; sourceTree = "<group>"; };
 		E4B5022C21D6160C00E18DDD /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		E4B5022F21D6167200E18DDD /* KVO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVO.swift; sourceTree = "<group>"; };
 		E4B5023121D61A1900E18DDD /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
@@ -414,6 +428,8 @@
 				E4230F8221E9DA4200A297A5 /* Info.plist */,
 				E4230F8C21E9DB1400A297A5 /* PDFCreator.swift */,
 				E4230F8E21E9E87A00A297A5 /* PDFTextSection.swift */,
+				E4230FC621EB56E300A297A5 /* PDFTableSection.swift */,
+				E4230FC821EB850E00A297A5 /* PDFSections.swift */,
 				E4230F9A21EA47F200A297A5 /* CenteredPageNumberFooter.swift */,
 				E4230F9021EA1F3700A297A5 /* PDFViewerViewController.swift */,
 				E4230F9121EA1F3700A297A5 /* PDFViewerViewController.xib */,
@@ -591,6 +607,11 @@
 				E4B5022C21D6160C00E18DDD /* Calculation.swift */,
 				E40021BD21D89DAA001AB34D /* PieChart.swift */,
 				E42E2AE121E0A305004FD560 /* sounds */,
+				E4230FBD21EA6A5B00A297A5 /* ActionSheetController.swift */,
+				E4230FC021EA748C00A297A5 /* DateRangePickerController.swift */,
+				E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */,
+				E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */,
+				E4230FC421EB04C600A297A5 /* GlucoseReport.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -943,6 +964,7 @@
 				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
 				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
 				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
+				E49023F721EF5B8700846FC4 /* DateFromToPickerController.xib in Resources */,
 				E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */,
 				E42E2AEF21E0A33A004FD560 /* Siri_Device_Muted.caf in Resources */,
 				E42E2AEE21E0A33A004FD560 /* Siri_High_Glucose.caf in Resources */,
@@ -951,6 +973,7 @@
 				E42E2AED21E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf in Resources */,
 				E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */,
 				E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */,
+				E4230FC321EA74C000A297A5 /* DateRangePickerController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -973,6 +996,8 @@
 				E4230F9221EA1F3700A297A5 /* PDFViewerViewController.swift in Sources */,
 				E4230F8D21E9DB1400A297A5 /* PDFCreator.swift in Sources */,
 				E4230F8F21E9E87A00A297A5 /* PDFTextSection.swift in Sources */,
+				E4230FC921EB850E00A297A5 /* PDFSections.swift in Sources */,
+				E4230FC721EB56E300A297A5 /* PDFTableSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1030,6 +1055,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4230FC521EB04C600A297A5 /* GlucoseReport.swift in Sources */,
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
@@ -1045,9 +1071,11 @@
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
+				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
+				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

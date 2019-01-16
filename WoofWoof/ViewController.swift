@@ -194,23 +194,50 @@ class ViewController: UIViewController {
         }
 
         sheet.addAction(UIAlertAction(title: "Report", style: .default, handler: { (_) in
-            let maker = PDFCreator(size: PDFCreator.Size.a4)
-            maker.attributes = [.titleAttribute: "Report"]
-            let data = maker.create({ (sender) in
-                let title = "Report".styled.text(alignment: .center).color(.red).systemFont(size: 30)
-                sender.add(PDFTextSection(title, margin: UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)))
-
-                let text = "This is some text of a sample paragraph".styled.font(UIFont(name: "Baskerville", size: 12))
-                sender.add(PDFTextSection(text))
-            })
-            if let doc = PDFDocument(data: data) {
-            let ctr = PDFViewerViewController.controller(for: doc)
-            self.present(ctr, animated: true, completion: nil)
-            }
-        }))
+            self.selectReportPeriod()
+            }))
 
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(sheet, animated: true, completion: nil)
+    }
+
+    private func selectReportPeriod() {
+        let ctr = DateRangePickerController()
+        ctr.onSelect = {
+            if $0 == 0 {
+                let ctr2 = DateFromToPickerController()
+                ctr2.onSelect = {
+                    self.makeReport(from: $0, to: $1)
+                }
+                self.present(ctr2, animated: true, completion: nil)
+            } else {
+                self.makeReport(from: Date() - $0, to: Date())
+            }
+        }
+        self.present(ctr, animated: true, completion: nil)
+    }
+
+    private func makeReport(from: Date, to: Date) {
+        do {
+            let report = try GlucoseReport(from: from.midnightBefore, to: to.midnight, database: MiaoMiao.db)
+            DispatchQueue.global().async {
+                do {
+                    let pdf = try report.create()
+                    DispatchQueue.main.async {
+                        let ctr = PDFViewerViewController.controller(for: pdf)
+                        self.present(ctr, animated: true, completion: nil)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "Error", message: "Error encountered while generating report", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                }
+            }
+        } catch {
+
+        }
     }
     
     @IBAction func calibrate() {
