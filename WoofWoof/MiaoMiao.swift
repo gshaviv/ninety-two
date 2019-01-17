@@ -88,7 +88,9 @@ class MiaoMiao {
     private static var pendingReadings: [GlucosePoint] = []
 
     static var db: SqliteDatabase = {
-        let db = try! SqliteDatabase(filepath: Bundle.documentsPath + "/read.sqlite")
+        let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
+        let isNew = !FileManager.default.fileExists(atPath: dbUrl.path)
+        let db = try! SqliteDatabase(filepath: dbUrl.path)
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
@@ -388,3 +390,12 @@ class MiaoMiao {
 }
 
 
+extension Array where Element: Sqlable {
+    public func insert(into: SqliteDatabase) throws {
+        try into.beginTransaction()
+        forEach {
+            into.evaluate($0.insert())
+        }
+        try into.commitTransaction()
+    }
+}
