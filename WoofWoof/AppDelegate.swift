@@ -107,8 +107,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         let diffs = trend.map { $0.value }.diff()
         if diffs.count > 4 {
-            let ave = diffs[0 ..< 4].reversed().reduce(0) { $1 == 0 ? $0 : ($1 + $0) / 2 }
-            return -ave
+            var weightSum:Double = 0
+            var weight:Double = 0
+            let sum = diffs[0 ..< 4].reversed().reduce(0.0) {
+                weight += 1
+                weightSum += weight
+                return $0 + $1 * weight
+            }
+            return -sum / weightSum
         }
         return nil
     }
@@ -117,17 +123,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let trend = inputTrend ?? trendCalculator.value else {
             return ""
         }
-        if trend > 2.8 {
+        if trend > 2.0 {
             return "⇈"
-        } else if trend > 1.4 {
+        } else if trend > 1.0 {
             return "↑"
-        } else if trend > 0.5 {
+        } else if trend > 0.4 {
             return "↗︎"
-        } else if trend > -0.5 {
+        } else if trend > -0.4 {
             return "→"
-        } else if trend > -1.4 {
+        } else if trend > -1.0 {
             return "↘︎"
-        } else if trend > -2.8 {
+        } else if trend > -2.0 {
             return "↓"
         } else {
             return "⇊"
