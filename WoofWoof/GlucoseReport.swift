@@ -91,6 +91,11 @@ class GlucoseReport {
 
 
         let maker = PDFCreator(size: PageSize.a4)
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateStyle = .short
+        maker.attributes = [.titleAttribute:"\(formatter.string(from: start)) to \(formatter.string(from: end))"]
+
         let data = maker.create { sender in
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .medium

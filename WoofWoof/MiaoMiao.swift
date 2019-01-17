@@ -86,7 +86,13 @@ class MiaoMiao {
         }
     }
     private static var pendingReadings: [GlucosePoint] = []
-
+    private static var lockfile: URL = {
+        let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
+        if !FileManager.default.fileExists(atPath: url.path) {
+            try? "lock".write(to: url, atomically: true, encoding: .utf8)
+        }
+        return url
+    }()
     static var db: SqliteDatabase = {
         let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
         let isNew = !FileManager.default.fileExists(atPath: dbUrl.path)
@@ -94,8 +100,10 @@ class MiaoMiao {
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
+
         return db
     }()
+    private static var fileCoordinator = NSFileCoordinator(filePresenter: FilePointer(url: lockfile))
 
     class Command {
 
@@ -349,15 +357,17 @@ class MiaoMiao {
                 let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
-                do {
-                    try db.beginTransaction()
-                    try history.forEach {
-                        try db.perform($0.insert())
-                        added.append($0)
+                fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil) { (_) in
+                    do {
+                        try db.beginTransaction()
+                        try history.forEach {
+                            try db.perform($0.insert())
+                            added.append($0)
+                        }
+                        try db.commitTransaction()
+                    } catch let error {
+                        logError("\(error)")
                     }
-                    try db.commitTransaction()
-                } catch let error {
-                    logError("\(error)")
                 }
             }
             MiaoMiao.trend = trend
@@ -366,17 +376,19 @@ class MiaoMiao {
                 pendingReadings.append(contentsOf: added)
             }
             if pendingReadings.count > 3 {
-                do {
-                    try db.beginTransaction()
-                    try pendingReadings.forEach {
-                        try db.perform($0.insert())
-                        added.append($0)
-                        log("Writing history \($0)")
+                fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil) { (_) in
+                    do {
+                        try db.beginTransaction()
+                        try pendingReadings.forEach {
+                            try db.perform($0.insert())
+                            added.append($0)
+                            log("Writing history \($0)")
+                        }
+                        try db.commitTransaction()
+                        pendingReadings = []
+                    } catch let error {
+                        logError("\(error)")
                     }
-                    try db.commitTransaction()
-                    pendingReadings = []
-                } catch let error {
-                    logError("\(error)")
                 }
             }
             if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h }), idx > 0 {
@@ -389,13 +401,3 @@ class MiaoMiao {
     }
 }
 
-
-extension Array where Element: Sqlable {
-    public func insert(into: SqliteDatabase) throws {
-        try into.beginTransaction()
-        forEach {
-            into.evaluate($0.insert())
-        }
-        try into.commitTransaction()
-    }
-}

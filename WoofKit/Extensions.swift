@@ -12,6 +12,17 @@ import Sqlable
 import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
+
+extension Array where Element: Sqlable {
+    public func insert(into: SqliteDatabase) throws {
+        try into.beginTransaction()
+        forEach {
+            into.evaluate($0.insert())
+        }
+        try into.commitTransaction()
+    }
+}
+
 extension String {
     public subscript(index: Int) -> String {
         get {
@@ -382,5 +393,16 @@ public extension String {
     /// Convenience method so optionals can be used.. e.g. myString?.toInt()
     public func toInt() -> Int? {
         return Int(self)
+    }
+}
+
+public class FilePointer: NSObject, NSFilePresenter {
+    public var presentedItemURL: URL?
+
+    public var presentedItemOperationQueue: OperationQueue
+
+    public init(url: URL, queue: OperationQueue? = nil) {
+        presentedItemURL = url
+        presentedItemOperationQueue = queue ?? OperationQueue.main
     }
 }
