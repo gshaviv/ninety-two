@@ -88,8 +88,8 @@
 		E44EEC8621E9C78000F966A8 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
 		E45A86AE21F1ABCD00754C15 /* BolusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */; };
 		E45A86AF21F1ABCD00754C15 /* BolusViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */; };
-		E45A86C621F1D09900754C15 /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
+		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
 		E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BE21C6D9C1001AF4CD /* SensorData.swift */; };
@@ -330,7 +330,7 @@
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusViewController.swift; sourceTree = "<group>"; };
 		E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BolusViewController.xib; sourceTree = "<group>"; };
-		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
+		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
 		E48F42BE21C6D9C1001AF4CD /* SensorData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorData.swift; sourceTree = "<group>"; };
@@ -424,7 +424,6 @@
 			children = (
 				E417F4C221E8D21300C6BC9D /* SiriIntents.entitlements */,
 				E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */,
-				E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */,
 				E417F4B521E8CFA200C6BC9D /* Info.plist */,
 			);
 			path = Intents;
@@ -500,6 +499,7 @@
 				E425664D21CE66A200469232 /* GlucosePoint.swift */,
 				E425663821CD671700469232 /* Extensions.swift */,
 				E42A294921E886C70084D181 /* Info.plist */,
+				E46DC58021F20FE700E9E391 /* Media.xcassets */,
 			);
 			path = WoofKit;
 			sourceTree = "<group>";
@@ -938,6 +938,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -997,7 +998,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E45A86C621F1D09900754C15 /* BolusIntentHandler.swift in Sources */,
 				E417F4B421E8CFA200C6BC9D /* IntentHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -146,7 +146,7 @@ public class GlucoseGraph: UIView {
         fill.lineWidth = 0
         fill.fill()
 
-        let syringeImage = UIImage(named: "syringe")!
+        let syringeImage = UIImage(named: "syringe", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let syringeSize = syringeImage.size
         let c = UIColor.blue.darker(by: 40)
         c.setStroke()
