@@ -1,5 +1,5 @@
 //
-//  BolusViewController.swift
+//  AddMealViewController.swift
 //  WoofWoof
 //
 //  Created by Guy on 18/01/2019.
@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import WoofKit
 
-class BolusViewController: ActionSheetController {
+class AddMealViewController: ActionSheetController {
     @IBOutlet var picker: UIPickerView!
-    var units: Int?
+    var kind: Meal.Kind?
 
-    var onSelect: ((Date, Int) -> Void)?
+    var onSelect: ((Meal) -> Void)?
     var onCancel: (() -> Void)?
 
     @IBAction func handleCancel(_ sender: Any) {
@@ -28,11 +29,14 @@ class BolusViewController: ActionSheetController {
         comp.hour = picker.selectedRow(inComponent: 0)
         comp.minute = picker.selectedRow(inComponent: 1) * 5
         comp.second = 0
-        let units = self.picker.selectedRow(inComponent: 2) + 1
-        self.units = units
+        guard let k = Meal.Kind(rawValue: self.picker.selectedRow(inComponent: 2)) else {
+            return
+        }
+        kind = k
+        let meal = Meal(date: comp.date, kind: kind!)
 
         dismiss(animated: true) {
-            self.onSelect?(comp.date, units)
+            self.onSelect?(meal)
             self.onSelect = nil
             self.onCancel = nil
         }
@@ -51,15 +55,26 @@ class BolusViewController: ActionSheetController {
 
         picker.selectRow(now.hour, inComponent: 0, animated: false)
         picker.selectRow(Int(round(Double(now.minute) / 5.0)), inComponent: 1, animated: false)
-        if let u = units, u > 0 {
-            picker.selectRow(u - 1, inComponent: 2, animated: false)
+        if let kind = kind {
+            picker.selectRow(kind.rawValue, inComponent: 2, animated: false)
+        } else {
+            switch now.hour {
+            case 5...10:
+                picker.selectRow(Meal.Kind.breakfast.rawValue, inComponent: 2, animated: false)
+            case 11...14:
+                picker.selectRow(Meal.Kind.lunch.rawValue, inComponent: 2, animated: false)
+            case 18...21:
+                picker.selectRow(Meal.Kind.dinner.rawValue, inComponent: 2, animated: false)
+            default:
+                picker.selectRow(Meal.Kind.other.rawValue, inComponent: 2, animated: false)
+            }
         }
         preferredContentSize = CGSize(width: 420, height: view.systemLayoutSizeFitting(CGSize(width: 420, height: 1000)).height)
     }
 
 }
 
-extension BolusViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+extension AddMealViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 3
     }
@@ -73,7 +88,7 @@ extension BolusViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             return 12
 
         default:
-            return 50
+            return 4
         }
     }
 
@@ -86,7 +101,7 @@ extension BolusViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             return "\(row * 5)"
 
         default:
-            return "\(row + 1)"
+            return Meal.Kind(rawValue: row)!.name.capitalized
         }
     }
 

@@ -27,12 +27,17 @@ public class Storage: NSObject {
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
         try! db.createTable(Bolus.self)
+        try! db.createTable(Meal.self)
         return db
     }()
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
     public lazy var todayBolus: [Bolus] = {
         return db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+    }()
+
+    public lazy var meals: [Meal] = {
+        return db.evaluate(Meal.read().filter(Bolus.date > Date().midnightBefore)) ?? []
     }()
 
 }

@@ -24,6 +24,7 @@
 	<array>
 		<string>BolusIntent</string>
 		<string>CheckGlucoseIntent</string>
+		<string>MealIntent</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

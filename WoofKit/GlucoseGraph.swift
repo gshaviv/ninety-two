@@ -52,6 +52,11 @@ public class GlucoseGraph: UIView {
             contentView.setNeedsDisplay()
         }
     }
+    public var meals: [Meal] = [] {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
 
     private var contentHolder: UIScrollView!
     private var contentView: DrawingView!
@@ -62,9 +67,9 @@ public class GlucoseGraph: UIView {
 
     public let colors = [(55, UIColor.red),
                    (defaults[.minRange] < 110 ? Int(defaults[.minRange]) : 70, UIColor.red.lighter()),
-                   (110, UIColor.green),
-                   (140, UIColor.green.lighter(by: 40)),
-                   (defaults[.maxRange] >= 140 ? Int(defaults[.maxRange]) : 180, UIColor.green.lighter(by: 70)),
+                   (110, UIColor.green.lighter(by: 40)),
+                   (140, UIColor.green),
+                   (defaults[.maxRange] >= 140 ? Int(defaults[.maxRange]) : 180, UIColor.green.lighter(by: 50)),
                    (999, UIColor.yellow)]
     private var contentWidthConstraint: NSLayoutConstraint?
 
@@ -148,16 +153,28 @@ public class GlucoseGraph: UIView {
 
         let syringeImage = UIImage(named: "syringe", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let syringeSize = syringeImage.size
+        let mealImage = UIImage(named: "meal", in: Bundle(for: type(of:self)), compatibleWith: nil)!
+        let mealSize = mealImage.size
         let c = UIColor.blue.darker(by: 40)
         c.setStroke()
         for b in boluses {
             let x = xCoor(b.date)
-            ctx?.move(to: CGPoint(x: x - syringeSize.width / 2, y: 0))
-            syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2), with: c)
+            let y = meals.first(where: { abs(xCoor($0.date) - x) < mealSize.height / 2 }) != nil ? mealSize.height : 0
+            syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2 + y), with: c)
             let text = "\(b.units)".styled.systemFont(size: 14).color(.darkGray)
             text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: 10))
+            if y == 0 {
+                ctx?.beginPath()
+                ctx?.move(to: CGPoint(x: x, y: syringeSize.height + mealSize.height + 2))
+                ctx?.addLine(to: CGPoint(x: x, y: rect.height))
+                ctx?.strokePath()
+            }
+        }
+        for m in meals {
+            let x = xCoor(m.date)
+            mealImage.fill(at: CGPoint(x: x, y: mealSize.height/2), with: c)
             ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
+            ctx?.move(to: CGPoint(x: x, y: syringeSize.height + mealSize.height + 2))
             ctx?.addLine(to: CGPoint(x: x, y: rect.height))
             ctx?.strokePath()
         }

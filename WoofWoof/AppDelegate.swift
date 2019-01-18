@@ -92,7 +92,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         let midnight = Date().midnightBefore
-        Storage.default.todayBolus = Storage.default.todayBolus.filter { $0.date > midnight }
+        Storage.default.todayBolus = Storage.default.db.evaluate(Bolus.read().filter(Bolus.date > midnight)) ?? []
+        Storage.default.meals = Storage.default.db.evaluate(Meal.read().filter(Bolus.date > midnight)) ?? []
+        if let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController  {
+            ctr.graphView.meals = Storage.default.meals
+            ctr.graphView.boluses = Storage.default.todayBolus
+        }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -149,7 +154,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         switch userActivity.activityType {
         case "BolusIntent":
             ctr.addBolus(units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue)
-            
+
+        case "MealIntent":
+            var kind: Meal.Kind? = nil
+            if let k = (userActivity.interaction?.intent.value(forKey: "type") as? NSNumber)?.intValue {
+                kind = Meal.Kind(rawValue: k - 1)
+            }
+            ctr.addMeal(kind: kind)
+
         default:
             break
         }

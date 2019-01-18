@@ -32,6 +32,7 @@
 			<array>
 				<string>CheckGlucoseIntent</string>
 				<string>BolusIntent</string>
+				<string>MealIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>

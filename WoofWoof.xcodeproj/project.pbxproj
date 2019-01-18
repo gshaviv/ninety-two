@@ -92,6 +92,9 @@
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
+		E488740021F23BE700694F6C /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FF21F23BE700694F6C /* Meal.swift */; };
+		E488740321F249D500694F6C /* AddMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddMealViewController.swift */; };
+		E488740421F249D500694F6C /* AddMealViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddMealViewController.xib */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
 		E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BE21C6D9C1001AF4CD /* SensorData.swift */; };
@@ -335,6 +338,9 @@
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
+		E48873FF21F23BE700694F6C /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
+		E488740121F249D500694F6C /* AddMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMealViewController.swift; sourceTree = "<group>"; };
+		E488740221F249D500694F6C /* AddMealViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddMealViewController.xib; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
 		E48F42BE21C6D9C1001AF4CD /* SensorData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorData.swift; sourceTree = "<group>"; };
@@ -506,6 +512,7 @@
 				E42A294921E886C70084D181 /* Info.plist */,
 				E46DC58021F20FE700E9E391 /* Media.xcassets */,
 				E48873FD21F232AE00694F6C /* Storage.swift */,
+				E48873FF21F23BE700694F6C /* Meal.swift */,
 			);
 			path = WoofKit;
 			sourceTree = "<group>";
@@ -630,6 +637,8 @@
 				E4230FC421EB04C600A297A5 /* GlucoseReport.swift */,
 				E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */,
 				E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */,
+				E488740121F249D500694F6C /* AddMealViewController.swift */,
+				E488740221F249D500694F6C /* AddMealViewController.xib */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -980,6 +989,7 @@
 			files = (
 				E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */,
 				E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */,
+				E488740421F249D500694F6C /* AddMealViewController.xib in Resources */,
 				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
 				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
 				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
@@ -1039,6 +1049,7 @@
 				E48873FE21F232AE00694F6C /* Storage.swift in Sources */,
 				E446352821F1083D00CEE738 /* Bolus.swift in Sources */,
 				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
+				E488740021F23BE700694F6C /* Meal.swift in Sources */,
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
@@ -1098,6 +1109,7 @@
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
+				E488740321F249D500694F6C /* AddMealViewController.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 			);

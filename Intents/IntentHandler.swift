@@ -21,6 +21,9 @@ class IntentHandler: INExtension {
         case is BolusIntent:
             return BolusHandler()
 
+        case is MealIntent:
+            return MealHandler()
+
         default:
             return nil
         }

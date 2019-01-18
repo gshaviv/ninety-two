@@ -4,11 +4,6 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>BolusIntents.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>10</integer>
-		</dict>
 		<key>Intents.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -16,11 +11,15 @@
 		</dict>
 		<key>PDFCreation.xcscheme_^#shared#^_</key>
 		<dict>
+			<key>isShown</key>
+			<false/>
 			<key>orderHint</key>
 			<integer>9</integer>
 		</dict>
 		<key>SiriIntentUI.xcscheme_^#shared#^_</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>8</integer>
 		</dict>
@@ -58,6 +57,39 @@
 		<dict>
 			<key>orderHint</key>
 			<integer>5</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>E417F4B021E8CFA200C6BC9D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E4230F7E21E9DA4200A297A5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E42A291A21E77B2A0084D181</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E42E2A9821DF28C5004FD560</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E44EEC7021E9C52600F966A8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E4E35A5F21C3F8D300336CE8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

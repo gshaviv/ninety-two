@@ -61,6 +61,7 @@ class ViewController: UIViewController {
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
 
         graphView.boluses = Storage.default.todayBolus
+        graphView.meals = Storage.default.meals
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -159,6 +160,9 @@ class ViewController: UIViewController {
             ctr.units = units
         }
         ctr.onSelect = {
+            guard $1 > 0 else {
+                return
+            }
             let b = Bolus(date: $0, units: $1)
             DispatchQueue.global().async {
                 Storage.default.db.async {
@@ -178,11 +182,36 @@ class ViewController: UIViewController {
         present(ctr, animated: true, completion: nil)
     }
 
+    func addMeal(kind: Meal.Kind? = nil) {
+        let ctr = AddMealViewController()
+        if let kind = kind {
+            ctr.kind = kind
+        }
+        ctr.onSelect = { (meal) in
+            DispatchQueue.global().async {
+                Storage.default.db.async {
+                    Storage.default.db.evaluate(meal.insert())
+                }
+            }
+            Storage.default.meals.append(meal)
+            self.graphView.meals = Storage.default.meals
+            let interaction = INInteraction(intent: meal.intent, response: nil)
+            interaction.donate { error in
+                // Handle error
+            }
+        }
+        present(ctr, animated: true, completion: nil)
+    }
+
     @IBAction func handleMore(_ sender: Any) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
         sheet.addAction(UIAlertAction(title: "Add Bolus", style: .default, handler: { (_) in
             self.addBolus()
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Add Meal", style: .default, handler: { (_) in
+            self.addMeal()
         }))
 
         sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in
