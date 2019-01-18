@@ -145,12 +145,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        guard let ctr = window?.rootViewController as? ViewController else {
+        guard let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController else {
             return false
         }
         switch userActivity.activityType {
         case "BolusIntent":
-            ctr.addBolus()
+            ctr.addBolus(units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue)
             
         default:
             break

@@ -12,7 +12,22 @@ import Sqlable
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
-class IntentHandler: INExtension, CheckGlucoseIntentHandling {
+class IntentHandler: INExtension {
+    override func handler(for intent: INIntent) -> Any? {
+        switch intent {
+        case is CheckGlucoseIntent:
+            return CheckIntentHandler()
+
+        case is BolusIntent:
+            return BolusHandler()
+
+        default:
+            return nil
+        }
+    }
+}
+
+class CheckIntentHandler: NSObject, CheckGlucoseIntentHandling {
     private let sharedDb: SqliteDatabase? = {
         let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
         try! db?.createTable(GlucosePoint.self)
@@ -59,7 +74,7 @@ class IntentHandler: INExtension, CheckGlucoseIntentHandling {
     }
 }
 
-extension IntentHandler: NSFilePresenter {
+extension CheckIntentHandler: NSFilePresenter {
     var presentedItemURL: URL? {
         return sharedDbUrl
     }

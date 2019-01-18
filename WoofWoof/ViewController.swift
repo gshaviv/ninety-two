@@ -153,8 +153,11 @@ class ViewController: UIViewController {
         }
     }
 
-    func addBolus() {
+    func addBolus(units: Int? = nil) {
         let ctr = BolusViewController()
+        if let units = units {
+            ctr.units = units
+        }
         ctr.onSelect = {
             let b = Bolus(date: $0, units: $1)
             DispatchQueue.global().async {
@@ -165,7 +168,8 @@ class ViewController: UIViewController {
             UIApplication.theDelegate.todayBolus.append(b)
             self.graphView.boluses = UIApplication.theDelegate.todayBolus
             let intent = BolusIntent()
-            intent.suggestedInvocationPhrase = "Record a bolus"
+            intent.suggestedInvocationPhrase = "I injected \($1) unit\($1 > 1 ? "s" : "")"
+            intent.units = NSNumber(value: $1)
             let interaction = INInteraction(intent: intent, response: nil)
             interaction.donate { error in
                 // Handle error

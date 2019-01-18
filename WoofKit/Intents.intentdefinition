@@ -164,7 +164,7 @@
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<true/>
 					<key>INIntentParameterCombinationTitle</key>
-					<string>Bolus of ${units}units</string>
+					<string>Bolus of ${units} units</string>
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>rrw3x3</string>
 				</dict>

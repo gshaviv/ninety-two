@@ -11,7 +11,7 @@ import Intents
 import WoofKit
 import Sqlable
 
-class BolusHandler: INExtension, BolusIntentHandling {
+class BolusHandler: NSObject, BolusIntentHandling {
     private  var lockfile: URL = {
         let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
         if !FileManager.default.fileExists(atPath: url.path) {
@@ -42,6 +42,7 @@ class BolusHandler: INExtension, BolusIntentHandling {
             let b = Bolus(date: Date(), units: u.intValue)
             onDb {
                 self.db.evaluate(b.insert())
+                completion(BolusIntentResponse.success(units: u))
             }
             
         } else {

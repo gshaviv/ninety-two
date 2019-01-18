@@ -10,6 +10,7 @@ import UIKit
 
 class BolusViewController: ActionSheetController {
     @IBOutlet var picker: UIPickerView!
+    var units: Int?
 
     var onSelect: ((Date, Int) -> Void)?
     var onCancel: (() -> Void)?
@@ -27,6 +28,7 @@ class BolusViewController: ActionSheetController {
         comp.hour = picker.selectedRow(inComponent: 0)
         comp.minute = picker.selectedRow(inComponent: 1) * 5
         comp.second = 0
+        units = self.picker.selectedRow(inComponent: 2)
 
         dismiss(animated: true) {
             self.onSelect?(comp.date, self.picker.selectedRow(inComponent: 2))
@@ -38,9 +40,19 @@ class BolusViewController: ActionSheetController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        var now = Date()
+        if now.minute > 57 {
+            var comp = now.components
+            comp.minute = 0
+            comp.hour = now.hour + 1
+            now = comp.date
+        }
 
-        picker.selectRow(Date().hour, inComponent: 0, animated: false)
-        picker.selectRow(Int(round(Double(Date().minute) / 5.0)), inComponent: 1, animated: false)
+        picker.selectRow(now.hour, inComponent: 0, animated: false)
+        picker.selectRow(Int(round(Double(now.minute) / 5.0)), inComponent: 1, animated: false)
+        if let u = units, u > 0 {
+            picker.selectRow(u - 1, inComponent: 2, animated: false)
+        }
         preferredContentSize = CGSize(width: 420, height: view.systemLayoutSizeFitting(CGSize(width: 420, height: 1000)).height)
     }
 
