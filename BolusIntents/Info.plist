@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Intents</string>
+	<string>BolusIntents</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,15 +24,10 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>IntentsRestrictedWhileProtectedDataUnavailable</key>
-			<array/>
 			<key>IntentsRestrictedWhileLocked</key>
 			<array/>
 			<key>IntentsSupported</key>
-			<array>
-				<string>CheckGlucoseIntent</string>
-				<string>BolusIntent</string>
-			</array>
+			<array/>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.intents-service</string>

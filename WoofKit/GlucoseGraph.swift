@@ -47,6 +47,11 @@ public class GlucoseGraph: UIView {
             setNeedsLayout()
         }
     }
+    public var boluses: [Bolus] = [] {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
 
     private var contentHolder: UIScrollView!
     private var contentView: DrawingView!
@@ -140,6 +145,22 @@ public class GlucoseGraph: UIView {
         }
         fill.lineWidth = 0
         fill.fill()
+
+        let syringeImage = UIImage(named: "syringe")!
+        let syringeSize = syringeImage.size
+        let c = UIColor.blue.darker(by: 40)
+        c.setStroke()
+        for b in boluses {
+            let x = xCoor(b.date)
+            ctx?.move(to: CGPoint(x: x - syringeSize.width / 2, y: 0))
+            syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2), with: c)
+            let text = "\(b.units)".styled.systemFont(size: 14).color(.darkGray)
+            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: 10))
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
+            ctx?.addLine(to: CGPoint(x: x, y: rect.height))
+            ctx?.strokePath()
+        }
 
         if let touchPoint = touchPoint {
             let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
@@ -418,5 +439,25 @@ extension GlucoseGraph {
             GlucosePoint(date: Date() - 55.m, value: 80),
             GlucosePoint(date: Date(), value: 90)
         ]
+    }
+}
+
+
+extension UIImage {
+    func fill(at: CGPoint, with color: UIColor) {
+        let imageRect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        let context = UIGraphicsGetCurrentContext()
+        context?.saveGState()
+        context!.translateBy(x: 0, y: size.height)
+        context!.scaleBy(x: 1.0, y: -1.0)
+        context!.setBlendMode(CGBlendMode.multiply)
+        context!.clip(to: imageRect, mask: cgImage!)
+        color.setFill()
+        context!.fill(imageRect)
+        context?.restoreGState()
+        let out = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        out?.draw(in: CGRect(origin: CGPoint(x: at.x - size.width / 2, y: at.y - size.height / 2), size: size))
     }
 }

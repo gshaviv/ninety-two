@@ -77,6 +77,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         super.viewDidLoad()
         extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         let intent = CheckGlucoseIntent()
+        intent.suggestedInvocationPhrase = "What's my glucose"
         let interaction = INInteraction(intent: intent, response: nil)
         interaction.donate { error in
             // Handle error

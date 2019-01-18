@@ -59,6 +59,8 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
+
+        graphView.boluses = UIApplication.theDelegate.todayBolus
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -151,8 +153,34 @@ class ViewController: UIViewController {
         }
     }
 
+    func addBolus() {
+        let ctr = BolusViewController()
+        ctr.onSelect = {
+            let b = Bolus(date: $0, units: $1)
+            DispatchQueue.global().async {
+                MiaoMiao.onDb {
+                    MiaoMiao.db.evaluate(b.insert())
+                }
+            }
+            UIApplication.theDelegate.todayBolus.append(b)
+            self.graphView.boluses = UIApplication.theDelegate.todayBolus
+            let intent = BolusIntent()
+            intent.suggestedInvocationPhrase = "Record a bolus"
+            let interaction = INInteraction(intent: intent, response: nil)
+            interaction.donate { error in
+                // Handle error
+            }
+        }
+        present(ctr, animated: true, completion: nil)
+    }
+
     @IBAction func handleMore(_ sender: Any) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        sheet.addAction(UIAlertAction(title: "Add Bolus", style: .default, handler: { (_) in
+            self.addBolus()
+        }))
+
         sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in
             self.calibrate()
         }))
@@ -163,7 +191,7 @@ class ViewController: UIViewController {
             }))
         }
 
-        sheet.addAction(UIAlertAction(title: "Reconnect Sensor", style: .default, handler: { (_) in
+        sheet.addAction(UIAlertAction(title: "Reconnect Transmitter", style: .default, handler: { (_) in
             Central.manager.restart()
         }))
 
@@ -282,6 +310,7 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         let intent = CheckGlucoseIntent()
+        intent.suggestedInvocationPhrase = "What's my glucose"
         let interaction = INInteraction(intent: intent, response: nil)
         interaction.donate { error in
             // Handle error

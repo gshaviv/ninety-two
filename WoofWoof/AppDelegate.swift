@@ -38,6 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         defaults.register()
         coordinator = NSFileCoordinator(filePresenter: self)
     }
+    public var todayBolus: [Bolus] = {
+        return MiaoMiao.db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -90,7 +93,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        let midnight = Date().midnightBefore
+        todayBolus = todayBolus.filter { $0.date > midnight }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -141,6 +145,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        guard let ctr = window?.rootViewController as? ViewController else {
+            return false
+        }
+        switch userActivity.activityType {
+        case "BolusIntent":
+            ctr.addBolus()
+            
+        default:
+            break
+        }
         return true
     }
 }

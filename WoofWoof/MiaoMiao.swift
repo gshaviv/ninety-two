@@ -100,10 +100,18 @@ class MiaoMiao {
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
-
+        try! db.createTable(Bolus.self)
         return db
     }()
     private static var fileCoordinator = NSFileCoordinator(filePresenter: FilePointer(url: lockfile))
+
+    public static func onDb(_ dbOp: @escaping () -> Void) {
+        DispatchQueue.global().async {
+            fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil, byAccessor: { (_) in
+                dbOp()
+            })
+        }
+    }
 
     class Command {
 
@@ -370,7 +378,7 @@ class MiaoMiao {
                     }
                 }
             }
-            MiaoMiao.trend = trend
+            MiaoMiao.trend = trend.filter { $0.value > 0 }
             if !added.isEmpty {
                 _last24.append(contentsOf: added)
                 pendingReadings.append(contentsOf: added)

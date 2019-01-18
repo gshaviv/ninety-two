@@ -22,6 +22,7 @@
 	<true/>
 	<key>NSUserActivityTypes</key>
 	<array>
+		<string>BolusIntent</string>
 		<string>CheckGlucoseIntent</string>
 	</array>
 	<key>UIBackgroundModes</key>
