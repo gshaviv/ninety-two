@@ -60,7 +60,7 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
 
-        graphView.boluses = UIApplication.theDelegate.todayBolus
+        graphView.boluses = Storage.default.todayBolus
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -110,7 +110,7 @@ class ViewController: UIViewController {
         if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 1.h {
             do {
                 defaults[.lastStatisticsCalculation] = Date()
-                let child = try MiaoMiao.db.createChild()
+                let child = try Storage.default.db.createChild()
                 DispatchQueue.global().async {
                     if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 30.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                         let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
@@ -161,12 +161,12 @@ class ViewController: UIViewController {
         ctr.onSelect = {
             let b = Bolus(date: $0, units: $1)
             DispatchQueue.global().async {
-                MiaoMiao.onDb {
-                    MiaoMiao.db.evaluate(b.insert())
+                Storage.default.db.async {
+                    Storage.default.db.evaluate(b.insert())
                 }
             }
-            UIApplication.theDelegate.todayBolus.append(b)
-            self.graphView.boluses = UIApplication.theDelegate.todayBolus
+            Storage.default.todayBolus.append(b)
+            self.graphView.boluses = Storage.default.todayBolus
             let intent = BolusIntent()
             intent.suggestedInvocationPhrase = "I injected \($1) unit\($1 > 1 ? "s" : "")"
             intent.units = NSNumber(value: $1)
@@ -251,7 +251,7 @@ class ViewController: UIViewController {
 
     private func makeReport(from: Date, to: Date) {
         do {
-            let report = try GlucoseReport(from: from.midnightBefore, to: to.midnight, database: MiaoMiao.db)
+            let report = try GlucoseReport(from: from.midnightBefore, to: to.midnight, database: Storage.default.db)
             DispatchQueue.global().async {
                 do {
                     let pdf = try report.create()
@@ -283,7 +283,7 @@ class ViewController: UIViewController {
             if let text = alert.textFields![0].text, let bg = Double(text), let current = MiaoMiao.currentGlucose {
                 do {
                     let c = Calibration(date: Date(), value: bg)
-                    try MiaoMiao.db.perform(c.insert())
+                    try Storage.default.db.perform(c.insert())
                     defaults[.additionalSlope] *= bg / current.value
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))

@@ -54,8 +54,8 @@ class MiaoMiao {
         get {
             if _last24.isEmpty {
                 let end = Date()
-                if let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)), // DEBUG
-                    let calibrations = db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
+                if let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)),
+                    let calibrations = Storage.default.db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
                     if calibrations.isEmpty {
                         _last24 = readings
                     } else {
@@ -86,32 +86,7 @@ class MiaoMiao {
         }
     }
     private static var pendingReadings: [GlucosePoint] = []
-    private static var lockfile: URL = {
-        let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
-        if !FileManager.default.fileExists(atPath: url.path) {
-            try? "lock".write(to: url, atomically: true, encoding: .utf8)
-        }
-        return url
-    }()
-    static var db: SqliteDatabase = {
-        let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
-        let isNew = !FileManager.default.fileExists(atPath: dbUrl.path)
-        let db = try! SqliteDatabase(filepath: dbUrl.path)
-        db.queue = DispatchQueue(label: "db")
-        try! db.createTable(GlucosePoint.self)
-        try! db.createTable(Calibration.self)
-        try! db.createTable(Bolus.self)
-        return db
-    }()
-    private static var fileCoordinator = NSFileCoordinator(filePresenter: FilePointer(url: lockfile))
 
-    public static func onDb(_ dbOp: @escaping () -> Void) {
-        DispatchQueue.global().async {
-            fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil, byAccessor: { (_) in
-                dbOp()
-            })
-        }
-    }
 
     class Command {
 
@@ -355,9 +330,6 @@ class MiaoMiao {
     }
 
     private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
-        guard let db = try? db.createChild() else {
-            return
-        }
         DispatchQueue.global().async {
             var added = [GlucosePoint]()
             if let last = last24hReadings.last?.date {
@@ -365,14 +337,14 @@ class MiaoMiao {
                 let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
-                fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil) { (_) in
+                Storage.default.db.async {
                     do {
-                        try db.beginTransaction()
+                        try Storage.default.db.beginTransaction()
                         try history.forEach {
-                            try db.perform($0.insert())
+                            try Storage.default.db.perform($0.insert())
                             added.append($0)
                         }
-                        try db.commitTransaction()
+                        try Storage.default.db.commitTransaction()
                     } catch let error {
                         logError("\(error)")
                     }
@@ -384,15 +356,15 @@ class MiaoMiao {
                 pendingReadings.append(contentsOf: added)
             }
             if pendingReadings.count > 3 {
-                fileCoordinator.coordinate(writingItemAt: lockfile, options: [], error: nil) { (_) in
+                Storage.default.db.async {
                     do {
-                        try db.beginTransaction()
+                        try Storage.default.db.beginTransaction()
                         try pendingReadings.forEach {
-                            try db.perform($0.insert())
+                            try Storage.default.db.perform($0.insert())
                             added.append($0)
                             log("Writing history \($0)")
                         }
-                        try db.commitTransaction()
+                        try Storage.default.db.commitTransaction()
                         pendingReadings = []
                     } catch let error {
                         logError("\(error)")

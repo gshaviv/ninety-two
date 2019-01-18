@@ -38,9 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         defaults.register()
         coordinator = NSFileCoordinator(filePresenter: self)
     }
-    public var todayBolus: [Bolus] = {
-        return MiaoMiao.db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
-    }()
+
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -94,7 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         let midnight = Date().midnightBefore
-        todayBolus = todayBolus.filter { $0.date > midnight }
+        Storage.default.todayBolus = Storage.default.todayBolus.filter { $0.date > midnight }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
