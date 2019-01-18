@@ -84,7 +84,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="1" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="3DN-jb-SHo" firstAttribute="leading" secondItem="YKB-EG-988" secondAttribute="leading" id="1yF-F7-e0a"/>
                             <constraint firstItem="bO3-KV-uR0" firstAttribute="top" secondItem="YKB-EG-988" secondAttribute="top" constant="8" id="HOi-G0-WHM"/>
