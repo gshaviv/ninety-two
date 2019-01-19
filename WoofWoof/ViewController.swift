@@ -159,11 +159,7 @@ class ViewController: UIViewController {
         if let units = units {
             ctr.units = units
         }
-        ctr.onSelect = {
-            guard $1 > 0 else {
-                return
-            }
-            let b = Bolus(date: $0, units: $1)
+        ctr.onSelect = { (b) in
             DispatchQueue.global().async {
                 Storage.default.db.async {
                     Storage.default.db.evaluate(b.insert())

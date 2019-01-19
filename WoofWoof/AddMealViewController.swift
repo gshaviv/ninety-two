@@ -33,7 +33,9 @@ class AddMealViewController: ActionSheetController {
             return
         }
         kind = k
-        let meal = Meal(date: comp.date, kind: kind!)
+        let cd = comp.date ?? Date()
+        let when = Storage.default.todayBolus.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
+        let meal = Meal(date: when, kind: kind!)
 
         dismiss(animated: true) {
             self.onSelect?(meal)
@@ -50,7 +52,7 @@ class AddMealViewController: ActionSheetController {
             var comp = now.components
             comp.minute = 0
             comp.hour = now.hour + 1
-            now = comp.date
+            now = comp.date ?? Date()
         }
 
         picker.selectRow(now.hour, inComponent: 0, animated: false)
