@@ -166,16 +166,19 @@ public class GlucoseGraph: UIView {
             if y == 0 {
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
-                ctx?.addLine(to: CGPoint(x: x, y: rect.height))
+                let v = findValue(at: b.date)
+                ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) - 10))
                 ctx?.strokePath()
             }
         }
         for m in meals {
             let x = xCoor(m.date)
+            let v = findValue(at: m.date)
+
             mealImage.fill(at: CGPoint(x: x, y: mealSize.height/2), with: c)
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: x, y: syringeSize.height + mealSize.height + 2))
-            ctx?.addLine(to: CGPoint(x: x, y: rect.height))
+            ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) - 10))
             ctx?.strokePath()
         }
 
@@ -188,6 +191,10 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: rect.width, y: coor.y))
             ctx?.strokePath()
         }
+    }
+
+    private func findValue(at: Date) -> Double {
+        return points.reduce((Double(0), 24.h)) { abs($1.date - at) < $0.1 ? ($1.value, abs($1.date - at)) : $0 }.0
     }
 
     private func drawXAxis(_ rect: CGRect) {
