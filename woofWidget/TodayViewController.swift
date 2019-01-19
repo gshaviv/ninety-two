@@ -87,25 +87,23 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     }
         
     func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {
-        // Perform any setup necessary in order to update the view.
-        
-        // If an error is encountered, use NCUpdateResult.Failed
-        // If there's no update required, use NCUpdateResult.NoData
-        // If there's an update, use NCUpdateResult.NewData
-
         DispatchQueue.global().async {
             self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
                 let old = self.points
                 if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
-                    DispatchQueue.main.async {
-                        self.points = p.sorted(by: { $0.date > $1.date })
-                        if old.isEmpty && !self.points.isEmpty {
-                            completionHandler(NCUpdateResult.newData)
-                        } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
-                            completionHandler(NCUpdateResult.newData)
-                        } else {
-                            self.updateTime()
-                            completionHandler(NCUpdateResult.noData)
+                    Storage.default.db.async {
+                        Storage.default.todayBolus =  Storage.default.db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+                        Storage.default.meals = Storage.default.db.evaluate(Meal.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+                        DispatchQueue.main.async {
+                            self.points = p.sorted(by: { $0.date > $1.date })
+                            if old.isEmpty && !self.points.isEmpty {
+                                completionHandler(NCUpdateResult.newData)
+                            } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
+                                completionHandler(NCUpdateResult.newData)
+                            } else {
+                                self.updateTime()
+                                completionHandler(NCUpdateResult.noData)
+                            }
                         }
                     }
                 }

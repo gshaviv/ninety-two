@@ -162,7 +162,7 @@ public class GlucoseGraph: UIView {
             let y = meals.first(where: { abs(xCoor($0.date) - x) < mealSize.height / 2 }) != nil ? mealSize.height : 0
             syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2 + y), with: c)
             let text = "\(b.units)".styled.systemFont(size: 14).color(.darkGray)
-            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: 10))
+            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: y + 10))
             if y == 0 {
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
