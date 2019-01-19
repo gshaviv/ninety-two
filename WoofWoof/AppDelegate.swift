@@ -116,12 +116,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return nil
         }
         let diffs = trend.map { $0.value }.diff()
-        let minutesToLastHistory = Int(floor(Date().timeIntervalSince(MiaoMiao.last24hReadings.last!.date) / 60)) - 1
-        if diffs.count > minutesToLastHistory {
+        let minutesToLook = 9
+        if diffs.count > minutesToLook {
             var weightSum:Double = 0
             var weight:Double = 1
-            log("Last trend diffs = \(diffs[0 ..< minutesToLastHistory].map { -$0 })")
-            let sum = diffs[0 ..< minutesToLastHistory].reversed().reduce(0.0) {
+            log("Last trend diffs = \(diffs[0 ..< minutesToLook].map { -$0 })")
+            let sum = diffs[0 ..< minutesToLook].reversed().reduce(0.0) {
                 weight += 1
                 weightSum += weight
                 return $0 + $1 * weight

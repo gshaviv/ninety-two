@@ -44,6 +44,10 @@ extension UserDefaults {
         case didAlertCalibrateSecond12h
         case didAlertCalibrateAfter24h
         case didAlertEvent
+        case didAskAddLunchToSiri
+        case didAskAddBreakfastToSiri
+        case didAskAddDinnerToSiri
+        case didAskAddOtherToSiri
     }
 
     public func register() {

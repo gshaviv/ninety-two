@@ -189,6 +189,41 @@ class ViewController: UIViewController {
             interaction.donate { error in
                 // Handle error
             }
+            let key: UserDefaults.BoolKey
+            switch meal.kind {
+            case .breakfast:
+                key = .didAskAddBreakfastToSiri
+            case .lunch:
+                key = .didAskAddLunchToSiri
+            case .dinner:
+                key = .didAskAddDinnerToSiri
+            case .other:
+                key = .didAskAddOtherToSiri
+            }
+            if defaults[key] {
+                return
+            }
+            DispatchQueue.global().async {
+                var has = false
+                INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
+                    for voiceShortcut in results ?? [] {
+                        if let intent = voiceShortcut.shortcut.intent as? MealIntent, intent.type == meal.kind.name {
+                            has = true
+                            break
+                        }
+                    }
+                }
+                if !has {
+                    DispatchQueue.main.async {
+                        defaults[key] = true
+                        if let shortcut = INShortcut(intent: meal.intent) {
+                            let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+                            viewController.delegate = self
+                            self.present(viewController, animated: true)
+                        }
+                    }
+                }
+            }
         }
         present(ctr, animated: true, completion: nil)
     }
