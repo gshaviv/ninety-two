@@ -116,11 +116,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if diffs.count > 4 {
             var weightSum:Double = 0
             var weight:Double = 0
+            log("Last trend diffs = \(diffs[0 ..< 4].map { -$0 })")
             let sum = diffs[0 ..< 4].reversed().reduce(0.0) {
                 weight += 1
                 weightSum += weight
                 return $0 + $1 * weight
             }
+            log("trend is \(-sum / weightSum)")
             return -sum / weightSum
         }
         return nil

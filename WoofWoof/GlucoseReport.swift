@@ -388,6 +388,10 @@ class GlucoseReport {
         if points.count < 24 {
             return
         }
+        let meals = db.evaluate(Meal.read().filter(Meal.date > dayStart && Meal.date < dayEnd)) ?? []
+        let boluses = db.evaluate(Bolus.read().filter(Bolus.date > dayStart && Bolus.date < dayEnd)) ?? []
+        let syringeImage = UIImage(named: "syringe-hires")!
+        let mealImage = UIImage(named: "meal-hires")!
 
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -483,6 +487,23 @@ class GlucoseReport {
                 text.draw(in: area)
             }
 
+            let scale = 12 / mealImage.size.width
+            let mealSize = CGSize(width: 12, height: mealImage.size.height * scale)
+            for meal in meals {
+                mealImage.draw(in: CGRect(origin: CGPoint(x: xPos(meal.date) - mealSize.width / 2, y: graphRect.minY + 1), size: mealSize))
+            }
+            let syringeSize = CGSize(width: 12, height: syringeImage.size.height / syringeImage.size.width * 12)
+            for b in boluses {
+                syringeImage.draw(in: CGRect(origin: CGPoint(x: xPos(b.date) - mealSize.width / 2, y: graphRect.minY + 2 + mealSize.height), size: syringeSize))
+                let text = "\(b.units)".styled.font(self.normalFont).sizeFactor(0.6)
+                text.draw(at: CGPoint(x: xPos(b.date) + mealSize.width / 2, y: graphRect.minY - 6 + mealSize.height + syringeSize.height))
+                ctx.beginPath()
+                ctx.move(to: CGPoint(x: xPos(b.date), y: graphRect.minY + mealSize.height + syringeSize.height + 4))
+                ctx.addLine(to: CGPoint(x: xPos(b.date), y: yPos(self.findValue(at: b.date, in: points)) - 4))
+                ctx.setLineWidth(0.25)
+                ctx.strokePath()
+            }
+
             ctx.restoreGState()
 
             UIColor.black.setStroke()
@@ -492,5 +513,9 @@ class GlucoseReport {
             ctx.stroke(graphRect)
 
         })
+    }
+
+    private func findValue(at: Date, in points: [GlucosePoint]) -> Double {
+        return points.reduce((Double(0), 24.h)) { abs($1.date - at) < $0.1 ? ($1.value, abs($1.date - at)) : $0 }.0
     }
 }
