@@ -28,7 +28,7 @@ class BolusHandler: NSObject, BolusIntentHandling {
 
 class MealHandler: NSObject, MealIntentHandling {
     func handle(intent: MealIntent, completion: @escaping (MealIntentResponse) -> Void) {
-        let kind = Meal.Kind(rawValue: intent.type.rawValue - 1) ?? .other
+        let kind = Meal.Kind(name: intent.type ?? "other")
         let meal = Meal(date: Date(), kind: kind)
         Storage.default.db.async {
             Storage.default.db.evaluate(meal.insert())

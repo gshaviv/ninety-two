@@ -3,67 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>INEnums</key>
-	<array>
-		<dict>
-			<key>INEnumName</key>
-			<string>Type</string>
-			<key>INEnumType</key>
-			<string>Regular</string>
-			<key>INEnumValues</key>
-			<array>
-				<dict>
-					<key>INEnumValueDisplayName</key>
-					<string>unknown</string>
-					<key>INEnumValueDisplayNameID</key>
-					<string>cI3Qe5</string>
-					<key>INEnumValueIndex</key>
-					<integer>0</integer>
-					<key>INEnumValueName</key>
-					<string>unknown</string>
-				</dict>
-				<dict>
-					<key>INEnumValueDisplayName</key>
-					<string></string>
-					<key>INEnumValueDisplayNameID</key>
-					<string>GqheDb</string>
-					<key>INEnumValueIndex</key>
-					<integer>1</integer>
-					<key>INEnumValueName</key>
-					<string>breakfast</string>
-				</dict>
-				<dict>
-					<key>INEnumValueDisplayName</key>
-					<string></string>
-					<key>INEnumValueDisplayNameID</key>
-					<string>fTpOr3</string>
-					<key>INEnumValueIndex</key>
-					<integer>2</integer>
-					<key>INEnumValueName</key>
-					<string>lunch</string>
-				</dict>
-				<dict>
-					<key>INEnumValueDisplayName</key>
-					<string></string>
-					<key>INEnumValueDisplayNameID</key>
-					<string>qTssj2</string>
-					<key>INEnumValueIndex</key>
-					<integer>3</integer>
-					<key>INEnumValueName</key>
-					<string>dinner</string>
-				</dict>
-				<dict>
-					<key>INEnumValueDisplayName</key>
-					<string></string>
-					<key>INEnumValueDisplayNameID</key>
-					<string>mH91Ms</string>
-					<key>INEnumValueIndex</key>
-					<integer>4</integer>
-					<key>INEnumValueName</key>
-					<string>other</string>
-				</dict>
-			</array>
-		</dict>
-	</array>
+	<array/>
 	<key>INIntentDefinitionModelVersion</key>
 	<string>1.0</string>
 	<key>INIntentDefinitionSystemVersion</key>
@@ -306,7 +246,7 @@
 			<key>INIntentDescriptionID</key>
 			<string>4iQGeV</string>
 			<key>INIntentLastParameterTag</key>
-			<integer>3</integer>
+			<integer>4</integer>
 			<key>INIntentName</key>
 			<string>Meal</string>
 			<key>INIntentParameterCombinations</key>
@@ -332,16 +272,14 @@
 				<dict>
 					<key>INIntentParameterDisplayPriority</key>
 					<integer>1</integer>
-					<key>INIntentParameterEnumType</key>
-					<string>Type</string>
 					<key>INIntentParameterName</key>
 					<string>type</string>
 					<key>INIntentParameterSupportsMultipleValues</key>
 					<false/>
 					<key>INIntentParameterTag</key>
-					<integer>3</integer>
+					<integer>4</integer>
 					<key>INIntentParameterType</key>
-					<string>Integer</string>
+					<string>String</string>
 				</dict>
 			</array>
 			<key>INIntentResponse</key>

@@ -31,6 +31,22 @@ public struct Meal {
                 return "o"
             }
         }
+
+        public init(name: String) {
+            switch name {
+            case "breakfast":
+                self = .breakfast
+
+            case "lunch":
+                self = .lunch
+
+            case "dinner":
+                self = .dinner
+
+            default:
+                self = .other
+            }
+        }
     }
     public let kind: Kind
     public let date: Date
@@ -68,7 +84,7 @@ extension Meal: Sqlable {
 extension Meal {
     public var intent: MealIntent {
         let m = MealIntent()
-        m.type = MealType(rawValue: kind.rawValue + 1) ?? .other
+        m.type = kind.name
         switch kind {
         case .breakfast:
             m.suggestedInvocationPhrase = "I'm having breakfast"
