@@ -165,7 +165,7 @@ public class GlucoseGraph: UIView {
             text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: 10))
             if y == 0 {
                 ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: x, y: syringeSize.height + mealSize.height + 2))
+                ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
                 ctx?.addLine(to: CGPoint(x: x, y: rect.height))
                 ctx?.strokePath()
             }

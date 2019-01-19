@@ -205,6 +205,13 @@
 			remoteGlobalIDString = E44EEC7021E9C52600F966A8;
 			remoteInfo = SiriIntentUI;
 		};
+		E488740521F2FF9700694F6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E42A294521E886C70084D181;
+			remoteInfo = WoofKit;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -713,6 +720,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E488740621F2FF9700694F6C /* PBXTargetDependency */,
 			);
 			name = woofWidget;
 			productName = woofWidget;
@@ -1172,6 +1180,11 @@
 			isa = PBXTargetDependency;
 			target = E44EEC7021E9C52600F966A8 /* SiriIntentUI */;
 			targetProxy = E44EEC7B21E9C52600F966A8 /* PBXContainerItemProxy */;
+		};
+		E488740621F2FF9700694F6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E42A294521E886C70084D181 /* WoofKit */;
+			targetProxy = E488740521F2FF9700694F6C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
