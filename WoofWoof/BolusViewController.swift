@@ -31,7 +31,7 @@ class BolusViewController: ActionSheetController {
         comp.second = 0
         let units = self.picker.selectedRow(inComponent: 2) + 1
         self.units = units
-        let cd = comp.date ?? Date()
+        let cd = comp.toDate()
         let when = Storage.default.meals.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
         let b = Bolus(date: when, units: units)
 
@@ -50,7 +50,7 @@ class BolusViewController: ActionSheetController {
             var comp = now.components
             comp.minute = 0
             comp.hour = now.hour + 1
-            now = comp.date ?? Date()
+            now = comp.toDate()
         }
 
         picker.selectRow(now.hour, inComponent: 0, animated: false)

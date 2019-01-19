@@ -22,6 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var updater: Repeater?
     #endif
     private(set) public var trendCalculator: Calculation<Double?>!
+    public var currentTrend: Double? {
+        return trendCalculator.value
+    }
     private let sharedDb: SqliteDatabase? = {
         let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
         try! db?.createTable(GlucosePoint.self)
@@ -113,11 +116,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return nil
         }
         let diffs = trend.map { $0.value }.diff()
-        if diffs.count > 4 {
+        let minutesToLastHistory = Int(floor(Date().timeIntervalSince(MiaoMiao.last24hReadings.last!.date) / 60)) - 1
+        if diffs.count > minutesToLastHistory {
             var weightSum:Double = 0
-            var weight:Double = 0
-            log("Last trend diffs = \(diffs[0 ..< 4].map { -$0 })")
-            let sum = diffs[0 ..< 4].reversed().reduce(0.0) {
+            var weight:Double = 1
+            log("Last trend diffs = \(diffs[0 ..< minutesToLastHistory].map { -$0 })")
+            let sum = diffs[0 ..< minutesToLastHistory].reversed().reduce(0.0) {
                 weight += 1
                 weightSum += weight
                 return $0 + $1 * weight
@@ -129,7 +133,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func trendSymbol(for inputTrend: Double? = nil) -> String {
-        guard let trend = inputTrend ?? trendCalculator.value else {
+        guard let trend = inputTrend ?? currentTrend else {
             return ""
         }
         if trend > 2.0 {
@@ -195,7 +199,7 @@ extension AppDelegate: WCSessionDelegate {
     func appState() -> [String:Any] {
         let now = Date()
         let relevant = MiaoMiao.allReadings.filter { $0.date > now - 4.h && !$0.isCalibration }.map { [$0.date, $0.value] }
-        let state:[String:Any] = ["v": relevant, "t": trendValue() ?? 0, "s": trendSymbol()]
+        let state:[String:Any] = ["v": relevant, "t": currentTrend ?? 0, "s": trendSymbol()]
         return state
     }
 
@@ -250,18 +254,18 @@ extension AppDelegate: MiaoMiaoDelegate {
                     var error: NSError?
                     self.coordinator.coordinate(writingItemAt: sharedDbUrl, options: [], error: &error, byAccessor: { (_) in
                         do {
-                            try sharedDb.beginTransaction()
-                            try? sharedDb.execute("delete from \(GlucosePoint.tableName)")
-                            let now = Date()
-                            if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && !$0.isCalibration }) as? [GlucosePoint] {
-                                relevant.forEach { sharedDb.evaluate($0.insert()) }
+                            try sharedDb.transaction { db in
+                                try? db.execute("delete from \(GlucosePoint.tableName)")
+                                let now = Date()
+                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && !$0.isCalibration }) as? [GlucosePoint] {
+                                    relevant.forEach { db.evaluate($0.insert()) }
+                                }
                             }
-                            try sharedDb.commitTransaction()
                         } catch {}
                     })
                 }
             }
-            if let trend = trendValue() {
+            if let trend = currentTrend {
                 switch current.value {
                 case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
                     defaults[.didAlertEvent] = true

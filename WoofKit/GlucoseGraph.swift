@@ -101,7 +101,7 @@ public class GlucoseGraph: UIView {
         var components = xRange.min.components
         components.second = 0
         components.minute = 0
-        var xDate = components.date ?? Date()
+        var xDate = components.toDate()
         let step: TimeInterval
         if xTimeSpan < 3.h {
             step = 30.m
@@ -229,7 +229,7 @@ public class GlucoseGraph: UIView {
         var components = xRange.min.components
         components.second = 0
         components.minute = 0
-        var xDate = components.date ?? Date()
+        var xDate = components.toDate()
         let step: TimeInterval
         if xTimeSpan < 3.h {
             step = 30.m

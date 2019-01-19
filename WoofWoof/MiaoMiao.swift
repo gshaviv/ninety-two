@@ -339,12 +339,14 @@ class MiaoMiao {
             } else {
                 Storage.default.db.async {
                     do {
-                        try Storage.default.db.beginTransaction()
-                        try history.forEach {
-                            try Storage.default.db.perform($0.insert())
+                        try Storage.default.db.transaction { db in
+                            try history.forEach {
+                                try db.perform($0.insert())
+                            }
+                        }
+                        history.forEach {
                             added.append($0)
                         }
-                        try Storage.default.db.commitTransaction()
                     } catch let error {
                         logError("\(error)")
                     }
@@ -358,14 +360,13 @@ class MiaoMiao {
             if pendingReadings.count > 3 {
                 Storage.default.db.async {
                     do {
-                        try Storage.default.db.beginTransaction()
-                        try pendingReadings.forEach {
-                            try Storage.default.db.perform($0.insert())
-                            added.append($0)
-                            log("Writing history \($0)")
+                        try Storage.default.db.transaction { db in
+                            try pendingReadings.forEach {
+                                try db.perform($0.insert())
+                                added.append($0)
+                            }
+                            pendingReadings = []
                         }
-                        try Storage.default.db.commitTransaction()
-                        pendingReadings = []
                     } catch let error {
                         logError("\(error)")
                     }

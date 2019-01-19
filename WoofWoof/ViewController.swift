@@ -160,10 +160,8 @@ class ViewController: UIViewController {
             ctr.units = units
         }
         ctr.onSelect = { (b) in
-            DispatchQueue.global().async {
-                Storage.default.db.async {
-                    Storage.default.db.evaluate(b.insert())
-                }
+            Storage.default.db.async {
+                Storage.default.db.evaluate(b.insert())
             }
             Storage.default.todayBolus.append(b)
             self.graphView.boluses = Storage.default.todayBolus
@@ -182,10 +180,8 @@ class ViewController: UIViewController {
             ctr.kind = kind
         }
         ctr.onSelect = { (meal) in
-            DispatchQueue.global().async {
-                Storage.default.db.async {
-                    Storage.default.db.evaluate(meal.insert())
-                }
+            Storage.default.db.async {
+                Storage.default.db.evaluate(meal.insert())
             }
             Storage.default.meals.append(meal)
             self.graphView.meals = Storage.default.meals

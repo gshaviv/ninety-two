@@ -15,11 +15,11 @@ private let hexDigits = "0123456789ABCDEF".map { $0 }
 
 extension Array where Element: Sqlable {
     public func insert(into: SqliteDatabase) throws {
-        try into.beginTransaction()
-        forEach {
-            into.evaluate($0.insert())
+        try into.transaction { db in
+            forEach {
+                db.evaluate($0.insert())
+            }
         }
-        try into.commitTransaction()
     }
 }
 
@@ -154,7 +154,7 @@ extension Date {
         c.hour = 0
         c.minute = 0
         c.second = 0
-        return c.date ?? Date()
+        return c.toDate()
     }
     public var midnight: Date {
         return midnightBefore + 1.d
@@ -179,11 +179,11 @@ extension Date {
     }
 }
 
-//extension DateComponents {
-//    public var date: Date {
-//        return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
-//    }
-//}
+extension DateComponents {
+    public func toDate() -> Date {
+        return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
+    }
+}
 
 extension Data {
     public var hexString: String {
