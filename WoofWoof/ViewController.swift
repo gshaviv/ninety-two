@@ -171,10 +171,8 @@ class ViewController: UIViewController {
             }
             Storage.default.todayBolus.append(b)
             self.graphView.boluses = Storage.default.todayBolus
-            let intent = BolusIntent()
-            intent.suggestedInvocationPhrase = "I injected \($1) unit\($1 > 1 ? "s" : "")"
-            intent.units = NSNumber(value: $1)
-            let interaction = INInteraction(intent: intent, response: nil)
+
+            let interaction = INInteraction(intent: b.intent, response: nil)
             interaction.donate { error in
                 // Handle error
             }

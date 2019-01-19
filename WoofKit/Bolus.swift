@@ -41,6 +41,14 @@ extension Bolus: Sqlable {
         date = try row.get(Bolus.date)
         units = try row.get(Bolus.units)
     }
+}
 
 
+extension Bolus {
+    public var intent: BolusIntent {
+        let intent = BolusIntent()
+        intent.suggestedInvocationPhrase = "I took \(units) unit\(units > 1 ? "s" : "")"
+        intent.units = NSNumber(value: units)
+        return intent
+    }
 }
