@@ -32,7 +32,7 @@ class BolusViewController: ActionSheetController {
         let units = self.picker.selectedRow(inComponent: 2) + 1
         self.units = units
         let cd = comp.toDate()
-        let when = Storage.default.meals.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
+        let when = Storage.default.lastDay.meals.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
         let b = Bolus(date: when, units: units)
 
         dismiss(animated: true) {

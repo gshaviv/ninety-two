@@ -34,7 +34,7 @@ class AddMealViewController: ActionSheetController {
         }
         kind = k
         let cd = comp.toDate()
-        let when = Storage.default.todayBolus.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
+        let when = Storage.default.lastDay.boluses.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
         let meal = Meal(date: when, kind: kind!)
 
         dismiss(animated: true) {

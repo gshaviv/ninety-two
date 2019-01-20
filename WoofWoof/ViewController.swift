@@ -60,8 +60,8 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
 
-        graphView.boluses = Storage.default.todayBolus
-        graphView.meals = Storage.default.meals
+        graphView.boluses = Storage.default.lastDay.boluses
+        graphView.meals = Storage.default.lastDay.meals
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -70,7 +70,7 @@ class ViewController: UIViewController {
     }
 
     func update() {
-        if let lastH = MiaoMiao.last24hReadings.last?.date {
+        if let lastH = MiaoMiao.allReadings.last?.date {
             let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
             let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
 
@@ -108,7 +108,7 @@ class ViewController: UIViewController {
         } else {
             trendLabel.text = ""
         }
-        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 1.h {
+        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 3.h {
             do {
                 defaults[.lastStatisticsCalculation] = Date()
                 let child = try Storage.default.db.createChild()
@@ -163,8 +163,8 @@ class ViewController: UIViewController {
             Storage.default.db.async {
                 Storage.default.db.evaluate(b.insert())
             }
-            Storage.default.todayBolus.append(b)
-            self.graphView.boluses = Storage.default.todayBolus
+            Storage.default.lastDay.boluses.append(b)
+            self.graphView.boluses = Storage.default.lastDay.boluses
 
             let interaction = INInteraction(intent: b.intent, response: nil)
             interaction.donate { error in
@@ -183,8 +183,8 @@ class ViewController: UIViewController {
             Storage.default.db.async {
                 Storage.default.db.evaluate(meal.insert())
             }
-            Storage.default.meals.append(meal)
-            self.graphView.meals = Storage.default.meals
+            Storage.default.lastDay.meals.append(meal)
+            self.graphView.meals = Storage.default.lastDay.meals
             let interaction = INInteraction(intent: meal.intent, response: nil)
             interaction.donate { error in
                 // Handle error

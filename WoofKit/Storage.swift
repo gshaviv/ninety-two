@@ -31,15 +31,22 @@ public class Storage: NSObject {
         return db
     }()
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+    private(set) public var lastDay = Today()
+    public func reloadToday() {
+        lastDay = Today()
+    }
+}
 
-    public lazy var todayBolus: [Bolus] = {
-        return db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+public class Today {
+    public lazy var boluses: [Bolus] = {
+        let limit = Date() - 1.d
+        return Storage.default.db.evaluate(Bolus.read().filter(Bolus.date > limit).orderBy(Bolus.date)) ?? []
     }()
 
     public lazy var meals: [Meal] = {
-        return db.evaluate(Meal.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+        let limit = Date() - 1.d
+        return Storage.default.db.evaluate(Meal.read().filter(Bolus.date > limit).orderBy(Meal.date)) ?? []
     }()
-
 }
 
 extension SqliteDatabase {

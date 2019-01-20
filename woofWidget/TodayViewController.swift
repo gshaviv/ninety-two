@@ -34,8 +34,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 graphView.yRange.min = floor(graphView.yRange.min / 5) * 5
                 graphView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
                 graphView.xTimeSpan = graphView.xRange.max - graphView.xRange.min
-                graphView.boluses = Storage.default.todayBolus
-                graphView.meals = Storage.default.meals
+                graphView.boluses = Storage.default.lastDay.boluses
+                graphView.meals = Storage.default.lastDay.meals
                 let previous = points[1]
                 let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
                 let symbol = trendSymbol(for: trend)
@@ -92,8 +92,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 let old = self.points
                 if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
                     Storage.default.db.async {
-                        Storage.default.todayBolus =  Storage.default.db.evaluate(Bolus.read().filter(Bolus.date > Date().midnightBefore)) ?? []
-                        Storage.default.meals = Storage.default.db.evaluate(Meal.read().filter(Bolus.date > Date().midnightBefore)) ?? []
+                        Storage.default.reloadToday()
                         DispatchQueue.main.async {
                             self.points = p.sorted(by: { $0.date > $1.date })
                             if old.isEmpty && !self.points.isEmpty {
