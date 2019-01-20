@@ -158,27 +158,32 @@ public class GlucoseGraph: UIView {
         let c = UIColor.blue.darker(by: 40)
         c.setStroke()
         for b in boluses {
+            let v = findValue(at: b.date)
+            let above = CGFloat(v) < (yRange.max + yRange.min) / 2
             let x = xCoor(b.date)
-            let y = meals.first(where: { abs(xCoor($0.date) - x) < mealSize.height / 2 }) != nil ? mealSize.height : 0
+            var y = meals.first(where: { abs(xCoor($0.date) - x) < mealSize.height / 2 }) != nil ? mealSize.height : 0
+            if !above {
+                y = size.height - y - syringeSize.height
+            }
             syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2 + y), with: c)
             let text = "\(b.units)".styled.systemFont(size: 14).color(.darkGray)
             text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: y + 10))
             if y == 0 {
                 ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: x, y: syringeSize.height + 2))
-                let v = findValue(at: b.date)
-                ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) - 10))
+                ctx?.move(to: CGPoint(x: x, y: above ? syringeSize.height : (y - syringeSize.height)))
+                ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
                 ctx?.strokePath()
             }
         }
         for m in meals {
             let x = xCoor(m.date)
             let v = findValue(at: m.date)
+            let above = CGFloat(v) < (yRange.max + yRange.min) / 2
 
-            mealImage.fill(at: CGPoint(x: x, y: mealSize.height/2), with: c)
+            mealImage.fill(at: CGPoint(x: x, y: above ? mealSize.height/2 : size.height - mealSize.height / 2), with: c)
             ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: x, y: syringeSize.height + mealSize.height + 2))
-            ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) - 10))
+            ctx?.move(to: CGPoint(x: x, y: above ? syringeSize.height + mealSize.height + 2 : size.height - syringeSize.height - mealSize.height - 2))
+            ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
             ctx?.strokePath()
         }
 
