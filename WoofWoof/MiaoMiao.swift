@@ -39,9 +39,7 @@ class MiaoMiao {
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
                 defaults[.additionalSlope] = 1
-                defaults[.didAlertCalibrateAfter24h] = false
-                defaults[.didAlertCalibrateFirst12h] = false
-                defaults[.didAlertCalibrateSecond12h] = false
+                defaults[.nextCalibration] = Date()
             }
         }
     }
@@ -202,6 +200,14 @@ class MiaoMiao {
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
                 defaults[.badDataCount] = 0
+                if trendPoints[0].value > 0, let date = defaults[.nextCalibration], Date() > date {
+                    if let sensorAge = sensorAge, sensorAge < 24 * 60 * 60 {
+                        defaults[.nextCalibration] = Date() + 12.h
+                    } else {
+                        defaults[.nextCalibration] = nil
+                    }
+                    showCalibrationAlert()
+                }
             } else if defaults[.badDataCount] < 3 {
                 defaults[.badDataCount] += 1
                 Command.startReading()
@@ -234,29 +240,7 @@ class MiaoMiao {
         }
     }
 
-    public static var sensorAge: Int? {
-        didSet {
-            guard let sensorAge = sensorAge else {
-                return
-            }
-            switch sensorAge {
-            case 0 ..< Int(12.m) where !defaults[.didAlertCalibrateFirst12h]:
-                showCalibrationAlert()
-                defaults[.didAlertCalibrateFirst12h] = true
-
-            case Int(12.m) ..< Int(24.m) where !defaults[.didAlertCalibrateSecond12h]:
-                showCalibrationAlert()
-                defaults[.didAlertCalibrateSecond12h] = true
-
-            case Int(24.m)... where !defaults[.didAlertCalibrateAfter24h]:
-                showCalibrationAlert()
-                defaults[.didAlertCalibrateAfter24h] = true
-
-            default:
-                break
-            }
-        }
-    }
+    public static var sensorAge: Int?
     public static var trend: [GlucosePoint]? {
         didSet {
             allReadingsCalculater.invalidate()
@@ -291,7 +275,6 @@ class MiaoMiao {
             lastDate = latest.date
             let inrange = trendData.filter { $0.date < latest.date }
             let before = last24hReadings[last24hReadings.count - 2]
-            log("last two history points = \(latest.value), \(before.value)")
             var maxValue = max(before.value, latest.value) * 1.05
             var minValue = min(before.value, latest.value) * 0.95
             var maxP: GlucosePoint? = nil

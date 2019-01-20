@@ -338,7 +338,11 @@ class ViewController: UIViewController {
                 do {
                     let c = Calibration(date: Date(), value: bg)
                     try Storage.default.db.perform(c.insert())
-                    defaults[.additionalSlope] *= bg / current.value
+                    let factor = bg / current.value
+                    defaults[.additionalSlope] *= factor
+                    if abs(factor - 1) > 0.1 && defaults[.nextCalibration] == nil {
+                        defaults[.nextCalibration] = Date() + 3.h
+                    }
                     self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                     MiaoMiao.last24hReadings.append(c)

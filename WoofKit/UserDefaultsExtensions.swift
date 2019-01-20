@@ -21,6 +21,7 @@ extension UserDefaults {
         case lastStatisticsCalculation
         case lastLowBatteryNofication
         case lastEventAlertTime
+        case nextCalibration
     }
 
     public enum DoubleKey: String {
@@ -40,9 +41,6 @@ extension UserDefaults {
     }
 
     public enum BoolKey: String {
-        case didAlertCalibrateFirst12h
-        case didAlertCalibrateSecond12h
-        case didAlertCalibrateAfter24h
         case didAlertEvent
         case didAskAddLunchToSiri
         case didAskAddBreakfastToSiri
