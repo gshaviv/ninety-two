@@ -11,12 +11,25 @@ import Intents
 import WoofKit
 import Sqlable
 
+extension Date {
+    var rounded: Date {
+        var comp = components
+        if comp.minute ?? 0 > 57 {
+            comp.hour = (comp.hour ?? 0) + 1
+        }
+        comp.minute = Int(round(Double(comp.minute ?? 0) / 5.0) * 5)
+        return comp.toDate()
+    }
+}
+
 class BolusHandler: NSObject, BolusIntentHandling {
     func handle(intent: BolusIntent, completion: @escaping (BolusIntentResponse) -> Void) {
         if let u = intent.units {
-            let b = Bolus(date: Date(), units: u.intValue)
             Storage.default.db.async {
-                Storage.default.db.evaluate(b.insert())
+                let when = Date().rounded
+                var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when, note: nil)
+                record.bolus = intent.units?.intValue
+                record.save(to: Storage.default.db)
                 completion(BolusIntentResponse.success(units: u))
             }
             
@@ -28,17 +41,19 @@ class BolusHandler: NSObject, BolusIntentHandling {
 
 class MealHandler: NSObject, MealIntentHandling {
     func handle(intent: MealIntent, completion: @escaping (MealIntentResponse) -> Void) {
-        let kind = Meal.Kind(name: intent.type ?? "other")
-        let meal = Meal(date: Date(), kind: kind)
+        let kind = Record.Meal(name: intent.type ?? "other")
         Storage.default.db.async {
-            Storage.default.db.evaluate(meal.insert())
+            let when = Date().rounded
+            var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when, note: nil)
+            record.meal = kind
+            record.save(to: Storage.default.db)
             let possible = [
-                "Bon apetit",
+                "Bon appetit",
                 "Enjoy!",
                 "Yummy!",
                 "I'm hungry",
                 "Have fun",
-                "Looks delicous",
+                "Looks delicious",
                 "Good for you",
                 "Leave me something",
                 "Can I join you?"

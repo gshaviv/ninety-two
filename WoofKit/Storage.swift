@@ -26,8 +26,7 @@ public class Storage: NSObject {
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
-        try! db.createTable(Bolus.self)
-        try! db.createTable(Meal.self)
+        try! db.createTable(Record.self)
         return db
     }()
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
@@ -38,14 +37,9 @@ public class Storage: NSObject {
 }
 
 public class Today {
-    public lazy var boluses: [Bolus] = {
+    public lazy var entries: [Record] = {
         let limit = Date() - 1.d
-        return Storage.default.db.evaluate(Bolus.read().filter(Bolus.date > limit).orderBy(Bolus.date)) ?? []
-    }()
-
-    public lazy var meals: [Meal] = {
-        let limit = Date() - 1.d
-        return Storage.default.db.evaluate(Meal.read().filter(Bolus.date > limit).orderBy(Meal.date)) ?? []
+        return Storage.default.db.evaluate(Record.read().filter(Record.date > limit).orderBy(Record.date)) ?? []
     }()
 }
 

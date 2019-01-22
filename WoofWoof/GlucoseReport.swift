@@ -388,8 +388,8 @@ class GlucoseReport {
         if points.count < 24 {
             return
         }
-        let meals = db.evaluate(Meal.read().filter(Meal.date > dayStart && Meal.date < dayEnd)) ?? []
-        let boluses = db.evaluate(Bolus.read().filter(Bolus.date > dayStart && Bolus.date < dayEnd)) ?? []
+        let meals = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.meal != Null())) ?? []
+        let boluses = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.bolus != Null())) ?? []
         let syringeImage = UIImage(named: "syringe-hires")!
         let mealImage = UIImage(named: "meal-hires")!
 
@@ -495,7 +495,7 @@ class GlucoseReport {
             let syringeSize = CGSize(width: 12, height: syringeImage.size.height / syringeImage.size.width * 12)
             for b in boluses {
                 syringeImage.draw(in: CGRect(origin: CGPoint(x: xPos(b.date) - mealSize.width / 2, y: graphRect.minY + 2 + mealSize.height), size: syringeSize))
-                let text = "\(b.units)".styled.font(self.normalFont).sizeFactor(0.6)
+                let text = "\(b.bolus ?? 0)".styled.font(self.normalFont).sizeFactor(0.6)
                 text.draw(at: CGPoint(x: xPos(b.date) + mealSize.width / 2, y: graphRect.minY - 6 + mealSize.height + syringeSize.height))
                 ctx.beginPath()
                 ctx.move(to: CGPoint(x: xPos(b.date), y: graphRect.minY + mealSize.height + syringeSize.height + 4))

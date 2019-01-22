@@ -196,7 +196,7 @@ class MiaoMiao {
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
                 serial = data.serialNumber
                 sensorAge = data.minutesSinceStart
-                let trendPoints = data.trendMeasurements().map { $0.glucosePoint }
+                let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
                 defaults[.badDataCount] = 0
@@ -269,39 +269,8 @@ class MiaoMiao {
     private static var lastDate: Date = Date.distantPast
     private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
         var together = last24hReadings
-        let trendData = trend ?? []
-
-        if var latest = last24hReadings.last, last24hReadings.count > 2 && latest.date > lastDate {
-            lastDate = latest.date
-            let inrange = trendData.filter { $0.date < latest.date }
-            let before = last24hReadings[last24hReadings.count - 2]
-            var maxValue = max(before.value, latest.value) * 1.05
-            var minValue = min(before.value, latest.value) * 0.95
-            var maxP: GlucosePoint? = nil
-            var minP: GlucosePoint? = nil
-            for gp in inrange {
-                if gp.value > maxValue {
-                    maxP = gp
-                    maxValue = gp.value
-                } else if gp.value < minValue {
-                    minP = gp
-                    minValue = gp.value
-                }
-            }
-
-            if let p = maxP {
-                last24hReadings.insert(p, at: last24hReadings.count - 1)
-                together.insert(p, at: last24hReadings.count - 1)
-                pendingReadings.append(p)
-                log("Inserted trend point \(p)")
-            } else if let p = minP {
-                last24hReadings.insert(p, at: last24hReadings.count - 1)
-                together.insert(p, at: last24hReadings.count - 1)
-                pendingReadings.append(p)
-                log("Inserted trend point \(p)")
-            }
-        }
-        if let current = currentGlucose {
+        
+        if let current = currentGlucose, let last = together.last, current.date > last.date + 1.m {
             together.append(current)
         }
 

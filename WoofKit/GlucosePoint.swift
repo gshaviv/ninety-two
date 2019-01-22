@@ -24,10 +24,12 @@ public struct GlucosePoint: GlucoseReading {
 
     public let date: Date
     public let value: Double
+    public let isTrend: Bool
 
-    public init(date: Date, value: Double) {
+    public init(date: Date, value: Double, isTrend: Bool = false) {
         self.date = date
         self.value = value
+        self.isTrend = isTrend
     }
 }
 
@@ -54,6 +56,7 @@ extension GlucosePoint: Sqlable {
     public init(row: ReadRow) throws {
         date = try row.get(GlucosePoint.date)
         value = try row.get(GlucosePoint.value)
+        isTrend = false
     }
 }
 #endif

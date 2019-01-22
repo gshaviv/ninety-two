@@ -96,8 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillEnterForeground(_ application: UIApplication) {
         Storage.default.reloadToday()
         if let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController  {
-            ctr.graphView.meals = Storage.default.lastDay.meals
-            ctr.graphView.boluses = Storage.default.lastDay.boluses
+            ctr.graphView.records = Storage.default.lastDay.entries
         }
     }
 
@@ -155,14 +154,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         switch userActivity.activityType {
         case "BolusIntent":
-            ctr.addBolus(units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue)
+            ctr.addRecord(units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue)
 
         case "MealIntent":
-            var kind: Meal.Kind? = nil
+            var kind: Record.Meal? = nil
             if let k = (userActivity.interaction?.intent.value(forKey: "type") as? NSNumber)?.intValue {
-                kind = Meal.Kind(rawValue: k - 1)
+                kind = Record.Meal(rawValue: k - 1)
             }
-            ctr.addMeal(kind: kind)
+            ctr.addRecord(meal: kind)
 
         default:
             break
@@ -371,6 +370,9 @@ class NotificationIdentifier {
 extension Measurement {
     var glucosePoint: GlucosePoint {
         return GlucosePoint(date: date, value: temperatureAlgorithmGlucose)
+    }
+    var trendPoint: GlucosePoint {
+        return GlucosePoint(date: date, value: temperatureAlgorithmGlucose, isTrend: true)
     }
 }
 

@@ -47,6 +47,32 @@ private class ActionPresenter: UIPresentationController {
         d.tag = 131
         return d
     }()
+    private var keyboardTopInContainr: CGFloat = CGFloat.greatestFiniteMagnitude
+
+    override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
+        super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameWillChange(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+
+    @objc private func keyboardFrameWillChange(_ note: Notification?) {
+        let keyboardFrame = (note?.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+
+        if let keyboardFrame = keyboardFrame {
+            keyboardTopInContainr = containerView!.convert(keyboardFrame, from: containerView!.window).minY
+
+            var duration = (note?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.3
+            if duration == 0 && !((note?.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? NSNumber)?.boolValue ?? true) {
+                duration = 0.25
+            }
+
+            let curveValue = (note?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? 0
+            let options: UIView.AnimationOptions = [UIView.AnimationOptions(rawValue: curveValue), .beginFromCurrentState]
+
+            UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+                self.presentedViewController.view.frame = self.frameOfPresentedViewInContainerView
+            }, completion: nil)
+        }
+    }
 
     @objc private func dimiss() {
         presentedViewController.dismiss(animated: true, completion: nil)
@@ -88,7 +114,7 @@ private class ActionPresenter: UIPresentationController {
         }
         _ = presentedViewController.view
         let size = presentedViewController.preferredContentSize == .zero ? presentedViewController.view.frame.size : presentedViewController.preferredContentSize
-        return CGRect(x: max(0,containerView.bounds.midX - min(size.width, containerView.bounds.width - 16)/2), y: containerView.bounds.maxY - size.height - containerView.safeAreaInsets.bottom, width: min(size.width, containerView.bounds.width - 16), height: size.height)
+        return CGRect(x: max(0,containerView.bounds.midX - min(size.width, containerView.bounds.width - 16)/2), y: min(containerView.bounds.maxY - size.height - containerView.safeAreaInsets.bottom, keyboardTopInContainr - size.height ), width: min(size.width, containerView.bounds.width - 16), height: size.height)
     }
 }
 

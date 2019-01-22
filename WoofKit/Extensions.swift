@@ -12,6 +12,11 @@ import Sqlable
 import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
+extension CGRect {
+    public init(center: CGPoint, size: CGSize) {
+        self.init(x: center.x - size.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+    }
+}
 
 extension Array where Element: Sqlable {
     public func insert(into: SqliteDatabase) throws {

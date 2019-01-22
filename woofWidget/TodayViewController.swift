@@ -34,8 +34,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 graphView.yRange.min = floor(graphView.yRange.min / 5) * 5
                 graphView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
                 graphView.xTimeSpan = graphView.xRange.max - graphView.xRange.min
-                graphView.boluses = Storage.default.lastDay.boluses
-                graphView.meals = Storage.default.lastDay.meals
+                graphView.records = Storage.default.lastDay.entries
                 let previous = points[1]
                 let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
                 let symbol = trendSymbol(for: trend)

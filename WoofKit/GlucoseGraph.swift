@@ -8,8 +8,16 @@
 import UIKit
 import CoreGraphics
 
+public protocol GlucoseGraphDelegate: class {
+    func didTouch(record: Record)
+}
+
+
+
 @IBDesignable
 public class GlucoseGraph: UIView {
+    private var touchables:[(CGRect, Record)] = []
+    public weak var delegate: GlucoseGraphDelegate?
     @IBInspectable var isScrollEnabled:Bool = true
     public var points: [GlucoseReading]! {
         didSet {
@@ -47,12 +55,7 @@ public class GlucoseGraph: UIView {
             setNeedsLayout()
         }
     }
-    public var boluses: [Bolus] = [] {
-        didSet {
-            contentView.setNeedsDisplay()
-        }
-    }
-    public var meals: [Meal] = [] {
+    public var records: [Record] = [] {
         didSet {
             contentView.setNeedsDisplay()
         }
@@ -142,14 +145,24 @@ public class GlucoseGraph: UIView {
         curve.lineWidth = lineWidth
         curve.stroke()
 
-        UIColor.black.set()
         let fill = UIBezierPath()
+        let trend = UIBezierPath()
         let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
-        for point in p {
-            fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+        for (idx,point) in p.enumerated() {
+            let path: UIBezierPath
+            if let gp = points[idx] as? GlucosePoint {
+                path = gp.isTrend ? trend : fill
+            } else {
+                path = fill
+            }
+            path.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
         }
+        UIColor.black.set()
         fill.lineWidth = 0
         fill.fill()
+        UIColor(white: 0.5, alpha: 1).set()
+        trend.lineWidth = 0
+        trend.fill()
 
         let syringeImage = UIImage(named: "syringe", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let syringeSize = syringeImage.size
@@ -157,32 +170,28 @@ public class GlucoseGraph: UIView {
         let mealSize = mealImage.size
         let c = UIColor.blue.darker(by: 40)
         c.setStroke()
-        for b in boluses {
-            let v = findValue(at: b.date)
+        touchables = []
+        for r in records {
+            let v = findValue(at: r.date)
             let above = CGFloat(v) < (yRange.max + yRange.min) / 2
-            let x = xCoor(b.date)
-            var y = meals.first(where: { abs(xCoor($0.date) - x) < mealSize.height / 2 }) != nil ? mealSize.height : 0
-            if !above {
-                y = size.height - y - syringeSize.height
+            let x = xCoor(r.date)
+            var y = above ? 8 : size.height - 8
+            if r.isBolus, let units = r.bolus {
+                let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
+                syringeImage.fill(at: center, with: c)
+                let text = "\(units)".styled.systemFont(size: 14).color(.darkGray)
+                text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2))
+                touchables.append((CGRect(center: center, size: syringeSize), r))
+                y += above ? syringeSize.height + 4 : -syringeSize.height - 4
             }
-            syringeImage.fill(at: CGPoint(x: x, y: syringeSize.height/2 + y), with: c)
-            let text = "\(b.units)".styled.systemFont(size: 14).color(.darkGray)
-            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: y + 10))
-            if y == 0 {
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: x, y: above ? syringeSize.height : (y - syringeSize.height)))
-                ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
-                ctx?.strokePath()
+            if r.isMeal {
+                let center = CGPoint(x: x, y: y + (above ? mealSize.height / 2 : -mealSize.height / 2))
+                mealImage.fill(at: center, with: c)
+                touchables.append((CGRect(center: center, size: mealSize), r))
+                y += above ? mealSize.height + 4 : -mealSize.height - 4
             }
-        }
-        for m in meals {
-            let x = xCoor(m.date)
-            let v = findValue(at: m.date)
-            let above = CGFloat(v) < (yRange.max + yRange.min) / 2
-
-            mealImage.fill(at: CGPoint(x: x, y: above ? mealSize.height/2 : size.height - mealSize.height / 2), with: c)
             ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: x, y: above ? syringeSize.height + mealSize.height + 2 : size.height - syringeSize.height - mealSize.height - 2))
+            ctx?.move(to: CGPoint(x: x, y: y))
             ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
             ctx?.strokePath()
         }
@@ -410,6 +419,14 @@ public class GlucoseGraph: UIView {
 
     @objc private func handleTap(_ sender: UIGestureRecognizer) {
         let touchPoint = sender.location(in: contentView)
+
+        for touchable in touchables {
+            if touchable.0.contains(touchPoint) {
+                delegate?.didTouch(record: touchable.1)
+                return
+            }
+        }
+
         let size = self.contentView.bounds.size
         let yScale = size.height / (self.yRange.max - self.yRange.min)
         let yCoor = { (self.yRange.max - $0) * yScale }
@@ -431,6 +448,7 @@ public class GlucoseGraph: UIView {
             }
         }
         self.touchPoint = best
+
     }
 }
 

@@ -77,7 +77,6 @@
 		E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */; };
 		E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */; };
 		E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */; };
-		E446352821F1083D00CEE738 /* Bolus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E446352721F1083D00CEE738 /* Bolus.swift */; };
 		E44EEC7321E9C52600F966A8 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44EEC7221E9C52600F966A8 /* IntentsUI.framework */; };
 		E44EEC7621E9C52600F966A8 /* IntentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EEC7521E9C52600F966A8 /* IntentViewController.swift */; };
 		E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EEC7721E9C52600F966A8 /* UI.storyboard */; };
@@ -86,15 +85,13 @@
 		E44EEC8421E9C5C800F966A8 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
 		E44EEC8521E9C77A00F966A8 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
 		E44EEC8621E9C78000F966A8 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
-		E45A86AE21F1ABCD00754C15 /* BolusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */; };
-		E45A86AF21F1ABCD00754C15 /* BolusViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
-		E488740021F23BE700694F6C /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FF21F23BE700694F6C /* Meal.swift */; };
 		E488740321F249D500694F6C /* AddMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddMealViewController.swift */; };
 		E488740421F249D500694F6C /* AddMealViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddMealViewController.xib */; };
+		E48B2D5F21F6109C001B19EB /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48B2D5E21F6109C001B19EB /* Record.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
 		E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BE21C6D9C1001AF4CD /* SensorData.swift */; };
@@ -331,7 +328,6 @@
 		E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Calibration_Needed.caf; sourceTree = "<group>"; };
 		E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Urgent_Low_Glucose.caf; sourceTree = "<group>"; };
 		E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
-		E446352721F1083D00CEE738 /* Bolus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bolus.swift; sourceTree = "<group>"; };
 		E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntentUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44EEC7221E9C52600F966A8 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		E44EEC7521E9C52600F966A8 /* IntentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentViewController.swift; sourceTree = "<group>"; };
@@ -340,14 +336,12 @@
 		E44EEC8221E9C58300F966A8 /* SiriIntentUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntentUI.entitlements; sourceTree = "<group>"; };
 		E45907DE21D550FA00B139CF /* GlucoseGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseGraph.swift; sourceTree = "<group>"; };
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
-		E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusViewController.swift; sourceTree = "<group>"; };
-		E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BolusViewController.xib; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
-		E48873FF21F23BE700694F6C /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		E488740121F249D500694F6C /* AddMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMealViewController.swift; sourceTree = "<group>"; };
 		E488740221F249D500694F6C /* AddMealViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddMealViewController.xib; sourceTree = "<group>"; };
+		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
 		E48F42BE21C6D9C1001AF4CD /* SensorData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorData.swift; sourceTree = "<group>"; };
@@ -506,20 +500,19 @@
 			isa = PBXGroup;
 			children = (
 				E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */,
+				E48B2D5E21F6109C001B19EB /* Record.swift */,
 				E42A294821E886C70084D181 /* WoofKit.h */,
 				E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */,
 				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
 				E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */,
 				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
 				E45907DE21D550FA00B139CF /* GlucoseGraph.swift */,
-				E446352721F1083D00CEE738 /* Bolus.swift */,
 				E4B5023121D61A1900E18DDD /* DrawingView.swift */,
 				E425664D21CE66A200469232 /* GlucosePoint.swift */,
 				E425663821CD671700469232 /* Extensions.swift */,
 				E42A294921E886C70084D181 /* Info.plist */,
 				E46DC58021F20FE700E9E391 /* Media.xcassets */,
 				E48873FD21F232AE00694F6C /* Storage.swift */,
-				E48873FF21F23BE700694F6C /* Meal.swift */,
 			);
 			path = WoofKit;
 			sourceTree = "<group>";
@@ -642,8 +635,6 @@
 				E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */,
 				E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */,
 				E4230FC421EB04C600A297A5 /* GlucoseReport.swift */,
-				E45A86AC21F1ABCD00754C15 /* BolusViewController.swift */,
-				E45A86AD21F1ABCD00754C15 /* BolusViewController.xib */,
 				E488740121F249D500694F6C /* AddMealViewController.swift */,
 				E488740221F249D500694F6C /* AddMealViewController.xib */,
 			);
@@ -1008,7 +999,6 @@
 				E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */,
 				E42E2AF021E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf in Resources */,
 				E42E2AED21E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf in Resources */,
-				E45A86AF21F1ABCD00754C15 /* BolusViewController.xib in Resources */,
 				E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */,
 				E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */,
 				E4230FC321EA74C000A297A5 /* DateRangePickerController.xib in Resources */,
@@ -1055,11 +1045,10 @@
 			files = (
 				E42A295821E887550084D181 /* AttributedStringConstruction.swift in Sources */,
 				E48873FE21F232AE00694F6C /* Storage.swift in Sources */,
-				E446352821F1083D00CEE738 /* Bolus.swift in Sources */,
 				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
-				E488740021F23BE700694F6C /* Meal.swift in Sources */,
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E48B2D5F21F6109C001B19EB /* Record.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
 				E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */,
@@ -1105,7 +1094,6 @@
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
-				E45A86AE21F1ABCD00754C15 /* BolusViewController.swift in Sources */,
 				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,

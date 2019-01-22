@@ -60,8 +60,8 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
 
-        graphView.boluses = Storage.default.lastDay.boluses
-        graphView.meals = Storage.default.lastDay.meals
+        graphView.records = Storage.default.lastDay.entries
+        graphView.delegate = self
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -154,76 +154,25 @@ class ViewController: UIViewController {
         }
     }
 
-    func addBolus(units: Int? = nil) {
-        let ctr = BolusViewController()
-        if let units = units {
-            ctr.units = units
-        }
-        ctr.onSelect = { (b) in
-            Storage.default.db.async {
-                Storage.default.db.evaluate(b.insert())
-            }
-            Storage.default.lastDay.boluses.append(b)
-            self.graphView.boluses = Storage.default.lastDay.boluses
-
-            let interaction = INInteraction(intent: b.intent, response: nil)
-            interaction.donate { error in
-                // Handle error
-            }
-        }
-        present(ctr, animated: true, completion: nil)
-    }
-
-    func addMeal(kind: Meal.Kind? = nil) {
+    func addRecord(meal: Record.Meal? = nil, units: Int? = nil) {
         let ctr = AddMealViewController()
-        if let kind = kind {
-            ctr.kind = kind
-        }
-        ctr.onSelect = { (meal) in
-            Storage.default.db.async {
-                Storage.default.db.evaluate(meal.insert())
+        ctr.kind = meal
+        ctr.units = units
+        ctr.onSelect = { (record) in
+            if record.id == nil {
+                Storage.default.lastDay.entries.append(record)
             }
-            Storage.default.lastDay.meals.append(meal)
-            self.graphView.meals = Storage.default.lastDay.meals
-            let interaction = INInteraction(intent: meal.intent, response: nil)
-            interaction.donate { error in
-                // Handle error
+            record.save(to: Storage.default.db)
+            self.graphView.records = Storage.default.lastDay.entries
+            if let intent = record.intent(type: .meal) {
+                let interaction = INInteraction(intent: intent, response: nil)
+                interaction.donate { _ in }
             }
-            let key: UserDefaults.BoolKey
-            switch meal.kind {
-            case .breakfast:
-                key = .didAskAddBreakfastToSiri
-            case .lunch:
-                key = .didAskAddLunchToSiri
-            case .dinner:
-                key = .didAskAddDinnerToSiri
-            case .other:
-                key = .didAskAddOtherToSiri
+            if let intent = record.intent(type: .bolus) {
+                let interaction = INInteraction(intent: intent, response: nil)
+                interaction.donate { _ in }
             }
-            if defaults[key] {
-                return
-            }
-            DispatchQueue.global().async {
-                var has = false
-                INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
-                    for voiceShortcut in results ?? [] {
-                        if let intent = voiceShortcut.shortcut.intent as? MealIntent, intent.type == meal.kind.name {
-                            has = true
-                            break
-                        }
-                    }
-                }
-                if !has {
-                    DispatchQueue.main.async {
-                        defaults[key] = true
-                        if let shortcut = INShortcut(intent: meal.intent) {
-                            let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-                            viewController.delegate = self
-                            self.present(viewController, animated: true)
-                        }
-                    }
-                }
-            }
+
         }
         present(ctr, animated: true, completion: nil)
     }
@@ -231,12 +180,8 @@ class ViewController: UIViewController {
     @IBAction func handleMore(_ sender: Any) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        sheet.addAction(UIAlertAction(title: "Add Bolus", style: .default, handler: { (_) in
-            self.addBolus()
-        }))
-
-        sheet.addAction(UIAlertAction(title: "Add Meal", style: .default, handler: { (_) in
-            self.addMeal()
+        sheet.addAction(UIAlertAction(title: "Add Record", style: .default, handler: { (_) in
+            self.addRecord()
         }))
 
         sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in
@@ -400,6 +345,60 @@ extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
     func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
         controller.dismiss(animated: true, completion: nil)
     }
+}
 
 
+extension ViewController: GlucoseGraphDelegate {
+    func didTouch(record: Record) {
+        guard record.isMeal else {
+            return
+        }
+        log("checking \(record)")
+        let after = MiaoMiao.allReadings.filter { $0 is GlucosePoint }.filter { $0.date > record.date && $0.date < record.date + 6.h } as! [GlucosePoint]
+        if after.isEmpty {
+            return
+        }
+        let nextMeal = Storage.default.lastDay.entries.first(where: { $0.date > record.date && $0.isMeal })
+        var highest = after[0]
+        var lowestAfterHigh = after[0]
+        for point in after[1...] {
+            if let next = nextMeal, point.date > next.date {
+                break
+            }
+            if point.value > highest.value {
+                highest = point
+                lowestAfterHigh = point
+            } else if point.value < highest.value && point.value < lowestAfterHigh.value {
+                lowestAfterHigh = point
+            }
+        }
+        let lowestBefore = after.filter { $0.date < highest.date }.reduce(highest) { $0.value < $1.value ? $0 : $1 }
+        var valueAfter3: GlucosePoint? = after.first(where: { $0.date > record.date + 3.h })
+        if let value = valueAfter3, let next = nextMeal, next.date < value.date {
+            valueAfter3 = nil
+        }
+        var valueAfter4: GlucosePoint? = after.first(where: { $0.date > record.date + 4.h })
+        if let value = valueAfter4, let next = nextMeal, next.date < value.date {
+            valueAfter4 = nil
+        }
+        var valueAfter5: GlucosePoint? = after.first(where: { $0.date > record.date + 5.h })
+        if let value = valueAfter5, let next = nextMeal, next.date < value.date {
+            valueAfter5 = nil
+        }
+       log("first min = \(lowestBefore)")
+        log("highest = \(highest)")
+        log("lowestAfter = \(lowestAfterHigh)")
+        if let next = nextMeal {
+            log("next meal = \(next)")
+        }
+        if let valueAfter3 = valueAfter3 {
+        log("value after 3h = \(valueAfter3)")
+        }
+        if let valueAfter4 = valueAfter4 {
+            log("value after 4h = \(valueAfter4)")
+        }
+        if let valueAfter5 = valueAfter5 {
+            log("value after 5h = \(valueAfter5)")
+        }
+    }
 }

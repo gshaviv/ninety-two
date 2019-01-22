@@ -12,6 +12,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddMealViewController" customModule="WoofWoof" customModuleProvider="target">
             <connections>
+                <outlet property="noteField" destination="aJu-fo-vgy" id="ziG-bb-6nJ"/>
                 <outlet property="picker" destination="Uzq-6p-G25" id="iKB-i0-Epq"/>
                 <outlet property="view" destination="fTc-CP-PoA" id="baS-zi-d7n"/>
             </connections>
@@ -47,21 +48,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Time and Type" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tjo-jP-hE7">
-                                <rect key="frame" x="0.0" y="8" width="420" height="114"/>
+                                <rect key="frame" x="0.0" y="8" width="420" height="20.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Uzq-6p-G25">
-                                <rect key="frame" x="0.0" y="130" width="420" height="162"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="162" id="Og2-Ec-Lez"/>
-                                </constraints>
-                                <connections>
-                                    <outlet property="dataSource" destination="-1" id="tXs-bA-7ib"/>
-                                    <outlet property="delegate" destination="-1" id="7Uw-53-c08"/>
-                                </connections>
-                            </pickerView>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Note" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aJu-fo-vgy">
+                                <rect key="frame" x="20" y="36.5" width="380" height="85.5"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EvP-qw-hEb">
                                 <rect key="frame" x="0.0" y="292" width="420" height="50"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -83,6 +80,16 @@
                                     <constraint firstAttribute="height" constant="1" id="PFo-em-fP4"/>
                                 </constraints>
                             </view>
+                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Uzq-6p-G25">
+                                <rect key="frame" x="0.0" y="130" width="420" height="162"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="162" id="Og2-Ec-Lez"/>
+                                </constraints>
+                                <connections>
+                                    <outlet property="dataSource" destination="-1" id="tXs-bA-7ib"/>
+                                    <outlet property="delegate" destination="-1" id="7Uw-53-c08"/>
+                                </connections>
+                            </pickerView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -91,14 +98,17 @@
                             <constraint firstAttribute="bottom" secondItem="EvP-qw-hEb" secondAttribute="bottom" id="3i6-eA-sAB"/>
                             <constraint firstAttribute="trailing" secondItem="EvP-qw-hEb" secondAttribute="trailing" id="BVE-zX-cD8"/>
                             <constraint firstAttribute="trailing" secondItem="3u7-Za-8uw" secondAttribute="trailing" id="E48-WI-W3Z"/>
+                            <constraint firstItem="Uzq-6p-G25" firstAttribute="top" secondItem="aJu-fo-vgy" secondAttribute="bottom" constant="8" id="Lih-Ur-asY"/>
                             <constraint firstItem="tjo-jP-hE7" firstAttribute="leading" secondItem="4Vz-mE-TRA" secondAttribute="leading" id="LyG-Nx-dBA"/>
                             <constraint firstItem="EvP-qw-hEb" firstAttribute="top" secondItem="3u7-Za-8uw" secondAttribute="bottom" id="bu6-UW-Lfj"/>
                             <constraint firstItem="tjo-jP-hE7" firstAttribute="top" secondItem="4Vz-mE-TRA" secondAttribute="top" constant="8" id="ePh-SH-5lr"/>
+                            <constraint firstItem="aJu-fo-vgy" firstAttribute="width" secondItem="4Vz-mE-TRA" secondAttribute="width" constant="-40" id="gJY-OX-mRS"/>
                             <constraint firstItem="Uzq-6p-G25" firstAttribute="leading" secondItem="4Vz-mE-TRA" secondAttribute="leading" id="gUM-C6-Rs4"/>
-                            <constraint firstItem="Uzq-6p-G25" firstAttribute="top" secondItem="tjo-jP-hE7" secondAttribute="bottom" constant="8" id="idE-WF-LM4"/>
+                            <constraint firstItem="aJu-fo-vgy" firstAttribute="top" secondItem="tjo-jP-hE7" secondAttribute="bottom" constant="8" id="i1T-bH-Am1"/>
                             <constraint firstItem="3u7-Za-8uw" firstAttribute="leading" secondItem="4Vz-mE-TRA" secondAttribute="leading" id="mhI-Zr-Q97"/>
                             <constraint firstAttribute="trailing" secondItem="tjo-jP-hE7" secondAttribute="trailing" id="qxU-19-QiF"/>
                             <constraint firstAttribute="trailing" secondItem="Uzq-6p-G25" secondAttribute="trailing" id="vd2-Ur-hFh"/>
+                            <constraint firstItem="aJu-fo-vgy" firstAttribute="centerX" secondItem="tjo-jP-hE7" secondAttribute="centerX" id="zaD-lG-qAq"/>
                         </constraints>
                     </view>
                     <constraints>
@@ -130,7 +140,7 @@
                     <integer key="value" value="8"/>
                 </userDefinedRuntimeAttribute>
             </userDefinedRuntimeAttributes>
-            <point key="canvasLocation" x="252" y="-370"/>
+            <point key="canvasLocation" x="-568" y="-895"/>
         </view>
     </objects>
 </document>

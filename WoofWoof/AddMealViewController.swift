@@ -11,9 +11,17 @@ import WoofKit
 
 class AddMealViewController: ActionSheetController {
     @IBOutlet var picker: UIPickerView!
-    var kind: Meal.Kind?
+    @IBOutlet var noteField: UITextField!
+    var kind: Record.Meal?
+    var units: Int?
+    private enum Component: Int {
+        case hour
+        case minute
+        case meal
+        case units
+    }
 
-    var onSelect: ((Meal) -> Void)?
+    var onSelect: ((inout Record) -> Void)?
     var onCancel: (() -> Void)?
 
     @IBAction func handleCancel(_ sender: Any) {
@@ -29,16 +37,24 @@ class AddMealViewController: ActionSheetController {
         comp.hour = picker.selectedRow(inComponent: 0)
         comp.minute = picker.selectedRow(inComponent: 1) * 5
         comp.second = 0
-        guard let k = Meal.Kind(rawValue: self.picker.selectedRow(inComponent: 2)) else {
+        guard let k = Record.Meal(rawValue: self.picker.selectedRow(inComponent: 2)) else {
             return
         }
         kind = k
+        let u = picker.selectedRow(inComponent: Component.units.rawValue)
+        if u > 0 {
+            units = u
+        }
         let cd = comp.toDate()
-        let when = Storage.default.lastDay.boluses.map { $0.date }.first(where: { abs($0 - cd) < 20.m }) ?? cd
-        let meal = Meal(date: when, kind: kind!)
+        var record = Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
+        record.meal = kind
+        record.bolus = units
+        if let note = noteField.text, !note.isEmpty {
+            record.note = note
+        }
 
         dismiss(animated: true) {
-            self.onSelect?(meal)
+            self.onSelect?(&record)
             self.onSelect = nil
             self.onCancel = nil
         }
@@ -58,18 +74,21 @@ class AddMealViewController: ActionSheetController {
         picker.selectRow(now.hour, inComponent: 0, animated: false)
         picker.selectRow(Int(round(Double(now.minute) / 5.0)), inComponent: 1, animated: false)
         if let kind = kind {
-            picker.selectRow(kind.rawValue, inComponent: 2, animated: false)
+            picker.selectRow(kind.rawValue + 1, inComponent: 2, animated: false)
         } else {
             switch now.hour {
             case 5...10:
-                picker.selectRow(Meal.Kind.breakfast.rawValue, inComponent: 2, animated: false)
+                picker.selectRow(Record.Meal.breakfast.rawValue + 1, inComponent: 2, animated: false)
             case 11...14:
-                picker.selectRow(Meal.Kind.lunch.rawValue, inComponent: 2, animated: false)
+                picker.selectRow(Record.Meal.lunch.rawValue + 1, inComponent: 2, animated: false)
             case 18...21:
-                picker.selectRow(Meal.Kind.dinner.rawValue, inComponent: 2, animated: false)
+                picker.selectRow(Record.Meal.dinner.rawValue + 1, inComponent: 2, animated: false)
             default:
-                picker.selectRow(Meal.Kind.other.rawValue, inComponent: 2, animated: false)
+                picker.selectRow(Record.Meal.other.rawValue + 1, inComponent: 2, animated: false)
             }
+        }
+        if let units = units {
+            picker.selectRow(units, inComponent: 3, animated: false)
         }
         preferredContentSize = CGSize(width: 420, height: view.systemLayoutSizeFitting(CGSize(width: 420, height: 1000)).height)
     }
@@ -78,7 +97,7 @@ class AddMealViewController: ActionSheetController {
 
 extension AddMealViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 3
+        return 4
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
@@ -89,8 +108,14 @@ extension AddMealViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         case 1:
             return 12
 
+        case 2:
+            return 5
+
+        case 3:
+            return 50
+
         default:
-            return 4
+            return 0
         }
     }
 
@@ -102,8 +127,14 @@ extension AddMealViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         case 1:
             return "\(row * 5)"
 
+        case 2:
+            return Record.Meal(rawValue: row - 1)?.name.capitalized ?? "None"
+
+        case 3:
+            return "\(row)"
+
         default:
-            return Meal.Kind(rawValue: row)!.name.capitalized
+            return nil
         }
     }
 
