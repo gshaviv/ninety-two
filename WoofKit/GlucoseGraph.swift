@@ -12,6 +12,23 @@ public protocol GlucoseGraphDelegate: class {
     func didTouch(record: Record)
 }
 
+public struct Prediction {
+    public let highDate: Date
+    public let h25: CGFloat
+    public let h50: CGFloat
+    public let h75: CGFloat
+    public let lowDate: Date
+    public let low: CGFloat
+
+    public init(highDate: Date, h25: CGFloat, h50: CGFloat, h75: CGFloat, lowDate: Date, low: CGFloat) {
+        self.highDate = highDate
+        self.h25 = h25
+        self.h50 = h50
+        self.h75 = h75
+        self.lowDate = lowDate
+        self.low = low
+    }
+}
 
 
 @IBDesignable
@@ -60,7 +77,11 @@ public class GlucoseGraph: UIView {
             contentView.setNeedsDisplay()
         }
     }
-
+    public var prediction: Prediction? {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
     private var contentHolder: UIScrollView!
     private var contentView: DrawingView!
     private var xAxisHolder: UIScrollView!
@@ -125,6 +146,22 @@ public class GlucoseGraph: UIView {
         if p.isEmpty {
             return
         }
+        if let prediction = prediction {
+            let x0h = xCoor(prediction.highDate - 30.m)
+            let x1h = xCoor(prediction.highDate + 30.m)
+            let y75 = yCoor(prediction.h75)
+            let y50 = yCoor(prediction.h50)
+            let y25 = yCoor(prediction.h25)
+            UIColor(red: 1, green: 0, blue: 0, alpha: 0.8).set()
+            ctx?.fill(CGRect(x: x0h, y: y75, width: x1h - x0h, height: y75 - y50))
+            UIColor(red: 0.3, green: 0, blue: 0, alpha: 0.5).set()
+            ctx?.fill(CGRect(x: x0h, y: y50, width: x1h - x0h, height: y50 - y25))
+            UIColor.magenta.set()
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: xCoor(prediction.lowDate), y: yCoor(prediction.low)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.lowDate + 2.h), y: yCoor(prediction.low)))
+            ctx?.strokePath()
+        }
         let curve = UIBezierPath()
         if holes.isEmpty {
             curve.move(to: p[0])
@@ -176,7 +213,8 @@ public class GlucoseGraph: UIView {
             let above = CGFloat(v) < (yRange.max + yRange.min) / 2
             let x = xCoor(r.date)
             var y = above ? 8 : size.height - 8
-            if r.isBolus, let units = r.bolus {
+            if r.isBolus {
+                let units = r.bolus
                 let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
                 syringeImage.fill(at: center, with: c)
                 let text = "\(units)".styled.systemFont(size: 14).color(.darkGray)
@@ -205,6 +243,8 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: rect.width, y: coor.y))
             ctx?.strokePath()
         }
+
+
     }
 
     private func findValue(at: Date) -> Double {
@@ -422,11 +462,11 @@ public class GlucoseGraph: UIView {
 
         for touchable in touchables {
             if touchable.0.contains(touchPoint) {
+                prediction = nil
                 delegate?.didTouch(record: touchable.1)
                 return
             }
         }
-
         let size = self.contentView.bounds.size
         let yScale = size.height / (self.yRange.max - self.yRange.min)
         let yCoor = { (self.yRange.max - $0) * yScale }

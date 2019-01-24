@@ -52,6 +52,14 @@ private class ActionPresenter: UIPresentationController {
     override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameWillChange(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        observe(presentedViewController, keypath: \.preferredContentSize) { [weak self] (vc, _) in
+            guard let self = self else {
+                return
+            }
+            UIView.animate(withDuration: 0.25) {
+                self.presentedViewController.view.frame = self.frameOfPresentedViewInContainerView
+            }
+        }
     }
 
     @objc private func keyboardFrameWillChange(_ note: Notification?) {

@@ -24,11 +24,11 @@ extension Date {
 
 class BolusHandler: NSObject, BolusIntentHandling {
     func handle(intent: BolusIntent, completion: @escaping (BolusIntentResponse) -> Void) {
-        if let u = intent.units {
+        if let u = intent.units, let n = intent.units?.intValue, n > 0 {
             Storage.default.db.async {
                 let when = Date().rounded
                 var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when, note: nil)
-                record.bolus = intent.units?.intValue
+                record.bolus = n
                 record.save(to: Storage.default.db)
                 completion(BolusIntentResponse.success(units: u))
             }

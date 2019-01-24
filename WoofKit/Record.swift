@@ -11,7 +11,7 @@ import Sqlable
 import Intents
 
 public struct Record {
-    public let date: Date
+    public var date: Date
     public enum Meal: Int {
         case breakfast
         case lunch
@@ -30,7 +30,7 @@ public struct Record {
                 return "dinner"
 
             case .other:
-                return "o"
+                return "other"
             }
         }
 
@@ -51,14 +51,14 @@ public struct Record {
         }
     }
     public var meal: Meal?
-    public var bolus: Int?
+    public var bolus: Int
     public private(set) var id: Int?
     public var note: String?
 
     public init(date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String?) {
         self.date = date
         self.meal = meal
-        self.bolus = bolus
+        self.bolus = bolus ?? 0
         self.note = note
         self.id = nil
     }
@@ -67,7 +67,7 @@ public struct Record {
 extension Record: Sqlable {
     public static let id = Column("id", .integer, PrimaryKey(autoincrement: true))
     public static let meal = Column("meal", .nullable(.integer))
-    public static let bolus = Column("bolus", .nullable(.integer))
+    public static let bolus = Column("bolus", .integer)
     public static let note = Column("note", .nullable(.text))
     public static let date = Column("date", .date)
     public static var tableLayout = [id, meal, bolus, note, date]
@@ -99,7 +99,7 @@ extension Record: Sqlable {
         if let rv: Int = try row.get(Record.meal) {
             meal = Meal(rawValue: rv)
         }
-        bolus = try row.get(Record.bolus)
+        bolus = try row.get(Record.bolus) ?? 0
         note = try row.get(Record.note)
         date = try row.get(Record.date)
     }
@@ -141,16 +141,16 @@ extension Record {
                 m.suggestedInvocationPhrase = "I'm eating"
             }
             return m
-        } else if let b = bolus, type == .bolus {
+        } else if bolus > 0, type == .bolus {
             let intent = BolusIntent()
-            intent.suggestedInvocationPhrase = "I took \(b) unit\(b > 1 ? "s" : "")"
-            intent.units = NSNumber(value: b)
+            intent.suggestedInvocationPhrase = "I took \(bolus) unit\(bolus > 1 ? "s" : "")"
+            intent.units = NSNumber(value: bolus)
             return intent
         }
         return nil
     }
     public var isBolus: Bool {
-        return bolus != nil
+        return bolus > 0
     }
     public var isMeal: Bool {
         return meal != nil

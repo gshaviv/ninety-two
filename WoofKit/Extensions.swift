@@ -18,6 +18,12 @@ extension CGRect {
     }
 }
 
+extension CGGradient {
+    public static func with(colors:[UIColor], locations:[CGFloat]) -> CGGradient {
+        return CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors.map{$0.cgColor} as CFArray, locations: locations)!
+    }
+}
+
 extension Array where Element: Sqlable {
     public func insert(into: SqliteDatabase) throws {
         try into.transaction { db in

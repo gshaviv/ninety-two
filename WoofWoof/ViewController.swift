@@ -155,14 +155,16 @@ class ViewController: UIViewController {
     }
 
     func addRecord(meal: Record.Meal? = nil, units: Int? = nil) {
-        let ctr = AddMealViewController()
+        let ctr = AddRecordViewController()
         ctr.kind = meal
         ctr.units = units
-        ctr.onSelect = { (record) in
+        ctr.onSelect = { (record, prediction) in
             if record.id == nil {
+                record.save(to: Storage.default.db)
                 Storage.default.lastDay.entries.append(record)
+            } else {
+                record.save(to: Storage.default.db)
             }
-            record.save(to: Storage.default.db)
             self.graphView.records = Storage.default.lastDay.entries
             if let intent = record.intent(type: .meal) {
                 let interaction = INInteraction(intent: intent, response: nil)
@@ -172,15 +174,19 @@ class ViewController: UIViewController {
                 let interaction = INInteraction(intent: intent, response: nil)
                 interaction.donate { _ in }
             }
+            if let prediction = prediction {
+                self.graphView.prediction = prediction
+            }
 
         }
         present(ctr, animated: true, completion: nil)
     }
 
+
     @IBAction func handleMore(_ sender: Any) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        sheet.addAction(UIAlertAction(title: "Add Record", style: .default, handler: { (_) in
+        sheet.addAction(UIAlertAction(title: "Add to Diary", style: .default, handler: { (_) in
             self.addRecord()
         }))
 
@@ -188,7 +194,7 @@ class ViewController: UIViewController {
             self.calibrate()
         }))
 
-        if let current = MiaoMiao.currentGlucose, Date().timeIntervalSince(current.date) > 1.m {
+        if MiaoMiao.currentGlucose == nil || Date().timeIntervalSince(MiaoMiao.currentGlucose!.date) > 1.m {
             sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
                 MiaoMiao.Command.startReading()
             }))
@@ -353,52 +359,58 @@ extension ViewController: GlucoseGraphDelegate {
         guard record.isMeal else {
             return
         }
-        log("checking \(record)")
-        let after = MiaoMiao.allReadings.filter { $0 is GlucosePoint }.filter { $0.date > record.date && $0.date < record.date + 6.h } as! [GlucosePoint]
-        if after.isEmpty {
-            return
+        let ctr = AddRecordViewController()
+        ctr.editRecord = record
+        present(ctr, animated: true, completion: nil)
+        ctr.onSelect = { (_,_) in
+            self.graphView.prediction = nil
+            self.graphView.records = Storage.default.lastDay.entries
         }
-        let nextMeal = Storage.default.lastDay.entries.first(where: { $0.date > record.date && $0.isMeal })
-        var highest = after[0]
-        var lowestAfterHigh = after[0]
-        for point in after[1...] {
-            if let next = nextMeal, point.date > next.date {
-                break
+
+        DispatchQueue.global().async {
+            let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
+            let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date < record.date).orderBy(Record.date)) ?? []
+            var relevantMeals = meals.filter { $0.meal == record.meal && $0.bolus == record.bolus }
+            if let note = record.note {
+                let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
+                if !posible.isEmpty {
+                    relevantMeals = posible
+                }
             }
-            if point.value > highest.value {
-                highest = point
-                lowestAfterHigh = point
-            } else if point.value < highest.value && point.value < lowestAfterHigh.value {
-                lowestAfterHigh = point
+            var points = [[GlucosePoint]]()
+            guard !relevantMeals.isEmpty else {
+                return
             }
-        }
-        let lowestBefore = after.filter { $0.date < highest.date }.reduce(highest) { $0.value < $1.value ? $0 : $1 }
-        var valueAfter3: GlucosePoint? = after.first(where: { $0.date > record.date + 3.h })
-        if let value = valueAfter3, let next = nextMeal, next.date < value.date {
-            valueAfter3 = nil
-        }
-        var valueAfter4: GlucosePoint? = after.first(where: { $0.date > record.date + 4.h })
-        if let value = valueAfter4, let next = nextMeal, next.date < value.date {
-            valueAfter4 = nil
-        }
-        var valueAfter5: GlucosePoint? = after.first(where: { $0.date > record.date + 5.h })
-        if let value = valueAfter5, let next = nextMeal, next.date < value.date {
-            valueAfter5 = nil
-        }
-       log("first min = \(lowestBefore)")
-        log("highest = \(highest)")
-        log("lowestAfter = \(lowestAfterHigh)")
-        if let next = nextMeal {
-            log("next meal = \(next)")
-        }
-        if let valueAfter3 = valueAfter3 {
-        log("value after 3h = \(valueAfter3)")
-        }
-        if let valueAfter4 = valueAfter4 {
-            log("value after 4h = \(valueAfter4)")
-        }
-        if let valueAfter5 = valueAfter5 {
-            log("value after 5h = \(valueAfter5)")
+            for meal in relevantMeals {
+                let nextEvent = meals.first(where: { $0.date > meal.date })
+                let nextDate = nextEvent?.date ?? Date.distantFuture
+                let relevantPoints = readings.filter { $0.date >= meal.date && $0.date <= nextDate && $0.date < meal.date + 5.h }
+                points.append(relevantPoints)
+            }
+            var highs: [Double] = []
+            var lows: [Double] = []
+            var timeToHigh: [TimeInterval] = []
+            for (meal, mealPoints) in zip(relevantMeals, points) {
+                guard mealPoints.count > 2 else {
+                    continue
+                }
+                let stat = mealStatistics(meal: meal, points: mealPoints)
+                highs.append(stat.0)
+                lows.append(stat.2)
+                timeToHigh.append(stat.1)
+            }
+            guard let current = readings.last else {
+                return
+            }
+            let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
+            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.25) + current.value))
+            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.75) + current.value))
+            let predictedLow = CGFloat(round(lows.sorted().median() + current.value))
+//            let predictedLow10 = Int(round(lows.sorted().percentile(0.1) + current.value))
+            let predictedTime = record.date + timeToHigh.sorted().median()
+            DispatchQueue.main.async {
+                self.graphView.prediction = Prediction(highDate: predictedTime, h25: predictedHigh25, h50: predictedHigh, h75: predictedHigh75, lowDate: record.date + 3.h, low: predictedLow)
+            }
         }
     }
 }

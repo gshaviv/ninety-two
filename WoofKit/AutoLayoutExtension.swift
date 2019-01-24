@@ -176,13 +176,13 @@ infix operator ~: LayoutCreation
 }
 
 extension UIView {
-    subscript(attribute: NSLayoutConstraint.Attribute) -> LayoutItem {
+    public subscript(attribute: NSLayoutConstraint.Attribute) -> LayoutItem {
         return LayoutItem(view: self, attribute: attribute)
     }
 }
 
 extension NSLayoutConstraint {
-    @discardableResult final func activate() -> NSLayoutConstraint {
+    @discardableResult final public func activate() -> NSLayoutConstraint {
         if var pendingConstraints = pendingConstraintsStack.last {
             pendingConstraintsStack.removeLast()
             pendingConstraints.append(self)
@@ -193,7 +193,7 @@ extension NSLayoutConstraint {
         return self
     }
 
-    final func deactivate() {
+    final public func deactivate() {
         if var pendingConstraints = pendingConstraintsStack.last {
             pendingConstraintsStack.removeLast()
             if let me = pendingConstraints.firstIndex(where: { $0 == self }) {
@@ -206,7 +206,7 @@ extension NSLayoutConstraint {
 }
 
 extension UILayoutGuide {
-    subscript(attribute: NSLayoutConstraint.Attribute) -> LayoutItem {
+    public subscript(attribute: NSLayoutConstraint.Attribute) -> LayoutItem {
         return LayoutItem(view: self, attribute: attribute)
     }
 }

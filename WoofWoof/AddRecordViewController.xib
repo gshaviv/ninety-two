@@ -10,10 +10,13 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddMealViewController" customModule="WoofWoof" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddRecordViewController" customModule="WoofWoof" customModuleProvider="target">
             <connections>
+                <outlet property="cancelButton" destination="Lh0-h8-TTq" id="6xO-fk-96j"/>
                 <outlet property="noteField" destination="aJu-fo-vgy" id="ziG-bb-6nJ"/>
                 <outlet property="picker" destination="Uzq-6p-G25" id="iKB-i0-Epq"/>
+                <outlet property="predictionLabel" destination="4Hg-mh-Rjc" id="Gqu-bL-hwl"/>
+                <outlet property="selectButton" destination="EvP-qw-hEb" id="bpw-C6-6BP"/>
                 <outlet property="view" destination="fTc-CP-PoA" id="baS-zi-d7n"/>
             </connections>
         </placeholder>
@@ -53,11 +56,15 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Note" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aJu-fo-vgy">
-                                <rect key="frame" x="20" y="36.5" width="380" height="85.5"/>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Note" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aJu-fo-vgy" customClass="AutoComleteTextField" customModule="WoofWoof" customModuleProvider="target">
+                                <rect key="frame" x="20" y="36.5" width="380" height="57"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
+                                <connections>
+                                    <outlet property="autocompleteDataSource" destination="-1" id="hYM-CX-Yeh"/>
+                                    <outlet property="delegate" destination="-1" id="m3W-Ng-f5H"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EvP-qw-hEb">
                                 <rect key="frame" x="0.0" y="292" width="420" height="50"/>
@@ -80,6 +87,12 @@
                                     <constraint firstAttribute="height" constant="1" id="PFo-em-fP4"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Predictions" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Hg-mh-Rjc">
+                                <rect key="frame" x="167" y="101.5" width="86" height="20.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Uzq-6p-G25">
                                 <rect key="frame" x="0.0" y="130" width="420" height="162"/>
                                 <constraints>
@@ -93,12 +106,14 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="4Hg-mh-Rjc" firstAttribute="top" secondItem="aJu-fo-vgy" secondAttribute="bottom" constant="8" id="0VM-6F-RLp"/>
                             <constraint firstItem="EvP-qw-hEb" firstAttribute="top" secondItem="Uzq-6p-G25" secondAttribute="bottom" id="18r-IZ-TgC"/>
+                            <constraint firstItem="Uzq-6p-G25" firstAttribute="top" secondItem="4Hg-mh-Rjc" secondAttribute="bottom" constant="8" id="1p5-ES-Efe"/>
                             <constraint firstItem="EvP-qw-hEb" firstAttribute="leading" secondItem="4Vz-mE-TRA" secondAttribute="leading" id="2ka-eq-7Tq"/>
                             <constraint firstAttribute="bottom" secondItem="EvP-qw-hEb" secondAttribute="bottom" id="3i6-eA-sAB"/>
                             <constraint firstAttribute="trailing" secondItem="EvP-qw-hEb" secondAttribute="trailing" id="BVE-zX-cD8"/>
+                            <constraint firstItem="4Hg-mh-Rjc" firstAttribute="centerX" secondItem="Uzq-6p-G25" secondAttribute="centerX" id="Dd4-NS-vzW"/>
                             <constraint firstAttribute="trailing" secondItem="3u7-Za-8uw" secondAttribute="trailing" id="E48-WI-W3Z"/>
-                            <constraint firstItem="Uzq-6p-G25" firstAttribute="top" secondItem="aJu-fo-vgy" secondAttribute="bottom" constant="8" id="Lih-Ur-asY"/>
                             <constraint firstItem="tjo-jP-hE7" firstAttribute="leading" secondItem="4Vz-mE-TRA" secondAttribute="leading" id="LyG-Nx-dBA"/>
                             <constraint firstItem="EvP-qw-hEb" firstAttribute="top" secondItem="3u7-Za-8uw" secondAttribute="bottom" id="bu6-UW-Lfj"/>
                             <constraint firstItem="tjo-jP-hE7" firstAttribute="top" secondItem="4Vz-mE-TRA" secondAttribute="top" constant="8" id="ePh-SH-5lr"/>

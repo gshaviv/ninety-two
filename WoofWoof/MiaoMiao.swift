@@ -123,6 +123,10 @@ class MiaoMiao {
             case Code.noSensor:
                 logError("No Sensor detected")
                 defaults[.noSensorReadingCount] += 1
+                if !shortRefresh {
+                    shortRefresh = true
+                    Command.send(Code.shortFrequency)
+                }
                 if defaults[.noSensorReadingCount] > 2 {
                     DispatchQueue.main.async {
                         let notification = UNMutableNotificationContent()
@@ -213,6 +217,10 @@ class MiaoMiao {
                 Command.startReading()
             } else {
                 logError("Failed to read data")
+                if !shortRefresh {
+                    shortRefresh = true
+                    Command.send(Code.shortFrequency)
+                }
             }
             packetData = []
         }
@@ -270,7 +278,7 @@ class MiaoMiao {
     private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
         var together = last24hReadings
         
-        if let current = currentGlucose, let last = together.last, current.date > last.date + 1.m {
+        if let current = currentGlucose, let last = together.last, current.date > last.date + 2.m {
             together.append(current)
         }
 

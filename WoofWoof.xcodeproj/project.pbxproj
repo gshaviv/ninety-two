@@ -77,6 +77,7 @@
 		E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AE921E0A33A004FD560 /* Siri_Missed_Readings.caf */; };
 		E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */; };
 		E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */; };
+		E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */; };
 		E44EEC7321E9C52600F966A8 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44EEC7221E9C52600F966A8 /* IntentsUI.framework */; };
 		E44EEC7621E9C52600F966A8 /* IntentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EEC7521E9C52600F966A8 /* IntentViewController.swift */; };
 		E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EEC7721E9C52600F966A8 /* UI.storyboard */; };
@@ -89,8 +90,8 @@
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
-		E488740321F249D500694F6C /* AddMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddMealViewController.swift */; };
-		E488740421F249D500694F6C /* AddMealViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddMealViewController.xib */; };
+		E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddRecordViewController.swift */; };
+		E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddRecordViewController.xib */; };
 		E48B2D5F21F6109C001B19EB /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48B2D5E21F6109C001B19EB /* Record.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
@@ -328,6 +329,7 @@
 		E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Calibration_Needed.caf; sourceTree = "<group>"; };
 		E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Siri_Urgent_Low_Glucose.caf; sourceTree = "<group>"; };
 		E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
+		E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoComleteTextField.swift; sourceTree = "<group>"; };
 		E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntentUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44EEC7221E9C52600F966A8 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		E44EEC7521E9C52600F966A8 /* IntentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentViewController.swift; sourceTree = "<group>"; };
@@ -339,8 +341,8 @@
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
-		E488740121F249D500694F6C /* AddMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMealViewController.swift; sourceTree = "<group>"; };
-		E488740221F249D500694F6C /* AddMealViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddMealViewController.xib; sourceTree = "<group>"; };
+		E488740121F249D500694F6C /* AddRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordViewController.swift; sourceTree = "<group>"; };
+		E488740221F249D500694F6C /* AddRecordViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddRecordViewController.xib; sourceTree = "<group>"; };
 		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
@@ -635,8 +637,9 @@
 				E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */,
 				E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */,
 				E4230FC421EB04C600A297A5 /* GlucoseReport.swift */,
-				E488740121F249D500694F6C /* AddMealViewController.swift */,
-				E488740221F249D500694F6C /* AddMealViewController.xib */,
+				E488740121F249D500694F6C /* AddRecordViewController.swift */,
+				E488740221F249D500694F6C /* AddRecordViewController.xib */,
+				E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -988,7 +991,7 @@
 			files = (
 				E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */,
 				E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */,
-				E488740421F249D500694F6C /* AddMealViewController.xib in Resources */,
+				E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */,
 				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
 				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
 				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
@@ -1103,9 +1106,10 @@
 				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
+				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
 				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
-				E488740321F249D500694F6C /* AddMealViewController.swift in Sources */,
+				E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 			);

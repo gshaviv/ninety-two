@@ -18,7 +18,7 @@ public class Central: NSObject {
 
     public static var manager = Central()
     private var centralManager: CBCentralManager!
-    private var gcmDevice: CBPeripheral! {
+    private var gcmDevice: CBPeripheral? {
         didSet {
             if gcmDevice == nil {
                 readChannel = nil
@@ -58,7 +58,7 @@ public class Central: NSObject {
     }
 
     public func restart() {
-        guard gcmDevice != nil else {
+        guard let gcmDevice = gcmDevice else {
             return
         }
         centralManager.cancelPeripheralConnection(gcmDevice)
@@ -77,7 +77,9 @@ public class Central: NSObject {
                 centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
 
             case (_, .found):
-                centralManager.connect(gcmDevice, options: nil)
+                if let gcmDevice = gcmDevice {
+                    centralManager.connect(gcmDevice, options: nil)
+                }
 
             case (_, .ready):
                 break
@@ -108,7 +110,7 @@ extension Central: CBCentralManagerDelegate {
                         switch c.uuid {
                         case Central.receive:
                             readChannel = c
-                            gcmDevice.setNotifyValue(true, for: c)
+                            gcmDevice?.setNotifyValue(true, for: c)
 
                         case Central.transmit:
                             writeChannel = c
@@ -143,9 +145,6 @@ extension Central: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                                advertisementData: [String: Any], rssi RSSI: NSNumber) {
         // Step 2
-        if gcmDevice == nil {
-            log("Found \(peripheral.name ?? peripheral.identifier.uuidString)")
-        }
         if gcmDevice == nil && peripheral.name?.hasPrefix("miaomiao") == true {
             gcmDevice = peripheral
             peripheral.delegate = self
@@ -243,7 +242,7 @@ extension Central {
     }
 
     func send(data: Data) {
-        gcmDevice.writeValue(data, for: writeChannel, type: .withoutResponse)
+        gcmDevice?.writeValue(data, for: writeChannel, type: .withoutResponse)
     }
 }
 
