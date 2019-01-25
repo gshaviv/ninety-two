@@ -71,6 +71,7 @@ class AutoComleteTextField: UITextField {
                     self.tableView?.removeFromSuperview()
                     self.tableView = nil
                 }
+                self.tableView?.reloadData()
             }
         }
     }
