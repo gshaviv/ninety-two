@@ -283,6 +283,16 @@ extension Int {
     }
 }
 
+precedencegroup TimeConcat {
+    higherThan: MultiplicationPrecedence
+}
+
+infix operator ⁚: TimeConcat
+
+public func ⁚ (lhs: TimeInterval, rhs: TimeInterval) -> TimeInterval {
+    return lhs + rhs
+}
+
 extension UIView {
     public var width: CGFloat {
         return frame.width

@@ -280,10 +280,18 @@ class MiaoMiao {
     private static var lastDate: Date = Date.distantPast
     private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
         var together = last24hReadings
-        
-        if let current = currentGlucose, let last = together.last, current.date > last.date + 2.m {
-            together.append(current)
+        var toAppend = [GlucosePoint]()
+        var last = Date.distantFuture
+        for point in trend ?? [] {
+            if let h = together.last, point.date < h.date + 2.m⁚30.s {
+                break
+            }
+            if point.date < last {
+                last = point.date - 4.m⁚30.s
+                toAppend.append(point)
+            }
         }
+        together.append(contentsOf: toAppend.reversed())
 
         return together
     }
