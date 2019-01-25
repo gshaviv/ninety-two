@@ -25,11 +25,11 @@ extension Date {
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
         let kind = Record.Meal(name: intent.meal)
-        let note = intent.note
+        let note = intent.note?.isEmpty == true ? nil : intent.note
         let bolus = intent.units?.intValue ?? 0
         let when = Date().rounded
         Storage.default.db.async {
-            var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when, note: note)
+            var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when)
             record.bolus = bolus
             record.meal = kind
             record.note = note

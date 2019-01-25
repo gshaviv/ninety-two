@@ -102,22 +102,13 @@ extension Central: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral], let rp = peripherals.first {
             log("Restoring Central state")
-            gcmDevice = rp
-            rp.delegate = self
-            out: for s in rp.services ?? [] {
-                if s.uuid == Central.service {
-                    for c in s.characteristics ?? [] {
-                        switch c.uuid {
-                        case Central.receive:
-                            readChannel = c
-                            gcmDevice?.setNotifyValue(true, for: c)
-
-                        case Central.transmit:
-                            writeChannel = c
-
-                        default:
-                            break
-                        }
+            self.onStateChange { (_, newState) in
+                if newState == .bluetoothOn {
+                    DispatchQueue.main.async {
+                        _ = self.stateChangeHandlers.removeLast()
+                        self.gcmDevice = rp
+                        rp.delegate = self
+                        self.state = .found
                     }
                 }
             }

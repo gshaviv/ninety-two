@@ -177,7 +177,7 @@
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<true/>
 					<key>INIntentParameterCombinationTitle</key>
-					<string>Bolus of ${units}units</string>
+					<string>Bolus of ${units} units</string>
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>6oOU3u</string>
 				</dict>
@@ -186,7 +186,7 @@
 					<key>INIntentParameterCombinationIsPrimary</key>
 					<false/>
 					<key>INIntentParameterCombinationSubtitle</key>
-					<string>Taking ${units}units of Insulin</string>
+					<string>Taking ${units} units of Insulin</string>
 					<key>INIntentParameterCombinationSubtitleID</key>
 					<string>adM2Vy</string>
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
@@ -201,7 +201,7 @@
 					<key>INIntentParameterCombinationIsPrimary</key>
 					<true/>
 					<key>INIntentParameterCombinationSubtitle</key>
-					<string>Taking ${units}units of Insulin</string>
+					<string>Taking ${units} units of Insulin</string>
 					<key>INIntentParameterCombinationSubtitleID</key>
 					<string>4S6QdN</string>
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>

@@ -12,6 +12,7 @@ import Intents
 
 public struct Record {
     public var date: Date
+
     public enum Meal: Int {
         case breakfast
         case lunch
@@ -56,12 +57,13 @@ public struct Record {
             }
         }
     }
+
     public var meal: Meal?
     public var bolus: Int
-    public private(set) var id: Int?
+    private(set) public var id: Int?
     public var note: String?
 
-    public init(date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String?) {
+    public init(date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String? = nil) {
         self.date = date
         self.meal = meal
         self.bolus = bolus ?? 0
@@ -110,11 +112,11 @@ extension Record: Sqlable {
         date = try row.get(Record.date)
     }
 
-    public mutating func insert(to db:SqliteDatabase) {
+    public mutating func insert(to db: SqliteDatabase) {
         id = db.evaluate(insert())
     }
 
-    public mutating func save(to db:SqliteDatabase) {
+    public mutating func save(to db: SqliteDatabase) {
         if id == nil {
             insert(to: db)
         } else {
@@ -123,13 +125,13 @@ extension Record: Sqlable {
     }
 }
 
-
 extension Record {
+
     public enum IntentType {
         case meal
         case bolus
     }
-    
+
     public var isBolus: Bool {
         return bolus > 0
     }
@@ -137,7 +139,7 @@ extension Record {
         return meal != nil
     }
     public var intent: DiaryIntent {
-        let foods = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: [String:String]]
+        let foods = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: [String]]
 
         var suggested: String = ""
         let intent = DiaryIntent()
@@ -145,13 +147,14 @@ extension Record {
             let notePhrase: String
             if let note = note?.lowercased() {
                 intent.note = self.note
-                if foods["fruit"]?[note] ?? foods["vegetables"]?[note] ?? foods["dishes"]?[note] != nil {
+                if (foods["fruit"] ?? foods["vegetables"] ?? foods["dishes"])?.contains(note) == true {
                     let x = note.rangeOfCharacter(from: CharacterSet(charactersIn: "aeoiu"))?.lowerBound == note.startIndex
                     notePhrase = "\(x ? "an" : "a") \(self.note!) for "
                 } else {
-                    notePhrase = note
+                    notePhrase = "\(note) for "
                 }
             } else {
+                intent.note = ""
                 notePhrase = ""
             }
             intent.meal = meal.name
@@ -168,6 +171,9 @@ extension Record {
             default:
                 suggested = notePhrase.isEmpty ? "I'm eating" : "I'm eating \(notePhrase[0 ..< notePhrase.count - 5])"
             }
+        } else {
+            intent.meal = "none"
+            intent.note = ""
         }
         if isBolus {
             intent.units = NSNumber(value: bolus)
@@ -177,6 +183,8 @@ extension Record {
                 suggested += ", and I "
             }
             suggested += "took \(bolus) units"
+        } else {
+            intent.units = NSNumber(value: 0)
         }
 
         intent.suggestedInvocationPhrase = suggested

@@ -30,7 +30,7 @@ class AddRecordViewController: ActionSheetController {
     private lazy var readings: [GlucosePoint] = Storage.default.db.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date)) ?? []
     private lazy var meals: [Record] = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null()).orderBy(Record.date)) ?? []
     private lazy var mealNotes: [String] = {
-        return meals.compactMap { $0.note }.sorted()
+        return (meals.compactMap { $0.note } + words).unique().sorted()
     }()
     var onSelect: ((inout Record, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
@@ -47,19 +47,14 @@ class AddRecordViewController: ActionSheetController {
     }()
 
     @IBAction func handleCancel(_ sender: Any) {
+        onSelect = nil
         if let edit = editRecord {
             Storage.default.db.evaluate(edit.delete())
             Storage.default.reloadToday()
-            if let vc = presentingViewController as? ViewController {
-                vc.graphView.records = Storage.default.lastDay.entries
-            }
-            dismiss(animated: true, completion: nil)
-        } else {
-            onSelect = nil
-            dismiss(animated: true) {
-                self.onCancel?()
-                self.onCancel = nil
-            }
+        }
+        dismiss(animated: true) {
+            self.onCancel?()
+            self.onCancel = nil
         }
     }
 
@@ -68,10 +63,7 @@ class AddRecordViewController: ActionSheetController {
         comp.hour = picker.selectedRow(inComponent: Component.hour.rawValue)
         comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
         comp.second = 0
-        guard let k = Record.Meal(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1) else {
-            return
-        }
-        kind = k
+        kind = Record.Meal(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
         let u = picker.selectedRow(inComponent: Component.units.rawValue)
         if u > 0 {
             units = u
@@ -82,6 +74,10 @@ class AddRecordViewController: ActionSheetController {
         record.bolus = units ?? 0
         if let note = noteField.text, !note.trimmed.isEmpty {
             record.note = note.trimmed
+        }
+
+        guard record.isMeal || record.isBolus else {
+            return
         }
 
         if let _ = editRecord {
@@ -278,7 +274,7 @@ extension AddRecordViewController {
                 }
                 return
             }
-            var relevantMeals = self.meals.filter { $0.meal == kind && $0.bolus == units }
+            var relevantMeals = self.meals.filter { ($0.meal == kind || $0.note == note) && $0.bolus == units }
             if !note.isEmpty {
                 let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
                 if !posible.isEmpty {
@@ -333,6 +329,6 @@ extension AddRecordViewController {
 
 extension AddRecordViewController: AutoComleteTextFieldDataSource {
     func autocomplete(textField: AutoComleteTextField, text: String) -> [String] {
-        return mealNotes.filter { $0.hasPrefix(text) } + words.filter { $0.hasPrefix(text) }
+        return picker.selectedRow(inComponent: Component.meal.rawValue) > 0 ? mealNotes.filter { $0.hasPrefix(text) } : []
     }
 }

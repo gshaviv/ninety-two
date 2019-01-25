@@ -356,19 +356,23 @@ extension ViewController: GlucoseGraphDelegate {
         }
         let ctr = AddRecordViewController()
         ctr.editRecord = record
-        present(ctr, animated: true, completion: nil)
         ctr.onSelect = { (_,_) in
             self.graphView.prediction = nil
             self.graphView.records = Storage.default.lastDay.entries
         }
-        
+        ctr.onCancel = {
+            self.graphView.prediction = nil
+            self.graphView.records = Storage.default.lastDay.entries
+        }
+        present(ctr, animated: true, completion: nil)
+
         DispatchQueue.global().async {
             let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
             guard let current = readings.last else {
                 return
             }
             let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date < record.date).orderBy(Record.date)) ?? []
-            var relevantMeals = meals.filter { $0.meal == record.meal && $0.bolus == record.bolus }
+            var relevantMeals = meals.filter { ($0.meal == record.meal || $0.note == record.note ?? ".") && $0.bolus == record.bolus }
             if let note = record.note {
                 let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
                 if !posible.isEmpty {

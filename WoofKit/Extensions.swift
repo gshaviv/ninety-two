@@ -34,6 +34,12 @@ extension Array where Element: Sqlable {
     }
 }
 
+extension Array where Element: Hashable {
+    public func unique() -> [Element] {
+        return Array(reduce(into: Set<Element>()) { $0.insert($1) })
+    }
+}
+
 extension String {
     public subscript(index: Int) -> String {
         get {
