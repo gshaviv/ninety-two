@@ -18,6 +18,7 @@ class AddRecordViewController: ActionSheetController {
     @IBOutlet var cancelButton: UIButton!
     var kind: Record.Meal?
     var units: Int?
+    var note: String?
     var editRecord: Record?
     private enum Component: Int {
         case hour
@@ -34,6 +35,16 @@ class AddRecordViewController: ActionSheetController {
     var onSelect: ((inout Record, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
     private let queue = DispatchQueue(label: "predict")
+    private lazy var words: [String] = {
+        let all = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: Any]
+        var wordList: [String] = []
+        for (_,value) in all {
+            if let list = value as? [String] {
+                wordList += list.map { $0.capitalized }
+            }
+        }
+        return wordList.sorted()
+    }()
 
     @IBAction func handleCancel(_ sender: Any) {
         if let edit = editRecord {
@@ -74,11 +85,8 @@ class AddRecordViewController: ActionSheetController {
         }
 
         if let _ = editRecord {
-            var comp = record.date.components
-            comp.hour = picker.selectedRow(inComponent: Component.hour.rawValue)
-            comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
-            record.date = comp.toDate()
             Storage.default.db.evaluate(record.update())
+            Storage.default.reloadToday()
         }
 
         dismiss(animated: true) {
@@ -106,11 +114,12 @@ class AddRecordViewController: ActionSheetController {
             now = edit.date
             units = edit.bolus
             kind = edit.meal
-            noteField.text = edit.note
+            note = edit.note
             cancelButton.setTitle("Delete", for: .normal)
             selectButton.setTitle("Save", for: .normal)
         }
 
+        noteField.text = note
         picker.selectRow(now.hour, inComponent: Component.hour.rawValue, animated: false)
         picker.selectRow(Int(round(Double(now.minute) / 5.0)), inComponent: Component.minute.rawValue, animated: false)
         if let kind = kind {
@@ -180,6 +189,24 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             self.predictionLabel.text = nil
         } else {
             predict()
+        }
+        if let rec = editRecord {
+            switch Component(rawValue: row)! {
+            case .hour, .minute:
+                var comp = rec.date.components
+                comp.hour = pickerView.selectedRow(inComponent: Component.hour.rawValue)
+                comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
+                editRecord?.date = comp.toDate()
+
+            case .units:
+                editRecord?.bolus = picker.selectedRow(inComponent: Component.units.rawValue)
+
+            case .meal:
+                guard let k = Record.Meal(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1) else {
+                    return
+                }
+                editRecord?.meal = k
+            }
         }
     }
 
@@ -306,6 +333,6 @@ extension AddRecordViewController {
 
 extension AddRecordViewController: AutoComleteTextFieldDataSource {
     func autocomplete(textField: AutoComleteTextField, text: String) -> [String] {
-        return mealNotes.filter { $0.hasPrefix(text) }
+        return mealNotes.filter { $0.hasPrefix(text) } + words.filter { $0.hasPrefix(text) }
     }
 }

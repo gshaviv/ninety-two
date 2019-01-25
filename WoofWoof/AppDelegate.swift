@@ -153,15 +153,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
         switch userActivity.activityType {
-        case "BolusIntent":
-            ctr.addRecord(units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue)
-
-        case "MealIntent":
-            var kind: Record.Meal? = nil
-            if let k = (userActivity.interaction?.intent.value(forKey: "type") as? NSNumber)?.intValue {
-                kind = Record.Meal(rawValue: k - 1)
-            }
-            ctr.addRecord(meal: kind)
+        case "DiaryIntent":
+            ctr.addRecord(meal: Record.Meal(name: userActivity.interaction?.intent.value(forKey: "meal") as? String), units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue, note: userActivity.interaction?.intent.value(forKey: "note") as? String)
 
         default:
             break

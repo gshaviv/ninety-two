@@ -18,11 +18,8 @@ class IntentHandler: INExtension {
         case is CheckGlucoseIntent:
             return CheckIntentHandler()
 
-        case is BolusIntent:
-            return BolusHandler()
-
-        case is MealIntent:
-            return MealHandler()
+        case is DiaryIntent:
+            return DiaryHandler()
 
         default:
             return nil

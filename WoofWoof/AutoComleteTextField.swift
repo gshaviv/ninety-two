@@ -16,10 +16,11 @@ import WoofKit
 class AutoComleteTextField: UITextField {
     private var tableView: UITableView?
     @IBOutlet weak var autocompleteDataSource: AutoComleteTextFieldDataSource?
-    var minCharactersForSuggestion = 2
+    @IBInspectable var minCharactersForSuggestion: Int = 2
     private let queue = DispatchQueue(label: "autocomplete")
     var addTableView: ((UITableView) -> Void)?
     private var autoCompletions: [String] = []
+    
 
     override func awakeFromNib() {
         super.awakeFromNib()

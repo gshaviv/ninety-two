@@ -34,7 +34,10 @@ public struct Record {
             }
         }
 
-        public init(name: String) {
+        public init?(name: String?) {
+            guard let name = name else {
+                return nil
+            }
             switch name {
             case "breakfast":
                 self = .breakfast
@@ -45,8 +48,11 @@ public struct Record {
             case "dinner":
                 self = .dinner
 
-            default:
+            case "other":
                 self = .other
+
+            default:
+                return nil
             }
         }
     }
@@ -123,36 +129,57 @@ extension Record {
         case meal
         case bolus
     }
-    public func intent(type: IntentType) -> INIntent? {
-        if let meal = meal, type == .meal {
-            let m = MealIntent()
-            m.type = meal.name
-            switch meal {
-            case .breakfast:
-                m.suggestedInvocationPhrase = "I'm having breakfast"
-
-            case .lunch:
-                m.suggestedInvocationPhrase = "I'm having lunch"
-
-            case .dinner:
-                m.suggestedInvocationPhrase = "I'm having dinner"
-
-            default:
-                m.suggestedInvocationPhrase = "I'm eating"
-            }
-            return m
-        } else if bolus > 0, type == .bolus {
-            let intent = BolusIntent()
-            intent.suggestedInvocationPhrase = "I took \(bolus) unit\(bolus > 1 ? "s" : "")"
-            intent.units = NSNumber(value: bolus)
-            return intent
-        }
-        return nil
-    }
+    
     public var isBolus: Bool {
         return bolus > 0
     }
     public var isMeal: Bool {
         return meal != nil
+    }
+    public var intent: DiaryIntent {
+        let foods = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: [String:String]]
+
+        var suggested: String = ""
+        let intent = DiaryIntent()
+        if let meal = meal {
+            let notePhrase: String
+            if let note = note?.lowercased() {
+                intent.note = self.note
+                if foods["fruit"]?[note] ?? foods["vegetables"]?[note] ?? foods["dishes"]?[note] != nil {
+                    let x = note.rangeOfCharacter(from: CharacterSet(charactersIn: "aeoiu"))?.lowerBound == note.startIndex
+                    notePhrase = "\(x ? "an" : "a") \(self.note!) for "
+                } else {
+                    notePhrase = note
+                }
+            } else {
+                notePhrase = ""
+            }
+            intent.meal = meal.name
+            switch meal {
+            case .breakfast:
+                suggested = "I'm having \(notePhrase)breakfast"
+
+            case .lunch:
+                suggested = "I'm having \(notePhrase)lunch"
+
+            case .dinner:
+                suggested = "I'm having \(notePhrase)dinner"
+
+            default:
+                suggested = notePhrase.isEmpty ? "I'm eating" : "I'm eating \(notePhrase[0 ..< notePhrase.count - 5])"
+            }
+        }
+        if isBolus {
+            intent.units = NSNumber(value: bolus)
+            if suggested.isEmpty {
+                suggested = "I "
+            } else {
+                suggested += ", and I "
+            }
+            suggested += "took \(bolus) units"
+        }
+
+        intent.suggestedInvocationPhrase = suggested
+        return intent
     }
 }

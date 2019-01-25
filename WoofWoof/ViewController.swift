@@ -154,10 +154,11 @@ class ViewController: UIViewController {
         }
     }
 
-    func addRecord(meal: Record.Meal? = nil, units: Int? = nil) {
+    func addRecord(meal: Record.Meal? = nil, units: Int? = nil, note: String? = nil) {
         let ctr = AddRecordViewController()
         ctr.kind = meal
         ctr.units = units
+        ctr.note = note
         ctr.onSelect = { (record, prediction) in
             if record.id == nil {
                 record.save(to: Storage.default.db)
@@ -166,18 +167,12 @@ class ViewController: UIViewController {
                 record.save(to: Storage.default.db)
             }
             self.graphView.records = Storage.default.lastDay.entries
-            if let intent = record.intent(type: .meal) {
-                let interaction = INInteraction(intent: intent, response: nil)
-                interaction.donate { _ in }
-            }
-            if let intent = record.intent(type: .bolus) {
-                let interaction = INInteraction(intent: intent, response: nil)
-                interaction.donate { _ in }
-            }
+            let interaction = INInteraction(intent: record.intent, response: nil)
+            interaction.donate { _ in }
             if let prediction = prediction {
                 self.graphView.prediction = prediction
             }
-
+            
         }
         present(ctr, animated: true, completion: nil)
     }
@@ -366,9 +361,12 @@ extension ViewController: GlucoseGraphDelegate {
             self.graphView.prediction = nil
             self.graphView.records = Storage.default.lastDay.entries
         }
-
+        
         DispatchQueue.global().async {
             let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
+            guard let current = readings.last else {
+                return
+            }
             let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date < record.date).orderBy(Record.date)) ?? []
             var relevantMeals = meals.filter { $0.meal == record.meal && $0.bolus == record.bolus }
             if let note = record.note {
@@ -399,14 +397,10 @@ extension ViewController: GlucoseGraphDelegate {
                 lows.append(stat.2)
                 timeToHigh.append(stat.1)
             }
-            guard let current = readings.last else {
-                return
-            }
             let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.25) + current.value))
-            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.75) + current.value))
-            let predictedLow = CGFloat(round(lows.sorted().median() + current.value))
-//            let predictedLow10 = Int(round(lows.sorted().percentile(0.1) + current.value))
+            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.2) + current.value))
+            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.8) + current.value))
+            let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
             let predictedTime = record.date + timeToHigh.sorted().median()
             DispatchQueue.main.async {
                 self.graphView.prediction = Prediction(highDate: predictedTime, h25: predictedHigh25, h50: predictedHigh, h75: predictedHigh75, lowDate: record.date + 3.h, low: predictedLow)
