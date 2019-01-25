@@ -22,6 +22,7 @@ extension UserDefaults {
         case lastLowBatteryNofication
         case lastEventAlertTime
         case nextCalibration
+        case nextNoSensorAlert
     }
 
     public enum DoubleKey: String {
@@ -36,7 +37,6 @@ extension UserDefaults {
         case timeSpanIndex
         case watchWakeupTime
         case watchSleepTime
-        case noSensorReadingCount
         case badDataCount
     }
 

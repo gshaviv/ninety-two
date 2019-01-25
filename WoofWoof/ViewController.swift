@@ -191,11 +191,13 @@ class ViewController: UIViewController {
 
         if MiaoMiao.currentGlucose == nil || Date().timeIntervalSince(MiaoMiao.currentGlucose!.date) > 1.m {
             sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
+                defaults[.nextNoSensorAlert] = Date()
                 MiaoMiao.Command.startReading()
             }))
         }
 
         sheet.addAction(UIAlertAction(title: "Reconnect Transmitter", style: .default, handler: { (_) in
+            defaults[.nextNoSensorAlert] = Date()
             Central.manager.restart()
         }))
 

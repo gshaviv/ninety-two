@@ -122,12 +122,15 @@ class MiaoMiao {
 
             case Code.noSensor:
                 logError("No Sensor detected")
-                defaults[.noSensorReadingCount] += 1
+                if defaults[.nextNoSensorAlert] == nil {
+                    defaults[.nextNoSensorAlert] = Date() + 2.m
+                }
                 if !shortRefresh {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
                 }
-                if defaults[.noSensorReadingCount] > 2 {
+                if let d = defaults[.nextNoSensorAlert], Date() > d {
+                    defaults[.nextNoSensorAlert] = Date() + 10.m
                     DispatchQueue.main.async {
                         let notification = UNMutableNotificationContent()
                         notification.title = "No Sensor Detected"
@@ -227,7 +230,7 @@ class MiaoMiao {
     }
 
     private static func removeNoSensorNotification() {
-        defaults[.noSensorReadingCount] = 0
+        defaults[.nextNoSensorAlert] = nil
         DispatchQueue.main.async {
             UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noSensor])
         }
