@@ -44,9 +44,19 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="m3w-JE-fXm">
                                                 <rect key="frame" x="8" y="4" width="359" height="39.5"/>
                                                 <subviews>
-                                                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" image="battery-1" translatesAutoresizingMaskIntoConstraints="NO" id="kW8-4j-jwz">
+                                                    <imageView contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" image="battery-1" translatesAutoresizingMaskIntoConstraints="NO" id="kW8-4j-jwz">
                                                         <rect key="frame" x="0.0" y="0.0" width="30" height="39.5"/>
+                                                        <gestureRecognizers/>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="gWN-7X-8MC" appends="YES" id="WsP-Ua-69p"/>
+                                                        </connections>
                                                     </imageView>
+                                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Sn-kc-7Gj">
+                                                        <rect key="frame" x="34" y="0.0" width="0.0" height="39.5"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="8d:2h" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tss-jP-hB5">
                                                         <rect key="frame" x="38" y="0.0" width="54" height="39.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
@@ -247,6 +257,7 @@
                         <outlet property="agoLabel" destination="Bao-Kz-rgZ" id="gIb-ob-HQL"/>
                         <outlet property="aveGlucoseLabel" destination="dFH-vN-ElU" id="A9S-sA-ViU"/>
                         <outlet property="batteryLevelImage" destination="kW8-4j-jwz" id="7TE-pN-rDg"/>
+                        <outlet property="batteryLevelLabel" destination="6Sn-kc-7Gj" id="lIp-9K-1I0"/>
                         <outlet property="currentGlucoseLabel" destination="fnn-TC-0vP" id="Odb-U7-Egd"/>
                         <outlet property="graphView" destination="HS6-O8-9Lv" id="SRV-c8-c8t"/>
                         <outlet property="percentHighLabel" destination="yw3-dY-D11" id="cMr-Ta-dML"/>
@@ -259,6 +270,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="gWN-7X-8MC">
+                    <connections>
+                        <action selector="showPercentage:" destination="BYZ-38-t0r" id="gyW-9m-J2f"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-364" y="44"/>
         </scene>

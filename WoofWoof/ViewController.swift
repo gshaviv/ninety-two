@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var currentGlucoseLabel: UILabel!
     @IBOutlet var batteryLevelImage: UIImageView!
+    @IBOutlet var batteryLevelLabel: UILabel!
     @IBOutlet var sensorAgeLabel: UILabel!
     @IBOutlet var agoLabel: UILabel!
     @IBOutlet var trendLabel: UILabel!
@@ -95,6 +96,7 @@ class ViewController: UIViewController {
             agoLabel.text = ""
         }
         batteryLevelImage.image = batteryLevelIcon(for: MiaoMiao.batteryLevel)
+        batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
 
         updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
             self.updateTimeAgo()
@@ -431,6 +433,16 @@ class ViewController: UIViewController {
             // Handle error
         }
     }
+
+    @IBAction func showPercentage(_ sender: Any) {
+        batteryLevelImage.isHidden = true
+        batteryLevelLabel.isHidden = false
+        DispatchQueue.main.after(withDelay: 3) {
+            self.batteryLevelImage.isHidden = false
+            self.batteryLevelLabel.isHidden = true
+        }
+    }
+    
 }
 
 extension ViewController: MiaoMiaoDelegate {
