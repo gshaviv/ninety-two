@@ -31,6 +31,7 @@ extension UserDefaults {
         case highAlertLevel
         case minRange
         case maxRange
+        case level0, level1, level2, level3, level4
     }
 
     public enum IntKey: String {
@@ -40,12 +41,16 @@ extension UserDefaults {
         case badDataCount
     }
 
+    public enum ColorKey: String {
+        case color0
+        case color1
+        case color2
+        case color3
+        case color4, color5
+    }
+
     public enum BoolKey: String {
         case didAlertEvent
-        case didAskAddLunchToSiri
-        case didAskAddBreakfastToSiri
-        case didAskAddDinnerToSiri
-        case didAskAddOtherToSiri
     }
 
     public func register() {
@@ -55,14 +60,33 @@ extension UserDefaults {
                                        DoubleKey.lowAlertLevel.key: 75.0,
                                        DoubleKey.highAlertLevel.key: 180.0,
                                        DoubleKey.minRange.key: 70.0,
-                                       DoubleKey.maxRange.key: 180.0]
+                                       DoubleKey.maxRange.key: 180.0,
+                                       ColorKey.color0.key: 0x00ff0000,
+                                       DoubleKey.level0.key: 55.0,
+                                       ColorKey.color1.key: 0x00ff4c4c,
+                                       DoubleKey.level1.key: 70.0,
+                                       ColorKey.color2.key: 0x0066ff66,
+                                       DoubleKey.level2.key: 110.0,
+                                       ColorKey.color3.key: 0x0000ff00,
+                                       DoubleKey.level3.key: 140.0,
+                                       ColorKey.color4.key: 0x007fff7f,
+                                       DoubleKey.level4.key: 180.0,
+                                       ColorKey.color5.key: 0x00ffff00,
+                                       ]
 
         register(defaults: defaults)
     }
 }
 
 extension UserDefaults {
-
+    public subscript(key: ColorKey) -> UIColor {
+        get {
+            return UIColor(rgb: UInt32(integer(forKey: key.rawValue)))
+        }
+        set {
+            set(newValue.rgbValue, forKey: key.rawValue)
+        }
+    }
     public subscript(key: StringKey) -> String? {
         get {
             return object(forKey: key.rawValue) as? String
@@ -110,6 +134,12 @@ extension UserDefaults {
 }
 
 extension UserDefaults.StringKey {
+    fileprivate var key: String {
+        return rawValue
+    }
+}
+
+extension UserDefaults.ColorKey {
     fileprivate var key: String {
         return rawValue
     }

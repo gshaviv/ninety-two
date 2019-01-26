@@ -40,64 +40,6 @@ extension Array where Element: Hashable {
     }
 }
 
-extension String {
-    public subscript(index: Int) -> String {
-        get {
-            return String(self[self.index(self.startIndex, offsetBy: index)])
-        }
-        set {
-            self[index ..< index + 1] = newValue
-        }
-    }
-
-    public subscript(integerRange: Range<Int>) -> String {
-        get {
-            let start = index(startIndex, offsetBy: integerRange.lowerBound)
-            let end = index(startIndex, offsetBy: integerRange.upperBound)
-            return String(self[start ..< end])
-        }
-        set {
-            let start = index(startIndex, offsetBy: integerRange.lowerBound)
-            let end = index(startIndex, offsetBy: integerRange.upperBound)
-            replaceSubrange(start ..< end, with: newValue)
-        }
-    }
-
-    public subscript(from: CountablePartialRangeFrom<Int>) -> String {
-        get {
-            let start = index(startIndex, offsetBy: from.lowerBound)
-            return String(self[start ..< endIndex])
-        }
-        set {
-            let start = index(startIndex, offsetBy: from.lowerBound)
-            replaceSubrange(start ..< endIndex, with: newValue)
-        }
-    }
-
-    public subscript(upTo: PartialRangeUpTo<Int>) -> String {
-        get {
-            guard let upper = index(startIndex, offsetBy: upTo.upperBound, limitedBy: endIndex) else {
-                return ""
-            }
-            return String(self[startIndex ..< upper])
-        }
-        set {
-            guard let upper = index(startIndex, offsetBy: upTo.upperBound, limitedBy: endIndex) else {
-                return
-            }
-            replaceSubrange(startIndex ..< upper, with: newValue)
-        }
-    }
-
-    public subscript(nsrange: NSRange) -> String {
-        get {
-            return String(self[Range(nsrange, in: self) ?? startIndex ..< startIndex])
-        }
-        set {
-            replaceSubrange(Range(nsrange, in: self) ?? startIndex ..< endIndex, with: newValue)
-        }
-    }
-}
 
 extension SqliteDatabase {
 
@@ -355,74 +297,6 @@ public extension DispatchQueue {
     }
 }
 
-public extension String {
-    /// Trimming string whitespace
-    public var trimmed: String {
-        return trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Returns string's path extension. Like NSString but Swift
-    public var pathExtension: String {
-        if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
-            return String(self[idx...])
-        }
-        return ""
-    }
-
-    /// Returns string's last path component. Like NSString but Swift
-    public var lastPathComponent: String {
-        if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
-            return String(self[idx...])
-        }
-        return self
-    }
-
-    /// Delete last path component, like NSString, but swift, return without the trailing /
-    public var deletingLastPathComponent: String {
-        if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
-            return String(self[..<idx])
-        }
-        return ""
-    }
-
-    /// Add path components, like NSString but swift
-    public func appending(pathComponent str: String) -> String {
-        return hasSuffix("/") || str.hasPrefix("/") ? "\(self)\(str)" : "\(self)/\(str)"
-    }
-
-    public mutating func append(pathComponent str: String) {
-        if !hasSuffix("/") && !str.hasPrefix("/") {
-            append("/")
-        }
-        append(str)
-    }
-
-    /// add path extension
-    public func appending(pathExtension ext: String) -> String {
-        return hasSuffix(".") || ext.hasPrefix(".") ? "\(self)\(ext)" : "\(self).\(ext)"
-    }
-
-    public mutating func append(pathExtension ext: String) {
-        if !hasSuffix(".") && !ext.hasPrefix(".") {
-            append(".")
-        }
-        append(ext)
-    }
-
-    /// Delete path extension
-    public var deletingPathExtension: String {
-        if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
-            return String(self[..<idx])
-        }
-        return self
-    }
-
-    /// Convenience method so optionals can be used.. e.g. myString?.toInt()
-    public func toInt() -> Int? {
-        return Int(self)
-    }
-}
-
 public class FilePointer: NSObject, NSFilePresenter {
     public var presentedItemURL: URL?
 
@@ -431,5 +305,25 @@ public class FilePointer: NSObject, NSFilePresenter {
     public init(url: URL, queue: OperationQueue? = nil) {
         presentedItemURL = url
         presentedItemOperationQueue = queue ?? OperationQueue.main
+    }
+}
+
+extension UIColor {
+    public convenience init(rgb: UInt32, alpha: CGFloat = 1) {
+        let divisor = CGFloat(255)
+        let red = CGFloat((rgb & 0xFF0000) >> 16) / divisor
+        let green = CGFloat((rgb & 0x00FF00) >> 8) / divisor
+        let blue = CGFloat(rgb & 0x0000FF) / divisor
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    public var rgbValue: UInt32 {
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        getRed(&r, green: &g, blue: &b, alpha: &a)
+        
+        return UInt32(r * 255) << 16 + UInt32(g * 255) << 8 + UInt32(b * 255)
     }
 }

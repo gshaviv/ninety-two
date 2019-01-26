@@ -89,12 +89,12 @@ public class GlucoseGraph: UIView {
     private var xAxisHeight: CGFloat = 30
     private var yAxis: DrawingView!
 
-    public let colors = [(55, UIColor.red),
-                   (defaults[.minRange] < 110 ? Int(defaults[.minRange]) : 70, UIColor.red.lighter()),
-                   (110, UIColor.green.lighter(by: 40)),
-                   (140, UIColor.green),
-                   (defaults[.maxRange] >= 140 ? Int(defaults[.maxRange]) : 180, UIColor.green.lighter(by: 50)),
-                   (999, UIColor.yellow)]
+    public let colors = [(defaults[.level0], defaults[.color0]),
+                         (defaults[.level1], defaults[.color1]),
+                         (defaults[.level2], defaults[.color2]),
+                         (defaults[.level3], defaults[.color3]),
+                         (defaults[.level4], defaults[.color4]),
+                         (999.0, defaults[.color5])]
     private var contentWidthConstraint: NSLayoutConstraint?
 
     public var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
@@ -109,10 +109,11 @@ public class GlucoseGraph: UIView {
         let yCoor = { (self.yRange.max - $0) * yScale }
         let xScale = rect.size.width / CGFloat(xRange.max - xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
-        var lower = 0
+        var lower:Double = 0
         for (upper, color) in colors {
             color.set()
-            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(upper)), width: size.width, height: CGFloat(upper - lower) * yScale))
+            let r = CGRect(x: 0.0, y: yCoor(CGFloat(upper)), width: size.width, height: CGFloat(upper - lower) * yScale)
+            ctx?.fill(r)
             lower = upper
         }
         UIColor(white: 0.5, alpha: 0.5).set()

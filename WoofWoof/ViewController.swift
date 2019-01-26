@@ -13,6 +13,7 @@ import Intents
 import IntentsUI
 import PDFCreation
 import PDFKit
+import WatchConnectivity
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
@@ -189,12 +190,12 @@ class ViewController: UIViewController {
             self.calibrate()
         }))
 
-        if MiaoMiao.currentGlucose == nil || Date().timeIntervalSince(MiaoMiao.currentGlucose!.date) > 1.m {
-            sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
-                defaults[.nextNoSensorAlert] = Date()
-                MiaoMiao.Command.startReading()
-            }))
-        }
+//        if MiaoMiao.currentGlucose == nil || Date().timeIntervalSince(MiaoMiao.currentGlucose!.date) > 1.m {
+//            sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
+//                defaults[.nextNoSensorAlert] = Date()
+//                MiaoMiao.Command.startReading()
+//            }))
+//        }
 
         sheet.addAction(UIAlertAction(title: "Reconnect Transmitter", style: .default, handler: { (_) in
             defaults[.nextNoSensorAlert] = Date()
@@ -231,8 +232,112 @@ class ViewController: UIViewController {
             self.selectReportPeriod()
             }))
 
+        sheet.addAction(UIAlertAction(title: "Settings", style: .default, handler: { (_) in
+            self.showSettings()
+        }))
+
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(sheet, animated: true, completion: nil)
+    }
+
+    private func showSettings() {
+        let ctr = UIStoryboard(name: "Settings", bundle: nil).instantiateInitialViewController() as! SettingsViewController
+
+        ctr.addGroup("Target Range")
+        ctr.addValue(title: "Max", get: {
+            String(format: "%lg", defaults[.maxRange])
+        }) {
+            defaults[.maxRange] = $0
+        }
+        ctr.addValue(title: "Min", get: {
+            String(format: "%lg", defaults[.minRange])
+        }) {
+            defaults[.minRange] = $0
+        }
+
+        ctr.addGroup("Alerts")
+        ctr.addValue(title: "High Level", get: {
+            String(format: "%lg", defaults[.highAlertLevel])
+        }) {
+            defaults[.highAlertLevel] = $0
+        }
+        ctr.addValue(title: "Low Level", get: {
+            String(format: "%lg", defaults[.lowAlertLevel])
+        }) {
+            defaults[.lowAlertLevel] = $0
+        }
+
+        if WCSession.default.isPaired && WCSession.default.isWatchAppInstalled {
+            ctr.addGroup("Watch")
+            ctr.addTime(title: "Complication wakeup time", get: {
+                (defaults[.watchWakeupTime] / 60, defaults[.watchWakeupTime] % 60)
+            }) {
+                defaults[.watchWakeupTime] = $0 * 60 + $1
+            }
+            ctr.addTime(title: "Complication sleep time", get: {
+                (defaults[.watchSleepTime] / 60, defaults[.watchSleepTime] % 60)
+            }) {
+                defaults[.watchSleepTime] = $0 * 60 + $1
+            }
+        }
+
+        ctr.addGroup("Colors")
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color5]
+        }) {
+            defaults[.color5] = $0
+        }
+        ctr.addValue(title: "Value", get: { () -> String in
+            defaults[.level4].formatted(with: "%lg")
+        }) {
+            defaults[.level4] = $0
+        }
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color4]
+        }) {
+            defaults[.color4] = $0
+        }
+        ctr.addValue(title: "Value", get: { () -> String in
+            defaults[.level3].formatted(with: "%lg")
+        }) {
+            defaults[.level3] = $0
+        }
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color3]
+        }) {
+            defaults[.color3] = $0
+        }
+        ctr.addValue(title: "Value", get: { () -> String in
+            defaults[.level2].formatted(with: "%lg")
+        }) {
+            defaults[.level2] = $0
+        }
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color2]
+        }) {
+            defaults[.color2] = $0
+        }
+        ctr.addValue(title: "Value", get: { () -> String in
+            defaults[.level1].formatted(with: "%lg")
+        }) {
+            defaults[.level1] = $0
+        }
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color1]
+        }) {
+            defaults[.color1] = $0
+        }
+        ctr.addValue(title: "Value", get: { () -> String in
+            defaults[.level0].formatted(with: "%lg")
+        }) {
+            defaults[.level0] = $0
+        }
+        ctr.addColor(title: "Color", get: { () -> (UIColor) in
+            defaults[.color0]
+        }) {
+            defaults[.color0] = $0
+        }
+        show(ctr, sender: nil)
     }
 
     private func selectReportPeriod() {

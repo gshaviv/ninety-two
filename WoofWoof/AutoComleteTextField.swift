@@ -10,7 +10,8 @@ import UIKit
 import WoofKit
 
 @objc protocol AutoComleteTextFieldDataSource: NSObjectProtocol {
-    func autocomplete(textField: AutoComleteTextField, text: String) -> [String]
+    @objc optional func autocomplete(textField: AutoComleteTextField, text: String) -> [String]
+    @objc optional func autocompleteAttributedCompletions(textField: AutoComleteTextField, text: String) -> [NSAttributedString]
 }
 
 class AutoComleteTextField: UITextField {
@@ -19,8 +20,9 @@ class AutoComleteTextField: UITextField {
     @IBInspectable var minCharactersForSuggestion: Int = 2
     private let queue = DispatchQueue(label: "autocomplete")
     var addTableView: ((UITableView) -> Void)?
-    private var autoCompletions: [String] = []
-    
+    private var autoCompletions: [String]?
+    private var autoAttributedCompletions: [NSAttributedString]?
+
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -42,11 +44,14 @@ class AutoComleteTextField: UITextField {
             return
         }
         queue.async {
-            let words = autocompleteDataSource.autocomplete(textField: self, text: text)
+            let attributedWords = autocompleteDataSource.autocompleteAttributedCompletions?(textField: self, text: text)
+            let words = attributedWords == nil ? autocompleteDataSource.autocomplete?(textField: self, text: text) : nil
+            let isEmpty = attributedWords?.isEmpty ?? words?.isEmpty ?? true
 
             DispatchQueue.main.async {
                 self.autoCompletions = words
-                if self.tableView == nil && !words.isEmpty {
+                self.autoAttributedCompletions = attributedWords
+                if self.tableView == nil && !isEmpty {
                     self.tableView = UITableView(frame: .zero)
                     self.tableView?.translatesAutoresizingMaskIntoConstraints = false
                     guard let tableView = self.tableView else {
@@ -67,7 +72,7 @@ class AutoComleteTextField: UITextField {
                             tableView[.bottom] == self.superview![.bottom] - 20
                         }
                     }
-                } else if words.isEmpty {
+                } else if isEmpty {
                     self.tableView?.removeFromSuperview()
                     self.tableView = nil
                 }
@@ -85,17 +90,23 @@ class AutoComleteTextField: UITextField {
 
 extension AutoComleteTextField: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return autoCompletions.count
+        return autoAttributedCompletions?.count ?? autoCompletions?.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell") ?? UITableViewCell(style: .default, reuseIdentifier: "cell")
-        cell.textLabel?.text = autoCompletions[indexPath.row]
+        if let completions = autoAttributedCompletions {
+            cell.textLabel?.attributedText = completions[indexPath.row]
+        } else if let completions = autoCompletions {
+            cell.textLabel?.text = completions[indexPath.row]
+        } else {
+            cell.textLabel?.text = ""
+        }
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        text = autoCompletions[indexPath.row]
+        text = autoAttributedCompletions?[indexPath.row].string ?? autoCompletions?[indexPath.row]
         tableView.removeFromSuperview()
         self.tableView = nil
         NotificationCenter.default.post(name: UITextField.textDidChangeNotification, object: self, userInfo: ["autocompletion": true])

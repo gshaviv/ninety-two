@@ -103,6 +103,18 @@
 		E49023F721EF5B8700846FC4 /* DateFromToPickerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */; };
 		E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
 		E4B5023021D6167200E18DDD /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
+		E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */; };
+		E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4C4E0BF21FC41880046D28F /* Settings.storyboard */; };
+		E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */; };
+		E4C4E0C421FC4DC10046D28F /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C321FC4DC00046D28F /* Scan.swift */; };
+		E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C521FCB7710046D28F /* EFHSBView.swift */; };
+		E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */; };
+		E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */; };
+		E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */; };
+		E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C921FCB7720046D28F /* EFColorView.swift */; };
+		E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */; };
+		E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D121FCB8230046D28F /* EFControl.swift */; };
+		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
@@ -357,6 +369,18 @@
 		E4B5022F21D6167200E18DDD /* KVO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVO.swift; sourceTree = "<group>"; };
 		E4B5023121D61A1900E18DDD /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
 		E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributedStringConstruction.swift; sourceTree = "<group>"; };
+		E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		E4C4E0BF21FC41880046D28F /* Settings.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
+		E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringAdditions.swift; sourceTree = "<group>"; };
+		E4C4E0C321FC4DC00046D28F /* Scan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
+		E4C4E0C521FCB7710046D28F /* EFHSBView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFHSBView.swift; sourceTree = "<group>"; };
+		E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorUtils.swift; sourceTree = "<group>"; };
+		E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorComponentView.swift; sourceTree = "<group>"; };
+		E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorWheelView.swift; sourceTree = "<group>"; };
+		E4C4E0C921FCB7720046D28F /* EFColorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorView.swift; sourceTree = "<group>"; };
+		E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFSliderView.swift; sourceTree = "<group>"; };
+		E4C4E0D121FCB8230046D28F /* EFControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFControl.swift; sourceTree = "<group>"; };
+		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
@@ -465,6 +489,14 @@
 		E425663E21CE61D600469232 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */,
+				E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */,
+				E4C4E0C921FCB7720046D28F /* EFColorView.swift */,
+				E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */,
+				E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */,
+				E4C4E0D321FCB8380046D28F /* EFThumbView.swift */,
+				E4C4E0C521FCB7710046D28F /* EFHSBView.swift */,
+				E4C4E0D121FCB8230046D28F /* EFControl.swift */,
 				E425663F21CE65A400469232 /* Sqlable.xcodeproj */,
 			);
 			path = Dependencies;
@@ -503,6 +535,8 @@
 		E42A294721E886C70084D181 /* WoofKit */ = {
 			isa = PBXGroup;
 			children = (
+				E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */,
+				E4C4E0C321FC4DC00046D28F /* Scan.swift */,
 				E432763221FAEF4A00A3755F /* words.json */,
 				E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */,
 				E48B2D5E21F6109C001B19EB /* Record.swift */,
@@ -643,6 +677,8 @@
 				E488740121F249D500694F6C /* AddRecordViewController.swift */,
 				E488740221F249D500694F6C /* AddRecordViewController.xib */,
 				E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */,
+				E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */,
+				E4C4E0BF21FC41880046D28F /* Settings.storyboard */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -994,6 +1030,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */,
+				E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */,
 				E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */,
 				E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */,
 				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
@@ -1052,6 +1089,8 @@
 			files = (
 				E42A295821E887550084D181 /* AttributedStringConstruction.swift in Sources */,
 				E48873FE21F232AE00694F6C /* Storage.swift in Sources */,
+				E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */,
+				E4C4E0C421FC4DC10046D28F /* Scan.swift in Sources */,
 				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
@@ -1099,14 +1138,21 @@
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
+				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
+				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
+				E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
+				E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */,
 				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,
+				E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
+				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
+				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
 				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
@@ -1116,6 +1162,8 @@
 				E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
+				E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */,
+				E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

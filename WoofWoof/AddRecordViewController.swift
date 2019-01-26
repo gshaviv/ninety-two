@@ -29,8 +29,11 @@ class AddRecordViewController: ActionSheetController {
     private var prediction: Prediction?
     private lazy var readings: [GlucosePoint] = Storage.default.db.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date)) ?? []
     private lazy var meals: [Record] = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null()).orderBy(Record.date)) ?? []
-    private lazy var mealNotes: [String] = {
-        return (meals.compactMap { $0.note } + words).unique().sorted()
+    private lazy var mealNotes: [NSAttributedString] = {
+        let fromMeals = meals.compactMap { $0.note }.unique().sorted()
+        let setFromMeals = Set(fromMeals)
+        let additionalWords = words.filter { !setFromMeals.contains($0) }.sorted()
+        return fromMeals.map { $0.styled.traits(.traitBold) } + additionalWords.map { $0.styled }
     }()
     var onSelect: ((inout Record, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
@@ -328,7 +331,7 @@ extension AddRecordViewController {
 
 
 extension AddRecordViewController: AutoComleteTextFieldDataSource {
-    func autocomplete(textField: AutoComleteTextField, text: String) -> [String] {
-        return picker.selectedRow(inComponent: Component.meal.rawValue) > 0 ? mealNotes.filter { $0.hasPrefix(text) } : []
+    func autocompleteAttributedCompletions(textField: AutoComleteTextField, text: String) -> [NSAttributedString] {
+        return picker.selectedRow(inComponent: Component.meal.rawValue) == 0 ? [] : mealNotes.filter { $0.string.hasPrefix(text) }
     }
 }
