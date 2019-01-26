@@ -122,7 +122,8 @@ private class ActionPresenter: UIPresentationController {
         }
         _ = presentedViewController.view
         let size = presentedViewController.preferredContentSize == .zero ? presentedViewController.view.frame.size : presentedViewController.preferredContentSize
-        return CGRect(x: max(0,containerView.bounds.midX - min(size.width, containerView.bounds.width - 16)/2), y: min(containerView.bounds.maxY - size.height - containerView.safeAreaInsets.bottom, keyboardTopInContainr - size.height ), width: min(size.width, containerView.bounds.width - 16), height: size.height)
+        return CGRect(x: max(0,containerView.bounds.midX - min(size.width, containerView.bounds.width - 16)/2), y: max(min(containerView.bounds.maxY - size.height - containerView.safeAreaInsets.bottom, keyboardTopInContainr - size.height )
+            ,containerView.safeAreaInsets.top), width: min(size.width, containerView.bounds.width - 16), height: size.height)
     }
 }
 
