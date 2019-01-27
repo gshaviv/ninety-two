@@ -20,6 +20,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     @IBOutlet var trendLabel: UILabel!
     @IBOutlet var glucoseLabel: UILabel!
     private let sharedDb: SqliteDatabase? = {
+        defaults.register()
         let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
         try! db?.createTable(GlucosePoint.self)
         return db
