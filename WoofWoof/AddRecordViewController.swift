@@ -323,7 +323,7 @@ extension AddRecordViewController {
                 } else {
                     self.setPrediction("\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow = \(predictedLow)")
                 }
-                self.prediction = Prediction(highDate: predictedTime, h25: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h75: CGFloat(predictedHigh75), lowDate: Date() + 3.h, low: CGFloat(predictedLow10))
+                self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h25: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h75: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
             }
         }
     }

@@ -10,6 +10,11 @@ import CoreGraphics
 
 public protocol GlucoseGraphDelegate: class {
     func didTouch(record: Record)
+    func didDoubleTap(record: Record)
+}
+
+extension GlucoseGraphDelegate {
+    public func didDoubleTap(record: Record) { }
 }
 
 public struct Prediction {
@@ -17,15 +22,15 @@ public struct Prediction {
     public let h25: CGFloat
     public let h50: CGFloat
     public let h75: CGFloat
-    public let lowDate: Date
+    public let mealTime: Date
     public let low: CGFloat
 
-    public init(highDate: Date, h25: CGFloat, h50: CGFloat, h75: CGFloat, lowDate: Date, low: CGFloat) {
+    public init(mealTime: Date, highDate: Date, h25: CGFloat, h50: CGFloat, h75: CGFloat,  low: CGFloat) {
         self.highDate = highDate
         self.h25 = h25
         self.h50 = h50
         self.h75 = h75
-        self.lowDate = lowDate
+        self.mealTime = mealTime
         self.low = low
     }
 }
@@ -148,20 +153,26 @@ public class GlucoseGraph: UIView {
             return
         }
         if let prediction = prediction {
-            let x0h = xCoor(prediction.highDate - 30.m)
-            let x1h = xCoor(prediction.highDate + 30.m)
-            let y75 = yCoor(prediction.h75)
-            let y50 = yCoor(prediction.h50)
-            let y25 = yCoor(prediction.h25)
-            UIColor(red: 1, green: 0, blue: 0, alpha: 0.8).set()
-            ctx?.fill(CGRect(x: x0h, y: y75, width: x1h - x0h, height: y75 - y50))
-            UIColor(red: 0.3, green: 0, blue: 0, alpha: 0.5).set()
-            ctx?.fill(CGRect(x: x0h, y: y50, width: x1h - x0h, height: y50 - y25))
-            UIColor.magenta.set()
+            ctx?.saveGState()
+            ctx?.setLineWidth(3)
+            ctx?.setLineDash(phase: 0, lengths: [8,6])
+            UIColor.blue.withAlphaComponent(0.5).set()
             ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: xCoor(prediction.lowDate), y: yCoor(prediction.low)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.lowDate + 2.h), y: yCoor(prediction.low)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h75)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h75)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
             ctx?.strokePath()
+            ctx?.setLineDash(phase: 0, lengths: [1])
+            ctx?.beginPath()
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h50)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h75)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h75)))
+            ctx?.strokePath()
+            ctx?.restoreGState()
         }
         let curve = UIBezierPath()
         if holes.isEmpty {
@@ -430,7 +441,12 @@ public class GlucoseGraph: UIView {
             yAxis[.right] == self[.right]
         }
 
-        contentView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        contentView.addGestureRecognizer(tap)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        tap.require(toFail: doubleTap)
+        contentView.addGestureRecognizer(doubleTap)
     }
 
     override init(frame: CGRect) {
@@ -458,6 +474,17 @@ public class GlucoseGraph: UIView {
         }
     }
 
+    @objc private func handleDoubleTap(_ sender: UIGestureRecognizer) {
+        let touchPoint = sender.location(in: contentView)
+        self.prediction = nil
+
+        for touchable in touchables {
+            if touchable.0.contains(touchPoint) {
+                delegate?.didDoubleTap(record: touchable.1)
+                return
+            }
+        }
+    }
     @objc private func handleTap(_ sender: UIGestureRecognizer) {
         let touchPoint = sender.location(in: contentView)
 
@@ -489,7 +516,6 @@ public class GlucoseGraph: UIView {
             }
         }
         self.touchPoint = best
-
     }
 }
 

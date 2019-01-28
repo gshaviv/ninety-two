@@ -469,10 +469,7 @@ extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
 
 
 extension ViewController: GlucoseGraphDelegate {
-    func didTouch(record: Record) {
-        guard record.isMeal else {
-            return
-        }
+    func didDoubleTap(record: Record) {
         let ctr = AddRecordViewController()
         ctr.editRecord = record
         ctr.onSelect = { (_,_) in
@@ -484,6 +481,12 @@ extension ViewController: GlucoseGraphDelegate {
             self.graphView.records = Storage.default.lastDay.entries
         }
         present(ctr, animated: true, completion: nil)
+    }
+
+    func didTouch(record: Record) {
+        guard record.isMeal else {
+            return
+        }
 
         DispatchQueue.global().async {
             let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
@@ -526,7 +529,7 @@ extension ViewController: GlucoseGraphDelegate {
             let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
             let predictedTime = record.date + timeToHigh.sorted().median()
             DispatchQueue.main.async {
-                self.graphView.prediction = Prediction(highDate: predictedTime, h25: predictedHigh25, h50: predictedHigh, h75: predictedHigh75, lowDate: record.date + 3.h, low: predictedLow)
+                self.graphView.prediction = Prediction(mealTime: record.date, highDate: predictedTime, h25: predictedHigh25, h50: predictedHigh, h75: predictedHigh75, low: predictedLow)
             }
         }
     }
