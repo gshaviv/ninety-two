@@ -151,7 +151,7 @@ class ViewController: UIViewController {
     private func updateTimeAgo() {
         if let current = MiaoMiao.currentGlucose {
             let time = Int(round(Date().timeIntervalSince(current.date)))
-            agoLabel.text = String(format: "%ld:%02ld Ago", time / 60, time % 60)
+            agoLabel.text = String(format: "%ld:%02ld", time / 60, time % 60)
         } else {
             agoLabel.text = ""
         }
