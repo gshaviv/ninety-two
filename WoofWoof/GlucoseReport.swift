@@ -211,6 +211,10 @@ class GlucoseReport {
             }
 
             self.patternReport(maker: maker)
+            self.mealReport(kind: .breakfast, maker: maker)
+            self.mealReport(kind: .lunch, maker: maker)
+            self.mealReport(kind: .dinner, maker: maker)
+
             maker.beginPage()
             self.dailyLogs(maker: maker)
         }
@@ -512,6 +516,156 @@ class GlucoseReport {
 
             ctx.stroke(graphRect)
 
+        })
+    }
+
+    func mealReport(kind: Record.Meal, maker: PDFCreator) {
+        guard let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal == kind.rawValue && Record.date > self.start && Record.date < self.end)), !meals.isEmpty else {
+            return
+        }
+        guard let allMeals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date > self.start && Record.date < self.end).orderBy(Record.date)) else {
+            return
+        }
+        var afterMealBuckets = Array(repeating: [Double](), count: 10)
+        for meal in meals {
+            let nextMealDate = allMeals.first(where: { $0.date > meal.date})?.date ?? Date.distantFuture
+            let limitDate = min(meal.date + 5.h, nextMealDate)
+            let points = readings.filter { $0.date > meal.date && $0.date < limitDate }
+            for point in points {
+                let inBucket = Int((point.date - points[0].date) / 1800.0)
+                afterMealBuckets[inBucket].append(point.value)
+            }
+        }
+        var p25 = [Double]()
+        var p10 = [Double]()
+        var p50 = [Double]()
+        var p75 = [Double]()
+        var p90 = [Double]()
+        for idx in 0 ..< afterMealBuckets.count {
+            let buckets = afterMealBuckets[idx].sorted()
+            if buckets.isEmpty {
+                break
+            }
+            p50.append(buckets.median())
+            p10.append(buckets.percentile(0.1))
+            p25.append(buckets.percentile(0.25))
+            p75.append(buckets.percentile(0.75))
+            p90.append(buckets.percentile(0.9))
+        }
+        let vmax = max(ceil(p90.biggest()/10)*10, defaults[.maxRange])
+        let vmin = min(floor(p10.smallest()/5)*5,defaults[.minRange])
+
+        maker.add(PDFTextSection("\(kind.name.capitalized) Patterns".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
+
+        maker.add(PDFFixedHeightBlockSection(h: 200) { (rect) in
+            let ctx = UIGraphicsGetCurrentContext()
+            let graphRect = CGRect(x: 28, y: 16, width: rect.width - 80, height: rect.height - 36)
+            let yPos = { (y: Double) in CGFloat(vmax - y) / CGFloat(vmax - vmin) * graphRect.height }
+            ctx?.saveGState()
+            ctx?.translateBy(x: graphRect.minX, y: graphRect.minY)
+
+            UIColor.lightGray.setStroke()
+            ctx?.setLineWidth(0.5)
+            for y in stride(from: floor(vmax/50)*50, to: vmin, by: -50) {
+                let num = "\(Int(y))".styled.font(self.normalFont)
+                let s = num.size()
+                let yCoor = yPos(y)
+                let area = CGRect(x: -4 - s.width, y: yCoor - s.height / 2, width: s.width, height: s.height)
+                num.draw(in: area)
+            }
+
+            UIColor.darkGray.setStroke()
+            ctx?.setLineWidth(1)
+            for y in [defaults[.maxRange], defaults[.minRange]] {
+                let num = "\(Int(y))".styled.font(self.normalFont)
+                let s = num.size()
+                let yCoor = yPos(y)
+                let area = CGRect(x: -4 - s.width, y: yCoor - s.height / 2, width: s.width, height: s.height)
+                num.draw(in: area)
+                ctx?.beginPath()
+                ctx?.move(to: CGPoint(x: 0, y: yCoor))
+                ctx?.addLine(to: CGPoint(x: graphRect.width, y: yCoor))
+                ctx?.strokePath()
+            }
+
+            let xPos = { (t: Double) in CGFloat(t) / 5.0 / 3600.0 * graphRect.width }
+            for x in 1 ... 5 {
+                let time = String(format: "+%02ld",x).styled.font(self.normalFont)
+                let size = time.size()
+                let xCenter = CGFloat(x) * graphRect.width / 5.0
+                let area = CGRect(origin: CGPoint(x: xCenter - size.width / 2, y: graphRect.height + 4), size: size)
+                time.draw(in: area)
+                ctx?.setLineWidth(0.5)
+                ctx?.beginPath()
+                ctx?.move(to: CGPoint(x: xCenter, y: 0))
+                ctx?.addLine(to: CGPoint(x: xCenter, y: graphRect.height))
+                ctx?.strokePath()
+            }
+
+            ctx?.saveGState()
+            ctx?.clip(to: CGRect(origin: .zero, size: graphRect.size))
+            let a10 = UIBezierPath()
+            let coor10 = p10.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
+            let coor90 = Array(p90.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }.reversed())
+            a10.move(to: coor10[0])
+            a10.addCurveThrough(points: coor10[1...])
+            a10.addLine(to: coor90[0])
+            a10.addCurveThrough(points: coor90[1...])
+            a10.addLine(to: coor10[0])
+
+            let coor25 = p25.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
+            let coor75 = Array(p75.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }.reversed())
+            let a25 = UIBezierPath()
+            a25.move(to: coor25[0])
+            a25.addCurveThrough(points: coor25[1...])
+            a25.addLine(to: coor75[0])
+            a25.addCurveThrough(points: coor75[1...])
+            a25.addLine(to: coor25[0])
+
+            let coor50 = p50.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
+            let median = UIBezierPath()
+            median.move(to: coor50[0])
+            median.addCurveThrough(points: coor50[1...])
+
+            UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 0.5).setFill()
+            a10.fill()
+            UIColor(red: 0.2, green: 0.2, blue: 0.4, alpha: 0.5).set()
+            a25.fill()
+            ctx?.setLineWidth(2)
+            UIColor.black.set()
+            median.stroke()
+            ctx?.restoreGState()
+
+            var top: CGFloat = 0
+            do {
+                let text = "Median".styled.font(self.normalFont)
+                let size = text.size()
+                let area = CGRect(origin: CGPoint(x: graphRect.width + 4, y: (coor50.last!.y + coor50[coor50.count - 2].y - size.height) / 2), size: size)
+                text.draw(in: area)
+                top = area.minY
+            }
+            do {
+                let text = "25%".styled.font(self.normalFont)
+                let size = text.size()
+                var area = CGRect(origin: CGPoint(x: graphRect.width + 4, y: (coor50.last!.y + coor75.last!.y - size.height) / 2), size: size)
+                if area.maxY > top {
+                    area.origin.y = top - area.height
+                }
+                text.draw(in: area)
+                top = area.minY
+            }
+            do {
+                let text = "10%".styled.font(self.normalFont)
+                let size = text.size()
+                var area = CGRect(origin: CGPoint(x: graphRect.width + 4, y: (coor90.last!.y + coor75.last!.y - size.height) / 2), size: size)
+                if area.maxY > top {
+                    area.origin.y = top - area.height
+                }
+                text.draw(in: area)
+            }
+            ctx?.restoreGState()
+            UIColor.black.set()
+            ctx?.stroke(graphRect)
         })
     }
 
