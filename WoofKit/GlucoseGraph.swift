@@ -230,7 +230,8 @@ public class GlucoseGraph: UIView {
                 let units = r.bolus
                 let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
                 syringeImage.fill(at: center, with: c)
-                let text = "\(units)".styled.systemFont(size: 14).color(.darkGray)
+                let iob = r.insulinAction(at: Date()).iob
+                let text = "\(units) \(iob > 0 ? "(\(iob.formatted(with: "%.1lf")))" : "")".styled.systemFont(size: 14).color(.darkGray)
                 text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2))
                 touchables.append((CGRect(center: center, size: syringeSize), r))
                 y += above ? syringeSize.height + 4 : -syringeSize.height - 4
