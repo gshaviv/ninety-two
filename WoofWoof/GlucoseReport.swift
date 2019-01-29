@@ -552,12 +552,13 @@ class GlucoseReport {
             p75.append(buckets.percentile(0.75))
             p90.append(buckets.percentile(0.9))
         }
-        let vmax = max(ceil(p90.biggest()/10)*10, defaults[.maxRange])
-        let vmin = min(floor(p10.smallest()/5)*5,defaults[.minRange])
+        var vmax = max(ceil(p90.biggest()/10)*10, defaults[.maxRange])
+        var vmin = min(floor(p10.smallest()/5)*5,defaults[.minRange])
 
         maker.add(PDFTextSection("\(kind.name.capitalized) Patterns".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
 
-        maker.add(PDFFixedHeightBlockSection(h: 200) { (rect) in
+        var drawRange = true
+        let drawingBlock = { (rect: CGRect) in
             let ctx = UIGraphicsGetCurrentContext()
             let graphRect = CGRect(x: 28, y: 16, width: rect.width - 80, height: rect.height - 36)
             let yPos = { (y: Double) in CGFloat(vmax - y) / CGFloat(vmax - vmin) * graphRect.height }
@@ -572,20 +573,28 @@ class GlucoseReport {
                 let yCoor = yPos(y)
                 let area = CGRect(x: -4 - s.width, y: yCoor - s.height / 2, width: s.width, height: s.height)
                 num.draw(in: area)
+                if !drawRange {
+                    ctx?.beginPath()
+                    ctx?.move(to: CGPoint(x: 0, y: yCoor))
+                    ctx?.addLine(to: CGPoint(x: graphRect.width, y: yCoor))
+                    ctx?.strokePath()
+                }
             }
 
-            UIColor.darkGray.setStroke()
-            ctx?.setLineWidth(1)
-            for y in [defaults[.maxRange], defaults[.minRange]] {
-                let num = "\(Int(y))".styled.font(self.normalFont)
-                let s = num.size()
-                let yCoor = yPos(y)
-                let area = CGRect(x: -4 - s.width, y: yCoor - s.height / 2, width: s.width, height: s.height)
-                num.draw(in: area)
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: 0, y: yCoor))
-                ctx?.addLine(to: CGPoint(x: graphRect.width, y: yCoor))
-                ctx?.strokePath()
+            if drawRange {
+                UIColor.darkGray.setStroke()
+                ctx?.setLineWidth(1)
+                for y in [defaults[.maxRange], defaults[.minRange]] {
+                    let num = "\(Int(y))".styled.font(self.normalFont)
+                    let s = num.size()
+                    let yCoor = yPos(y)
+                    let area = CGRect(x: -4 - s.width, y: yCoor - s.height / 2, width: s.width, height: s.height)
+                    num.draw(in: area)
+                    ctx?.beginPath()
+                    ctx?.move(to: CGPoint(x: 0, y: yCoor))
+                    ctx?.addLine(to: CGPoint(x: graphRect.width, y: yCoor))
+                    ctx?.strokePath()
+                }
             }
 
             let xPos = { (t: Double) in CGFloat(t) / 5.0 / 3600.0 * graphRect.width }
@@ -666,7 +675,41 @@ class GlucoseReport {
             ctx?.restoreGState()
             UIColor.black.set()
             ctx?.stroke(graphRect)
-        })
+        }
+        maker.add(PDFFixedHeightBlockSection(h: 200, drawingBlock: drawingBlock))
+
+        afterMealBuckets = Array(repeating: [Double](), count: 10)
+        for meal in meals {
+            let nextMealDate = allMeals.first(where: { $0.date > meal.date})?.date ?? Date.distantFuture
+            let limitDate = min(meal.date + 5.h, nextMealDate)
+            let points = readings.filter { $0.date > meal.date && $0.date < limitDate }
+            for point in points[1...] {
+                let inBucket = Int((point.date - points[0].date) / 1800.0)
+                afterMealBuckets[inBucket].append(point.value - points[0].value)
+            }
+        }
+        p10 = []
+        p25 = []
+        p50 = []
+        p75 = []
+        p90 = []
+        for idx in 0 ..< afterMealBuckets.count {
+            let buckets = afterMealBuckets[idx].sorted()
+            if buckets.isEmpty {
+                break
+            }
+            p50.append(buckets.median())
+            p10.append(buckets.percentile(0.1))
+            p25.append(buckets.percentile(0.25))
+            p75.append(buckets.percentile(0.75))
+            p90.append(buckets.percentile(0.9))
+        }
+        vmax = ceil(p90.biggest()/10)*10
+        vmin = floor(p10.smallest()/5)*5
+
+        maker.add(PDFTextSection("\(kind.name.capitalized) Control".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
+        drawRange = false
+        maker.add(PDFFixedHeightBlockSection(h: 200, drawingBlock: drawingBlock))
     }
 
     private func findValue(at: Date, in points: [GlucosePoint]) -> Double {
