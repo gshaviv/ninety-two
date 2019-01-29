@@ -32,6 +32,8 @@ extension UserDefaults {
         case minRange
         case maxRange
         case level0, level1, level2, level3, level4
+        case diaMinutes
+        case peakMinutes
     }
 
     public enum IntKey: String {
@@ -72,6 +74,8 @@ extension UserDefaults {
                                        ColorKey.color4.key: 0x007fff7f,
                                        DoubleKey.level4.key: 180.0,
                                        ColorKey.color5.key: 0x00ffff00,
+                                       DoubleKey.diaMinutes.key: 300.0,
+                                       DoubleKey.peakMinutes.key: 125.0
                                        ]
 
         register(defaults: defaults)

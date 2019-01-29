@@ -48,6 +48,7 @@ class AddRecordViewController: ActionSheetController {
         }
         return wordList.sorted()
     }()
+    private lazy var iob: Double = Storage.default.insulinOnBoard(at: Date())
 
     @IBAction func handleCancel(_ sender: Any) {
         onSelect = nil
@@ -61,7 +62,7 @@ class AddRecordViewController: ActionSheetController {
         }
     }
 
-    @IBAction func handleSelect(_ sender: Any) {
+    var selectedRecord: Record {
         var comp = Date().components
         comp.hour = picker.selectedRow(inComponent: Component.hour.rawValue)
         comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
@@ -78,6 +79,11 @@ class AddRecordViewController: ActionSheetController {
         if let note = noteField.text, !note.trimmed.isEmpty {
             record.note = note.trimmed
         }
+        return record
+    }
+
+    @IBAction func handleSelect(_ sender: Any) {
+        var record = selectedRecord
 
         guard record.isMeal || record.isBolus else {
             return
@@ -256,20 +262,21 @@ extension AddRecordViewController {
     func setPrediction(_ str: String?) {
         if let str = str {
             predictionLabel.text = str
+            if iob > 0 {
+                predictionLabel.text = "\(str), IOB=\(iob.formatted(with: "%.1lf"))U"
+            }
             predictionLabel.alpha = 1
         } else {
             predictionLabel.text = "No prediction available\n"
+            if iob > 0 {
+                predictionLabel.text = "IOB = \(iob.formatted(with: "%.1lf"))U"
+            }
             predictionLabel.alpha = 0.5
         }
     }
 
     @objc func predict() {
-        guard let kind = Record.Meal(rawValue: picker.selectedRow(inComponent: Component.meal.rawValue) - 1), editRecord == nil else {
-            setPrediction(nil)
-            return
-        }
-        let note = noteField.text ?? ""
-        let units = picker.selectedRow(inComponent: Component.units.rawValue)
+        let record = selectedRecord
         queue.async {
             guard let current = MiaoMiao.currentGlucose else {
                 DispatchQueue.main.async {
@@ -277,13 +284,7 @@ extension AddRecordViewController {
                 }
                 return
             }
-            var relevantMeals = self.meals.filter { ($0.meal == kind || $0.note == note) && $0.bolus == units }
-            if !note.isEmpty {
-                let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
-                if !posible.isEmpty {
-                    relevantMeals = posible
-                }
-            }
+            let relevantMeals = Storage.default.relevantMeals(to: record, iob: self.iob)
             var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 DispatchQueue.main.async {

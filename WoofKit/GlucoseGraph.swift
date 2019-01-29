@@ -94,17 +94,18 @@ public class GlucoseGraph: UIView {
     private var xAxisHeight: CGFloat = 30
     private var yAxis: DrawingView!
 
-    public let colors = [(defaults[.level0], defaults[.color0]),
-                         (defaults[.level1], defaults[.color1]),
-                         (defaults[.level2], defaults[.color2]),
-                         (defaults[.level3], defaults[.color3]),
-                         (defaults[.level4], defaults[.color4]),
-                         (999.0, defaults[.color5])]
+
     private var contentWidthConstraint: NSLayoutConstraint?
 
     public var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
 
     private func drawContent(_ rect: CGRect) {
+        let colors = [(defaults[.level0], defaults[.color0]),
+                      (defaults[.level1], defaults[.color1]),
+                      (defaults[.level2], defaults[.color2]),
+                      (defaults[.level3], defaults[.color3]),
+                      (defaults[.level4], defaults[.color4]),
+                      (999.0, defaults[.color5])]
         guard let points = points else {
             return
         }

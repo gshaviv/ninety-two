@@ -34,6 +34,29 @@ public class Storage: NSObject {
     public func reloadToday() {
         lastDay = Today()
     }
+    public func relevantMeals(to record: Record, iob: Double = 0) -> [Record] {
+        let meals = db.evaluate(Record.read().filter(Record.meal != Null() && Record.bolus >= record.bolus && Record.bolus <= record.bolus + Int(round(iob)) && Record.date < record.date).orderBy(Record.date)) ?? []
+        var relevantMeals = meals.filter { $0.meal == record.meal || $0.note == record.note ?? "" }
+        if let note = record.note {
+            let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
+            if !posible.isEmpty {
+                relevantMeals = posible
+            }
+        }
+        let stricter = relevantMeals.filter { $0.meal == record.meal }
+        if stricter.count > 3 {
+            relevantMeals = stricter
+        }
+        return relevantMeals
+    }
+    public func insulinOnBoard(at date: Date) -> Double {
+        let dia = defaults[.diaMinutes] * 60
+        let records = db.evaluate(Record.read().filter(Record.bolus > 0 && Record.date > date - dia)) ?? []
+        if records.isEmpty {
+            return 0
+        }
+        return records.reduce(0) { $0 + $1.insulinAction(at: date).iob }
+    }
 }
 
 public class Today {

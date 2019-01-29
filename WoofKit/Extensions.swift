@@ -280,6 +280,14 @@ public func ** (lhs: CGFloat, rhs: CGFloat) -> CGFloat {
     return pow(lhs, rhs)
 }
 
+public func ** (lhs: Double, rhs: Double) -> Double {
+    return pow(lhs, rhs)
+}
+
+public func ** (lhs: Double, rhs: Int) -> Double {
+    return pow(lhs, Double(rhs))
+}
+
 public func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
     return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
 }

@@ -269,6 +269,22 @@ class ViewController: UIViewController {
             defaults[.lowAlertLevel] = $0
         }
 
+        ctr.addGroup("Insulin (Bolus) Profile")
+        ctr.addValue(title: "DIA (m)", get: { () -> String in
+            return defaults[.diaMinutes].formatted(with: "%.0lf")
+        }) {
+            if $0 >= 2 * defaults[.peakMinutes] {
+            defaults[.diaMinutes] = $0
+            }
+        }
+        ctr.addValue(title: "Peak (m)", get: { () -> String in
+            return defaults[.peakMinutes].formatted(with: "%.0lf")
+        }) {
+            if $0 < defaults[.diaMinutes] / 2 {
+            defaults[.peakMinutes] = $0
+            }
+        }
+
         if WCSession.default.isPaired && WCSession.default.isWatchAppInstalled {
             ctr.addGroup("Watch")
             ctr.addTime(title: "Complication wakeup time", get: {
@@ -494,13 +510,7 @@ extension ViewController: GlucoseGraphDelegate {
                 return
             }
             let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date < record.date).orderBy(Record.date)) ?? []
-            var relevantMeals = meals.filter { ($0.meal == record.meal || $0.note == record.note ?? ".") && $0.bolus == record.bolus }
-            if let note = record.note {
-                let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
-                if !posible.isEmpty {
-                    relevantMeals = posible
-                }
-            }
+            let relevantMeals = Storage.default.relevantMeals(to: record, iob: Storage.default.insulinOnBoard(at: record.date))
             var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 return

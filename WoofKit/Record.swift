@@ -191,3 +191,22 @@ extension Record {
         return intent
     }
 }
+
+extension Record {
+    public func insulinAction(at date:Date) -> (activity: Double, iob: Double) {
+        let t = (date - self.date) / 1.m
+        let td = defaults[.diaMinutes]
+        let tp = defaults[.peakMinutes]
+        if t < 0 || t > td || !isBolus {
+            return (0,0)
+        }
+
+        let tau = tp * (1 - tp / td) / (1 - 2 * tp / td)
+        let a = 2 * tau / td
+        let s = 1 / (1 - a + (1 + a) * exp(-td / tau))
+        let activity = (s / tau ** 2) * t * (1 - t / td) * exp(-t / tau)
+        let iob = 1 - s * (1 - a) * ((t ** 2 / (tau * td * (1 - a)) - t / tau - 1) * exp(-t / tau) + 1)
+
+        return (activity * Double(bolus),iob * Double(bolus))
+    }
+}
