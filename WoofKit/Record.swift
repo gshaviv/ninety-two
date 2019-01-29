@@ -194,7 +194,7 @@ extension Record {
 
 extension Record {
     public func insulinAction(at date:Date) -> (activity: Double, iob: Double) {
-        let t = (date - self.date) / 1.m
+        let t = (date - self.date) / 1.m - defaults[.delayMinutes]
         let td = defaults[.diaMinutes]
         let tp = defaults[.peakMinutes]
         if t < 0 || t > td || !isBolus {

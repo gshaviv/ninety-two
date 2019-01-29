@@ -284,7 +284,11 @@ class ViewController: UIViewController {
             defaults[.peakMinutes] = $0
             }
         }
-
+        ctr.addValue(title: "Delay (m)", get: { () -> String in
+            return defaults[.delayMinutes].formatted(with: "%.0lf")
+        }) {
+            defaults[.delayMinutes] = $0
+        }
         if WCSession.default.isPaired && WCSession.default.isWatchAppInstalled {
             ctr.addGroup("Watch")
             ctr.addTime(title: "Complication wakeup time", get: {

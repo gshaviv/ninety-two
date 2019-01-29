@@ -51,7 +51,7 @@ public class Storage: NSObject {
     }
     public func insulinOnBoard(at date: Date) -> Double {
         let dia = defaults[.diaMinutes] * 60
-        let records = db.evaluate(Record.read().filter(Record.bolus > 0 && Record.date > date - dia)) ?? []
+        let records = db.evaluate(Record.read().filter(Record.bolus > 0 && Record.date > date - dia - defaults[.delayMinutes])) ?? []
         if records.isEmpty {
             return 0
         }
