@@ -16,6 +16,7 @@ class AddRecordViewController: ActionSheetController {
     @IBOutlet var predictionLabel: UILabel!
     @IBOutlet var selectButton: UIButton!
     @IBOutlet var cancelButton: UIButton!
+    @IBOutlet var deleteButton: UIButton!
     var kind: Record.Meal?
     var units: Int?
     var note: String?
@@ -28,14 +29,14 @@ class AddRecordViewController: ActionSheetController {
     }
     private var prediction: Prediction?
     private lazy var readings: [GlucosePoint] = Storage.default.db.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date)) ?? []
-    private lazy var meals: [Record] = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null()).orderBy(Record.date)) ?? []
+    private let meals = Storage.default.allMeals
     private lazy var mealNotes: [NSAttributedString] = {
         let fromMeals = meals.compactMap { $0.note }.unique().sorted()
         let setFromMeals = Set(fromMeals)
         let additionalWords = words.filter { !setFromMeals.contains($0) }.sorted()
         return fromMeals.map { $0.styled.traits(.traitBold) } + additionalWords.map { $0.styled }
     }()
-    var onSelect: ((inout Record, Prediction?) -> Void)?
+    var onSelect: ((Record, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
     private let queue = DispatchQueue(label: "predict")
     private lazy var words: [String] = {
@@ -51,6 +52,14 @@ class AddRecordViewController: ActionSheetController {
     private lazy var iob: Double = Storage.default.insulinOnBoard(at: Date())
 
     @IBAction func handleCancel(_ sender: Any) {
+        onSelect = nil
+        dismiss(animated: true) {
+            self.onCancel?()
+            self.onCancel = nil
+        }
+    }
+
+    @IBAction func handleDelete() {
         onSelect = nil
         if let edit = editRecord {
             Storage.default.db.evaluate(edit.delete())
@@ -73,7 +82,7 @@ class AddRecordViewController: ActionSheetController {
             units = u
         }
         let cd = comp.toDate()
-        var record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
+        let record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
         record.meal = kind
         record.bolus = units ?? 0
         if let note = noteField.text, !note.trimmed.isEmpty {
@@ -83,7 +92,7 @@ class AddRecordViewController: ActionSheetController {
     }
 
     @IBAction func handleSelect(_ sender: Any) {
-        var record = selectedRecord
+        let record = selectedRecord
 
         guard record.isMeal || record.isBolus else {
             return
@@ -95,7 +104,7 @@ class AddRecordViewController: ActionSheetController {
         }
 
         dismiss(animated: true) {
-            self.onSelect?(&record, self.prediction)
+            self.onSelect?(record, self.prediction)
             self.onSelect = nil
             self.onCancel = nil
         }
@@ -120,8 +129,10 @@ class AddRecordViewController: ActionSheetController {
             units = edit.bolus
             kind = edit.meal
             note = edit.note
-            cancelButton.setTitle("Delete", for: .normal)
             selectButton.setTitle("Save", for: .normal)
+            deleteButton.isHidden = false
+        } else {
+            deleteButton.isHidden = true
         }
 
         noteField.text = note
@@ -145,7 +156,9 @@ class AddRecordViewController: ActionSheetController {
             picker.selectRow(units, inComponent: Component.units.rawValue, animated: false)
         }
         setPrediction(nil)
+        view.translatesAutoresizingMaskIntoConstraints = false
         preferredContentSize = CGSize(width: 420, height: view.systemLayoutSizeFitting(CGSize(width: 420, height: 1000)).height)
+        view.translatesAutoresizingMaskIntoConstraints = true
         NotificationCenter.default.addObserver(self, selector: #selector(predict), name: UITextField.textDidChangeNotification, object: noteField)
     }
 
@@ -196,7 +209,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             predict()
         }
         if let rec = editRecord {
-            switch Component(rawValue: row)! {
+            switch Component(rawValue: component)! {
             case .hour, .minute:
                 var comp = rec.date.components
                 comp.hour = pickerView.selectedRow(inComponent: Component.hour.rawValue)
@@ -284,7 +297,7 @@ extension AddRecordViewController {
                 }
                 return
             }
-            let relevantMeals = Storage.default.relevantMeals(to: record, iob: self.iob)
+            let relevantMeals = Storage.default.relevantMeals(to: record)
             var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 DispatchQueue.main.async {

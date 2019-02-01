@@ -29,7 +29,7 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
         let bolus = intent.units?.intValue ?? 0
         let when = Date().rounded
         Storage.default.db.async {
-            var record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when)
+            let record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when)
             record.bolus = bolus
             record.meal = kind
             record.note = note

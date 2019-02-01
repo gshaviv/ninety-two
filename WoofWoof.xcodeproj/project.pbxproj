@@ -101,8 +101,9 @@
 		E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C221C6DA5E001AF4CD /* CRC.swift */; };
 		E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */; };
 		E49023F721EF5B8700846FC4 /* DateFromToPickerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */; };
-		E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
-		E4B5023021D6167200E18DDD /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
+		E4922A2C22020536004CABB8 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
+		E4922A2D2202059E004CABB8 /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
+		E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */; };
 		E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */; };
 		E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4C4E0BF21FC41880046D28F /* Settings.storyboard */; };
 		E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */; };
@@ -365,6 +366,7 @@
 		E48F42C221C6DA5E001AF4CD /* CRC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CRC.swift; sourceTree = "<group>"; };
 		E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibreSensor.swift; sourceTree = "<group>"; };
 		E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DateFromToPickerController.xib; sourceTree = "<group>"; };
+		E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
 		E4B5022C21D6160C00E18DDD /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		E4B5022F21D6167200E18DDD /* KVO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVO.swift; sourceTree = "<group>"; };
 		E4B5023121D61A1900E18DDD /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
@@ -663,6 +665,7 @@
 				E4E35A6521C3F8D300336CE8 /* ViewController.swift */,
 				E4E35A6721C3F8D300336CE8 /* Main.storyboard */,
 				E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */,
+				E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */,
 				E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */,
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
 				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
@@ -1094,9 +1097,11 @@
 				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
+				E4922A2C22020536004CABB8 /* Calculation.swift in Sources */,
 				E48B2D5F21F6109C001B19EB /* Record.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
+				E4922A2D2202059E004CABB8 /* KVO.swift in Sources */,
 				E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */,
 				E42A295321E8872B0084D181 /* DrawingView.swift in Sources */,
 				E42A295621E8873D0084D181 /* AutoLayoutExtension.swift in Sources */,
@@ -1133,6 +1138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4230FC521EB04C600A297A5 /* GlucoseReport.swift in Sources */,
+				E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */,
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
@@ -1153,11 +1159,9 @@
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
-				E4B5023021D6167200E18DDD /* KVO.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
-				E4B5022D21D6160C00E18DDD /* Calculation.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,

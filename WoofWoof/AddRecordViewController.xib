@@ -13,6 +13,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddRecordViewController" customModule="WoofWoof" customModuleProvider="target">
             <connections>
                 <outlet property="cancelButton" destination="Lh0-h8-TTq" id="6xO-fk-96j"/>
+                <outlet property="deleteButton" destination="dMK-Wt-k0F" id="gLR-cq-GYH"/>
                 <outlet property="noteField" destination="aJu-fo-vgy" id="ziG-bb-6nJ"/>
                 <outlet property="picker" destination="Uzq-6p-G25" id="iKB-i0-Epq"/>
                 <outlet property="predictionLabel" destination="4Hg-mh-Rjc" id="Gqu-bL-hwl"/>
@@ -25,25 +26,52 @@
             <rect key="frame" x="0.0" y="0.0" width="420" height="400"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lh0-h8-TTq">
+                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="LEk-yN-kg8">
                     <rect key="frame" x="0.0" y="350" width="420" height="50"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <subviews>
+                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lh0-h8-TTq">
+                            <rect key="frame" x="0.0" y="0.0" width="206" height="50"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="08a-AA-68z"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <state key="normal" title="Cancel">
+                                <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="8"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="handleCancel:" destination="-1" eventType="touchUpInside" id="Bh9-fY-QB9"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dMK-Wt-k0F">
+                            <rect key="frame" x="214" y="0.0" width="206" height="50"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="GIO-bW-wSw"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <state key="normal" title="Delete">
+                                <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                            </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="8"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="handleDelete" destination="-1" eventType="touchUpInside" id="r6T-Kb-KZJ"/>
+                            </connections>
+                        </button>
+                    </subviews>
                     <constraints>
-                        <constraint firstAttribute="height" constant="50" id="08a-AA-68z"/>
+                        <constraint firstAttribute="height" constant="50" id="R1X-7Y-5ZO"/>
                     </constraints>
-                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                    <state key="normal" title="Cancel">
-                        <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
-                    </state>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                            <integer key="value" value="8"/>
-                        </userDefinedRuntimeAttribute>
-                    </userDefinedRuntimeAttributes>
-                    <connections>
-                        <action selector="handleCancel:" destination="-1" eventType="touchUpInside" id="Bh9-fY-QB9"/>
-                    </connections>
-                </button>
+                </stackView>
                 <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8IF-6s-uml">
                     <rect key="frame" x="0.0" y="0.0" width="420" height="342"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="4Vz-mE-TRA">
@@ -144,13 +172,13 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="Lh0-h8-TTq" firstAttribute="top" secondItem="8IF-6s-uml" secondAttribute="bottom" constant="8" id="3uM-of-SPx"/>
-                <constraint firstItem="Lh0-h8-TTq" firstAttribute="leading" secondItem="gUA-jB-xNf" secondAttribute="leading" id="4X5-0D-vRH"/>
-                <constraint firstItem="Lh0-h8-TTq" firstAttribute="trailing" secondItem="gUA-jB-xNf" secondAttribute="trailing" id="FcM-44-HUJ"/>
                 <constraint firstItem="8IF-6s-uml" firstAttribute="top" secondItem="gUA-jB-xNf" secondAttribute="top" id="GPI-Vn-1cw"/>
+                <constraint firstItem="gUA-jB-xNf" firstAttribute="trailing" secondItem="LEk-yN-kg8" secondAttribute="trailing" id="IeP-am-UFt"/>
+                <constraint firstItem="LEk-yN-kg8" firstAttribute="top" secondItem="8IF-6s-uml" secondAttribute="bottom" constant="8" id="OzJ-SQ-zee"/>
                 <constraint firstItem="8IF-6s-uml" firstAttribute="trailing" secondItem="gUA-jB-xNf" secondAttribute="trailing" id="Wdo-kc-8n3"/>
-                <constraint firstItem="Lh0-h8-TTq" firstAttribute="bottom" secondItem="gUA-jB-xNf" secondAttribute="bottom" id="g4m-BJ-fDa"/>
+                <constraint firstItem="LEk-yN-kg8" firstAttribute="leading" secondItem="gUA-jB-xNf" secondAttribute="leading" id="bc4-wQ-XSy"/>
                 <constraint firstItem="8IF-6s-uml" firstAttribute="leading" secondItem="gUA-jB-xNf" secondAttribute="leading" id="w3W-eW-6EZ"/>
+                <constraint firstItem="LEk-yN-kg8" firstAttribute="bottom" secondItem="gUA-jB-xNf" secondAttribute="bottom" id="zI9-dH-bru"/>
             </constraints>
             <nil key="simulatedTopBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

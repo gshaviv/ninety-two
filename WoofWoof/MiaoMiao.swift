@@ -119,6 +119,16 @@ class MiaoMiao {
                 log("New sensor detected")
                 Central.manager.send(bytes: Code.allowSensor)
                 defaults[.additionalSlope] = 1
+                DispatchQueue.main.async {
+                    let notification = UNMutableNotificationContent()
+                    notification.title = "New sensor detected"
+                    let request = UNNotificationRequest(identifier: NotificationIdentifier.newSensor, content: notification, trigger: nil)
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+                    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+
+                    UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                    })
+                }
 
             case Code.noSensor:
                 logError("No Sensor detected")
@@ -201,8 +211,11 @@ class MiaoMiao {
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
-                serial = data.serialNumber
+                if data.minutesSinceStart < 30 {
+                    return
+                }
                 sensorAge = data.minutesSinceStart
+                serial = data.serialNumber
                 let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)

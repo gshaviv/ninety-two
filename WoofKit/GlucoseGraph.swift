@@ -35,6 +35,22 @@ public struct Prediction {
     }
 }
 
+public struct Pattern {
+    public let p10: [Double]
+    public let p25: [Double]
+    public let p50: [Double]
+    public let p75: [Double]
+    public let p90: [Double]
+
+    public init(p10: [Double], p25: [Double], p50: [Double], p75: [Double], p90: [Double]) {
+        self.p10 = p10
+        self.p25 = p25
+        self.p50 = p50
+        self.p75 = p75
+        self.p90 = p90
+    }
+}
+
 
 @IBDesignable
 public class GlucoseGraph: UIView {
@@ -83,6 +99,11 @@ public class GlucoseGraph: UIView {
         }
     }
     public var prediction: Prediction? {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
+    public var pattern: Pattern? {
         didSet {
             contentView.setNeedsDisplay()
         }
@@ -156,8 +177,9 @@ public class GlucoseGraph: UIView {
         if let prediction = prediction {
             ctx?.saveGState()
             ctx?.setLineWidth(3)
-            ctx?.setLineDash(phase: 0, lengths: [8,6])
             UIColor.blue.withAlphaComponent(0.5).set()
+            ctx?.saveGState()
+            ctx?.setLineDash(phase: 0, lengths: [8,6])
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
@@ -166,13 +188,49 @@ public class GlucoseGraph: UIView {
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
             ctx?.strokePath()
-            ctx?.setLineDash(phase: 0, lengths: [1])
+            ctx?.restoreGState()
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h50)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h75)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h75)))
             ctx?.strokePath()
+            ctx?.restoreGState()
+        }
+        if let pattern = pattern {
+            let xPos = { (i: Int) in (CGFloat(i) - 0.5) / 24 * self.contentView.bounds.width }
+
+            ctx?.saveGState()
+            let a10 = UIBezierPath()
+            let coor10 = pattern.p10.enumerated().map { CGPoint(x: xPos($0.0), y: yCoor(CGFloat($0.1))) }
+            let coor90 = Array(pattern.p90.enumerated().map { CGPoint(x: xPos($0.0), y: yCoor(CGFloat($0.1))) }.reversed())
+            a10.move(to: coor10[0])
+            a10.addCurveThrough(points: coor10[1...])
+            a10.addLine(to: coor90[0])
+            a10.addCurveThrough(points: coor90[1...])
+            a10.addLine(to: coor10[0])
+
+            let coor25 = pattern.p25.enumerated().map { CGPoint(x: xPos($0.0), y: yCoor(CGFloat($0.1))) }
+            let coor75 = Array(pattern.p75.enumerated().map { CGPoint(x: xPos($0.0), y: yCoor(CGFloat($0.1))) }.reversed())
+            let a25 = UIBezierPath()
+            a25.move(to: coor25[0])
+            a25.addCurveThrough(points: coor25[1...])
+            a25.addLine(to: coor75[0])
+            a25.addCurveThrough(points: coor75[1...])
+            a25.addLine(to: coor25[0])
+
+            let coor50 = pattern.p50.enumerated().map { CGPoint(x: xPos($0.0), y: yCoor(CGFloat($0.1))) }
+            let median = UIBezierPath()
+            median.move(to: coor50[0])
+            median.addCurveThrough(points: coor50[1...])
+
+            UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 0.1).setFill()
+            a10.fill()
+            UIColor(red: 0.2, green: 0.2, blue: 0.4, alpha: 0.1).set()
+            a25.fill()
+            UIColor.black.withAlphaComponent(0.1).set()
+            median.lineWidth = 3
+            median.stroke()
             ctx?.restoreGState()
         }
         let curve = UIBezierPath()
@@ -251,11 +309,21 @@ public class GlucoseGraph: UIView {
         if let touchPoint = touchPoint {
             let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
             UIColor.darkGray.set()
+            let IOB = Storage.default.allEntries.filter { $0.date > touchPoint.date - (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60 && $0.date < touchPoint.date }.reduce(0.0) { $0 + $1.insulinAction(at: touchPoint.date).iob }
             ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: coor.x, y: rect.height))
+            ctx?.move(to: CGPoint(x: rect.width, y: coor.y))
             ctx?.addLine(to: coor)
-            ctx?.addLine(to: CGPoint(x: rect.width, y: coor.y))
+            if IOB > 0 {
+                ctx?.addLine(to: CGPoint(x: coor.x, y: rect.height - 40))
+                ctx?.move(to: CGPoint(x: coor.x, y: rect.height - 20))
+            }
+            ctx?.addLine(to: CGPoint(x: coor.x, y: rect.height))
             ctx?.strokePath()
+            if IOB > 0 {
+                let text = "IOB=\(IOB.formatted(with: "%.1lf"))".styled.font(UIFont.systemFont(ofSize: 15))
+                let size = text.size()
+                text.draw(in: CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size))
+            }
         }
 
 

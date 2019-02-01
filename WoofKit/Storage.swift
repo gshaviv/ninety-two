@@ -33,9 +33,23 @@ public class Storage: NSObject {
     private(set) public var lastDay = Today()
     public func reloadToday() {
         lastDay = Today()
+        _allEntries = nil
     }
-    public func relevantMeals(to record: Record, iob: Double = 0) -> [Record] {
-        let meals = db.evaluate(Record.read().filter(Record.meal != Null() && Record.bolus >= record.bolus && Record.bolus <= record.bolus + Int(round(iob)) && Record.date < record.date).orderBy(Record.date)) ?? []
+    private var _allEntries: [Record]? = nil
+    public var allEntries: [Record] {
+        if _allEntries == nil {
+            _allEntries = db.evaluate(Record.read().orderBy(Record.date))
+        }
+        return _allEntries ?? []
+    }
+    public var allMeals: [Record] {
+        return allEntries.filter { $0.isMeal }
+    }
+    @objc private func didReceiveMemoryWarning() {
+        _allEntries = nil
+    }
+    public func relevantMeals(to record: Record) -> [Record] {
+        let meals = allMeals.filter { abs(Double($0.bolus) + round($0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart) < max(ceil(record.insulinOnBoardAtStart), ceil($0.insulinOnBoardAtStart), 1) && $0.id != record.id }
         var relevantMeals = meals.filter { $0.meal == record.meal || $0.note == record.note ?? "" }
         if let note = record.note {
             let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
@@ -56,6 +70,11 @@ public class Storage: NSObject {
             return 0
         }
         return records.reduce(0) { $0 + $1.insulinAction(at: date).iob }
+    }
+    public override init() {
+        super.init()
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMemoryWarning), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMemoryWarning), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 }
 

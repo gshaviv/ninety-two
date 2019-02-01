@@ -14,6 +14,7 @@ import IntentsUI
 import PDFCreation
 import PDFKit
 import WatchConnectivity
+import UserNotifications
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
@@ -192,14 +193,7 @@ class ViewController: UIViewController {
             self.calibrate()
         }))
 
-//        if MiaoMiao.currentGlucose == nil || Date().timeIntervalSince(MiaoMiao.currentGlucose!.date) > 1.m {
-//            sheet.addAction(UIAlertAction(title: "Read Sensor", style: .default, handler: { (_) in
-//                defaults[.nextNoSensorAlert] = Date()
-//                MiaoMiao.Command.startReading()
-//            }))
-//        }
-
-        sheet.addAction(UIAlertAction(title: "Reconnect Transmitter", style: .default, handler: { (_) in
+        sheet.addAction(UIAlertAction(title: "Reconnect", style: .default, handler: { (_) in
             defaults[.nextNoSensorAlert] = Date()
             Central.manager.restart()
         }))
@@ -229,6 +223,18 @@ class ViewController: UIViewController {
                 }
             }))
         }
+
+        sheet.addAction(UIAlertAction(title: "History", style: .default, handler: { (_) in
+            let hvc = self.storyboard?.instantiateViewController(withIdentifier: "history") as? HistoryViewController
+            _ = hvc?.view
+            hvc?.percentLowLabel.text = self.percentLowLabel.text
+            hvc?.aveGlucoseLabel.text = self.aveGlucoseLabel.text
+            hvc?.percentInRangeLabel.text = self.percentInRangeLabel.text
+            hvc?.a1cLabel.text = self.a1cLabel.text
+            hvc?.percentHighLabel.text = self.percentHighLabel.text
+            hvc?.pieChart.slices = self.pieChart.slices
+            self.show(hvc!, sender: nil)
+        }))
 
         sheet.addAction(UIAlertAction(title: "Report", style: .default, handler: { (_) in
             self.selectReportPeriod()
@@ -380,7 +386,7 @@ class ViewController: UIViewController {
 
     private func makeReport(from: Date, to: Date) {
         do {
-            let report = try GlucoseReport(from: from.midnightBefore, to: to.midnight, database: Storage.default.db)
+            let report = try GlucoseReport(from: from.startOfDay, to: to.endOfDay, database: Storage.default.db)
             DispatchQueue.global().async {
                 do {
                     let pdf = try report.create()
@@ -422,6 +428,7 @@ class ViewController: UIViewController {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                     MiaoMiao.last24hReadings.append(c)
                     defaults[.sensorSerial] = MiaoMiao.serial
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.calibrate])
                 } catch _ {}
             }
         }))
@@ -513,8 +520,8 @@ extension ViewController: GlucoseGraphDelegate {
             guard let current = readings.last else {
                 return
             }
-            let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date < record.date).orderBy(Record.date)) ?? []
-            let relevantMeals = Storage.default.relevantMeals(to: record, iob: Storage.default.insulinOnBoard(at: record.date))
+            let meals = Storage.default.allMeals.filter { $0.date < record.date  }
+            let relevantMeals = Storage.default.relevantMeals(to: record)
             var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 return

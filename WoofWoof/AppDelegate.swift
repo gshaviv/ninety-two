@@ -168,6 +168,28 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.badge, .sound, .alert])
     }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        guard let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController else {
+            return
+        }
+        switch response.notification.request.identifier {
+        case NotificationIdentifier.calibrate:
+            ctr.calibrate()
+
+        case NotificationIdentifier.noData:
+            defaults[.nextNoSensorAlert] = Date()
+            Central.manager.restart()
+
+        default:
+            break
+        }
+        completionHandler()
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, openSettingsFor notification: UNNotification?) {
+
+    }
 }
 
 extension AppDelegate: WCSessionDelegate {
@@ -358,6 +380,7 @@ class NotificationIdentifier {
     static let lowBattery = "lowBattery"
     static let noData = "noData"
     static let calibrate = "calibrate"
+    static let newSensor = "newSensor"
 }
 
 extension Measurement {

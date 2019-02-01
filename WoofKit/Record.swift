@@ -10,7 +10,7 @@ import Foundation
 import Sqlable
 import Intents
 
-public struct Record {
+public class Record {
     public var date: Date
 
     public enum Meal: Int {
@@ -69,6 +69,27 @@ public struct Record {
         self.bolus = bolus ?? 0
         self.note = note
         self.id = nil
+
+        commonInit()
+    }
+
+    private  func commonInit() {
+        iobCalc = Calculation {
+            let fromDate = self.date - (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+            return Storage.default.allMeals.filter { $0.date > fromDate && $0.date < self.date }.reduce(0.0) { $0 + $1.insulinAction(at: self.date).iob }
+        }
+    }
+    private var iobCalc: Calculation<Double>?
+
+    public required init(row: ReadRow) throws {
+        id = try row.get(Record.id)
+        if let rv: Int = try row.get(Record.meal) {
+            meal = Meal(rawValue: rv)
+        }
+        bolus = try row.get(Record.bolus) ?? 0
+        note = try row.get(Record.note)
+        date = try row.get(Record.date)
+        commonInit()
     }
 }
 
@@ -102,21 +123,11 @@ extension Record: Sqlable {
         }
     }
 
-    public init(row: ReadRow) throws {
-        id = try row.get(Record.id)
-        if let rv: Int = try row.get(Record.meal) {
-            meal = Meal(rawValue: rv)
-        }
-        bolus = try row.get(Record.bolus) ?? 0
-        note = try row.get(Record.note)
-        date = try row.get(Record.date)
-    }
-
-    public mutating func insert(to db: SqliteDatabase) {
+    public  func insert(to db: SqliteDatabase) {
         id = db.evaluate(insert())
     }
 
-    public mutating func save(to db: SqliteDatabase) {
+    public  func save(to db: SqliteDatabase) {
         if id == nil {
             insert(to: db)
         } else {
@@ -208,5 +219,9 @@ extension Record {
         let iob = 1 - s * (1 - a) * ((t ** 2 / (tau * td * (1 - a)) - t / tau - 1) * exp(-t / tau) + 1)
 
         return (activity * Double(bolus),iob * Double(bolus))
+    }
+
+    public var insulinOnBoardAtStart: Double {
+        return iobCalc!.value
     }
 }

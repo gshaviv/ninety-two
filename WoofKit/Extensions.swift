@@ -42,13 +42,18 @@ extension Array where Element: Hashable {
 
 
 extension SqliteDatabase {
+    static private let globalQueue = DispatchQueue(label: "db")
 
     @discardableResult public func perform<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) throws -> R {
         return try statement().run(self)
     }
 
     @discardableResult public func evaluate<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) -> R? {
-        return try? statement().run(self)
+        var result: R?
+        SqliteDatabase.globalQueue.sync {
+            result = try? statement().run(self)
+        }
+        return result
     }
 }
 
@@ -108,15 +113,15 @@ extension Date {
             return comp
         }
     }
-    public var midnightBefore: Date {
+    public var startOfDay: Date {
         var c = components
         c.hour = 0
         c.minute = 0
         c.second = 0
         return c.toDate()
     }
-    public var midnight: Date {
-        return midnightBefore + 1.d
+    public var endOfDay: Date {
+        return startOfDay + 1.d
     }
     public var day: Int {
         return components.day ?? 0

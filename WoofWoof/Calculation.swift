@@ -11,7 +11,7 @@ import UIKit
 
 private let InvalidatedNotification = Notification.Name("invalidated")
 
-class Calculation<Value> : NSObject {
+public class Calculation<Value> : NSObject {
     private var last: Value? {
         didSet {
             //            if last == nil && oldValue != nil {
@@ -25,7 +25,7 @@ class Calculation<Value> : NSObject {
     private var bindings: [(Value) -> Void]?
 
     var calculator: (() -> Value?)!
-    var value: Value {
+    public var value: Value {
         get {
             if let last = last {
                 return last
@@ -38,10 +38,10 @@ class Calculation<Value> : NSObject {
             last = newValue
         }
     }
-    init(calculator: @escaping () -> Value) {
+    public init(calculator: @escaping () -> Value) {
         self.calculator = calculator
     }
-    @discardableResult func watch<T: NSObject, V>(_ target: T, _ property: KeyPath<T, V>) -> Calculation<Value> {
+    @discardableResult public func watch<T: NSObject, V>(_ target: T, _ property: KeyPath<T, V>) -> Calculation<Value> {
         switch (target, property) {
         case (_ as UITextField, \UITextField.text):
             NotificationCenter.default.addObserver(self, selector: #selector(invalidate), name: UITextField.textDidChangeNotification, object: target)
@@ -53,21 +53,21 @@ class Calculation<Value> : NSObject {
         }
         return self
     }
-    @objc  func invalidate() {
+    @objc public func invalidate() {
         last = nil
     }
-    @discardableResult func watch<S>(_ target: Calculation<S>) -> Calculation<Value> {
+    @discardableResult public func watch<S>(_ target: Calculation<S>) -> Calculation<Value> {
         NotificationCenter.default.addObserver(self, selector: #selector(invalidate), name: InvalidatedNotification, object: target)
         return self
     }
-    @discardableResult func didSet(_ with: @escaping (Value) -> Void) -> Calculation<Value> {
+    @discardableResult public func didSet(_ with: @escaping (Value) -> Void) -> Calculation<Value> {
         if bindings == nil {
             bindings = []
         }
         bindings?.append(with)
         return self
     }
-    func stop() {
+    public func stop() {
         _ = value
         calculator = nil
         bindings = nil

@@ -187,7 +187,7 @@ class GlucoseReport {
                         guard let eventStart = event.first else {
                             continue
                         }
-                        let base = eventStart.date.midnightBefore
+                        let base = eventStart.date.startOfDay
                         let points = event.map { CGPoint(x: xPos($0.date - base), y: yPos($0.value)) }
                         let path = UIBezierPath()
                         path.move(to: points[0])
@@ -228,7 +228,7 @@ class GlucoseReport {
     private func patternReport(maker: PDFCreator) {
         var buckets = Array(repeating: [Double](), count: 24)
         readings.forEach {
-            let inBucket = Int(($0.date - $0.date.midnightBefore) / 3600.0)
+            let inBucket = Int(($0.date - $0.date.startOfDay) / 3600.0)
             buckets[inBucket].append($0.value)
         }
 
@@ -367,7 +367,7 @@ class GlucoseReport {
     private func dailyLogs(maker: PDFCreator) {
         maker.add(PDFTextSection("Daily Logs".styled.font(subtitleFont), margin: UIEdgeInsets(top: 4, left: 0, bottom: 2, right: 0), keepWithNext: true))
 
-        let start = self.start.midnightBefore + 12.h
+        let start = self.start.startOfDay + 12.h
         var day = start
         if day - 12.h < self.start {
             day += 1.d
