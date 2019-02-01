@@ -108,7 +108,7 @@ extension Date {
         if let comp = objc_getAssociatedObject(self, &Date.compKey) as? DateComponents {
             return comp
         } else {
-            let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond, .year, .month, .day], from: self)
+            let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond, .year, .month, .day, .weekday], from: self)
             objc_setAssociatedObject(self, &Date.compKey, comp, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             return comp
         }

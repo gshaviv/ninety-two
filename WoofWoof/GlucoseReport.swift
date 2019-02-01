@@ -468,9 +468,9 @@ class GlucoseReport {
                     area.origin.y += graphRect.minY - area.minY
                 }
                 if area.maxX > graphRect.maxX {
-                    area.origin.x -= area.maxX - graphRect.maxX
+                    area.origin.x = graphRect.maxX - area.width
                 } else if area.minX < graphRect.minX {
-                    area.origin.x += graphRect.minX - area.minX
+                    area.origin.x = graphRect.minX
                 }
                 text.draw(in: area)
             }

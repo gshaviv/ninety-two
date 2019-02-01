@@ -95,7 +95,16 @@ class HistoryViewController: UIViewController {
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
     }
 
-
+    @IBAction func setDate() {
+        guard let ctr = storyboard?.instantiateViewController(withIdentifier: "setDate") as? DatePickerViewController else {
+            return
+        }
+        ctr.startDate = displayDay
+        ctr.onSelect = {
+            self.displayDay = $0
+        }
+        present(ctr, animated: true, completion: nil)
+    }
 }
 
 extension HistoryViewController: GlucoseGraphDelegate {
@@ -161,3 +170,40 @@ extension HistoryViewController: GlucoseGraphDelegate {
         }
     }
 }
+
+
+class DatePickerViewController: ActionSheetController {
+    @IBOutlet var titleLabel: UILabel!
+    @IBOutlet private var mainStackView: UIStackView!
+    @IBOutlet var picker: UIDatePicker!
+    var startDate: Date?
+    var onSelect: ((Date) -> Void)?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        if let startDate = startDate {
+            picker.date = startDate
+        }
+        preferredContentSize = mainStackView.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width, height: 0), withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.fittingSizeLevel)
+    }
+
+    @IBAction func handleCancel() {
+        onSelect = nil
+        dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func handleSet() {
+        onSelect?(picker.date)
+        onSelect = nil
+        dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func dateChanged() {
+        let d = picker.date
+        if let day = d.components.weekday {
+            titleLabel.text = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][day - 1]
+        }
+    }
+}
+
+

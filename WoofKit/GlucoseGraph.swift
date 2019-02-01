@@ -322,11 +322,13 @@ public class GlucoseGraph: UIView {
             if IOB > 0 {
                 let text = "IOB=\(IOB.formatted(with: "%.1lf"))".styled.font(UIFont.systemFont(ofSize: 15))
                 let size = text.size()
-                text.draw(in: CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size))
+                var rect = CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size)
+                if rect.maxX > contentView.bounds.maxX {
+                    rect.origin.x = contentView.bounds.maxX - size.width
+                }
+                text.draw(in: rect)
             }
         }
-
-
     }
 
     private func findValue(at: Date) -> Double {
