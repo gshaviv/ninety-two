@@ -110,6 +110,7 @@ extension AutoComleteTextField: UITableViewDelegate, UITableViewDataSource {
         tableView.removeFromSuperview()
         self.tableView = nil
         NotificationCenter.default.post(name: UITextField.textDidChangeNotification, object: self, userInfo: ["autocompletion": true])
+        resignFirstResponder()
     }
 
 

@@ -31,6 +31,7 @@ class ViewController: UIViewController {
     @IBOutlet var percentHighLabel: UILabel!
     @IBOutlet var pieChart: PieChart!
     @IBOutlet var timeSpanSelector: UISegmentedControl!
+    @IBOutlet var iobLabel: UILabel!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
@@ -111,6 +112,13 @@ class ViewController: UIViewController {
             trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "", trend)
         } else {
             trendLabel.text = ""
+        }
+        let iob = Storage.default.insulinOnBoard(at: Date())
+        if iob > 0 && UIScreen.main.bounds.width > 350.0 {
+            iobLabel.text = "IOB\n\(iob.formatted(with: "%.1lf"))"
+            iobLabel.isHidden = false
+        } else {
+            iobLabel.isHidden = true
         }
         if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 3.h {
             do {
