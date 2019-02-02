@@ -19,6 +19,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     @IBOutlet var agoLabel: UILabel!
     @IBOutlet var trendLabel: UILabel!
     @IBOutlet var glucoseLabel: UILabel!
+    @IBOutlet var iobLabel: UILabel!
     private let sharedDb: SqliteDatabase? = {
         defaults.register()
         let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
@@ -41,6 +42,13 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 let symbol = trendSymbol(for: trend)
                 glucoseLabel.text = "\(Int(round(current.value)))\(symbol)"
                 trendLabel.text = String(format: "%.1lf", trend)
+                let iob = Storage.default.insulinOnBoard(at: Date())
+                if iob > 0 && UIScreen.main.bounds.width > 350.0 {
+                    iobLabel.text = "IOB\n\(iob.formatted(with: "%.1lf"))"
+                    iobLabel.isHidden = false
+                } else {
+                    iobLabel.isHidden = true
+                }
             }
         }
     }

@@ -27,13 +27,19 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="CIv-Lx-uby">
                                                 <rect key="frame" x="20" y="0.0" width="260" height="76"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0m" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2rb-DP-RXn">
-                                                        <rect key="frame" x="0.0" y="28" width="25.5" height="20.5"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="248" verticalHuggingPriority="251" text="0m" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2rb-DP-RXn">
+                                                        <rect key="frame" x="0.0" y="28" width="86.5" height="20.5"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="247" verticalHuggingPriority="251" text="IOB 2.5" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pky-A4-YcD">
+                                                        <rect key="frame" x="86.5" y="19" width="65" height="38.5"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                                        <color key="textColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="+4.2" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6gH-jG-8gw">
-                                                        <rect key="frame" x="25.5" y="26" width="169.5" height="24"/>
+                                                        <rect key="frame" x="151.5" y="26" width="43.5" height="24"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                         <color key="textColor" red="0.58081901069999997" green="0.088427625600000004" blue="0.31863921880000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -84,6 +90,7 @@
                         <outlet property="agoLabel" destination="2rb-DP-RXn" id="AHm-9I-1La"/>
                         <outlet property="glucoseLabel" destination="qpc-RT-M9q" id="i6m-XC-FLB"/>
                         <outlet property="graphView" destination="sA2-w9-Gbe" id="6RO-E5-6tC"/>
+                        <outlet property="iobLabel" destination="Pky-A4-YcD" id="M1K-qw-X28"/>
                         <outlet property="trendLabel" destination="6gH-jG-8gw" id="jxi-cr-0T3"/>
                     </connections>
                 </viewController>
