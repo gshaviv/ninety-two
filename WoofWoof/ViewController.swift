@@ -32,6 +32,7 @@ class ViewController: UIViewController {
     @IBOutlet var pieChart: PieChart!
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     @IBOutlet var iobLabel: UILabel!
+    @IBOutlet var lowCountLabel: UILabel!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
@@ -124,6 +125,8 @@ class ViewController: UIViewController {
             do {
                 defaults[.lastStatisticsCalculation] = Date()
                 let child = try Storage.default.db.createChild()
+                var lowCount = 0
+                var inLow = false
                 DispatchQueue.global().async {
                     if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 30.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                         let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
@@ -137,11 +140,20 @@ class ViewController: UIViewController {
                             let x2 = gp.value < defaults[.minRange] ? below + duration : below
                             let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
                             let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
+                            if gp.value > defaults[.minRange] {
+                                if !inLow {
+                                    lowCount += 1
+                                }
+                                inLow = true
+                            } else {
+                                inLow = false
+                            }
                             return (x0, x1, x2, x3, x4)
                         }
                         let aveG = sumG / totalT
                         let a1c = (aveG / 18.05 + 2.52) / 1.583
                         DispatchQueue.main.async {
+                            self.lowCountLabel.text = "\(lowCount)"
                             self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
                             self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
                             self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)

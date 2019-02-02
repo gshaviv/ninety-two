@@ -45,10 +45,22 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         }
     }
 
+    var isTriggerd = false
     func updateTime() {
         if let current = points.first {
             let time = Int(Date().timeIntervalSince(current.date)/60)
             agoLabel.text = time == 0 ? "Now" : "\(time)m"
+        }
+        if !isTriggerd {
+            isTriggerd = true
+            DispatchQueue.main.after(withDelay: 20) {
+                self.isTriggerd = false
+                if self.view.window != nil {
+                    self.widgetPerformUpdate(completionHandler: { (_) in
+
+                    })
+                }
+            }
         }
     }
 
