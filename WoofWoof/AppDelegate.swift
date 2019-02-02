@@ -116,13 +116,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let minutesToLook = 9
         if diffs.count > minutesToLook {
             var weightSum:Double = 0
-            var weight:Double = 1
-            let sum = diffs[0 ..< minutesToLook].reversed().reduce(0.0) {
-                weight += 1
+            var weight:Double = 100
+            let sum = diffs[0 ..< minutesToLook].reduce(0.0) {
+                let sum = $0 - $1 * weight
                 weightSum += weight
-                return $0 + $1 * weight
+                weight *= 0.75
+                return sum
             }
-            return -sum / weightSum
+            return sum / weightSum
         }
         return nil
     }
