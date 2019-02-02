@@ -214,15 +214,15 @@ class MiaoMiao {
                 if data.minutesSinceStart < 30 {
                     return
                 }
-                sensorAge = data.minutesSinceStart
+                sensorAge = data.minutesSinceStart.m
                 serial = data.serialNumber
                 let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
                 defaults[.badDataCount] = 0
                 if trendPoints[0].value > 0, let date = defaults[.nextCalibration], Date() > date {
-                    if let sensorAge = sensorAge, sensorAge < 24 * 60 * 60 {
-                        defaults[.nextCalibration] = Date() + 12.h
+                    if let sensorAge = sensorAge, sensorAge < 1.d {
+                        defaults[.nextCalibration] = Date() + 8.h
                     } else {
                         defaults[.nextCalibration] = nil
                     }
@@ -264,7 +264,7 @@ class MiaoMiao {
         }
     }
 
-    public static var sensorAge: Int?
+    public static var sensorAge: TimeInterval?
     public static var trend: [GlucosePoint]? {
         didSet {
             allReadingsCalculater.invalidate()

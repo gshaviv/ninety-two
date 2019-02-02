@@ -104,7 +104,8 @@ class ViewController: UIViewController {
         updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
             self.updateTimeAgo()
         }
-        if let age = MiaoMiao.sensorAge {
+        if let time = MiaoMiao.sensorAge {
+            let age = Int(time / 1.m)
             sensorAgeLabel.text = "\(age / 24 / 60)d:\(age / 60 % 24)h"
         } else {
             sensorAgeLabel.text = "?"
