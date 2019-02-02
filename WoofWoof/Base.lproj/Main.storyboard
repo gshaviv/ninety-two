@@ -27,7 +27,7 @@
             </objects>
             <point key="canvasLocation" x="-1199" y="44"/>
         </scene>
-        <!--BG-->
+        <!--Current Glucose-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="WoofWoof" customModuleProvider="target" sceneMemberID="viewController">
@@ -270,7 +270,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" title="BG" id="e7z-8L-uZo">
+                    <navigationItem key="navigationItem" title="Current Glucose" id="e7z-8L-uZo">
                         <barButtonItem key="rightBarButtonItem" title="More" image="more" id="xWw-ea-cgT">
                             <connections>
                                 <action selector="handleMore:" destination="BYZ-38-t0r" id="GNQ-gQ-5FC"/>
