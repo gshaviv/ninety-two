@@ -220,9 +220,9 @@ class MiaoMiao {
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
                 defaults[.badDataCount] = 0
-                if trendPoints[0].value > 0, let date = defaults[.nextCalibration], Date() > date {
+                if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
                     if let sensorAge = sensorAge, sensorAge < 1.d {
-                        defaults[.nextCalibration] = Date() + 8.h
+                        defaults[.nextCalibration] = Date() + 6.h
                     } else {
                         defaults[.nextCalibration] = nil
                     }
