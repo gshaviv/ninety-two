@@ -19,17 +19,17 @@ extension GlucoseGraphDelegate {
 
 public struct Prediction {
     public let highDate: Date
-    public let h25: CGFloat
+    public let h10: CGFloat
     public let h50: CGFloat
-    public let h75: CGFloat
+    public let h90: CGFloat
     public let mealTime: Date
     public let low: CGFloat
 
-    public init(mealTime: Date, highDate: Date, h25: CGFloat, h50: CGFloat, h75: CGFloat,  low: CGFloat) {
+    public init(mealTime: Date, highDate: Date, h10: CGFloat, h50: CGFloat, h90: CGFloat,  low: CGFloat) {
         self.highDate = highDate
-        self.h25 = h25
+        self.h10 = h10
         self.h50 = h50
-        self.h75 = h75
+        self.h90 = h90
         self.mealTime = mealTime
         self.low = low
     }
@@ -183,17 +183,21 @@ public class GlucoseGraph: UIView {
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
-            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h75)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h75)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h90)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h10)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10)))
             ctx?.strokePath()
             ctx?.restoreGState()
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h50)))
-            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h75)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h75)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h90)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h10)))
             ctx?.strokePath()
             ctx?.restoreGState()
         }

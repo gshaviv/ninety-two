@@ -324,8 +324,8 @@ extension AddRecordViewController {
                 timeToHigh.append(stat.1)
             }
             let predictedHigh = Int(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = Int(round(highs.sorted().percentile(0.25) + current.value))
-            let predictedHigh75 = Int(round(highs.sorted().percentile(0.75) + current.value))
+            let predictedHigh25 = Int(round(highs.sorted().percentile(0.1) + current.value))
+            let predictedHigh75 = Int(round(highs.sorted().percentile(0.9) + current.value))
             let predictedLow = Int(round(lows.sorted().median() + current.value))
             let predictedLow10 = Int(round(lows.sorted().percentile(0.1) + current.value))
             let predictedTime = Date() + timeToHigh.sorted().median()
@@ -337,7 +337,7 @@ extension AddRecordViewController {
                 } else {
                     self.setPrediction("\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow = \(predictedLow)")
                 }
-                self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h25: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h75: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
+                self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h10: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h90: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
             }
         }
     }

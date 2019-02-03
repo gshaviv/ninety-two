@@ -159,12 +159,12 @@ extension HistoryViewController: GlucoseGraphDelegate {
                 return
             }
             let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.2) + current.value))
-            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.8) + current.value))
+            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.1) + current.value))
+            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.9) + current.value))
             let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
             let predictedTime = record.date + timeToHigh.sorted().median()
             DispatchQueue.main.async {
-                self.graphView.prediction = Prediction(mealTime: record.date, highDate: predictedTime, h25: predictedHigh25, h50: predictedHigh, h75: predictedHigh75, low: predictedLow)
+                self.graphView.prediction = Prediction(mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low: predictedLow)
             }
         }
     }
