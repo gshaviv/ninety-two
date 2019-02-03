@@ -123,6 +123,7 @@
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
 		E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */; };
 		E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */; };
+		FC96E052A2C9BE1E3CA3E9D1 /* Pods_WoofWoof.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD0D33B35E2751EE0C452F5F /* Pods_WoofWoof.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -278,6 +279,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		28FBF1B3E3E5D8B3D4059C9A /* Pods-WoofWoof.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WoofWoof.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WoofWoof/Pods-WoofWoof.debug.xcconfig"; sourceTree = "<group>"; };
+		5A01C255FE1205096E6855D8 /* Pods-WoofWoof.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WoofWoof.release.xcconfig"; path = "Pods/Target Support Files/Pods-WoofWoof/Pods-WoofWoof.release.xcconfig"; sourceTree = "<group>"; };
+		BD0D33B35E2751EE0C452F5F /* Pods_WoofWoof.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WoofWoof.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E40021B821D7BA6C001AB34D /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
 		E40021BD21D89DAA001AB34D /* PieChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChart.swift; sourceTree = "<group>"; };
 		E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
@@ -386,7 +390,7 @@
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
-		E4E35A6021C3F8D300336CE8 /* WoofWoof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WoofWoof.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sugar Coated.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		E4E35A6821C3F8D300336CE8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -396,6 +400,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5FFC5E87E1E7E172E02C79B7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E417F4AE21E8CFA200C6BC9D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -454,6 +465,7 @@
 				E42A294D21E886C70084D181 /* WoofKit.framework in Frameworks */,
 				E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */,
 				E4230F8621E9DA4200A297A5 /* PDFCreation.framework in Frameworks */,
+				FC96E052A2C9BE1E3CA3E9D1 /* Pods_WoofWoof.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +531,7 @@
 				E4230F9421EA205100A297A5 /* PDFKit.framework */,
 				E42A291D21E77B2A0084D181 /* NotificationCenter.framework */,
 				E44EEC7221E9C52600F966A8 /* IntentsUI.framework */,
+				BD0D33B35E2751EE0C452F5F /* Pods_WoofWoof.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -612,6 +625,15 @@
 			path = SiriIntentUI;
 			sourceTree = "<group>";
 		};
+		E4CCA17880CC032C40CE3564 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				28FBF1B3E3E5D8B3D4059C9A /* Pods-WoofWoof.debug.xcconfig */,
+				5A01C255FE1205096E6855D8 /* Pods-WoofWoof.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
@@ -627,13 +649,14 @@
 				E4230F8021E9DA4200A297A5 /* PDFCreation */,
 				E42A291C21E77B2A0084D181 /* Frameworks */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
+				E4CCA17880CC032C40CE3564 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
 		E4E35A6121C3F8D300336CE8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E4E35A6021C3F8D300336CE8 /* WoofWoof.app */,
+				E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */,
 				E42E2A9921DF28C5004FD560 /* woofWatch.app */,
 				E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */,
 				E42A291B21E77B2A0084D181 /* woofWidget.appex */,
@@ -788,6 +811,7 @@
 			buildPhases = (
 				E42E2A9721DF28C5004FD560 /* Resources */,
 				E42E2ABF21DF28C8004FD560 /* Embed App Extensions */,
+				5FFC5E87E1E7E172E02C79B7 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -837,12 +861,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E4E35A7221C3F8DA00336CE8 /* Build configuration list for PBXNativeTarget "WoofWoof" */;
 			buildPhases = (
+				3C5D6EBAEC35C1585B1F022D /* [CP] Check Pods Manifest.lock */,
 				E4E35A5C21C3F8D300336CE8 /* Sources */,
 				E4E35A5D21C3F8D300336CE8 /* Frameworks */,
 				E4E35A5E21C3F8D300336CE8 /* Resources */,
 				E425664C21CE65CB00469232 /* Embed Frameworks */,
 				E42E2AC121DF28C8004FD560 /* Embed Watch Content */,
 				E42A292C21E77B2A0084D181 /* Embed App Extensions */,
+				DAD0C3DD22B5C058AB1DCDA1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -857,7 +883,7 @@
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
-			productReference = E4E35A6021C3F8D300336CE8 /* WoofWoof.app */;
+			productReference = E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1053,6 +1079,53 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3C5D6EBAEC35C1585B1F022D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WoofWoof-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DAD0C3DD22B5C058AB1DCDA1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-WoofWoof/Pods-WoofWoof-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Zip/Zip.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Zip.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WoofWoof/Pods-WoofWoof-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E417F4AD21E8CFA200C6BC9D /* Sources */ = {
@@ -1727,6 +1800,7 @@
 		};
 		E4E35A7321C3F8DA00336CE8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 28FBF1B3E3E5D8B3D4059C9A /* Pods-WoofWoof.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1740,7 +1814,8 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Sugar Coated";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1748,6 +1823,7 @@
 		};
 		E4E35A7421C3F8DA00336CE8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5A01C255FE1205096E6855D8 /* Pods-WoofWoof.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1760,7 +1836,8 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Sugar Coated";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

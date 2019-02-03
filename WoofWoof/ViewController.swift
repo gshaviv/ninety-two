@@ -15,6 +15,7 @@ import PDFCreation
 import PDFKit
 import WatchConnectivity
 import UserNotifications
+import Zip
 
 class ViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
@@ -263,6 +264,25 @@ class ViewController: UIViewController {
 
         sheet.addAction(UIAlertAction(title: "Settings", style: .default, handler: { (_) in
             self.showSettings()
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Backup", style: .default, handler: { (_) in
+            Storage.default.db.async {
+                let documentsDirectory = FileManager.default.urls(for:.documentDirectory, in: .userDomainMask)[0]
+                let zipFilePath = documentsDirectory.appendingPathComponent("archive.zip")
+                let path = Storage.default.dbUrl.path
+                let shm = URL(fileURLWithPath: "\(path)-shm")
+                let wal = URL(fileURLWithPath: "\(path)-wal")
+                try? Zip.zipFiles(paths: [Storage.default.dbUrl, shm, wal], zipFilePath: zipFilePath, password: nil, progress: nil)
+                DispatchQueue.main.async {
+                    let activityController = UIActivityViewController(activityItems: [zipFilePath], applicationActivities: nil)
+                    activityController.excludedActivityTypes = [.postToTwitter, .postToFacebook, .message, .postToWeibo, .print, .copyToPasteboard, .assignToContact]
+                    activityController.completionWithItemsHandler = { _,_,_,_ in
+                        try? FileManager.default.removeItem(at: zipFilePath)
+                    }
+                    self.present(activityController, animated: true, completion: nil)
+                }
+            }
         }))
 
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))

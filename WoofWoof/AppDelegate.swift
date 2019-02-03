@@ -11,6 +11,7 @@ import UserNotifications
 import WatchConnectivity
 import Sqlable
 import WoofKit
+import Zip
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -106,6 +107,105 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if url.isFileURL {
+            if url.pathExtension == "zip" {
+                DispatchQueue.global().async {
+                    _ = url.startAccessingSecurityScopedResource()
+                    do {
+                        let outputDir = try Zip.quickUnzipFile(url)
+                        try FileManager.default.removeItem(at: url)
+                        url.stopAccessingSecurityScopedResource()
+                        let path = outputDir.appendingPathComponent("read.sqlite").path
+                        if  !FileManager.default.fileExists(atPath: path) {
+                            DispatchQueue.main.async {
+                                let notification = UNMutableNotificationContent()
+                                notification.title = "Datebase not found"
+                                notification.body = "Imported zip file does not contain any database"
+                                notification.categoryIdentifier = NotificationIdentifier.error
+                                let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                                UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                                    if let err = err {
+                                        logError("\(err)")
+                                    }
+                                })
+                            }
+                            return
+                        }
+                        let importDb = try SqliteDatabase(filepath: path)
+                        let readings = importDb.evaluate(GlucosePoint.read()) ?? []
+                        var mealCount = 0
+                        var readingCount = 0
+                        try Storage.default.db.transaction { (db)  in
+                            let have = db.evaluate(GlucosePoint.read()) ?? []
+                            let all = Set(have.map { $0.date })
+                            for gp in readings {
+                                if !all.contains(gp.date) {
+                                    try db.perform(gp.insert())
+                                    readingCount += 1
+                                }
+                            }
+
+                            let meals = importDb.evaluate(Record.read()) ?? []
+                            let existingMeals = Set(db.evaluate(Record.read()) ?? [])
+                            for record in meals {
+                                if !existingMeals.contains(record) {
+                                    try db.perform(record.insert())
+                                    mealCount += 1
+                                }
+                            }
+
+                            do {
+                                let cals = db.evaluate(Calibration.read()) ?? []
+                                let allCalibs = Set(cals.map { $0.date })
+                                let imported = importDb.evaluate(Calibration.read()) ?? []
+                                for row in imported {
+                                    if !allCalibs.contains(row.date) {
+                                        try db.perform(row.insert())
+                                    }
+                                }
+                            }
+                        }
+                        try Storage.default.db.execute("vacuum")
+                        DispatchQueue.main.async {
+                            let notification = UNMutableNotificationContent()
+                            if mealCount > 0 || readingCount > 0 {
+                                notification.title = "Imported"
+                                notification.body = "Imported \(readingCount) readings and \(mealCount) diary entries"
+                            } else {
+                                notification.title = "Nothing to Import"
+                                notification.body = "No missing records in existing database"
+                            }
+                            notification.categoryIdentifier = NotificationIdentifier.imported
+                            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                                if let err = err {
+                                    logError("\(err)")
+                                }
+                            })
+                        }
+                    } catch {
+                        url.stopAccessingSecurityScopedResource()
+                        DispatchQueue.main.async {
+                            let notification = UNMutableNotificationContent()
+                            notification.title = "Error Importing"
+                            notification.body = error.localizedDescription
+                            notification.categoryIdentifier = NotificationIdentifier.error
+                            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                                if let err = err {
+                                    logError("\(err)")
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+            return true
+        }
+        return false
     }
 
     private func trendValue() -> Double? {
@@ -382,6 +482,8 @@ class NotificationIdentifier {
     static let noData = "noData"
     static let calibrate = "calibrate"
     static let newSensor = "newSensor"
+    static let imported = "imported"
+    static let error = "error"
 }
 
 extension Measurement {

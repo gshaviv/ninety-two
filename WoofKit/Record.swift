@@ -10,7 +10,18 @@ import Foundation
 import Sqlable
 import Intents
 
-public class Record {
+public class Record : Hashable, Equatable {
+    public static func == (lhs: Record, rhs: Record) -> Bool {
+        return lhs.date == rhs.date && lhs.meal == rhs.meal && rhs.bolus == lhs.bolus && lhs.note == rhs.note
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(date)
+        hasher.combine(meal)
+        hasher.combine(note)
+        hasher.combine(bolus)
+    }
+
     public var date: Date
 
     public enum Meal: Int {
@@ -208,8 +219,10 @@ extension Record {
         let t = (date - self.date) / 1.m - defaults[.delayMinutes]
         let td = defaults[.diaMinutes]
         let tp = defaults[.peakMinutes]
-        if t < 0 || t > td || !isBolus {
+        if t < -defaults[.delayMinutes] || t > td || !isBolus {
             return (0,0)
+        } else if t < 0 {
+            return (0, Double(bolus))
         }
 
         let tau = tp * (1 - tp / td) / (1 - 2 * tp / td)

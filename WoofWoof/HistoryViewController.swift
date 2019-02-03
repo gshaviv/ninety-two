@@ -76,8 +76,7 @@ class HistoryViewController: UIViewController {
 
     func updateControls() {
         let formatter = DateFormatter()
-        formatter.dateStyle = .full
-        formatter.timeStyle = .none
+        formatter.dateFormat = "EEE, MMM d, yyyy"
         dateLabel.text = formatter.string(from: displayDay)
         forwardButton.isEnabled = displayDay.endOfDay + 24.h < Date()
     }
