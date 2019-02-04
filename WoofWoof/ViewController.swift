@@ -18,6 +18,7 @@ import UserNotifications
 import Zip
 
 class ViewController: UIViewController {
+    @IBOutlet var connectingLabel: UILabel!
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var currentGlucoseLabel: UILabel!
     @IBOutlet var batteryLevelImage: UIImageView!
@@ -68,6 +69,40 @@ class ViewController: UIViewController {
 
         graphView.records = Storage.default.lastDay.entries
         graphView.delegate = self
+        Central.manager.onStateChange { (_, state) in
+            DispatchQueue.main.async {
+                switch state {
+                case .unknown, .bluetoothOn:
+                    self.connectingLabel.text = "Searching for MiaoMiao..."
+                    self.connectingLabel.isHidden = false
+
+                case .unavailable:
+                    self.connectingLabel.text = "No Bluetooth unavailable"
+                    self.connectingLabel.isHidden = false
+
+                case .bluetoothOff:
+                    self.connectingLabel.text = "Bluetooth is off"
+                    self.connectingLabel.isHidden = false
+
+                case .found:
+                    self.connectingLabel.text = "MiaoMiao found"
+                    self.connectingLabel.isHidden = false
+
+                case .error:
+                    self.connectingLabel.text = "Bluetooth error"
+                    self.connectingLabel.isHidden = false
+
+                case .ready:
+                    self.connectingLabel.text = "MiaoMiao connected"
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.connectingLabel.alpha = 0
+                    }, completion: { (_) in
+                        self.connectingLabel.alpha = 1
+                        self.connectingLabel.isHidden = true
+                    })
+                }
+            }
+        }
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {

@@ -96,13 +96,24 @@
                                                     </label>
                                                 </subviews>
                                             </stackView>
+                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Connecting" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Q2P-eo-NhZ">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
+                                                <color key="backgroundColor" white="0.90000000000000002" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <color key="backgroundColor" white="0.90000000000000002" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="trailing" secondItem="m3w-JE-fXm" secondAttribute="trailing" constant="8" id="1ch-uG-bbv"/>
                                             <constraint firstItem="m3w-JE-fXm" firstAttribute="top" secondItem="tgT-du-ZXK" secondAttribute="top" constant="4" id="F42-EB-wbk"/>
                                             <constraint firstAttribute="bottom" secondItem="m3w-JE-fXm" secondAttribute="bottom" constant="4" id="GVD-Hr-Shn"/>
+                                            <constraint firstItem="Q2P-eo-NhZ" firstAttribute="leading" secondItem="tgT-du-ZXK" secondAttribute="leading" id="HBH-Ff-6w4"/>
+                                            <constraint firstAttribute="bottom" secondItem="Q2P-eo-NhZ" secondAttribute="bottom" id="LjZ-Aa-B9j"/>
+                                            <constraint firstAttribute="trailing" secondItem="Q2P-eo-NhZ" secondAttribute="trailing" id="q1E-XD-DxE"/>
                                             <constraint firstItem="m3w-JE-fXm" firstAttribute="leading" secondItem="tgT-du-ZXK" secondAttribute="leading" constant="8" id="uKk-5R-eqW"/>
+                                            <constraint firstItem="Q2P-eo-NhZ" firstAttribute="top" secondItem="tgT-du-ZXK" secondAttribute="top" id="z6f-bL-9uQ"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HS6-O8-9Lv" customClass="GlucoseGraph" customModule="WoofKit">
@@ -283,6 +294,7 @@
                         <outlet property="aveGlucoseLabel" destination="dFH-vN-ElU" id="A9S-sA-ViU"/>
                         <outlet property="batteryLevelImage" destination="kW8-4j-jwz" id="7TE-pN-rDg"/>
                         <outlet property="batteryLevelLabel" destination="6Sn-kc-7Gj" id="lIp-9K-1I0"/>
+                        <outlet property="connectingLabel" destination="Q2P-eo-NhZ" id="uIc-0M-wld"/>
                         <outlet property="currentGlucoseLabel" destination="fnn-TC-0vP" id="Odb-U7-Egd"/>
                         <outlet property="graphView" destination="HS6-O8-9Lv" id="SRV-c8-c8t"/>
                         <outlet property="iobLabel" destination="uBM-zf-Ix8" id="NNV-HG-ZWl"/>
