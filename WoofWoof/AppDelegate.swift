@@ -125,7 +125,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 notification.title = "Datebase not found"
                                 notification.body = "Imported zip file does not contain any database"
                                 notification.categoryIdentifier = NotificationIdentifier.error
-                                let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                                let request = UNNotificationRequest(identifier: NotificationIdentifier.error, content: notification, trigger: nil)
                                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                     if let err = err {
                                         logError("\(err)")
@@ -179,7 +179,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 notification.body = "No missing records in existing database"
                             }
                             notification.categoryIdentifier = NotificationIdentifier.imported
-                            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                            let request = UNNotificationRequest(identifier: NotificationIdentifier.imported, content: notification, trigger: nil)
                             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                 if let err = err {
                                     logError("\(err)")
@@ -193,7 +193,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             notification.title = "Error Importing"
                             notification.body = error.localizedDescription
                             notification.categoryIdentifier = NotificationIdentifier.error
-                            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+                            let request = UNNotificationRequest(identifier: NotificationIdentifier.error, content: notification, trigger: nil)
                             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                 if let err = err {
                                     logError("\(err)")
@@ -347,7 +347,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                 notification.sound = UNNotificationSound(named: sound)
             }
             defaults[.lastEventAlertTime] = Date()
-            notification.categoryIdentifier = "event"
+            notification.categoryIdentifier = NotificationIdentifier.event
             let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {

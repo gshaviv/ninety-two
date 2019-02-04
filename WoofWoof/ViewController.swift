@@ -94,12 +94,6 @@ class ViewController: UIViewController {
 
                 case .ready:
                     self.connectingLabel.text = "MiaoMiao connected"
-                    UIView.animate(withDuration: 0.2, animations: {
-                        self.connectingLabel.alpha = 0
-                    }, completion: { (_) in
-                        self.connectingLabel.alpha = 1
-                        self.connectingLabel.isHidden = true
-                    })
                 }
             }
         }
@@ -111,6 +105,14 @@ class ViewController: UIViewController {
     }
 
     func update() {
+        if !connectingLabel.isHidden {
+                UIView.animate(withDuration: 0.25, animations: {
+                    self.connectingLabel.alpha = 0
+                }, completion: { (_) in
+                    self.connectingLabel.alpha = 1
+                    self.connectingLabel.isHidden = true
+                })
+        }
         if let lastH = MiaoMiao.allReadings.last?.date {
             let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
             let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
@@ -301,25 +303,6 @@ class ViewController: UIViewController {
             self.showSettings()
         }))
 
-        sheet.addAction(UIAlertAction(title: "Backup", style: .default, handler: { (_) in
-            Storage.default.db.async {
-                let documentsDirectory = FileManager.default.urls(for:.documentDirectory, in: .userDomainMask)[0]
-                let zipFilePath = documentsDirectory.appendingPathComponent("archive.zip")
-                let path = Storage.default.dbUrl.path
-                let shm = URL(fileURLWithPath: "\(path)-shm")
-                let wal = URL(fileURLWithPath: "\(path)-wal")
-                try? Zip.zipFiles(paths: [Storage.default.dbUrl, shm, wal], zipFilePath: zipFilePath, password: nil, progress: nil)
-                DispatchQueue.main.async {
-                    let activityController = UIActivityViewController(activityItems: [zipFilePath], applicationActivities: nil)
-                    activityController.excludedActivityTypes = [.postToTwitter, .postToFacebook, .message, .postToWeibo, .print, .copyToPasteboard, .assignToContact]
-                    activityController.completionWithItemsHandler = { _,_,_,_ in
-                        try? FileManager.default.removeItem(at: zipFilePath)
-                    }
-                    self.present(activityController, animated: true, completion: nil)
-                }
-            }
-        }))
-
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(sheet, animated: true, completion: nil)
     }
@@ -440,6 +423,26 @@ class ViewController: UIViewController {
             defaults[.color0]
         }) {
             defaults[.color0] = $0
+        }
+
+        ctr.addGroup("")
+        ctr.addButton("Backup Database") {
+            Storage.default.db.async {
+                let documentsDirectory = FileManager.default.urls(for:.documentDirectory, in: .userDomainMask)[0]
+                let zipFilePath = documentsDirectory.appendingPathComponent("archive.zip")
+                let path = Storage.default.dbUrl.path
+                let shm = URL(fileURLWithPath: "\(path)-shm")
+                let wal = URL(fileURLWithPath: "\(path)-wal")
+                try? Zip.zipFiles(paths: [Storage.default.dbUrl, shm, wal], zipFilePath: zipFilePath, password: nil, progress: nil)
+                DispatchQueue.main.async {
+                    let activityController = UIActivityViewController(activityItems: [zipFilePath], applicationActivities: nil)
+                    activityController.excludedActivityTypes = [.postToTwitter, .postToFacebook, .message, .postToWeibo, .print, .copyToPasteboard, .assignToContact]
+                    activityController.completionWithItemsHandler = { _,_,_,_ in
+                        try? FileManager.default.removeItem(at: zipFilePath)
+                    }
+                    self.present(activityController, animated: true, completion: nil)
+                }
+            }
         }
         show(ctr, sender: nil)
     }

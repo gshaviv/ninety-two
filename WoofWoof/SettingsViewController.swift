@@ -16,6 +16,7 @@ class SettingsViewController: UITableViewController {
         case bool(String, () -> Bool, (Bool) -> Void)
         case color(String, () -> UIColor, (UIColor) -> Void)
         case group(String)
+        case button(String, () -> Void)
     }
     private var settings: [Setting] = []
     private var grouped: [(title: String?, items: [Setting])] = []
@@ -42,6 +43,10 @@ class SettingsViewController: UITableViewController {
 
     public func addGroup(_ title: String) {
         settings.append(Setting.group(title))
+    }
+
+    public func addButton(_ title: String, do: @escaping () -> Void) {
+        settings.append(Setting.button(title, `do`))
     }
 
     // MARK: - Table view data source
@@ -110,6 +115,11 @@ class SettingsViewController: UITableViewController {
             cell.boolSwitch.isOn = get()
             return cell
 
+        case let .button(title, _):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "button") as! StringCell
+            cell.titleLabel.text = title
+            return cell
+
         case .group(_):
             fatalError()
         }
@@ -165,6 +175,9 @@ class SettingsViewController: UITableViewController {
             }
             present(ctr, animated: true, completion: nil)
 
+        case let .button(_, handler):
+            handler()
+            tableView.reloadData()
 
         default:
             break
