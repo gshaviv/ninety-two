@@ -108,6 +108,11 @@ public class GlucoseGraph: UIView {
             contentView.setNeedsDisplay()
         }
     }
+    public var manual: [ManualMeasurement]? {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
     private var contentHolder: UIScrollView!
     private var contentView: DrawingView!
     private var xAxisHolder: UIScrollView!
@@ -308,6 +313,16 @@ public class GlucoseGraph: UIView {
             ctx?.move(to: CGPoint(x: x, y: y))
             ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
             ctx?.strokePath()
+        }
+
+        if let manual = manual {
+            #colorLiteral(red: 0.4347818196, green: 0.1882995963, blue: 0.8658901453, alpha: 1).set()
+            let path = UIBezierPath()
+            path.lineWidth = 2
+            manual.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }.forEach {
+                path.append(UIBezierPath(roundedRect: CGRect(center: $0, size: CGSize(width: 9, height: 8)), cornerRadius: 2))
+            }
+            path.stroke()
         }
 
         if let touchPoint = touchPoint {

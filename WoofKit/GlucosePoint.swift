@@ -17,11 +17,13 @@ public protocol GlucoseReading {
     var isCalibration: Bool { get }
 }
 
-public struct GlucosePoint: GlucoseReading {
+extension GlucoseReading {
     public var isCalibration: Bool {
         return false
     }
+}
 
+public struct GlucosePoint: GlucoseReading {
     public let date: Date
     public let value: Double
     public let isTrend: Bool
@@ -103,10 +105,10 @@ extension Calibration: Sqlable {
 
     public func valueForColumn(_ column: Column) -> SqlValue? {
         switch column {
-        case GlucosePoint.date:
+        case Calibration.date:
             return date
 
-        case GlucosePoint.value:
+        case Calibration.value:
             return value
 
         default:
@@ -120,3 +122,41 @@ extension Calibration: Sqlable {
     }
 }
 #endif
+
+public struct ManualMeasurement: GlucoseReading {
+    public let date: Date
+    public let value: Double
+
+    public init(date: Date, value: Double) {
+        self.date = date
+        self.value = value
+    }
+}
+
+#if os(iOS)
+extension ManualMeasurement: Sqlable {
+    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
+    public static let value = Column("value", .real)
+
+    public static var tableLayout = [date, value]
+
+    public func valueForColumn(_ column: Column) -> SqlValue? {
+        switch column {
+        case ManualMeasurement.date:
+            return date
+
+        case ManualMeasurement.value:
+            return value
+
+        default:
+            return nil
+        }
+    }
+
+    public init(row: ReadRow) throws {
+        date = try row.get(GlucosePoint.date)
+        value = try row.get(GlucosePoint.value)
+    }
+}
+#endif
+

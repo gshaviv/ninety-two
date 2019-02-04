@@ -139,12 +139,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         var mealCount = 0
                         var readingCount = 0
                         try Storage.default.db.transaction { (db)  in
-                            let have = db.evaluate(GlucosePoint.read()) ?? []
-                            let all = Set(have.map { $0.date })
-                            for gp in readings {
-                                if !all.contains(gp.date) {
-                                    try db.perform(gp.insert())
-                                    readingCount += 1
+                            do {
+                                let have = db.evaluate(GlucosePoint.read()) ?? []
+                                let all = Set(have.map { $0.date })
+                                for gp in readings {
+                                    if !all.contains(gp.date) {
+                                        try db.perform(gp.insert())
+                                        readingCount += 1
+                                    }
+                                }
+                            }
+                            do {
+                                let have = db.evaluate(ManualMeasurement.read()) ?? []
+                                let all = Set(have.map { $0.date })
+                                for gp in importDb.evaluate(ManualMeasurement.read()) ?? [] {
+                                    if !all.contains(gp.date) {
+                                        try db.perform(gp.insert())
+                                        readingCount += 1
+                                    }
                                 }
                             }
 
@@ -400,10 +412,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     var show: String
                     switch Int(current.value) {
                     case 180...:
-                        guard let trend = MiaoMiao.trend else {
-                            return
-                        }
-                        let highest = max(trend[1...].reduce(0.0) { max($0, $1.value) }, MiaoMiao.last24hReadings[(MiaoMiao.last24hReadings.count - 6)...].reduce(0.0) { max($0, $1.value) })
+                        let highest = MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6)...].reduce(0.0) { max($0, $1.value) }
                         if current.value > highest {
                             show = "\(current.value > 250 ? "H" : "h")⤴︎"
                             if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {

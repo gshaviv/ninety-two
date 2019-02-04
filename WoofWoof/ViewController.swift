@@ -68,6 +68,7 @@ class ViewController: UIViewController {
         agoLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .medium)
 
         graphView.records = Storage.default.lastDay.entries
+        graphView.manual = Storage.default.lastDay.manualMeasurements
         graphView.delegate = self
         Central.manager.onStateChange { (_, state) in
             DispatchQueue.main.async {
@@ -77,7 +78,7 @@ class ViewController: UIViewController {
                     self.connectingLabel.isHidden = false
 
                 case .unavailable:
-                    self.connectingLabel.text = "No Bluetooth unavailable"
+                    self.connectingLabel.text = "Bluetooth Unavailable"
                     self.connectingLabel.isHidden = false
 
                 case .bluetoothOff:
@@ -240,12 +241,38 @@ class ViewController: UIViewController {
         present(ctr, animated: true, completion: nil)
     }
 
+    func addManualMeasurement() {
+        let alert = UIAlertController(title: "Manual Measurement", message: "Blood Glucose", preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.keyboardType = .numberPad
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
+            guard let tf = alert.textFields?[0].text, let v = Double(tf) else {
+                return
+            }
+            Storage.default.db.async {
+                let m = ManualMeasurement(date: Date(), value: v)
+                Storage.default.db.evaluate(m.insert())
+                DispatchQueue.main.async {
+                    Storage.default.reloadToday()
+                    self.graphView.manual = Storage.default.lastDay.manualMeasurements
+                }
+            }
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+
 
     @IBAction func handleMore(_ sender: Any) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
         sheet.addAction(UIAlertAction(title: "Add to Diary", style: .default, handler: { (_) in
             self.addRecord()
+        }))
+
+        sheet.addAction(UIAlertAction(title: "Add Manual Measurement", style: .default, handler: { (_) in
+            self.addManualMeasurement()
         }))
 
         sheet.addAction(UIAlertAction(title: "Calibrate", style: .default, handler: { (_) in

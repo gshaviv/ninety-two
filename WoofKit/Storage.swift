@@ -27,6 +27,7 @@ public class Storage: NSObject {
         try! db.createTable(GlucosePoint.self)
         try! db.createTable(Calibration.self)
         try! db.createTable(Record.self)
+        try! db.createTable(ManualMeasurement.self)
         return db
     }()
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
@@ -82,6 +83,10 @@ public class Today {
     public lazy var entries: [Record] = {
         let limit = Date() - 1.d
         return Storage.default.db.evaluate(Record.read().filter(Record.date > limit).orderBy(Record.date)) ?? []
+    }()
+    public lazy var manualMeasurements: [ManualMeasurement] = {
+        let limit = Date() - 1.d
+        return Storage.default.db.evaluate(ManualMeasurement.read().filter(ManualMeasurement.date > limit).orderBy(ManualMeasurement.date)) ?? []
     }()
 }
 
