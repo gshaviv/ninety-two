@@ -340,6 +340,9 @@ class MiaoMiao {
             if !added.isEmpty {
                 _last24.append(contentsOf: added)
                 pendingReadings.append(contentsOf: added)
+                if defaults[.writeHealthKit] {
+                    HealthKitManager.shared?.write(points: added)
+                }
             }
             if pendingReadings.count > 3 {
                 Storage.default.db.async {
@@ -349,6 +352,7 @@ class MiaoMiao {
                                 try db.perform($0.insert())
                                 added.append($0)
                             }
+
                             pendingReadings = []
                         }
                     } catch let error {

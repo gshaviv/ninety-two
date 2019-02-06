@@ -558,6 +558,7 @@ class GlucoseReport {
         maker.add(PDFTextSection("\(kind.name.capitalized) Patterns".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
 
         var drawRange = true
+        var startAtZero = false
         let drawingBlock = { (rect: CGRect) in
             let ctx = UIGraphicsGetCurrentContext()
             let graphRect = CGRect(x: 28, y: 16, width: rect.width - 80, height: rect.height - 36)
@@ -616,25 +617,46 @@ class GlucoseReport {
             let a10 = UIBezierPath()
             let coor10 = p10.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
             let coor90 = Array(p90.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }.reversed())
-            a10.move(to: coor10[0])
-            a10.addCurveThrough(points: coor10[1...])
-            a10.addLine(to: coor90[0])
-            a10.addCurveThrough(points: coor90[1...])
-            a10.addLine(to: coor10[0])
+            if startAtZero {
+                a10.move(to: CGPoint(x: xPos(0.0), y: yPos(0.0)))
+                a10.addCurveThrough(points: coor10[0...])
+                a10.addLine(to: coor90[0])
+                a10.addCurveThrough(points: coor90[1...])
+                a10.addLine(to: CGPoint(x: xPos(0.0), y: yPos(0.0)))
+            } else {
+                a10.move(to: coor10[0])
+                a10.addCurveThrough(points: coor10[1...])
+                a10.addLine(to: coor90[0])
+                a10.addCurveThrough(points: coor90[1...])
+                a10.addLine(to: coor10[0])
+            }
 
             let coor25 = p25.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
             let coor75 = Array(p75.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }.reversed())
             let a25 = UIBezierPath()
-            a25.move(to: coor25[0])
-            a25.addCurveThrough(points: coor25[1...])
-            a25.addLine(to: coor75[0])
-            a25.addCurveThrough(points: coor75[1...])
-            a25.addLine(to: coor25[0])
+            if startAtZero {
+                a25.move(to: CGPoint(x: xPos(0.0), y: yPos(0.0)))
+                a25.addCurveThrough(points: coor25[0...])
+                a25.addLine(to: coor75[0])
+                a25.addCurveThrough(points: coor75[1...])
+                a25.addLine(to: CGPoint(x: xPos(0.0), y: yPos(0.0)))
+            } else {
+                a25.move(to: coor25[0])
+                a25.addCurveThrough(points: coor25[1...])
+                a25.addLine(to: coor75[0])
+                a25.addCurveThrough(points: coor75[1...])
+                a25.addLine(to: coor25[0])
+            }
 
             let coor50 = p50.enumerated().map { CGPoint(x: xPos(Double($0.0) * 30 * 60 + 15 * 60), y: yPos($0.1)) }
             let median = UIBezierPath()
-            median.move(to: coor50[0])
-            median.addCurveThrough(points: coor50[1...])
+            if startAtZero {
+                median.move(to: CGPoint(x: xPos(0.0), y: yPos(0.0)))
+                median.addCurveThrough(points: coor50[0...])
+            } else {
+                median.move(to: coor50[0])
+                median.addCurveThrough(points: coor50[1...])
+            }
 
             UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 0.5).setFill()
             a10.fill()
@@ -707,8 +729,9 @@ class GlucoseReport {
         vmax = ceil(p90.biggest()/10)*10
         vmin = floor(p10.smallest()/5)*5
 
-        maker.add(PDFTextSection("\(kind.name.capitalized) Control".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
+        maker.add(PDFTextSection("\(kind.name.capitalized) Control Pattern".styled.font(subtitleFont), margin: UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0), keepWithNext: true))
         drawRange = false
+        startAtZero = true
         maker.add(PDFFixedHeightBlockSection(h: 200, drawingBlock: drawingBlock))
     }
 

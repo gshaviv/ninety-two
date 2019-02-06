@@ -227,6 +227,9 @@ class ViewController: UIViewController {
             if record.id == nil {
                 record.save(to: Storage.default.db)
                 Storage.default.lastDay.entries.append(record)
+                if defaults[.writeHealthKit] && record.bolus > 0 {
+                    HealthKitManager.shared?.write(records: [record])
+                }
             } else {
                 record.save(to: Storage.default.db)
             }
@@ -336,6 +339,35 @@ class ViewController: UIViewController {
 
     private func showSettings() {
         let ctr = UIStoryboard(name: "Settings", bundle: nil).instantiateInitialViewController() as! SettingsViewController
+
+        if HealthKitManager.isAvailable {
+            ctr.addGroup("General")
+            ctr.addBool(title: "Store data in HealthKit", get: { () -> Bool in
+                return defaults[.writeHealthKit]
+            }) {
+                guard HealthKitManager.isAvailable else {
+                    logError("HealthKit not available")
+                    return
+                }
+                defaults[.writeHealthKit] = $0
+                if $0 {
+                    HealthKitManager.authorize({ (granted) in
+                        guard granted else {
+                            logError("HK permission not granted")
+                            return
+                        }
+                        HealthKitManager.shared?.findLast {
+                            let date = $0 ?? Date.distantPast
+                            guard let points = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > date).orderBy(GlucosePoint.date))  else {
+                                return
+                            }
+                            log("last HK record \(date), writng \(points.count) points")
+                            HealthKitManager.shared?.write(points: points)
+                        }
+                    })
+                }
+            }
+        }
 
         ctr.addGroup("Target Range")
         ctr.addValue(title: "Max", get: {

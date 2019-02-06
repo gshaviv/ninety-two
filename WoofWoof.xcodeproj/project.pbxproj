@@ -79,6 +79,8 @@
 		E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */ = {isa = PBXBuildFile; fileRef = E42E2AEB21E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf */; };
 		E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */; };
 		E432763421FAF7D700A3755F /* words.json in Resources */ = {isa = PBXBuildFile; fileRef = E432763221FAEF4A00A3755F /* words.json */; };
+		E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43F24A22208AA75005B0247 /* HealthKitManager.swift */; };
+		E43F24A6220A0A85005B0247 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E43F24A5220A0A85005B0247 /* HealthKit.framework */; };
 		E44EEC7321E9C52600F966A8 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44EEC7221E9C52600F966A8 /* IntentsUI.framework */; };
 		E44EEC7621E9C52600F966A8 /* IntentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EEC7521E9C52600F966A8 /* IntentViewController.swift */; };
 		E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EEC7721E9C52600F966A8 /* UI.storyboard */; };
@@ -349,6 +351,8 @@
 		E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
 		E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoComleteTextField.swift; sourceTree = "<group>"; };
 		E432763221FAEF4A00A3755F /* words.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = words.json; path = WoofKit/words.json; sourceTree = SOURCE_ROOT; };
+		E43F24A22208AA75005B0247 /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		E43F24A5220A0A85005B0247 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntentUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44EEC7221E9C52600F966A8 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		E44EEC7521E9C52600F966A8 /* IntentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentViewController.swift; sourceTree = "<group>"; };
@@ -390,7 +394,7 @@
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
-		E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sugar Coated.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4E35A6021C3F8D300336CE8 /* Ninety Two.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ninety Two.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		E4E35A6821C3F8D300336CE8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -466,6 +470,7 @@
 				E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */,
 				E4230F8621E9DA4200A297A5 /* PDFCreation.framework in Frameworks */,
 				FC96E052A2C9BE1E3CA3E9D1 /* Pods_WoofWoof.framework in Frameworks */,
+				E43F24A6220A0A85005B0247 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,6 +533,7 @@
 		E42A291C21E77B2A0084D181 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E43F24A5220A0A85005B0247 /* HealthKit.framework */,
 				E4230F9421EA205100A297A5 /* PDFKit.framework */,
 				E42A291D21E77B2A0084D181 /* NotificationCenter.framework */,
 				E44EEC7221E9C52600F966A8 /* IntentsUI.framework */,
@@ -656,7 +662,7 @@
 		E4E35A6121C3F8D300336CE8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */,
+				E4E35A6021C3F8D300336CE8 /* Ninety Two.app */,
 				E42E2A9921DF28C5004FD560 /* woofWatch.app */,
 				E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */,
 				E42A291B21E77B2A0084D181 /* woofWidget.appex */,
@@ -671,6 +677,7 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E43F24A22208AA75005B0247 /* HealthKitManager.swift */,
 				E42A290C21E728EB0084D181 /* WoofWoof.entitlements */,
 				E40021B821D7BA6C001AB34D /* Repeater.swift */,
 				E425664F21CE6F9A00469232 /* DefaultKey.swift */,
@@ -883,7 +890,7 @@
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
-			productReference = E4E35A6021C3F8D300336CE8 /* Sugar Coated.app */;
+			productReference = E4E35A6021C3F8D300336CE8 /* Ninety Two.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -940,6 +947,9 @@
 								enabled = 1;
 							};
 							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.HealthKit = {
 								enabled = 1;
 							};
 						};
@@ -1220,6 +1230,7 @@
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
 				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
+				E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */,
 				E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
 				E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */,
@@ -1815,7 +1826,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
-				PRODUCT_NAME = "Sugar Coated";
+				PRODUCT_NAME = "Ninety Two";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1837,7 +1848,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
-				PRODUCT_NAME = "Sugar Coated";
+				PRODUCT_NAME = "Ninety Two";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

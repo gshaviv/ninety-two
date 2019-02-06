@@ -54,6 +54,7 @@ extension UserDefaults {
 
     public enum BoolKey: String {
         case didAlertEvent
+        case writeHealthKit
     }
 
     public func register() {

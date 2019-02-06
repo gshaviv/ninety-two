@@ -39,6 +39,12 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSHealthClinicalHealthRecordsShareUsageDescription</key>
+	<string>Store Blood Glucose data from Ninety Two in HealthKit</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>View blood glucose data in Ninety Two</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Store Blood Glucose data from Ninety Two in HealthKit</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>CheckGlucoseIntent</string>

@@ -110,7 +110,7 @@ class SettingsViewController: UITableViewController {
             return cell
 
         case let .bool(title, get, _):
-            let cell = tableView.dequeueReusableCell(withIdentifier: "value") as! BoolCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "bool") as! BoolCell
             cell.titleLabel.text = title
             cell.boolSwitch.isOn = get()
             return cell
