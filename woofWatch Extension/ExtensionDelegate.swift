@@ -15,6 +15,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var trendValue: Double = 0
     private(set) public var trendSymbol: String = ""
     private(set) public var readings =  [GlucosePoint]()
+    private(set) public var iob: Double = 0
     private var lastRefreshDate = Date.distantPast
 
     func applicationDidFinishLaunching() {
@@ -40,9 +41,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             ctr.setDim()
         }
         WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
-            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any] else {
+            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double else {
                 return
             }
+            self.iob = iob
             self.lastRefreshDate = Date()
             self.trendValue = t
             self.trendSymbol = s

@@ -157,6 +157,9 @@ class MiaoMiao {
                         Command.startReading()
                     }
                 }
+                DispatchQueue.main.async {
+                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: []) }
+                }
 
             case Code.startPacket:
                 packetData = bytes
@@ -231,11 +234,17 @@ class MiaoMiao {
             } else if defaults[.badDataCount] < 3 {
                 defaults[.badDataCount] += 1
                 Command.startReading()
+                DispatchQueue.main.async {
+                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: []) }
+                }
             } else {
                 logError("Failed to read data")
                 if !shortRefresh {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
+                }
+                DispatchQueue.main.async {
+                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: []) }
                 }
             }
             packetData = []

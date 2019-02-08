@@ -138,6 +138,29 @@ class InterfaceController: WKInterfaceController {
             fill.lineWidth = 0
             fill.fill()
         }
+        let iob = WKExtension.extensionDelegate.iob
+        if iob > 0 {
+            let text = "IOB \(String(format: "%.1lf", iob))"
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * WKInterfaceDevice.current().screenScale, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7)]
+            let styled = NSAttributedString(string: text, attributes: attrib)
+            let tsize = styled.size()
+            let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
+                           CGRect(origin: CGPoint(x: 2, y: 2), size: tsize), CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
+                           CGRect(x: size.width - tsize.width - 2, y: 2, width: tsize.width, height: tsize.height),
+                           CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
+                           CGRect(x: size.width - tsize.width - 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
+                           CGRect(x: 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)]
+
+            let trect = options.first {
+                for point in p {
+                    if $0.contains(point) {
+                        return false
+                    }
+                }
+                return true
+            }
+            styled.draw(in: trect ?? options[0])
+        }
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
