@@ -322,7 +322,7 @@ extension AppDelegate: WCSessionDelegate {
     func appState() -> [String:Any] {
         let now = Date()
         let relevant = MiaoMiao.allReadings.filter { $0.date > now - 4.h && !$0.isCalibration }.map { [$0.date, $0.value] }
-        let state:[String:Any] = ["v": relevant, "t": currentTrend ?? 0, "s": trendSymbol()]
+        let state:[String:Any] = ["v": relevant, "t": currentTrend ?? 0, "s": trendSymbol(), "c": defaults[.complicationState] ?? "--"]
         return state
     }
 
@@ -410,9 +410,9 @@ extension AppDelegate: MiaoMiaoDelegate {
                 if  WCSession.default.isComplicationEnabled {
                     var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
                     var show: String
-                    switch Int(current.value) {
-                    case 180...:
-                        let highest = MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6)...].reduce(0.0) { max($0, $1.value) }
+                    switch current.value {
+                    case defaults[.maxRange]...:
+                        let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                         if current.value > highest {
                             show = "\(current.value > 250 ? "H" : "h")⤴︎"
                             if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
@@ -423,7 +423,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                         }
 
 
-                    case 75 ..< 180:
+                    case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
                         show = "✔︎"
 
                     default:

@@ -42,6 +42,7 @@ extension UserDefaults {
         case watchWakeupTime
         case watchSleepTime
         case badDataCount
+        case summaryPeriod
     }
 
     public enum ColorKey: String {
@@ -78,10 +79,17 @@ extension UserDefaults {
                                        ColorKey.color5.key: 0x00ffff00,
                                        DoubleKey.diaMinutes.key: 300.0,
                                        DoubleKey.peakMinutes.key: 125.0,
-                                       DoubleKey.delayMinutes.key: 20.0
+                                       DoubleKey.delayMinutes.key: 20.0,
+                                       IntKey.summaryPeriod.key: 2
                                        ]
 
         register(defaults: defaults)
+    }
+}
+
+extension UserDefaults {
+    public static func notificationForChange<Key: RawRepresentable>(_ key: Key) -> Notification.Name where Key.RawValue == String {
+        return Notification.Name("\(key.rawValue)-didChange")
     }
 }
 
@@ -92,6 +100,7 @@ extension UserDefaults {
         }
         set {
             set(newValue.rgbValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
     public subscript(key: StringKey) -> String? {
@@ -100,6 +109,7 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
 
@@ -109,6 +119,7 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
 
@@ -118,6 +129,7 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
 
@@ -127,6 +139,7 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
 
@@ -136,6 +149,7 @@ extension UserDefaults {
         }
         set {
             set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
         }
     }
 }
@@ -175,3 +189,18 @@ extension UserDefaults.BoolKey {
         return rawValue
     }
 }
+
+
+extension UserDefaults {
+    public static let summaryPeriods = [7,14,30,60,90]
+    public var summaryPeriod: Int {
+        get {
+            return UserDefaults.summaryPeriods[defaults[.summaryPeriod]]
+        }
+        set {
+            defaults[.summaryPeriod] = UserDefaults.summaryPeriods.first(where: { newValue == $0 }) ?? 2
+        }
+    }
+}
+
+

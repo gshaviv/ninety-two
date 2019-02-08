@@ -30,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E4E35A5F21C3F8D300336CE8"
-               BuildableName = "Sugar Coated.app"
+               BuildableName = "Ninety Two.app"
                BlueprintName = "WoofWoof"
                ReferencedContainer = "container:WoofWoof.xcodeproj">
             </BuildableReference>
@@ -76,7 +76,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4E35A5F21C3F8D300336CE8"
-            BuildableName = "Sugar Coated.app"
+            BuildableName = "Ninety Two.app"
             BlueprintName = "WoofWoof"
             ReferencedContainer = "container:WoofWoof.xcodeproj">
          </BuildableReference>
@@ -96,7 +96,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4E35A5F21C3F8D300336CE8"
-            BuildableName = "Sugar Coated.app"
+            BuildableName = "Ninety Two.app"
             BlueprintName = "WoofWoof"
             ReferencedContainer = "container:WoofWoof.xcodeproj">
          </BuildableReference>

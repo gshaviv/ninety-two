@@ -17,6 +17,7 @@ class SettingsViewController: UITableViewController {
         case color(String, () -> UIColor, (UIColor) -> Void)
         case group(String)
         case button(String, () -> Void)
+        case `enum`(String, Int, () -> Int, (Int)-> Void, (Int) -> String)
     }
     private var settings: [Setting] = []
     private var grouped: [(title: String?, items: [Setting])] = []
@@ -47,6 +48,10 @@ class SettingsViewController: UITableViewController {
 
     public func addButton(_ title: String, do: @escaping () -> Void) {
         settings.append(Setting.button(title, `do`))
+    }
+
+    public func addEnum(_ title: String, count: Int, get: @escaping () -> Int, set: @escaping (Int) -> Void, values: @escaping (Int) -> String) {
+        settings.append(Setting.enum(title, count, get, set, values))
     }
 
     // MARK: - Table view data source
@@ -120,6 +125,12 @@ class SettingsViewController: UITableViewController {
             cell.titleLabel.text = title
             return cell
 
+        case let .enum(title, _, get, _, getValue):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "string") as! StringCell
+            cell.titleLabel.text = title
+            cell.stringLabel.text = getValue(get())
+            return cell
+
         case .group(_):
             fatalError()
         }
@@ -179,7 +190,19 @@ class SettingsViewController: UITableViewController {
             handler()
             tableView.reloadData()
 
-        default:
+        case let .enum(title, count, get, set, values):
+            let ctr = storyboard?.instantiateViewController(withIdentifier: "enum") as! EnumViewController
+            ctr.count = count
+            ctr.title = title
+            ctr.value = get()
+            ctr.setter = {
+                set($0)
+                self.tableView.reloadData()
+            }
+            ctr.getValue = values
+            present(ctr, animated: true, completion: nil)
+
+        case .group(_):
             break
         }
     }
@@ -353,6 +376,50 @@ class TimeViewController: ActionSheetController, UIPickerViewDelegate, UIPickerV
 
     func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
         return 40
+    }
+}
+
+class EnumViewController: ActionSheetController, UIPickerViewDelegate, UIPickerViewDataSource {
+    @IBOutlet private var mainStackView: UIStackView!
+    @IBOutlet private var titleLabel: UILabel!
+    @IBOutlet private var picker: UIPickerView!
+
+    var value: Int!
+    var setter: ((Int) -> Void)?
+    var getValue: ((Int) -> String)?
+    var count: Int!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        titleLabel.text = title
+        picker.selectRow(value, inComponent: 0, animated: false)
+        preferredContentSize = mainStackView.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width, height: 0), withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.fittingSizeLevel)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
+    @IBAction func handleCancel() {
+        dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func handleSave() {
+        setter?(picker.selectedRow(inComponent: 0))
+        setter = nil
+        dismiss(animated: true, completion: nil)
+    }
+
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return getValue?(row) ?? ""
     }
 }
 

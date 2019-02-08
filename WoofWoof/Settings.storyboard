@@ -774,5 +774,129 @@
             </objects>
             <point key="canvasLocation" x="217" y="181"/>
         </scene>
+        <!--Enum View Controller-->
+        <scene sceneID="TzI-Yw-oyb">
+            <objects>
+                <viewController storyboardIdentifier="enum" id="jJ8-tW-Kdu" customClass="EnumViewController" customModule="WoofWoof" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="JeK-UG-MHz">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="OuA-rb-BLn">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="jVf-zO-62j">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="134"/>
+                                        <subviews>
+                                            <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XV3-b7-zBW">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="134"/>
+                                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="qBW-SC-blj">
+                                                    <rect key="frame" x="0.0" y="0.0" width="375" height="134"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="fKK-Pu-pMy">
+                                                            <rect key="frame" x="8" y="8" width="359" height="118"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X6R-6G-plZ">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="359" height="24"/>
+                                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                                                    <nil key="textColor"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                                <pickerView contentMode="scaleToFill" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="XLL-42-qeH">
+                                                                    <rect key="frame" x="0.0" y="24" width="359" height="94"/>
+                                                                    <connections>
+                                                                        <outlet property="dataSource" destination="jJ8-tW-Kdu" id="4wq-eo-ZEf"/>
+                                                                        <outlet property="delegate" destination="jJ8-tW-Kdu" id="nEY-1m-zGV"/>
+                                                                    </connections>
+                                                                </pickerView>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" white="1" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstItem="fKK-Pu-pMy" firstAttribute="top" secondItem="qBW-SC-blj" secondAttribute="top" constant="8" id="15C-9D-up2"/>
+                                                        <constraint firstAttribute="trailing" secondItem="fKK-Pu-pMy" secondAttribute="trailing" constant="8" id="MJf-Zv-NtS"/>
+                                                        <constraint firstAttribute="bottom" secondItem="fKK-Pu-pMy" secondAttribute="bottom" constant="8" id="c5s-1d-Xgi"/>
+                                                        <constraint firstItem="fKK-Pu-pMy" firstAttribute="leading" secondItem="qBW-SC-blj" secondAttribute="leading" constant="8" id="uZm-AH-ze5"/>
+                                                    </constraints>
+                                                </view>
+                                                <blurEffect style="light"/>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                        <integer key="value" value="8"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                            </visualEffectView>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="NsV-na-2p6">
+                                        <rect key="frame" x="0.0" y="142" width="375" height="50"/>
+                                        <subviews>
+                                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="arE-Px-SY0">
+                                                <rect key="frame" x="0.0" y="0.0" width="183.5" height="50"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <state key="normal" title="Cancel">
+                                                    <color key="titleColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                        <integer key="value" value="8"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="handleCancel" destination="jJ8-tW-Kdu" eventType="touchUpInside" id="MgB-2G-Cdg"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xFf-jc-vtz">
+                                                <rect key="frame" x="191.5" y="0.0" width="183.5" height="50"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <state key="normal" title="Save"/>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                        <integer key="value" value="8"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="handleSave" destination="jJ8-tW-Kdu" eventType="touchUpInside" id="oVC-Zl-pJM"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="Xqb-41-iOE"/>
+                                        </constraints>
+                                    </stackView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qJl-MC-L8S">
+                                        <rect key="frame" x="0.0" y="200" width="375" height="0.0"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" id="ba3-gt-sUM"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="OuA-rb-BLn" firstAttribute="leading" secondItem="EOm-c4-Lsh" secondAttribute="leading" id="1uB-oJ-1qz"/>
+                            <constraint firstItem="OuA-rb-BLn" firstAttribute="top" secondItem="EOm-c4-Lsh" secondAttribute="top" id="MQZ-zE-dca"/>
+                            <constraint firstItem="EOm-c4-Lsh" firstAttribute="bottom" secondItem="OuA-rb-BLn" secondAttribute="bottom" id="SIz-RV-B8h"/>
+                            <constraint firstItem="EOm-c4-Lsh" firstAttribute="trailing" secondItem="OuA-rb-BLn" secondAttribute="trailing" id="g5V-73-lJ5"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="EOm-c4-Lsh"/>
+                    </view>
+                    <nil key="simulatedTopBarMetrics"/>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="375" height="200"/>
+                    <connections>
+                        <outlet property="mainStackView" destination="OuA-rb-BLn" id="ICk-dd-tD4"/>
+                        <outlet property="picker" destination="XLL-42-qeH" id="HSt-bK-33p"/>
+                        <outlet property="titleLabel" destination="X6R-6G-plZ" id="8we-Cc-OYe"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bMA-gr-ly4" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1156" y="536"/>
+        </scene>
     </scenes>
 </document>

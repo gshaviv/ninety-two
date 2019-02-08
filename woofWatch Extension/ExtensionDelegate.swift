@@ -57,6 +57,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                     controller.update()
                 }
             }
+            if let symbol = info["c"] as? String, let last = self.readings.last?.date, symbol != self.data.string {
+                self.data = DisplayValue(date: last, string: symbol)
+                self.reloadComplication()
+            }
         }) { (_) in
             if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
                 DispatchQueue.main.async {

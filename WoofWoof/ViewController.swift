@@ -161,14 +161,14 @@ class ViewController: UIViewController {
         } else {
             iobLabel.isHidden = true
         }
-        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + 3.h {
+        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(3.h, defaults.summaryPeriod.d / 20), 1.d) {
             do {
                 defaults[.lastStatisticsCalculation] = Date()
                 let child = try Storage.default.db.createChild()
                 var lowCount = 0
                 var inLow = false
                 DispatchQueue.global().async {
-                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 30.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
+                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                         let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                         let withTime = zip(readings.dropLast(), diffs)
                         let withGoodTime = withTime.filter { $0.1 < 20.m }
@@ -340,8 +340,8 @@ class ViewController: UIViewController {
     private func showSettings() {
         let ctr = UIStoryboard(name: "Settings", bundle: nil).instantiateInitialViewController() as! SettingsViewController
 
+        ctr.addGroup("General")
         if HealthKitManager.isAvailable {
-            ctr.addGroup("General")
             ctr.addBool(title: "Store data in HealthKit", get: { () -> Bool in
                 return defaults[.writeHealthKit]
             }) {
@@ -367,6 +367,13 @@ class ViewController: UIViewController {
                     })
                 }
             }
+        }
+        ctr.addEnum("Summary Timeframe", count: 5, get: { () -> Int in
+            return defaults[.summaryPeriod]
+        }, set: {
+            defaults[.summaryPeriod] = $0
+        }) {
+            "\(UserDefaults.summaryPeriods[$0]) days"
         }
 
         ctr.addGroup("Target Range")
