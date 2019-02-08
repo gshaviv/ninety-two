@@ -341,7 +341,10 @@ class MiaoMiao {
                 _last24.append(contentsOf: added)
                 pendingReadings.append(contentsOf: added)
                 if defaults[.writeHealthKit] {
-                    HealthKitManager.shared?.write(points: added)
+                    HealthKitManager.shared?.findLast {
+                        let date = $0 ?? Date.distantPast
+                        HealthKitManager.shared?.write(points: added.filter { $0.date > date })
+                    }
                 }
             }
             if pendingReadings.count > 3 {

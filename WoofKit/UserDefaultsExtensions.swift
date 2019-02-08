@@ -56,6 +56,9 @@ extension UserDefaults {
     public enum BoolKey: String {
         case didAlertEvent
         case writeHealthKit
+        case includePatternReport
+        case includeMealReport
+        case includeDailyReport
     }
 
     public func register() {
@@ -80,7 +83,10 @@ extension UserDefaults {
                                        DoubleKey.diaMinutes.key: 300.0,
                                        DoubleKey.peakMinutes.key: 125.0,
                                        DoubleKey.delayMinutes.key: 20.0,
-                                       IntKey.summaryPeriod.key: 2
+                                       IntKey.summaryPeriod.key: 2,
+                                       BoolKey.includeMealReport.key: true,
+                                       BoolKey.includeDailyReport.key: true,
+                                       BoolKey.includePatternReport.key: true
                                        ]
 
         register(defaults: defaults)

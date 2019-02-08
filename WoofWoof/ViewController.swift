@@ -370,6 +370,11 @@ class ViewController: UIViewController {
                             }
                             log("last HK record \(date), writng \(points.count) points")
                             HealthKitManager.shared?.write(points: points)
+
+                            let boluses = Storage.default.db.evaluate(Record.read().filter(Record.date > date && Record.bolus > 0).orderBy(Record.date)) ?? []
+                            if !boluses.isEmpty {
+                                HealthKitManager.shared?.write(records: boluses)
+                            }
                         }
                     })
                 }
@@ -496,6 +501,23 @@ class ViewController: UIViewController {
             defaults[.color0]
         }) {
             defaults[.color0] = $0
+        }
+
+        ctr.addGroup("Report")
+        ctr.addBool(title: "Daily Pattern", get: { () -> Bool in
+            return defaults[.includePatternReport]
+        }) {
+            defaults[.includePatternReport] = $0
+        }
+        ctr.addBool(title: "Meal Pattern", get: { () -> Bool in
+            return defaults[.includeMealReport]
+        }) {
+            defaults[.includeMealReport] = $0
+        }
+        ctr.addBool(title: "Daily Logs", get: { () -> Bool in
+            return defaults[.includeDailyReport]
+        }) {
+            defaults[.includeDailyReport] = $0
         }
 
         ctr.addGroup("")

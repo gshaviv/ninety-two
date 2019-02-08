@@ -210,13 +210,18 @@ class GlucoseReport {
                 maker.add(lows)
             }
 
-            self.patternReport(maker: maker)
-            self.mealReport(kind: .breakfast, maker: maker)
-            self.mealReport(kind: .lunch, maker: maker)
-            self.mealReport(kind: .dinner, maker: maker)
-
-            maker.beginPage()
-            self.dailyLogs(maker: maker)
+            if defaults[.includePatternReport] {
+                self.patternReport(maker: maker)
+            }
+            if defaults[.includeMealReport] {
+                self.mealReport(kind: .breakfast, maker: maker)
+                self.mealReport(kind: .lunch, maker: maker)
+                self.mealReport(kind: .dinner, maker: maker)
+            }
+            if defaults[.includeDailyReport] {
+                maker.beginPage()
+                self.dailyLogs(maker: maker)
+            }
         }
         if let doc = PDFDocument(data: data) {
             return doc
