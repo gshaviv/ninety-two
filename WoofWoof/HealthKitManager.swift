@@ -88,15 +88,15 @@ class HealthKitManager {
             fatalError("*** Unable to create glucose quantity type***")
         }
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        let query = HKSampleQuery(sampleType: glucoseType, predicate: nil, limit: 10, sortDescriptors: [sortDescriptor]) { (query, results, error) in
+        let query = HKSampleQuery(sampleType: glucoseType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { (query, results, error) in
             
             guard let result = results?.first as? HKQuantitySample else {
-                print("No HK records")
+                log("No HK records")
                 completion(nil)
                 return
             }
             
-            print ("Last HK reading: \(result)")
+            log("Last HK reading: \(result)")
             completion(result.endDate)
         }
         HealthKitManager.healthKitDataStore?.execute(query)
