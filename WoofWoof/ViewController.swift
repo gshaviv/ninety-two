@@ -433,13 +433,13 @@ class ViewController: UIViewController {
             defaults[.delayMinutes] = $0
         }
         if WCSession.default.isPaired && WCSession.default.isWatchAppInstalled {
-            ctr.addGroup("Watch")
-            ctr.addTime(title: "Complication wakeup time", get: {
+            ctr.addGroup("Watch Complication Updates")
+            ctr.addTime(title: "Wakeup time", get: {
                 (defaults[.watchWakeupTime] / 60, defaults[.watchWakeupTime] % 60)
             }) {
                 defaults[.watchWakeupTime] = $0 * 60 + $1
             }
-            ctr.addTime(title: "Complication sleep time", get: {
+            ctr.addTime(title: "Sleep time", get: {
                 (defaults[.watchSleepTime] / 60, defaults[.watchSleepTime] % 60)
             }) {
                 defaults[.watchSleepTime] = $0 * 60 + $1
