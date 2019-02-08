@@ -14,10 +14,10 @@ import Sqlable
 extension Date {
     var rounded: Date {
         var comp = components
-        if comp.minute ?? 0 > 57 {
+        if comp.minute ?? 0 > 59 {
             comp.hour = (comp.hour ?? 0) + 1
         }
-        comp.minute = Int(round(Double(comp.minute ?? 0) / 5.0) * 5)
+        comp.minute = Int(round(Double(comp.minute ?? 0)))
         return comp.toDate()
     }
 }

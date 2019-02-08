@@ -74,7 +74,7 @@ class AddRecordViewController: ActionSheetController {
     var selectedRecord: Record {
         var comp = Date().components
         comp.hour = picker.selectedRow(inComponent: Component.hour.rawValue)
-        comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
+        comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) 
         comp.second = 0
         kind = Record.Meal(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
         let u = picker.selectedRow(inComponent: Component.units.rawValue)
@@ -137,7 +137,7 @@ class AddRecordViewController: ActionSheetController {
 
         noteField.text = note
         picker.selectRow(now.hour, inComponent: Component.hour.rawValue, animated: false)
-        picker.selectRow(Int(round(Double(now.minute) / 5.0)), inComponent: Component.minute.rawValue, animated: false)
+        picker.selectRow(Int(round(Double(now.minute))), inComponent: Component.minute.rawValue, animated: false)
         if let kind = kind {
             picker.selectRow(kind.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
         } else {
@@ -175,7 +175,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             return 24
 
         case .minute:
-            return 12
+            return 60
 
         case .meal:
             return 5
@@ -191,7 +191,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             return "\(row)"
 
         case .minute:
-            return "\(row * 5)"
+            return "\(row)"
 
         case .meal:
             return Record.Meal(rawValue: row - 1)?.name.capitalized ?? "None"
@@ -213,7 +213,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             case .hour, .minute:
                 var comp = rec.date.components
                 comp.hour = pickerView.selectedRow(inComponent: Component.hour.rawValue)
-                comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) * 5
+                comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue)
                 editRecord?.date = comp.toDate()
 
             case .units:
