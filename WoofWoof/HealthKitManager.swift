@@ -9,6 +9,7 @@ enum HealthKitManagerError: Error {
 }
 
 class HealthKitManager {
+    static private(set) var lastDate: Date? = nil
     static let healthKitDataStore = HKHealthStore.isHealthDataAvailable() ? HKHealthStore() : nil
     static let shared = HKHealthStore.isHealthDataAvailable() ? HealthKitManager() : nil
     class var isAvailable: Bool {
@@ -79,24 +80,32 @@ class HealthKitManager {
                              metadata: nil)
         }
         HealthKitManager.healthKitDataStore?.save(glucoseData) { (success, error) in
-            //print("Glucose data saved to HealthKit.")
+            HealthKitManager.lastDate = glucoseData.last?.endDate
         }
     }
     
     func findLast(completion: @escaping (Date?) -> ()) {
+        if let last =  HealthKitManager.lastDate {
+            completion(last)
+            return
+        }
         guard let glucoseType = HKQuantityType.quantityType(forIdentifier: .bloodGlucose) else {
             fatalError("*** Unable to create glucose quantity type***")
         }
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         let query = HKSampleQuery(sampleType: glucoseType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { (query, results, error) in
-            
             guard let result = results?.first as? HKQuantitySample else {
-                log("No HK records")
+                if let error = error {
+                    logError("HK error \(error)")
+                } else {
+                    log("No HK records")
+                }
                 completion(nil)
                 return
             }
             
             log("Last HK reading: \(result)")
+            HealthKitManager.lastDate = result.endDate
             completion(result.endDate)
         }
         HealthKitManager.healthKitDataStore?.execute(query)
