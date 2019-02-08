@@ -155,8 +155,14 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="VPo-0C-dTi">
                                                 <rect key="frame" x="0.0" y="0.0" width="91" height="72"/>
                                                 <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last ..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2qg-GR-GWr">
+                                                        <rect key="frame" x="0.0" y="0.0" width="91" height="17"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TMK-8H-YTt" customClass="PieChart" customModule="WoofWoof" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="0.0" width="91" height="72"/>
+                                                        <rect key="frame" x="0.0" y="17" width="91" height="55"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </view>
                                                 </subviews>
@@ -298,6 +304,7 @@
                         <outlet property="percentLowLabel" destination="eIO-Wc-w8T" id="Mz3-s8-bn5"/>
                         <outlet property="pieChart" destination="TMK-8H-YTt" id="GOx-8F-m82"/>
                         <outlet property="sensorAgeLabel" destination="tss-jP-hB5" id="KTA-G8-LEh"/>
+                        <outlet property="summaryPeriodLabel" destination="2qg-GR-GWr" id="Vbg-B6-VaO"/>
                         <outlet property="timeSpanSelector" destination="t4g-Xt-sNc" id="MTx-G2-cN3"/>
                         <outlet property="trendLabel" destination="goz-Lk-GC9" id="mfz-8k-dli"/>
                     </connections>
@@ -319,24 +326,24 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Cww-ad-Yk0">
-                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Cww-ad-Yk0" userLabel="Main Stack View">
+                                <rect key="frame" x="0.0" y="64" width="375" height="583"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tic-94-NqD">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="38"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="Yg6-x0-PlP">
-                                                <rect key="frame" x="57.5" y="4" width="260" height="42"/>
+                                                <rect key="frame" x="57.5" y="4" width="260" height="30"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eyI-1G-BJB">
-                                                        <rect key="frame" x="0.0" y="0.0" width="30" height="42"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                                                         <state key="normal" image="back"/>
                                                         <connections>
                                                             <action selector="handleBack" destination="ZUa-p3-23U" eventType="touchUpInside" id="P2G-ss-dYS"/>
                                                         </connections>
                                                     </button>
                                                     <label opaque="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="Date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="FIm-WP-qsv">
-                                                        <rect key="frame" x="38" y="0.0" width="184" height="42"/>
+                                                        <rect key="frame" x="38" y="0.0" width="184" height="30"/>
                                                         <gestureRecognizers/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
@@ -346,7 +353,7 @@
                                                         </connections>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xjd-DV-IUK">
-                                                        <rect key="frame" x="230" y="0.0" width="30" height="42"/>
+                                                        <rect key="frame" x="230" y="0.0" width="30" height="30"/>
                                                         <state key="normal" image="forward"/>
                                                         <connections>
                                                             <action selector="handleForward" destination="ZUa-p3-23U" eventType="touchUpInside" id="2nR-Ud-wNS"/>
@@ -366,15 +373,15 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hUU-MU-rlj" customClass="GlucoseGraph" customModule="WoofKit">
-                                        <rect key="frame" x="0.0" y="50" width="375" height="431"/>
+                                        <rect key="frame" x="0.0" y="38" width="375" height="425"/>
                                         <color key="backgroundColor" white="0.90000000000000002" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="tintColor" red="0.57380741830000004" green="0.56553578380000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S65-A6-Uxo">
-                                        <rect key="frame" x="0.0" y="481" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="463" width="375" height="48"/>
                                         <subviews>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="R9k-9V-s93">
-                                                <rect key="frame" x="20" y="10" width="335" height="31"/>
+                                                <rect key="frame" x="20" y="10" width="335" height="29"/>
                                                 <color key="backgroundColor" red="0.90037679289999994" green="0.90037679289999994" blue="0.90037679289999994" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <segments>
                                                     <segment title="24h"/>
@@ -399,7 +406,7 @@
                                         </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Yea-co-oUv">
-                                        <rect key="frame" x="0.0" y="531" width="375" height="72"/>
+                                        <rect key="frame" x="0.0" y="511" width="375" height="72"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4pu-Jc-IyE" customClass="PieChart" customModule="WoofWoof" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="91" height="72"/>
@@ -513,7 +520,7 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Cww-ad-Yk0" secondAttribute="trailing" id="1Uv-N7-VgE"/>
                             <constraint firstItem="Cww-ad-Yk0" firstAttribute="top" secondItem="w3Z-Aq-OkM" secondAttribute="top" id="DNX-19-cMf"/>
-                            <constraint firstItem="w3Z-Aq-OkM" firstAttribute="bottom" secondItem="Cww-ad-Yk0" secondAttribute="bottom" id="QOl-ox-yWp"/>
+                            <constraint firstItem="w3Z-Aq-OkM" firstAttribute="bottom" secondItem="Cww-ad-Yk0" secondAttribute="bottom" priority="900" id="QOl-ox-yWp"/>
                             <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Cww-ad-Yk0" secondAttribute="bottom" constant="20" id="f36-D4-5qH"/>
                             <constraint firstItem="Cww-ad-Yk0" firstAttribute="leading" secondItem="w3Z-Aq-OkM" secondAttribute="leading" id="zhW-Km-9Z6"/>
                         </constraints>
@@ -572,14 +579,14 @@
                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="JCF-XS-EOE">
                                                             <rect key="frame" x="8" y="8" width="359" height="118"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zg8-c8-pjn">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="359" height="24"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zg8-c8-pjn">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="359" height="0.0"/>
                                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
-                                                                <datePicker contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="FM5-tk-v8j">
-                                                                    <rect key="frame" x="0.0" y="24" width="359" height="94"/>
+                                                                <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="FM5-tk-v8j">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="359" height="118"/>
                                                                     <date key="date" timeIntervalSinceReferenceDate="570715919.33170795">
                                                                         <!--2019-02-01 12:11:59 +0000-->
                                                                     </date>

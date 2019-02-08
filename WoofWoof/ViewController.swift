@@ -35,6 +35,7 @@ class ViewController: UIViewController {
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     @IBOutlet var iobLabel: UILabel!
     @IBOutlet var lowCountLabel: UILabel!
+    @IBOutlet var summaryPeriodLabel: UILabel!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
@@ -98,11 +99,60 @@ class ViewController: UIViewController {
                 }
             }
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
         defaults[.timeSpanIndex] = sender.selectedSegmentIndex
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
+    }
+
+    @objc private func updateSummary() {
+        do {
+            defaults[.lastStatisticsCalculation] = Date()
+            let child = try Storage.default.db.createChild()
+            var lowCount = 0
+            var inLow = false
+            summaryPeriodLabel.text = "Last \(defaults.summaryPeriod)d"
+            DispatchQueue.global().async {
+                if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
+                    let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
+                    let withTime = zip(readings.dropLast(), diffs)
+                    let withGoodTime = withTime.filter { $0.1 < 20.m }
+                    let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
+                        let (sum, total, below, inRange, above) = result
+                        let (gp, duration) = arg
+                        let x0 = sum + gp.value * duration
+                        let x1 = total + duration
+                        let x2 = gp.value < defaults[.minRange] ? below + duration : below
+                        let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
+                        let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
+                        if gp.value > defaults[.minRange] {
+                            if !inLow {
+                                lowCount += 1
+                            }
+                            inLow = true
+                        } else {
+                            inLow = false
+                        }
+                        return (x0, x1, x2, x3, x4)
+                    }
+                    let aveG = sumG / totalT
+                    let a1c = (aveG / 18.05 + 2.52) / 1.583
+                    DispatchQueue.main.async {
+                        self.lowCountLabel.text = "\(lowCount)"
+                        self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
+                        self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
+                        self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
+                        self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
+                        self.a1cLabel.text = String(format: "%.1lf%%", a1c)
+                        self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeBelow), color: .red),
+                                                PieChart.Slice(value: CGFloat(timeIn), color: .green),
+                                                PieChart.Slice(value: CGFloat(timeAbove), color: .yellow)]
+                    }
+                }
+            }
+        } catch {}
     }
 
     func update() {
@@ -162,50 +212,7 @@ class ViewController: UIViewController {
             iobLabel.isHidden = true
         }
         if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(3.h, defaults.summaryPeriod.d / 20), 1.d) {
-            do {
-                defaults[.lastStatisticsCalculation] = Date()
-                let child = try Storage.default.db.createChild()
-                var lowCount = 0
-                var inLow = false
-                DispatchQueue.global().async {
-                    if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
-                        let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
-                        let withTime = zip(readings.dropLast(), diffs)
-                        let withGoodTime = withTime.filter { $0.1 < 20.m }
-                        let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
-                            let (sum, total, below, inRange, above) = result
-                            let (gp, duration) = arg
-                            let x0 = sum + gp.value * duration
-                            let x1 = total + duration
-                            let x2 = gp.value < defaults[.minRange] ? below + duration : below
-                            let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
-                            let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
-                            if gp.value > defaults[.minRange] {
-                                if !inLow {
-                                    lowCount += 1
-                                }
-                                inLow = true
-                            } else {
-                                inLow = false
-                            }
-                            return (x0, x1, x2, x3, x4)
-                        }
-                        let aveG = sumG / totalT
-                        let a1c = (aveG / 18.05 + 2.52) / 1.583
-                        DispatchQueue.main.async {
-                            self.lowCountLabel.text = "\(lowCount)"
-                            self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
-                            self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
-                            self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
-                            self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
-                            self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                            self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeBelow), color: .red),
-                                                    PieChart.Slice(value: CGFloat(timeIn), color: .green),
-                                                    PieChart.Slice(value: CGFloat(timeAbove), color: .yellow)]
-                        }
-                    }
-                }
-            } catch {}
+            updateSummary()
         }
     }
 
