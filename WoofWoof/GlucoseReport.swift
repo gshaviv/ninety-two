@@ -710,6 +710,9 @@ class GlucoseReport {
             let nextMealDate = allMeals.first(where: { $0.date > meal.date})?.date ?? Date.distantFuture
             let limitDate = min(meal.date + 5.h, nextMealDate)
             let points = readings.filter { $0.date > meal.date && $0.date < limitDate }
+            if points.count < 2 {
+                continue
+            }
             for point in points[1...] {
                 let inBucket = Int((point.date - points[0].date) / 1800.0)
                 afterMealBuckets[inBucket].append(point.value - points[0].value)

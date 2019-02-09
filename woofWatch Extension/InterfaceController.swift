@@ -152,7 +152,7 @@ class InterfaceController: WKInterfaceController {
                            CGRect(x: 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)]
 
             let trect = options.first {
-                let toCheck = $0.insetBy(dx: -3, dy: -3)
+                let toCheck = $0.insetBy(dx: -3 * WKInterfaceDevice.current().screenScale, dy: -3 * WKInterfaceDevice.current().screenScale)
                 for point in p {
                     if toCheck.contains(point) {
                         return false
