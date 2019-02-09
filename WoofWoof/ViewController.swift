@@ -702,15 +702,12 @@ extension ViewController: GlucoseGraphDelegate {
             guard let current = readings.last else {
                 return
             }
-            let meals = Storage.default.allMeals.filter { $0.date < record.date  }
             let relevantMeals = Storage.default.relevantMeals(to: record)
             var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 return
             }
-            for meal in relevantMeals {
-                let nextEvent = meals.first(where: { $0.date > meal.date })
-                let nextDate = nextEvent?.date ?? Date.distantFuture
+            for (meal, nextDate) in relevantMeals {
                 let relevantPoints = readings.filter { $0.date >= meal.date && $0.date <= nextDate && $0.date < meal.date + 5.h }
                 points.append(relevantPoints)
             }
@@ -721,7 +718,7 @@ extension ViewController: GlucoseGraphDelegate {
                 guard mealPoints.count > 2 else {
                     continue
                 }
-                let stat = mealStatistics(meal: meal, points: mealPoints)
+                let stat = mealStatistics(meal: meal.0, points: mealPoints)
                 highs.append(stat.0)
                 lows.append(stat.2)
                 timeToHigh.append(stat.1)

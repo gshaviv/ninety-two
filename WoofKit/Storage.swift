@@ -49,16 +49,39 @@ public class Storage: NSObject {
     @objc private func didReceiveMemoryWarning() {
         _allEntries = nil
     }
-    public func relevantMeals(to record: Record) -> [Record] {
-        let meals = allMeals.filter { abs(Double($0.bolus) + round($0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart) < max(ceil(record.insulinOnBoardAtStart), ceil($0.insulinOnBoardAtStart), 1) && $0.id != record.id }
-        var relevantMeals = meals.filter { $0.meal == record.meal || $0.note == record.note ?? "" }
+
+    public func relevantMeals(to record: Record) -> [(Record, Date)] {
+        var possibleRecords = [(Record,Date)]()
+
+        let timeframe = defaults[.diaMinutes] * 60 + defaults[.delayMinutes] * 60
+        for (idx, meal) in allMeals.enumerated() {
+            guard meal.meal != nil else {
+                continue
+            }
+            var endTime = meal.date + 5.h
+            var extra = 0
+            for fixup in allMeals[idx...] {
+                guard fixup.date < endTime else {
+                    break
+                }
+                if fixup.meal != nil {
+                    endTime = fixup.date
+                    break
+                }
+                extra += fixup.bolus
+                endTime = max(endTime, fixup.date + timeframe)
+            }
+            possibleRecords.append((Record(date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
+        }
+        let meals = possibleRecords.filter { abs(Double($0.0.bolus) + round($0.0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart) < max(ceil(record.insulinOnBoardAtStart), ceil($0.0.insulinOnBoardAtStart), 1) && $0.0.id != record.id }
+        var relevantMeals = meals.filter { $0.0.meal == record.meal || record.note == nil || record.note == $0.0.note }
         if let note = record.note {
-            let posible = relevantMeals.filter { $0.note?.hasPrefix(note) == true }
+            let posible = relevantMeals.filter { $0.0.note?.hasPrefix(note) == true }
             if !posible.isEmpty {
                 relevantMeals = posible
             }
         }
-        let stricter = relevantMeals.filter { $0.meal == record.meal }
+        let stricter = relevantMeals.filter { $0.0.meal == record.meal }
         if stricter.count > 3 {
             relevantMeals = stricter
         }

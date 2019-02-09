@@ -305,10 +305,8 @@ extension AddRecordViewController {
                 return
             }
             var points = [[GlucosePoint]]()
-            for meal in relevantMeals {
-                let nextEvent = self.meals.first(where: { $0.date > meal.date })
-                let nextDate = nextEvent?.date ?? Date.distantFuture
-                let relevantPoints = self.readings.filter { $0.date >= meal.date && $0.date <= nextDate && $0.date < meal.date + 5.h }
+            for (meal, nextDate) in relevantMeals {
+                let relevantPoints = self.readings.filter { $0.date >= meal.date && $0.date <= nextDate }
                 points.append(relevantPoints)
             }
             var highs: [Double] = []
@@ -318,7 +316,7 @@ extension AddRecordViewController {
                 if mealPoints.count < 2 {
                     continue
                 }
-                let stat = mealStatistics(meal: meal, points: mealPoints)
+                let stat = mealStatistics(meal: meal.0, points: mealPoints)
                 highs.append(stat.0)
                 lows.append(stat.2)
                 timeToHigh.append(stat.1)
