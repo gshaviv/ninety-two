@@ -54,22 +54,24 @@ public class Storage: NSObject {
         var possibleRecords = [(Record,Date)]()
 
         let timeframe = defaults[.diaMinutes] * 60 + defaults[.delayMinutes] * 60
-        for (idx, meal) in allMeals.enumerated() {
+        for (idx, meal) in allEntries.enumerated() {
             guard meal.meal != nil else {
                 continue
             }
             var endTime = meal.date + 5.h
             var extra = 0
-            for fixup in allMeals[idx...] {
-                guard fixup.date < endTime else {
-                    break
+            if idx < allEntries.count - 1 {
+                for fixup in allEntries[(idx+1)...] {
+                    guard fixup.date < endTime || fixup.meal == nil else {
+                        break
+                    }
+                    if fixup.meal != nil {
+                        endTime = fixup.date
+                        break
+                    }
+                    extra += fixup.bolus
+                    endTime = max(endTime, fixup.date + timeframe)
                 }
-                if fixup.meal != nil {
-                    endTime = fixup.date
-                    break
-                }
-                extra += fixup.bolus
-                endTime = max(endTime, fixup.date + timeframe)
             }
             possibleRecords.append((Record(date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
