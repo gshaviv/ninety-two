@@ -308,6 +308,10 @@ public class GlucoseGraph: UIView {
                 mealImage.fill(at: center, with: c)
                 touchables.append((CGRect(center: center, size: mealSize), r))
                 y += above ? mealSize.height + 4 : -mealSize.height - 4
+                if let note = r.note ?? r.meal?.name.capitalized {
+                    let text = note.styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                    text.draw(at: center + CGPoint(x: mealSize.width / 2, y: -6))
+                }
             }
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: x, y: y))
