@@ -298,13 +298,13 @@ extension AddRecordViewController {
                 return
             }
             let relevantMeals = Storage.default.relevantMeals(to: record)
-            var points = [[GlucosePoint]]()
             guard !relevantMeals.isEmpty else {
                 DispatchQueue.main.async {
                     self.setPrediction(nil)
                 }
                 return
             }
+            var points = [[GlucosePoint]]()
             for meal in relevantMeals {
                 let nextEvent = self.meals.first(where: { $0.date > meal.date })
                 let nextDate = nextEvent?.date ?? Date.distantFuture
@@ -331,11 +331,11 @@ extension AddRecordViewController {
             let predictedTime = Date() + timeToHigh.sorted().median()
             DispatchQueue.main.async {
                 if predictedHigh > predictedHigh25 && predictedLow > predictedLow10 {
-                    self.setPrediction("\(predictedHigh25)-\(predictedHigh)-\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow = \(predictedLow), 90% above \(predictedLow10)")
+                    self.setPrediction("\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 } else if predictedHigh > predictedHigh25 {
-                    self.setPrediction("\(predictedHigh25)-\(predictedHigh)-\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow = \(predictedLow)")
+                    self.setPrediction("\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 } else {
-                    self.setPrediction("\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow = \(predictedLow)")
+                    self.setPrediction("\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 }
                 self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h10: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h90: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
             }

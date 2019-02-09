@@ -104,7 +104,6 @@ class HealthKitManager {
                 return
             }
             
-            log("Last HK reading: \(result)")
             HealthKitManager.lastDate = result.endDate
             completion(result.endDate)
         }

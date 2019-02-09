@@ -13,6 +13,11 @@ import WoofKit
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
+    func miaomiaoError(_ error: String)
+}
+
+extension MiaoMiaoDelegate {
+    func miaomiaoError(_ error: String) {}
 }
 
 class MiaoMiao {
@@ -158,7 +163,7 @@ class MiaoMiao {
                     }
                 }
                 DispatchQueue.main.async {
-                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: []) }
+                    MiaoMiao.delegate?.forEach { $0.miaomiaoError("No sensor detected") }
                 }
 
             case Code.startPacket:
@@ -244,7 +249,7 @@ class MiaoMiao {
                     Command.send(Code.shortFrequency)
                 }
                 DispatchQueue.main.async {
-                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: []) }
+                    MiaoMiao.delegate?.forEach { $0.miaomiaoError("Failed to read data") }
                 }
             }
             packetData = []

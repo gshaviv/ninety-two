@@ -651,6 +651,10 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: MiaoMiaoDelegate {
+    func miaomiaoError(_ error: String) {
+        self.connectingLabel.text = error
+        self.connectingLabel.isHidden = false
+    }
 
     func didUpdate(addedHistory: [GlucosePoint]) {
         if UIApplication.shared.applicationState != .background {

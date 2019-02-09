@@ -62,7 +62,7 @@ public class Storage: NSObject {
         if stricter.count > 3 {
             relevantMeals = stricter
         }
-        return relevantMeals
+        return relevantMeals.count > 4 ? relevantMeals : []
     }
     public func insulinOnBoard(at date: Date) -> Double {
         let dia = defaults[.diaMinutes] * 60
