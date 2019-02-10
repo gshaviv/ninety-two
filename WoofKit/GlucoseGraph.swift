@@ -308,9 +308,22 @@ public class GlucoseGraph: UIView {
                 mealImage.fill(at: center, with: c)
                 touchables.append((CGRect(center: center, size: mealSize), r))
                 y += above ? mealSize.height + 4 : -mealSize.height - 4
-                if let note = r.note ?? r.meal?.name.capitalized {
+                if let note = r.note {
                     let text = note.styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
-                    text.draw(at: center + CGPoint(x: mealSize.width / 2, y: -6))
+                    let size = text.size()
+                    let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+                    let check = r1.insetBy(dx: -3, dy: -6)
+                    if p.first(where: { check.contains($0) }) != nil {
+                        let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
+                        let check = r2.insetBy(dx: -3, dy: -6)
+                        if p.first(where: { check.contains($0) }) != nil {
+                            text.draw(in: r1)
+                        } else {
+                            text.draw(in: r2)
+                        }
+                    } else {
+                        text.draw(in: r1)
+                    }
                 }
             }
             ctx?.beginPath()
