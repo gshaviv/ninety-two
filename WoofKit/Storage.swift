@@ -55,6 +55,9 @@ public class Storage: NSObject {
 
         let timeframe = defaults[.diaMinutes] * 60 + defaults[.delayMinutes] * 60
         for (idx, meal) in allEntries.enumerated() {
+            guard meal.date < record.date else {
+                break
+            }
             guard meal.meal != nil else {
                 continue
             }
@@ -87,7 +90,7 @@ public class Storage: NSObject {
         if stricter.count > 3 {
             relevantMeals = stricter
         }
-        return relevantMeals.count > 4 ? relevantMeals : []
+        return relevantMeals
     }
     public func insulinOnBoard(at date: Date) -> Double {
         let dia = defaults[.diaMinutes] * 60
