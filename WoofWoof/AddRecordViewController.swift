@@ -49,7 +49,7 @@ class AddRecordViewController: ActionSheetController {
         }
         return wordList.sorted()
     }()
-    private lazy var iob: Double = Storage.default.insulinOnBoard(at: Date())
+    private lazy var iob: Double = editRecord?.insulinOnBoardAtStart ?? Storage.default.insulinOnBoard(at: Date())
 
     @IBAction func handleCancel(_ sender: Any) {
         onSelect = nil
@@ -85,8 +85,8 @@ class AddRecordViewController: ActionSheetController {
         let record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
         record.meal = kind
         record.bolus = units ?? 0
-        if let note = noteField.text, !note.trimmed.isEmpty {
-            record.note = note.trimmed
+        if let note = noteField.text {
+            record.note = note.trimmed.isEmpty ? nil : note.trimmed
         }
         return record
     }
@@ -282,7 +282,7 @@ extension AddRecordViewController {
         } else {
             predictionLabel.text = "No prediction available\n\n"
             if iob > 0 {
-                predictionLabel.text = "IOB = \(iob.formatted(with: "%.1lf"))U"
+                predictionLabel.text = "IOB = \(iob.formatted(with: "%.1lf"))U\n\n"
             }
             predictionLabel.alpha = 0.5
         }

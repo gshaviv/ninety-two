@@ -126,6 +126,9 @@ extension Date {
     public var day: Int {
         return components.day ?? 0
     }
+    public var weekDay: Int {
+        return components.weekday ?? 0
+    }
     public var month: Int {
         return components.month ?? 0
     }
@@ -140,6 +143,15 @@ extension Date {
     }
     public var second: Int {
         return components.second ?? 0
+    }
+}
+
+extension UIImage {
+    public class func imageWithColor(_ color: UIColor) -> UIImage {
+        return UIGraphicsImageRenderer(bounds: CGRect(x: 0, y: 0, width: 1, height: 1)).image(actions: { (ctx) in
+            color.set()
+            ctx.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+        })
     }
 }
 

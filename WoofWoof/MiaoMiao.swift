@@ -39,7 +39,7 @@ class MiaoMiao {
         delegate?.append(obj)
     }
 
-    private static var shortRefresh = false
+    private static var shortRefresh: Bool?
     static var serial: String? {
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
@@ -109,7 +109,7 @@ class MiaoMiao {
         static let endPacket: Byte = 0x29
         static let startReading: [Byte] = [0xf0]
         static let allowSensor: [Byte] = [0xd3, 0x01]
-        static let normalFrequency: [Byte] = [0xD1, 5]
+        static let normalFrequency: [Byte] = [0xD1, 3]
         static let shortFrequency: [Byte] = [0xd1, 1]
         static let frequencyResponse: Byte = 0xd1
     }
@@ -140,7 +140,7 @@ class MiaoMiao {
                 if defaults[.nextNoSensorAlert] == nil {
                     defaults[.nextNoSensorAlert] = Date() + 2.m
                 }
-                if !shortRefresh {
+                if let r = shortRefresh, r == false {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
                 }
@@ -158,7 +158,7 @@ class MiaoMiao {
                         })
                     }
                 } else {
-                    DispatchQueue.global().after(withDelay: shortRefresh ? 30.s : 2.m ) {
+                    DispatchQueue.global().after(withDelay: 30.s) {
                         Command.startReading()
                     }
                 }
@@ -179,7 +179,9 @@ class MiaoMiao {
 
                 default:
                     logError("Failed to change frequency")
-                    shortRefresh = !shortRefresh
+                    if let sr = shortRefresh {
+                        shortRefresh = !sr
+                    }
                 }
 
             default:
@@ -244,7 +246,7 @@ class MiaoMiao {
                 }
             } else {
                 logError("Failed to read data")
-                if !shortRefresh {
+                if let sr = shortRefresh, !sr {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
                 }
@@ -287,10 +289,10 @@ class MiaoMiao {
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
                 }
-                if current.value < 70 && !shortRefresh {
+                if current.value < 70 && (shortRefresh == nil || !shortRefresh!) {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
-                } else if current.value > 70 && shortRefresh {
+                } else if current.value > 70 && (shortRefresh == nil || shortRefresh!) {
                     shortRefresh = false
                     Command.send(Code.normalFrequency)
                 }
@@ -314,7 +316,7 @@ class MiaoMiao {
                 break
             }
             if point.date < last {
-                last = point.date - 4.m⁚30.s
+                last = point.date - 2.m⁚30.s
                 toAppend.append(point)
             }
         }
@@ -331,7 +333,7 @@ class MiaoMiao {
         DispatchQueue.global().async {
             var added = [GlucosePoint]()
             if let last = last24hReadings.last?.date {
-                let storeInterval = 5.m
+                let storeInterval = 3.m
                 let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {

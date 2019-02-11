@@ -26,7 +26,7 @@ class HistoryViewController: UIViewController {
 
     var displayDay: Date! {
         didSet {
-            guard let displayDay = displayDay else {
+            guard isViewLoaded, let displayDay = displayDay else {
                 return
             }
             updateControls()
@@ -71,7 +71,18 @@ class HistoryViewController: UIViewController {
         timeSpanSelector.selectedSegmentIndex = defaults[.timeSpanIndex]
         graphView.xTimeSpan = timeSpan[defaults[.timeSpanIndex]]
         graphView.delegate = self
-        displayDay = Date().startOfDay - 12.h
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let displayDay = displayDay {
+            self.displayDay = displayDay
+            DispatchQueue.main.async {
+                self.graphView.scroll(to: displayDay)
+            }
+        } else {
+            displayDay = Date().startOfDay - 12.h
+        }
     }
 
     func updateControls() {

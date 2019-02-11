@@ -76,9 +76,12 @@ public class Storage: NSObject {
                     endTime = max(endTime, fixup.date + timeframe)
                 }
             }
-            possibleRecords.append((Record(date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
+            possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
-        let meals = possibleRecords.filter { abs(Double($0.0.bolus) + round($0.0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart) < max(ceil(record.insulinOnBoardAtStart), ceil($0.0.insulinOnBoardAtStart), 1) && $0.0.id != record.id }
+        let meals = possibleRecords.filter {
+            let diff = abs(Double($0.0.bolus) + round($0.0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart)
+            return diff <= max(round(record.insulinOnBoardAtStart), round($0.0.insulinOnBoardAtStart), 0.75) && $0.0.id != record.id
+        }
         var relevantMeals = meals.filter { $0.0.meal == record.meal || record.note == nil || record.note == $0.0.note }
         if let note = record.note {
             let posible = relevantMeals.filter { $0.0.note?.hasPrefix(note) == true }

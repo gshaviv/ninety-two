@@ -74,12 +74,12 @@ public class Record : Hashable, Equatable {
     private(set) public var id: Int?
     public var note: String?
 
-    public init(date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String? = nil) {
+    public init(id: Int? = nil, date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String? = nil) {
         self.date = date
         self.meal = meal
         self.bolus = bolus ?? 0
         self.note = note
-        self.id = nil
+        self.id = id
 
         commonInit()
     }

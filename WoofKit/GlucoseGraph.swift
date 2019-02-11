@@ -478,6 +478,13 @@ public class GlucoseGraph: UIView {
         }
     }
 
+    public func scroll(to date: Date) {
+        let scrollTo = max(min(date - xTimeSpan / 2, xRange.max), xRange.min)
+        let w = contentView.bounds.width
+        let offset = (scrollTo - xRange.min) / (xRange.max - xRange.min) * Double(w)
+        contentHolder.contentOffset = CGPoint(x: offset, y: 0)
+    }
+
     private func commonInit() {
         contentView = DrawingView { [weak self] (rect) in
             self?.drawContent(rect)

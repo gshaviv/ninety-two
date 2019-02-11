@@ -95,6 +95,7 @@
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
 		E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddRecordViewController.swift */; };
 		E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddRecordViewController.xib */; };
+		E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4892B9C2211EC5600A647B8 /* SearchViewController.swift */; };
 		E48B2D5F21F6109C001B19EB /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48B2D5E21F6109C001B19EB /* Record.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
 		E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42BC21C6D96E001AF4CD /* SensorState.swift */; };
@@ -366,6 +367,7 @@
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		E488740121F249D500694F6C /* AddRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordViewController.swift; sourceTree = "<group>"; };
 		E488740221F249D500694F6C /* AddRecordViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddRecordViewController.xib; sourceTree = "<group>"; };
+		E4892B9C2211EC5600A647B8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
@@ -712,6 +714,7 @@
 				E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */,
 				E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */,
 				E4C4E0BF21FC41880046D28F /* Settings.storyboard */,
+				E4892B9C2211EC5600A647B8 /* SearchViewController.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1232,6 +1235,7 @@
 				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
 				E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */,
 				E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */,
+				E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
 				E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */,
 				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,

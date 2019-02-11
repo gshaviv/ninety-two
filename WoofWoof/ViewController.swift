@@ -115,6 +115,8 @@ class ViewController: UIViewController {
             var inLow = false
             summaryPeriodLabel.text = "Last \(defaults.summaryPeriod)d"
             DispatchQueue.global().async {
+                var lowStart: Date?
+                var lowTime = [TimeInterval]()
                 if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
                     let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                     let withTime = zip(readings.dropLast(), diffs)
@@ -127,20 +129,26 @@ class ViewController: UIViewController {
                         let x2 = gp.value < defaults[.minRange] ? below + duration : below
                         let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
                         let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
-                        if gp.value > defaults[.minRange] {
+                        if gp.value < defaults[.minRange] {
                             if !inLow {
                                 lowCount += 1
+                                lowStart = gp.date
                             }
                             inLow = true
                         } else {
+                            if inLow, let lowStart = lowStart {
+                                lowTime.append(gp.date - lowStart)
+                            }
                             inLow = false
                         }
                         return (x0, x1, x2, x3, x4)
                     }
                     let aveG = sumG / totalT
                     let a1c = (aveG / 18.05 + 2.52) / 1.583
+                    let medianLowTime = Int(lowTime.sorted().median() / 1.m)
                     DispatchQueue.main.async {
-                        self.lowCountLabel.text = "\(lowCount)"
+                        let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
+                        self.lowCountLabel.text = "\(lowCount) (\(medianTime))"
                         self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
                         self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
