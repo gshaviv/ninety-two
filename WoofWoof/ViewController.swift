@@ -214,7 +214,7 @@ class ViewController: UIViewController {
         }
         let iob = Storage.default.insulinOnBoard(at: Date())
         if iob > 0 && UIScreen.main.bounds.width > 350.0 {
-            iobLabel.text = "IOB\n\(iob.formatted(with: "%.1lf"))"
+            iobLabel.text = "BOB\n\(iob.formatted(with: "%.1lf"))"
             iobLabel.isHidden = false
         } else {
             iobLabel.isHidden = true

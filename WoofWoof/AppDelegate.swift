@@ -18,7 +18,11 @@ private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
+    var window: UIWindow? {
+        didSet {
+            window?.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
+        }
+    }
     #if targetEnvironment(simulator)
         var updater: Repeater?
     #endif

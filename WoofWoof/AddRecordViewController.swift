@@ -276,13 +276,13 @@ extension AddRecordViewController {
         if let str = str {
             predictionLabel.text = str
             if iob > 0 {
-                predictionLabel.text = "\(str), IOB=\(iob.formatted(with: "%.1lf"))U"
+                predictionLabel.text = "\(str), BOB=\(iob.formatted(with: "%.1lf"))U"
             }
             predictionLabel.alpha = 1
         } else {
             predictionLabel.text = "No prediction available\n\n"
             if iob > 0 {
-                predictionLabel.text = "IOB = \(iob.formatted(with: "%.1lf"))U\n\n"
+                predictionLabel.text = "BOB = \(iob.formatted(with: "%.1lf"))U\n\n"
             }
             predictionLabel.alpha = 0.5
         }

@@ -10,29 +10,36 @@ import UIKit
 import WoofKit
 
 class SearchViewController: UITableViewController {
-    var filtered = Storage.default.allMeals {
+    private var search = UISearchBar(frame: .zero)
+    var filtered = Array(Storage.default.allMeals.reversed()) {
         didSet {
             tableView.reloadData()
         }
     }
+    var first = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(close))
-
-        let search = UISearchBar(frame: .zero)
+        tableView.keyboardDismissMode = .onDrag
+        clearsSelectionOnViewWillAppear = false
         search.scopeButtonTitles = ["Any","Breakfast","Lunch","Dinner","Other"]
         search.showsScopeBar = true
         search.searchBarStyle = .minimal
         search.scopeBarBackgroundImage = UIImage.imageWithColor(.white)
         search.delegate = self
+        view.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
+        search.barTintColor = view.tintColor
         tableView.tableHeaderView = search
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tableView.tableHeaderView?.sizeToFit()
-        tableView.tableHeaderView?.becomeFirstResponder()
+        if first {
+            tableView.tableHeaderView?.sizeToFit()
+            tableView.tableHeaderView?.becomeFirstResponder()
+            first = false
+        }
     }
     @objc private func close() {
         dismiss(animated: true, completion: nil)
@@ -57,8 +64,25 @@ class SearchViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ctr = storyboard?.instantiateViewController(withIdentifier: "history") as! HistoryViewController
         ctr.displayDay = filtered[indexPath.row].date
+        tableView.tableHeaderView?.resignFirstResponder()
         show(ctr, sender: nil)
     }
+
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let record = filtered[indexPath.row]
+        do {
+            try Storage.default.db.perform(record.delete())
+            Storage.default.reloadToday()
+            search(string: search.text ?? "", scope: Record.Meal(rawValue: search.selectedScopeButtonIndex - 1))
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        } catch {}
+    }
+
+
 }
 
 extension SearchViewController: UISearchBarDelegate {
@@ -72,12 +96,15 @@ extension SearchViewController: UISearchBarDelegate {
     }
 
     func search(string: String, scope: Record.Meal?) {
-        filtered = Storage.default.allMeals.filter {
+        filtered = Array(Storage.default.allMeals.filter {
             if let mealType = scope, $0.meal != mealType {
                 return false
             }
+            if string.isEmpty {
+                return true
+            }
             return $0.note?.lowercased().contains(string.lowercased()) == true
-        }
+        }.reversed())
     }
 }
 

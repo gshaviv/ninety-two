@@ -140,19 +140,21 @@ class InterfaceController: WKInterfaceController {
         }
         let iob = WKExtension.extensionDelegate.iob
         if iob > 0 {
-            let text = "IOB \(String(format: "%.1lf", iob))"
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * WKInterfaceDevice.current().screenScale, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7)]
+            let scale = WKInterfaceDevice.current().screenScale
+            let text = "BOB \(String(format: "%.1lf", iob))"
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * scale, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7)]
             let styled = NSAttributedString(string: text, attributes: attrib)
             let tsize = styled.size()
-            let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(origin: CGPoint(x: 2, y: 2), size: tsize), CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: size.width - tsize.width - 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: size.width - tsize.width - 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)]
+            let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2 * scale, width: tsize.width, height: tsize.height),
+                           CGRect(origin: CGPoint(x: 4 * scale, y: 2 * scale), size: tsize),
+                           CGRect(x: (size.width - tsize.width) / 2, y: 2 * scale, width: tsize.width, height: tsize.height),
+                           CGRect(x: size.width - tsize.width - 4 * scale, y: 2 * scale, width: tsize.width, height: tsize.height),
+                           CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2 * scale, width: tsize.width, height: tsize.height),
+                           CGRect(x: size.width - tsize.width - 4 * scale, y: size.height - tsize.height - 2 * scale, width: tsize.width, height: tsize.height),
+                           CGRect(x: 4 * scale, y: size.height - tsize.height - 2 * scale, width: tsize.width, height: tsize.height)]
 
             let trect = options.first {
-                let toCheck = $0.insetBy(dx: -3 * WKInterfaceDevice.current().screenScale, dy: -3 * WKInterfaceDevice.current().screenScale)
+                let toCheck = $0.insetBy(dx: -3 * scale, dy: -3 * scale)
                 for point in p {
                     if toCheck.contains(point) {
                         return false

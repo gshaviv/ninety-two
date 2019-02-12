@@ -356,7 +356,7 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: coor.x, y: rect.height))
             ctx?.strokePath()
             if IOB > 0 {
-                let text = "IOB=\(IOB.formatted(with: "%.1lf"))".styled.font(UIFont.systemFont(ofSize: 15))
+                let text = "BOB=\(IOB.formatted(with: "%.1lf"))".styled.font(UIFont.systemFont(ofSize: 15))
                 let size = text.size()
                 var rect = CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size)
                 if rect.maxX > contentView.bounds.maxX {

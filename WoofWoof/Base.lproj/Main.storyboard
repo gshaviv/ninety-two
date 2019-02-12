@@ -70,7 +70,7 @@
                                                             <constraint firstAttribute="width" priority="300" constant="300" id="Ufx-fF-wua"/>
                                                         </constraints>
                                                     </view>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="247" verticalHuggingPriority="251" text="IOB 2.5" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uBM-zf-Ix8">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="247" verticalHuggingPriority="251" text="BOB 2.5" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uBM-zf-Ix8">
                                                         <rect key="frame" x="283.5" y="0.0" width="51.5" height="42"/>
                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                         <color key="textColor" red="0.58072251080000004" green="0.066734083" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -788,6 +788,6 @@
         <image name="back" width="30" height="30"/>
         <image name="battery-1" width="30" height="18"/>
         <image name="forward" width="30" height="30"/>
-        <image name="more" width="30" height="23.5"/>
+        <image name="more" width="30" height="25.666666030883789"/>
     </resources>
 </document>
