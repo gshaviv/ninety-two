@@ -87,7 +87,7 @@ class ViewController: UIViewController {
                     self.connectingLabel.isHidden = false
 
                 case .found:
-                    self.connectingLabel.text = "MiaoMiao found"
+                    self.connectingLabel.text = "Connecting to MiaoMiao..."
                     self.connectingLabel.isHidden = false
 
                 case .error:
@@ -121,6 +121,7 @@ class ViewController: UIViewController {
                     let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
                     let withTime = zip(readings.dropLast(), diffs)
                     let withGoodTime = withTime.filter { $0.1 < 20.m }
+                    var previousPoint: GlucosePoint?
                     let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
                         let (sum, total, below, inRange, above) = result
                         let (gp, duration) = arg
@@ -132,15 +133,26 @@ class ViewController: UIViewController {
                         if gp.value < defaults[.minRange] {
                             if !inLow {
                                 lowCount += 1
-                                lowStart = gp.date
+                                if let previous = previousPoint {
+                                    let d = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
+                                    lowStart = d
+                                } else {
+                                    lowStart = gp.date
+                                }
                             }
                             inLow = true
                         } else {
                             if inLow, let lowStart = lowStart {
-                                lowTime.append(gp.date - lowStart)
+                                if let previous = previousPoint {
+                                    let d = previous.date + (defaults[.minRange] - previous.value) / (gp.value - previous.value) * (gp.date - previous.date)
+                                    lowTime.append(d - lowStart)
+                                } else {
+                                    lowTime.append(gp.date - lowStart)
+                                }
                             }
                             inLow = false
                         }
+                        previousPoint = gp
                         return (x0, x1, x2, x3, x4)
                     }
                     let aveG = sumG / totalT
