@@ -12,6 +12,7 @@ import WatchConnectivity
 import Sqlable
 import WoofKit
 import Zip
+import AudioToolbox
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -370,6 +371,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     logError("\(err)")
                 }
             })
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
         }
     }
 

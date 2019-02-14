@@ -329,11 +329,11 @@ extension AddRecordViewController {
             let predictedTime = Date() + timeToHigh.sorted().median()
             DispatchQueue.main.async {
                 if predictedHigh > predictedHigh25 && predictedLow > predictedLow10 {
-                    self.setPrediction("\(relevantMeals.count) similar meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
+                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 } else if predictedHigh > predictedHigh25 {
-                    self.setPrediction("\(relevantMeals.count) similar meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
+                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 } else {
-                    self.setPrediction("\(relevantMeals.count) similar meals\n\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
+                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
                 }
                 self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h10: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h90: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
             }
