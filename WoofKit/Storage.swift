@@ -58,7 +58,7 @@ public class Storage: NSObject {
             guard meal.date < record.date else {
                 break
             }
-            guard meal.meal != nil else {
+            guard meal.meal != nil && meal.id != record.id else {
                 continue
             }
             var endTime = meal.date + 5.h
@@ -78,10 +78,8 @@ public class Storage: NSObject {
             }
             possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
-        let meals = possibleRecords.filter {
-            let diff = abs(Double($0.0.bolus) + round($0.0.insulinOnBoardAtStart) - Double(record.bolus) - record.insulinOnBoardAtStart)
-            return diff <= max(round(record.insulinOnBoardAtStart), round($0.0.insulinOnBoardAtStart), 0.75) && $0.0.id != record.id
-        }
+        let ionstart = record.insulinOnBoardAtStart
+        let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 1 }
         var relevantMeals = meals.filter { $0.0.meal == record.meal || record.note == nil || record.note == $0.0.note }
         if let note = record.note {
             let posible = relevantMeals.filter { $0.0.note?.hasPrefix(note) == true }

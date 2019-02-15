@@ -166,9 +166,9 @@ class ViewController: UIViewController {
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
                         self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeBelow), color: .red),
-                                                PieChart.Slice(value: CGFloat(timeIn), color: .green),
-                                                PieChart.Slice(value: CGFloat(timeAbove), color: .yellow)]
+                        self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeIn), color: .green),
+                                                PieChart.Slice(value: CGFloat(timeAbove), color: .yellow),
+                                                PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
                     }
                 }
             }
@@ -743,8 +743,8 @@ extension ViewController: GlucoseGraphDelegate {
                 timeToHigh.append(stat.1)
             }
             let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.1) + current.value))
-            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.9) + current.value))
+            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.15) + current.value))
+            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.85) + current.value))
             let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
             let predictedTime = record.date + timeToHigh.sorted().median()
             DispatchQueue.main.async {

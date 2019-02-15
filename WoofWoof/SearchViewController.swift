@@ -75,11 +75,15 @@ class SearchViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let record = filtered[indexPath.row]
         do {
+            tableView.beginUpdates()
             try Storage.default.db.perform(record.delete())
+            tableView.deleteRows(at: [indexPath], with: .automatic)
             Storage.default.reloadToday()
             search(string: search.text ?? "", scope: Record.Meal(rawValue: search.selectedScopeButtonIndex - 1))
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-        } catch {}
+            tableView.endUpdates()
+        } catch {
+            tableView.endUpdates()
+        }
     }
 
 

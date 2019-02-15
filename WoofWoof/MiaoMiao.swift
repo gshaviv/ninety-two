@@ -111,6 +111,7 @@ class MiaoMiao {
         static let allowSensor: [Byte] = [0xd3, 0x01]
         static let normalFrequency: [Byte] = [0xD1, 3]
         static let shortFrequency: [Byte] = [0xd1, 1]
+        static let startupFrequency: [Byte] = [0xd1, 5]
         static let frequencyResponse: Byte = 0xd1
     }
 
@@ -122,8 +123,21 @@ class MiaoMiao {
             switch bytes[0] {
             case Code.newSensor:
                 log("New sensor detected")
-                Central.manager.send(bytes: Code.allowSensor)
+                Command.send(Code.allowSensor)
                 defaults[.additionalSlope] = 1
+                Storage.default.db.async {
+                    do {
+                        try Storage.default.db.transaction { db in
+                            try pendingReadings.forEach {
+                                try db.perform($0.insert())
+                            }
+
+                            pendingReadings = []
+                        }
+                    } catch let error {
+                        logError("\(error)")
+                    }
+                }
                 DispatchQueue.main.async {
                     let notification = UNMutableNotificationContent()
                     notification.title = "New sensor detected"
@@ -221,15 +235,23 @@ class MiaoMiao {
             let tempCorrection = TemperatureAlgorithmParameters(slope_slope: 0.000015623, offset_slope: 0.0017457, slope_offset: -0.0002327, offset_offset: -19.47, additionalSlope: defaults[.additionalSlope], additionalOffset: 0, isValidForFooterWithReverseCRCs: 1)
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
-                if data.minutesSinceStart < 30 {
-                    return
-                }
+                defaults[.badDataCount] = 0
                 sensorAge = data.minutesSinceStart.m
                 serial = data.serialNumber
+                if data.minutesSinceStart < 40 {
+                    if shortRefresh == nil || shortRefresh == true {
+                        shortRefresh = false
+                        Command.send(Code.startupFrequency)
+                    }
+                    DispatchQueue.main.async {
+                        log("New sensor: \(data.minutesSinceStart)m old")
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("New sensor warming up: \(data.minutesSinceStart)m") }
+                    }
+                    return
+                }
                 let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                 let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                 record(trend: trendPoints, history: historyPoints)
-                defaults[.badDataCount] = 0
                 if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
                     if let sensorAge = sensorAge, sensorAge < 1.d {
                         defaults[.nextCalibration] = Date() + 6.h
