@@ -309,8 +309,7 @@ class ViewController: UIViewController {
             self.calibrate()
         }))
 
-        sheet.addAction(UIAlertAction(title: "Reconnect", style: .default, handler: { (_) in
-            defaults[.nextNoSensorAlert] = Date()
+        sheet.addAction(UIAlertAction(title: "Reconnect MiaoMiao", style: .default, handler: { (_) in
             Central.manager.restart()
         }))
 

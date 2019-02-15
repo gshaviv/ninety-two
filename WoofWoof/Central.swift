@@ -58,13 +58,13 @@ public class Central: NSObject {
     }
 
     public func restart() {
-        guard let gcmDevice = gcmDevice else {
-            return
+        if let gcmDevice = gcmDevice  {
+            centralManager.cancelPeripheralConnection(gcmDevice)
         }
-        centralManager.cancelPeripheralConnection(gcmDevice)
+        gcmDevice = nil
         readChannel = nil
         writeChannel = nil
-        state = .found
+        state = .bluetoothOn
     }
 
     public var state: State {
