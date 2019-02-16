@@ -76,14 +76,14 @@ class SearchViewController: UITableViewController {
         let record = filtered[indexPath.row]
         do {
             tableView.beginUpdates()
+            defer {
+                tableView.endUpdates()
+            }
             try Storage.default.db.perform(record.delete())
             tableView.deleteRows(at: [indexPath], with: .automatic)
             Storage.default.reloadToday()
             search(string: search.text ?? "", scope: Record.Meal(rawValue: search.selectedScopeButtonIndex - 1))
-            tableView.endUpdates()
-        } catch {
-            tableView.endUpdates()
-        }
+        } catch { }
     }
 
 
