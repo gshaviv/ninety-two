@@ -255,7 +255,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "↑"
         } else if trend > 0.4 {
             return "↗︎"
-        } else if trend > -0.4 {
+        } else if trend > -0.3 {
             return "→"
         } else if trend > -1.0 {
             return "↘︎"
