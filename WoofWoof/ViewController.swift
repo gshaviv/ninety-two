@@ -558,6 +558,21 @@ class ViewController: UIViewController {
                 }
             }
         }
+        if let old = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < Date() - 1.y).limit(1)), !old.isEmpty {
+            ctr.addButton("Delete records older than 1y") {
+                do {
+                    let timestamp = Int((Date() - 1.y).timeIntervalSince1970)
+                    try Storage.default.db.execute("delete from \(GlucosePoint.tableName) where date < \(timestamp)")
+                    try Storage.default.db.execute("delete from \(Calibration.tableName) where date < \(timestamp)")
+                    try Storage.default.db.execute("delete from \(Record.tableName) where date < \(timestamp)")
+                    try Storage.default.db.execute("delete from \(ManualMeasurement.tableName) where date < \(timestamp)")
+                    try Storage.default.db.execute("vacuum")
+                    let alert = UIAlertController(title: "Done", message: "Deleted records over 1 year old", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                } catch {}
+            }
+        }
         show(ctr, sender: nil)
     }
 

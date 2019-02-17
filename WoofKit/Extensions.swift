@@ -240,6 +240,12 @@ extension Int {
     public var d: TimeInterval {
         return self.h * 24
     }
+    public var mo: TimeInterval {
+        return self.d * 30
+    }
+    public var y: TimeInterval {
+        return self.d * 365
+    }
 }
 
 precedencegroup TimeConcat {
