@@ -203,8 +203,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-            self.predictionLabel.isHidden = true
-            self.predictionLabel.text = nil
+            self.setPrediction(nil)
         } else {
             predict()
         }

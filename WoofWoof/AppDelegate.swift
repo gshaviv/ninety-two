@@ -371,7 +371,9 @@ extension AppDelegate: MiaoMiaoDelegate {
                     logError("\(err)")
                 }
             })
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            if defaults[.alertVibrate] {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
         }
     }
 

@@ -59,6 +59,7 @@ extension UserDefaults {
         case includePatternReport
         case includeMealReport
         case includeDailyReport
+        case alertVibrate
     }
 
     public func register() {
@@ -86,7 +87,8 @@ extension UserDefaults {
                                        IntKey.summaryPeriod.key: 2,
                                        BoolKey.includeMealReport.key: true,
                                        BoolKey.includeDailyReport.key: true,
-                                       BoolKey.includePatternReport.key: true
+                                       BoolKey.includePatternReport.key: true,
+                                       BoolKey.alertVibrate.key: true
                                        ]
 
         register(defaults: defaults)

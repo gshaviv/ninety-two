@@ -430,6 +430,11 @@ class ViewController: UIViewController {
         }) {
             defaults[.lowAlertLevel] = $0
         }
+        ctr.addBool(title: "Vibrate", get: { () -> Bool in
+            return defaults[.alertVibrate]
+        }) {
+            defaults[.alertVibrate] = $0
+        }
 
         ctr.addGroup("Insulin (Bolus) Profile")
         ctr.addValue(title: "DIA (m)", get: { () -> String in
