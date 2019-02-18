@@ -254,19 +254,7 @@ extension AddRecordViewController: UITextFieldDelegate {
     }
 }
 
-public func mealStatistics(meal: Record, points mealPoints: [GlucosePoint]) -> (Double, TimeInterval, Double) {
-    var highest = mealPoints[0]
-    var lowestAfterHigh = mealPoints[0]
-    for point in mealPoints[1...] {
-        if point.value > highest.value {
-            highest = point
-            lowestAfterHigh = point
-        } else if point.value < highest.value && point.value < lowestAfterHigh.value {
-            lowestAfterHigh = point
-        }
-    }
-    return (highest.value - mealPoints[0].value, highest.date - meal.date, lowestAfterHigh.value - mealPoints[0].value)
-}
+
 
 extension AddRecordViewController {
 
@@ -290,51 +278,19 @@ extension AddRecordViewController {
     @objc func predict() {
         let record = selectedRecord
         queue.async {
-            guard let current = MiaoMiao.currentGlucose else {
+            guard let p = Storage.default.prediction(for: record) else {
                 DispatchQueue.main.async {
                     self.setPrediction(nil)
                 }
                 return
             }
-            let relevantMeals = Storage.default.relevantMeals(to: record)
-            guard !relevantMeals.isEmpty else {
-                DispatchQueue.main.async {
-                    self.setPrediction(nil)
-                }
-                return
-            }
-            var points = [[GlucosePoint]]()
-            for (meal, nextDate) in relevantMeals {
-                let relevantPoints = self.readings.filter { $0.date >= meal.date && $0.date <= nextDate }
-                points.append(relevantPoints)
-            }
-            var highs: [Double] = []
-            var lows: [Double] = []
-            var timeToHigh: [TimeInterval] = []
-            for (meal, mealPoints) in zip(relevantMeals, points) {
-                if mealPoints.count < 2 {
-                    continue
-                }
-                let stat = mealStatistics(meal: meal.0, points: mealPoints)
-                highs.append(stat.0)
-                lows.append(stat.2)
-                timeToHigh.append(stat.1)
-            }
-            let predictedHigh = Int(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = Int(round(highs.sorted().percentile(0.15) + current.value))
-            let predictedHigh75 = Int(round(highs.sorted().percentile(0.85) + current.value))
-            let predictedLow = Int(round(lows.sorted().median() + current.value))
-            let predictedLow10 = Int(round(lows.sorted().percentile(0.1) + current.value))
-            let predictedTime = Date() + timeToHigh.sorted().median()
             DispatchQueue.main.async {
-                if predictedHigh > predictedHigh25 && predictedLow > predictedLow10 {
-                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
-                } else if predictedHigh > predictedHigh25 {
-                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh25)<\(predictedHigh)<\(predictedHigh75) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
+                if p.h50 > p.h10  {
+                    self.setPrediction("\(p.mealCount) comparable meals\n\(p.h10)<\(p.h50)<\(p.h90) @ \(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute))\nLow ≥ \(p.low)")
                 } else {
-                    self.setPrediction("\(relevantMeals.count) comparable meals\n\(predictedHigh) @ \(String(format: "%02ld:%02ld",predictedTime.hour, predictedTime.minute))\nLow ≥ \(predictedLow10)")
+                    self.setPrediction("\(p.mealCount) comparable meals\n\(p.h50) @ \(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute))\nLow ≥ \(p.low)")
                 }
-                self.prediction = Prediction(mealTime: current.date, highDate: predictedTime, h10: CGFloat(predictedHigh25), h50: CGFloat(predictedHigh), h90: CGFloat(predictedHigh75), low: CGFloat(predictedLow10))
+                self.prediction = p
             }
         }
     }

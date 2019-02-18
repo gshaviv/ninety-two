@@ -737,38 +737,11 @@ extension ViewController: GlucoseGraphDelegate {
         }
 
         DispatchQueue.global().async {
-            let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
-            guard let current = readings.last else {
+            guard let prediction = Storage.default.prediction(for: record) else {
                 return
             }
-            let relevantMeals = Storage.default.relevantMeals(to: record)
-            var points = [[GlucosePoint]]()
-            guard !relevantMeals.isEmpty else {
-                return
-            }
-            for (meal, nextDate) in relevantMeals {
-                let relevantPoints = readings.filter { $0.date >= meal.date && $0.date <= nextDate && $0.date < meal.date + 5.h }
-                points.append(relevantPoints)
-            }
-            var highs: [Double] = []
-            var lows: [Double] = []
-            var timeToHigh: [TimeInterval] = []
-            for (meal, mealPoints) in zip(relevantMeals, points) {
-                guard mealPoints.count > 2 else {
-                    continue
-                }
-                let stat = mealStatistics(meal: meal.0, points: mealPoints)
-                highs.append(stat.0)
-                lows.append(stat.2)
-                timeToHigh.append(stat.1)
-            }
-            let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
-            let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.15) + current.value))
-            let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.85) + current.value))
-            let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
-            let predictedTime = record.date + timeToHigh.sorted().median()
             DispatchQueue.main.async {
-                self.graphView.prediction = Prediction(mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low: predictedLow)
+                self.graphView.prediction = prediction
             }
         }
     }

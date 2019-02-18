@@ -179,14 +179,14 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <switch opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yrn-ft-PlV">
-                                            <rect key="frame" x="274" y="8" width="51" height="27.5"/>
+                                            <rect key="frame" x="284" y="8" width="51" height="27.5"/>
                                         </switch>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="Yrn-ft-PlV" firstAttribute="centerY" secondItem="aiW-U9-9Xz" secondAttribute="centerY" id="Bij-i3-zjd"/>
                                         <constraint firstAttribute="bottom" secondItem="Yrn-ft-PlV" secondAttribute="bottom" constant="8" id="LHL-7R-g7J"/>
                                         <constraint firstItem="Yrn-ft-PlV" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="aiW-U9-9Xz" secondAttribute="trailing" constant="8" id="eMb-Qf-2W5"/>
-                                        <constraint firstAttribute="trailing" secondItem="Yrn-ft-PlV" secondAttribute="trailing" constant="18" id="ejj-5X-sXE"/>
+                                        <constraint firstAttribute="trailing" secondItem="Yrn-ft-PlV" secondAttribute="trailing" constant="8" id="ejj-5X-sXE"/>
                                         <constraint firstItem="aiW-U9-9Xz" firstAttribute="leading" secondItem="wRz-KR-DMQ" secondAttribute="leadingMargin" id="mY8-HF-egV"/>
                                         <constraint firstItem="Yrn-ft-PlV" firstAttribute="top" secondItem="wRz-KR-DMQ" secondAttribute="top" constant="8" id="nDS-OY-dAd"/>
                                     </constraints>
@@ -210,7 +210,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mwn-c3-9w5">
-                                            <rect key="frame" x="275" y="7" width="50" height="30"/>
+                                            <rect key="frame" x="283" y="7" width="50" height="30"/>
                                             <color key="backgroundColor" red="0.0" green="0.58980089430000004" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="50" id="3Al-Kp-yvY"/>
@@ -228,7 +228,7 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="Rmk-tO-TVu" firstAttribute="leading" secondItem="fdL-3R-FlS" secondAttribute="leadingMargin" id="NBF-n2-ozB"/>
-                                        <constraint firstAttribute="trailing" secondItem="mwn-c3-9w5" secondAttribute="trailing" constant="16" id="anA-Ee-4SC"/>
+                                        <constraint firstAttribute="trailing" secondItem="mwn-c3-9w5" secondAttribute="trailing" constant="8" id="anA-Ee-4SC"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="Rmk-tO-TVu" secondAttribute="bottom" id="eUj-tx-5I7"/>
                                         <constraint firstItem="Rmk-tO-TVu" firstAttribute="top" secondItem="fdL-3R-FlS" secondAttribute="topMargin" id="siv-Qd-Nd3"/>
                                         <constraint firstItem="mwn-c3-9w5" firstAttribute="centerY" secondItem="Rmk-tO-TVu" secondAttribute="centerY" id="yc1-qO-Dve"/>

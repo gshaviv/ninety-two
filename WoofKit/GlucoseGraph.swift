@@ -23,15 +23,19 @@ public struct Prediction {
     public let h50: CGFloat
     public let h90: CGFloat
     public let mealTime: Date
+    public let low50: CGFloat
     public let low: CGFloat
+    public let mealCount: Int
 
-    public init(mealTime: Date, highDate: Date, h10: CGFloat, h50: CGFloat, h90: CGFloat,  low: CGFloat) {
+    public init(count: Int, mealTime: Date, highDate: Date, h10: CGFloat, h50: CGFloat, h90: CGFloat, low50: CGFloat,  low: CGFloat) {
         self.highDate = highDate
         self.h10 = h10
         self.h50 = h50
         self.h90 = h90
         self.mealTime = mealTime
         self.low = low
+        self.low50 = low50
+        mealCount = count
     }
 }
 
