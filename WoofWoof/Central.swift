@@ -136,7 +136,7 @@ extension Central: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                                advertisementData: [String: Any], rssi RSSI: NSNumber) {
         // Step 2
-        if gcmDevice == nil && peripheral.name?.hasPrefix("miaomiao") == true {
+        if peripheral.name?.hasPrefix("miaomiao") == true {
             gcmDevice = peripheral
             peripheral.delegate = self
             log("Connecting to \(peripheral)")
@@ -188,7 +188,6 @@ extension Central: CBPeripheralDelegate {
             case Central.receive:
                 readChannel = characteristic
                 peripheral.setNotifyValue(true, for: characteristic)
-                centralManager.stopScan()
 
             case Central.transmit:
                 writeChannel = characteristic

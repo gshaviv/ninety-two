@@ -11,16 +11,7 @@ import Intents
 import WoofKit
 import Sqlable
 
-extension Date {
-    var rounded: Date {
-        var comp = components
-        if comp.minute ?? 0 > 59 {
-            comp.hour = (comp.hour ?? 0) + 1
-        }
-        comp.minute = Int(round(Double(comp.minute ?? 0)))
-        return comp.toDate()
-    }
-}
+
 
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
@@ -50,7 +41,17 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
                     "I want that too",
                     "No one ever gives me anything to eat"
                 ]
-                completion(DiaryIntentResponse.success(phrase: possible[Int(arc4random_uniform(UInt32(possible.count)))]))
+
+                let blurb = possible[Int(arc4random_uniform(UInt32(possible.count)))]
+                if let prediction = Storage.default.prediction(for: record) {
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .none
+                    formatter.timeStyle = .short
+                    let phrase = "\(blurb). Based on \(prediction.mealCount) previous similar meals, your glucose will be between \(prediction.h10) and \(prediction.h90) with an 85% chance, most likely will be \(prediction.h50) at \(formatter.string(from: prediction.highDate)). With a 90% it will stay above \(prediction.low)."
+                    completion(DiaryIntentResponse.success(phrase: phrase))
+                } else {
+                    completion(DiaryIntentResponse.success(phrase: blurb))
+                }
             }
         }
     }

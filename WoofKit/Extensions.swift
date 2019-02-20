@@ -319,7 +319,16 @@ public func < (lhs: CGPoint, rhs: CGFloat) -> Bool {
     return abs(lhs.x) < rhs && abs(lhs.y) < rhs
 }
 
-
+extension Date {
+    public var rounded: Date {
+        var comp = components
+        if comp.minute ?? 0 > 59 {
+            comp.hour = (comp.hour ?? 0) + 1
+        }
+        comp.minute = Int(round(Double(comp.minute ?? 0)))
+        return comp.toDate()
+    }
+}
 
 public extension DispatchQueue {
     public func after(withDelay delay: Double, closure: @escaping (() -> Void)) {

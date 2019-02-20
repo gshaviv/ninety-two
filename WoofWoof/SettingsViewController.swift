@@ -18,9 +18,14 @@ class SettingsViewController: UITableViewController {
         case group(String)
         case button(String, () -> Void)
         case `enum`(String, Int, () -> Int, (Int)-> Void, (Int) -> String)
+        case row(String, String?, ((UITableViewCell) -> Void)?, () -> Void)
     }
     private var settings: [Setting] = []
     private var grouped: [(title: String?, items: [Setting])] = []
+
+    public func addRow(title: String, subtitle: String? = nil, configure: ((UITableViewCell) -> Void)? = nil, didSelect: @escaping () -> Void) {
+        settings.append(Setting.row(title, subtitle, configure, didSelect))
+    }
 
     public func addValue(title: String, get: @escaping () -> String, set: @escaping (Double) -> Void) {
         settings.append(Setting.value(title, get, set))
@@ -131,6 +136,16 @@ class SettingsViewController: UITableViewController {
             cell.stringLabel.text = getValue(get())
             return cell
 
+        case let .row(title, subtitle, configure, _):
+            let cell = tableView.dequeueReusableCell(withIdentifier: "row") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "row")
+            cell.accessoryType = .disclosureIndicator
+            cell.textLabel?.text = title
+            cell.detailTextLabel?.text = subtitle
+            cell.textLabel?.numberOfLines = 0
+            cell.detailTextLabel?.numberOfLines = 0
+            configure?(cell)
+            return cell
+
         case .group(_):
             fatalError()
         }
@@ -201,6 +216,9 @@ class SettingsViewController: UITableViewController {
             }
             ctr.getValue = values
             present(ctr, animated: true, completion: nil)
+
+        case let .row(_,_,_,didSelect):
+            didSelect()
 
         case .group(_):
             break

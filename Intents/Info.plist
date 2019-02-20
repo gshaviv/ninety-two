@@ -31,8 +31,7 @@
 			<key>IntentsSupported</key>
 			<array>
 				<string>CheckGlucoseIntent</string>
-				<string>BolusIntent</string>
-				<string>MealIntent</string>
+				<string>DiaryIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>

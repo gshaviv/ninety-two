@@ -191,7 +191,7 @@ extension Record {
                 suggested = "I'm having \(notePhrase)dinner"
 
             default:
-                suggested = notePhrase.isEmpty ? "I'm eating" : "I'm eating \(notePhrase[0 ..< notePhrase.count - 5])"
+                suggested = notePhrase.isEmpty ? "I'm easting" : "I'm having \(notePhrase[0 ..< notePhrase.count - 5])"
             }
         } else {
             intent.meal = "none"
@@ -236,5 +236,11 @@ extension Record {
 
     public var insulinOnBoardAtStart: Double {
         return iobCalc!.value
+    }
+}
+
+extension DiaryIntent {
+    public var record: Record {
+        return Record(date: Date.distantFuture, meal: Record.Meal(name: meal), bolus: units?.intValue, note: note?.isEmpty == true ? nil : note)
     }
 }

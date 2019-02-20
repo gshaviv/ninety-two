@@ -313,32 +313,6 @@ class ViewController: UIViewController {
             Central.manager.restart()
         }))
 
-        let group = DispatchGroup()
-        group.enter()
-        var has = false
-        INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
-            for voiceShortcut in results ?? [] {
-                if voiceShortcut.shortcut.intent is CheckGlucoseIntent {
-                    has = true
-                    break
-                }
-            }
-            group.leave()
-        }
-        group.wait()
-
-        if !has {
-            sheet.addAction(UIAlertAction(title: "Add to Siri", style: .default, handler: { (_) in
-                let intent = CheckGlucoseIntent()
-                intent.suggestedInvocationPhrase = "What's my glucose"
-                if let shortcut = INShortcut(intent: intent) {
-                    let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-                    viewController.delegate = self
-                    self.present(viewController, animated: true)
-                }
-            }))
-        }
-
         sheet.addAction(UIAlertAction(title: "History", style: .default, handler: { (_) in
             let hvc = self.storyboard?.instantiateViewController(withIdentifier: "history") as? HistoryViewController
             _ = hvc?.view
@@ -542,6 +516,65 @@ class ViewController: UIViewController {
             return defaults[.includeDailyReport]
         }) {
             defaults[.includeDailyReport] = $0
+        }
+
+        var siriActions = Set<Record>()
+        let group = DispatchGroup()
+        group.enter()
+        var has = false
+        INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
+            for voiceShortcut in results ?? [] {
+                if let i = voiceShortcut.shortcut.intent as? DiaryIntent {
+                    siriActions.insert(i.record)
+                } else if voiceShortcut.shortcut.intent is CheckGlucoseIntent {
+                    has = true
+                }
+            }
+            group.leave()
+        }
+        group.wait()
+
+        var entries = [Record: Int]()
+        Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.meal, bolus: $0.bolus, note: $0.note) }.forEach {
+            if siriActions.contains($0) {
+                return
+            }
+            if let count = entries[$0] {
+                entries[$0] = count + 1
+            } else {
+                entries[$0] = 1
+            }
+        }
+        let common = entries.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }.filter { $0.1 > 5 }
+        if !common.isEmpty || !has {
+            let top = common[0 ..< min(common.count, 8)].map { $0.0 }
+            ctr.addGroup("Add Siri Shortcut")
+            if !has {
+                ctr.addRow(title: "What's my glucose?", configure: {
+                    $0.imageView?.image = UIImage(named: "AppIcon")
+                    $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
+                }) {
+                    let intent = CheckGlucoseIntent()
+                    intent.suggestedInvocationPhrase = "What's my glucose"
+                    if let shortcut = INShortcut(intent: intent) {
+                        let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+                        viewController.delegate = self
+                        self.present(viewController, animated: true)
+                    }
+                }
+            }
+            for record in top {
+                ctr.addRow(title: record.intent.suggestedInvocationPhrase ?? "", configure: {
+                    $0.imageView?.image = UIImage(named: "AppIcon")
+                    $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
+                }) {
+                    if let shortcut = INShortcut(intent: record.intent) {
+                        let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+                        viewController.delegate = self
+                        self.present(viewController, animated: true)
+                    }
+                }
+            }
         }
 
         ctr.addGroup("")

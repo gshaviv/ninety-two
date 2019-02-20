@@ -112,6 +112,7 @@ class AddRecordViewController: ActionSheetController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        MiaoMiao.Command.startReading()
         predict()
     }
 
