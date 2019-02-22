@@ -568,13 +568,20 @@ class ViewController: UIViewController {
         group.wait()
 
         var entries = [Record: Int]()
-        entries[Record(date: Date.distantFuture, meal: Record.Meal.breakfast)] = 400
-        entries[Record(date: Date.distantFuture, meal: Record.Meal.lunch)] = 300
-        entries[Record(date: Date.distantFuture, meal: Record.Meal.dinner)] = 200
-        entries[Record(date: Date.distantFuture, meal: Record.Meal.other)] = 100
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.breakfast)) {
+            entries[Record(date: Date.distantFuture, meal: Record.Meal.breakfast)] = 400
+        }
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.lunch)) {
+            entries[Record(date: Date.distantFuture, meal: Record.Meal.lunch)] = 300
+        }
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.dinner)) {
+            entries[Record(date: Date.distantFuture, meal: Record.Meal.dinner)] = 200
+        }
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.other)) {
+            entries[Record(date: Date.distantFuture, meal: Record.Meal.other)] = 100
+        }
         Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.meal, bolus: $0.bolus, note: $0.note) }.forEach {
             if siriActions.contains($0) {
-                entries[$0] = nil
                 return
             }
             if let count = entries[$0] {
