@@ -191,7 +191,7 @@ extension Record {
                 suggested = "I'm having \(notePhrase)dinner"
 
             default:
-                suggested = notePhrase.isEmpty ? "I'm easting" : "I'm having \(notePhrase[0 ..< notePhrase.count - 5])"
+                suggested = notePhrase.isEmpty ? "I'm eating" : "I'm having \(notePhrase[0 ..< notePhrase.count - 5])"
             }
         } else {
             intent.meal = "none"
@@ -200,11 +200,11 @@ extension Record {
         if isBolus {
             intent.units = NSNumber(value: bolus)
             if suggested.isEmpty {
-                suggested = "I "
+                suggested = "I took "
             } else {
-                suggested += ", and I "
+                suggested += ", with "
             }
-            suggested += "took \(bolus) units"
+            suggested += "\(bolus) units"
         } else {
             intent.units = NSNumber(value: 0)
         }

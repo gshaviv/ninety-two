@@ -535,8 +535,13 @@ class ViewController: UIViewController {
         group.wait()
 
         var entries = [Record: Int]()
+        entries[Record(date: Date.distantFuture, meal: Record.Meal.breakfast)] = 400
+        entries[Record(date: Date.distantFuture, meal: Record.Meal.lunch)] = 300
+        entries[Record(date: Date.distantFuture, meal: Record.Meal.dinner)] = 200
+        entries[Record(date: Date.distantFuture, meal: Record.Meal.other)] = 100
         Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.meal, bolus: $0.bolus, note: $0.note) }.forEach {
             if siriActions.contains($0) {
+                entries[$0] = nil
                 return
             }
             if let count = entries[$0] {
@@ -545,7 +550,7 @@ class ViewController: UIViewController {
                 entries[$0] = 1
             }
         }
-        let common = entries.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }.filter { $0.1 > 5 }
+        let common = entries.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }.filter { $0.1 > 6 }
         if !common.isEmpty || !has {
             let top = common[0 ..< min(common.count, 8)].map { $0.0 }
             ctr.addGroup("Add Siri Shortcut")
@@ -580,6 +585,7 @@ class ViewController: UIViewController {
         ctr.addGroup("")
         ctr.addButton("Backup Database") {
             Storage.default.db.async {
+                try? Storage.default.db.execute("vacuum")
                 let documentsDirectory = FileManager.default.urls(for:.documentDirectory, in: .userDomainMask)[0]
                 let zipFilePath = documentsDirectory.appendingPathComponent("archive.zip")
                 let path = Storage.default.dbUrl.path

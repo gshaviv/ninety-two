@@ -12,7 +12,6 @@ import WoofKit
 import Sqlable
 
 
-
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
         let kind = Record.Meal(name: intent.meal)
@@ -24,33 +23,41 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
             record.bolus = bolus
             record.meal = kind
             record.note = note
-            record.save(to: Storage.default.db)
-            if !record.isMeal, let units = intent.units {
-                completion(DiaryIntentResponse.bolus(units: units))
+            if record.isMeal && bolus == 0 && note == nil {
+                completion(DiaryIntentResponse(code: .continueInApp, userActivity: nil))
             } else {
-                let possible = [
-                    "Bon appetit",
-                    "Enjoy!",
-                    "Yummy!",
-                    "I'm hungry too",
-                    "Have fun",
-                    "Looks delicious",
-                    "Good for you",
-                    "Leave me something",
-                    "Can I join you?",
-                    "I want that too",
-                    "No one ever gives me anything to eat"
-                ]
-
-                let blurb = possible[Int(arc4random_uniform(UInt32(possible.count)))]
-                if let prediction = Storage.default.prediction(for: record) {
-                    let formatter = DateFormatter()
-                    formatter.dateStyle = .none
-                    formatter.timeStyle = .short
-                    let phrase = "\(blurb). Based on \(prediction.mealCount) previous similar meals, your glucose will be between \(prediction.h10) and \(prediction.h90) with an 85% chance, most likely will be \(prediction.h50) at \(formatter.string(from: prediction.highDate)). With a 90% it will stay above \(prediction.low)."
-                    completion(DiaryIntentResponse.success(phrase: phrase))
+                record.save(to: Storage.default.db)
+                if !record.isMeal, let units = intent.units {
+                    completion(DiaryIntentResponse.bolus(units: units))
                 } else {
-                    completion(DiaryIntentResponse.success(phrase: blurb))
+                    let possible = [
+                        "Bon appetit",
+                        "Enjoy!",
+                        "Yummy!",
+                        "I'm hungry too",
+                        "Have fun",
+                        "Looks delicious",
+                        "Good for you",
+                        "Leave me something",
+                        "Can I join you?",
+                        "I want that too",
+                        "No one ever gives me anything to eat"
+                    ]
+
+                    let blurb = possible[Int(arc4random_uniform(UInt32(possible.count)))]
+                    if let prediction = Storage.default.prediction(for: record) {
+                        let formatter = DateFormatter()
+                        formatter.dateStyle = .none
+                        formatter.timeStyle = .short
+                        if prediction.h90 > prediction.h10 && prediction.low50 > prediction.low {
+                            let phrase = "\(blurb). Based on \(prediction.mealCount) previous similar meals, your glucose will be between \(Int(prediction.h10)) and \(Int(prediction.h90)) with an 80% chance, most likely will be \(Int(prediction.h50)) at \(formatter.string(from: prediction.highDate)). With a 90% it will stay above \(Int(prediction.low))."
+                            completion(DiaryIntentResponse.success(phrase: phrase))
+                        } else {
+                            completion(DiaryIntentResponse.success(phrase: blurb))
+                        }
+                    } else {
+                        completion(DiaryIntentResponse.success(phrase: blurb))
+                    }
                 }
             }
         }
