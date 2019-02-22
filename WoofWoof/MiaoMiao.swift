@@ -162,7 +162,7 @@ class MiaoMiao {
                     defaults[.nextNoSensorAlert] = Date() + 10.m
                     DispatchQueue.main.async {
                         let notification = UNMutableNotificationContent()
-                        notification.title = "No Sensor Detected"
+                        notification.title = "Sensor not detected"
                         notification.body = "Check MiaoMiao is placed properly on top of the sensor"
                         let request = UNNotificationRequest(identifier: NotificationIdentifier.noSensor, content: notification, trigger: nil)
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
@@ -177,7 +177,7 @@ class MiaoMiao {
                     }
                 }
                 DispatchQueue.main.async {
-                    MiaoMiao.delegate?.forEach { $0.miaomiaoError("No sensor detected") }
+                    MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor not detected") }
                 }
 
             case Code.startPacket:

@@ -180,7 +180,7 @@ class ViewController: UIViewController {
                     }
                     let aveG = sumG / totalT
                     let a1c = (aveG / 18.05 + 2.52) / 1.583
-                    let medianLowTime = Int(lowTime.sorted().median() / 1.m)
+                    let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                     DispatchQueue.main.async {
                         let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
                         self.lowCountLabel.text = "\(lowCount) (\(medianTime))"
@@ -411,7 +411,7 @@ class ViewController: UIViewController {
         }, set: {
             defaults[.summaryPeriod] = $0
         }) {
-            "\(UserDefaults.summaryPeriods[$0]) days"
+            $0 == 0 ? "24 hours" : "\(UserDefaults.summaryPeriods[$0]) days"
         }
 
         ctr.addGroup("Target Range")

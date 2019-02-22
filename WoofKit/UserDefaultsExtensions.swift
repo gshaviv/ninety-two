@@ -200,7 +200,7 @@ extension UserDefaults.BoolKey {
 
 
 extension UserDefaults {
-    public static let summaryPeriods = [7,14,30,60,90]
+    public static let summaryPeriods = [1,7,14,30,60,90]
     public var summaryPeriod: Int {
         get {
             return UserDefaults.summaryPeriods[defaults[.summaryPeriod]]
