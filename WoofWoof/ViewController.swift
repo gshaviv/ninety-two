@@ -122,6 +122,7 @@ class ViewController: UIViewController {
                     let withTime = zip(readings.dropLast(), diffs)
                     let withGoodTime = withTime.filter { $0.1 < 20.m }
                     var previousPoint: GlucosePoint?
+                    var bands = [UserDefaults.ColorKey: TimeInterval]()
                     let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
                         let (sum, total, below, inRange, above) = result
                         let (gp, duration) = arg
@@ -130,6 +131,28 @@ class ViewController: UIViewController {
                         let x2 = gp.value < defaults[.minRange] ? below + duration : below
                         let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
                         let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
+                        if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
+                            let key: UserDefaults.ColorKey
+                            switch gp.value {
+                            case ...defaults[.level0]:
+                                key = .color0
+                            case ...defaults[.level1]:
+                                key = .color1
+                            case ...defaults[.level2]:
+                                key = .color2
+                            case ...defaults[.level3]:
+                                key = .color3
+                            case ...defaults[.level4]:
+                                key = .color4
+                            default:
+                                key = .color5
+                            }
+                            if let time = bands[key] {
+                                bands[key] = time + duration
+                            } else {
+                                bands[key] = duration
+                            }
+                        }
                         if gp.value < defaults[.minRange] {
                             if !inLow {
                                 lowCount += 1
@@ -166,9 +189,19 @@ class ViewController: UIViewController {
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
                         self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        self.pieChart.slices = [PieChart.Slice(value: CGFloat(timeIn), color: .green),
-                                                PieChart.Slice(value: CGFloat(timeAbove), color: .yellow),
-                                                PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
+                        var slices = [UserDefaults.ColorKey.color0,
+                                      UserDefaults.ColorKey.color1,
+                                      UserDefaults.ColorKey.color2,
+                                      UserDefaults.ColorKey.color3,
+                                      UserDefaults.ColorKey.color4].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
+                            if let v = bands[key] {
+                                return PieChart.Slice(value: CGFloat(v), color: defaults[key])
+                            } else {
+                                return nil
+                            }
+                        }
+                        slices += [PieChart.Slice(value: CGFloat(timeAbove), color: .yellow), PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
+                        self.pieChart.slices = slices
                     }
                 }
             }
