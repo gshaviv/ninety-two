@@ -125,8 +125,8 @@ public class Storage: NSObject {
             timeToHigh.append(stat.1)
         }
         let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
-        let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.15) + current.value))
-        let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.85) + current.value))
+        let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.1) + current.value))
+        let predictedHigh75 = CGFloat(round(highs.sorted().percentile(0.9) + current.value))
         let predictedLow = CGFloat(round(lows.sorted().percentile(0.1) + current.value))
         let predictedLow50 = CGFloat(round(lows.sorted().median() + current.value))
         let predictedTime = record.date + timeToHigh.sorted().median()
