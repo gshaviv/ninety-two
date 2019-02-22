@@ -197,6 +197,21 @@ public class GlucoseGraph: UIView {
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h10)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10)))
             ctx?.strokePath()
+            do {
+                let text = "90% < \(Int(prediction.h90))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
+            }
+            do {
+                let text = "90% > \(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10) - size.height, width: size.width, height: size.height))
+            }
+            do {
+                let text = "50% = \(Int(prediction.h50))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50) - size.height, width: size.width, height: size.height))
+            }
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.6).set()
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
