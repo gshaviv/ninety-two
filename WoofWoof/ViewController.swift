@@ -581,13 +581,32 @@ class ViewController: UIViewController {
             entries[Record(date: Date.distantFuture, meal: Record.Meal.other)] = 100
         }
         Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.meal, bolus: $0.bolus, note: $0.note) }.forEach {
-            if siriActions.contains($0) {
-                return
+            if !siriActions.contains($0) {
+                if let count = entries[$0] {
+                    entries[$0] = count + 1
+                } else {
+                    entries[$0] = 1
+                }
             }
-            if let count = entries[$0] {
-                entries[$0] = count + 1
-            } else {
-                entries[$0] = 1
+            if let note = $0.note {
+                let r = Record(date: Date.distantFuture, meal: nil, bolus: $0.bolus, note: note)
+                if !siriActions.contains(r) {
+                    if let count = entries[r] {
+                        entries[r] = count + 1
+                    } else {
+                        entries[r] = 1
+                    }
+                }
+            }
+        }
+        for key in entries.keys {
+            if key.meal != nil, let note = key.note {
+                let r = Record(date: Date.distantFuture, meal: nil, bolus: key.bolus, note: note)
+                if let full = entries[key], let partial = entries[r], partial == full {
+                    entries[r] = nil
+                } else if siriActions.contains(key) {
+                    entries[r] = nil
+                }
             }
         }
         let common = entries.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }.filter { $0.1 > 6 }
@@ -595,7 +614,7 @@ class ViewController: UIViewController {
             let top = common[0 ..< min(common.count, 8)].map { $0.0 }
             ctr.addGroup("Add Siri Shortcut")
             if !has {
-                ctr.addRow(title: "What's my glucose?", configure: {
+                ctr.addRow(title: "Glucose Measurment", subtitle: "What's my glucose?", configure: {
                     $0.imageView?.image = UIImage(named: "AppIcon")
                     $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
                 }) {
@@ -609,7 +628,7 @@ class ViewController: UIViewController {
                 }
             }
             for record in top {
-                ctr.addRow(title: record.intent.suggestedInvocationPhrase ?? "", configure: {
+                ctr.addRow(title: record.intent.value(forKey: "title") as? String ?? record.intent.suggestedInvocationPhrase ?? "", subtitle: record.intent.value(forKey: "subtitle") as? String, configure: {
                     $0.imageView?.image = UIImage(named: "AppIcon")
                     $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
                 }) {

@@ -14,7 +14,25 @@ import Sqlable
 
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
-        let kind = Record.Meal(name: intent.meal)
+        let kind: Record.Meal?
+        if let meal = Record.Meal(name: intent.meal) {
+            kind = meal
+        } else {
+            var count = Array<Int>(repeating: 0, count: 4)
+            var diff = Array<TimeInterval>(repeating: 0, count: 4)
+            Storage.default.allMeals.forEach {
+                count[$0.meal!.rawValue] += 1
+                diff[$0.meal!.rawValue] += abs(Date() - $0.date)
+            }
+            let ave = zip(count, diff).map { $0.1 / Double(max($0.0,1)) }.enumerated().reduce((0, 24.h)) {
+                if $1.1 < $0.1 {
+                    return $1
+                } else {
+                    return $0
+                }
+            }
+            kind = Record.Meal(rawValue: ave.0)
+        }
         let note = intent.note?.isEmpty == true ? nil : intent.note
         let bolus = intent.units?.intValue ?? 0
         let when = Date().rounded

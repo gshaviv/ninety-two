@@ -151,6 +151,21 @@
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>0abM1O</string>
 				</dict>
+				<key>note</key>
+				<dict>
+					<key>INIntentParameterCombinationIsPrimary</key>
+					<false/>
+					<key>INIntentParameterCombinationSubtitle</key>
+					<string></string>
+					<key>INIntentParameterCombinationSubtitleID</key>
+					<string>kuYVRn</string>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Having ${note}</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>DmNu0Z</string>
+				</dict>
 				<key>note,meal</key>
 				<dict>
 					<key>INIntentParameterCombinationIsPrimary</key>
@@ -165,6 +180,21 @@
 					<string>${note} for ${meal}</string>
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>YnDyZp</string>
+				</dict>
+				<key>note,units</key>
+				<dict>
+					<key>INIntentParameterCombinationIsPrimary</key>
+					<false/>
+					<key>INIntentParameterCombinationSubtitle</key>
+					<string>Taking ${units} units of insulin</string>
+					<key>INIntentParameterCombinationSubtitleID</key>
+					<string>9npvwE</string>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Having ${note}</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>i3fZHy</string>
 				</dict>
 				<key>units</key>
 				<dict>

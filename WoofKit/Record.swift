@@ -193,6 +193,17 @@ extension Record {
             default:
                 suggested = notePhrase.isEmpty ? "I'm eating" : "I'm having \(notePhrase[0 ..< notePhrase.count - 5])"
             }
+        } else if let n = note {
+            let notePhrase: String
+            let note = n.lowercased()
+            intent.note = n
+            if (n.components(separatedBy: " ").count == 1 && n.hasSuffix("s")) || n.components(separatedBy: " ").contains("And") {
+                notePhrase = n
+            } else {
+                let x = note.rangeOfCharacter(from: CharacterSet(charactersIn: "aeoiu"))?.lowerBound == note.startIndex
+                notePhrase = "\(x ? "an" : "a") \(self.note!)"
+            }
+            suggested = "I'm having \(notePhrase)"
         } else {
             intent.meal = "none"
             intent.note = ""
@@ -201,6 +212,8 @@ extension Record {
             intent.units = NSNumber(value: bolus)
             if suggested.isEmpty {
                 suggested = "I took "
+            } else if meal == nil {
+                suggested += ", and I took "
             } else {
                 suggested += ", with "
             }
