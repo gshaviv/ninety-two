@@ -28,7 +28,7 @@ public class Storage: NSObject {
         try! db.createTable(Calibration.self)
         try! db.createTable(Record.self)
         try! db.createTable(ManualMeasurement.self)
-        try! db.execute("PRAGMA journal_mode = DELETE")
+        try? db.execute("PRAGMA journal_mode = DELETE")
         return db
     }()
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
