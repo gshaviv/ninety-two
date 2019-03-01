@@ -226,23 +226,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func trendValue() -> Double? {
-        guard let trend = MiaoMiao.trend else {
+        guard let trend = MiaoMiao.trend, trend.count > 3 else {
             return nil
         }
-        let diffs = trend.map { $0.value }.diff()
-        let minutesToLook = 9
-        if diffs.count > minutesToLook {
-            var weightSum:Double = 0
-            var weight:Double = 100
-            let sum = diffs[0 ..< minutesToLook].reduce(0.0) {
-                let sum = $0 - $1 * weight
-                weightSum += weight
-                weight *= 0.75
-                return sum
-            }
-            return sum / weightSum
-        }
-        return nil
+//        let diffs = trend.map { $0.value }.diff()
+//        let minutesToLook = 9
+//        if diffs.count > minutesToLook {
+//            var weightSum:Double = 0
+//            var weight:Double = 100
+//            let sum = diffs[0 ..< minutesToLook].reduce(0.0) {
+//                let sum = $0 - $1 * weight
+//                weightSum += weight
+//                weight *= 0.75
+//                return sum
+//            }
+//            return sum / weightSum
+//        }
+//        return nil
+        return (trend[0].value - trend[3].value) / (trend[0].date - trend[3].date) * 60
     }
 
     func trendSymbol(for inputTrend: Double? = nil) -> String {
