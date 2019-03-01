@@ -108,14 +108,6 @@ class ViewController: UIViewController {
 
 
     func update() {
-        if !connectingLabel.isHidden {
-                UIView.animate(withDuration: 0.25, animations: {
-                    self.connectingLabel.alpha = 0
-                }, completion: { (_) in
-                    self.connectingLabel.alpha = 1
-                    self.connectingLabel.isHidden = true
-                })
-        }
         if let lastH = MiaoMiao.allReadings.last?.date {
             let last = max(lastH, MiaoMiao.trend?.last?.date ?? lastH)
             let end = Date().timeIntervalSince(last) < 12.h ? Date() : last
@@ -687,6 +679,14 @@ extension ViewController: MiaoMiaoDelegate {
 
     func didUpdate(addedHistory: [GlucosePoint]) {
         if UIApplication.shared.applicationState != .background {
+            if !connectingLabel.isHidden {
+                UIView.animate(withDuration: 0.25, animations: {
+                    self.connectingLabel.alpha = 0
+                }, completion: { (_) in
+                    self.connectingLabel.alpha = 1
+                    self.connectingLabel.isHidden = true
+                })
+            }
             update()
         }
     }

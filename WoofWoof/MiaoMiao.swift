@@ -43,9 +43,8 @@ class MiaoMiao {
     static var serial: String? {
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
-                defaults[.additionalSlope] = 1
-                defaults[.nextCalibration] = Date()
-                defaults[.sensorBegin] = nil
+                prepareForNewSensor()
+                defaults[.sensorSerial] = serial
             }
         }
     }
@@ -118,6 +117,27 @@ class MiaoMiao {
 
     private static var packetData: [Byte] = []
 
+    private static func prepareForNewSensor() {
+        if !pendingReadings.isEmpty {
+            Storage.default.db.async {
+                do {
+                    try Storage.default.db.transaction { db in
+                        try pendingReadings.forEach {
+                            try db.perform($0.insert())
+                        }
+
+                        pendingReadings = []
+                    }
+                } catch let error {
+                    logError("\(error)")
+                }
+            }
+        }
+        defaults[.additionalSlope] = 1
+        defaults[.nextCalibration] = Date() + 1.h
+        defaults[.sensorBegin] = nil
+    }
+
     static func decode(_ data: Data) {
         let bytes = data.bytes
         if packetData.isEmpty {
@@ -125,23 +145,11 @@ class MiaoMiao {
             case Code.newSensor:
                 log("New sensor detected")
                 Command.send(Code.allowSensor)
-                defaults[.additionalSlope] = 1
-                Storage.default.db.async {
-                    do {
-                        try Storage.default.db.transaction { db in
-                            try pendingReadings.forEach {
-                                try db.perform($0.insert())
-                            }
-
-                            pendingReadings = []
-                        }
-                    } catch let error {
-                        logError("\(error)")
-                    }
-                }
+                prepareForNewSensor()
                 DispatchQueue.main.async {
                     let notification = UNMutableNotificationContent()
                     notification.title = "New sensor detected"
+                    notification.body = "Activate sensor using original Freestyle reader"
                     let request = UNNotificationRequest(identifier: NotificationIdentifier.newSensor, content: notification, trigger: nil)
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
                     UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
@@ -239,28 +247,62 @@ class MiaoMiao {
                 defaults[.badDataCount] = 0
                 serial = data.serialNumber
                 sensorAge = data.minutesSinceStart.m
-                let minutes = Int((sensorAge ?? 0) / 60)
-                if minutes < 45 {
-                    if shortRefresh == nil || shortRefresh == true {
-                        shortRefresh = false
-                        Command.send(Code.startupFrequency)
+                switch data.state {
+                case .notYetStarted:
+                    DispatchQueue.main.async {
+                        let notification = UNMutableNotificationContent()
+                        notification.title = "Sensor not yet activated"
+                        notification.body = "Activate sensor using original Freestyle reader"
+                        let request = UNNotificationRequest(identifier: NotificationIdentifier.newSensor, content: notification, trigger: nil)
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+                        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+
+                        UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                        })
+                    }
+
+                case .starting:
+                    DispatchQueue.main.async {
+                        let minutes = Int((self.sensorAge ?? 0) / 60)
+                        log("New sensor: \(minutes)m old")
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor starting up: \(minutes)m") }
+                    }
+
+                case .ready:
+                    let trendPoints = data.trendMeasurements().map { $0.trendPoint }
+                    let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
+                    record(trend: trendPoints, history: historyPoints)
+                    if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
+                        if let sensorAge = sensorAge, sensorAge < 1.d {
+                            defaults[.nextCalibration] = Date() + 6.h
+                        } else {
+                            defaults[.nextCalibration] = nil
+                        }
+                        showCalibrationAlert()
+                    }
+
+                case .expired:
+                    DispatchQueue.main.async {
+                        log("sensor expired")
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor expired") }
+                    }
+
+                case .failure:
+                    if let sr = shortRefresh, !sr {
+                        shortRefresh = true
+                        Command.send(Code.shortFrequency)
                     }
                     DispatchQueue.main.async {
-                        log("New sensor: \(minutes)m old")
-                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("New sensor warming up: \(minutes)m") }
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor failed") }
                     }
-                    return
-                }
-                let trendPoints = data.trendMeasurements().map { $0.trendPoint }
-                let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
-                record(trend: trendPoints, history: historyPoints)
-                if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
-                    if let sensorAge = sensorAge, sensorAge < 1.d {
-                        defaults[.nextCalibration] = Date() + 6.h
-                    } else {
-                        defaults[.nextCalibration] = nil
+                case .shutdown:
+                    DispatchQueue.main.async {
+                        log("sensor shutdown")
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor shutdown") }
                     }
-                    showCalibrationAlert()
+
+                case .unknown:
+                    break
                 }
             } else if defaults[.badDataCount] < 3 {
                 defaults[.badDataCount] += 1
@@ -374,7 +416,7 @@ class MiaoMiao {
             var added = [GlucosePoint]()
             if let last = last24hReadings.last?.date {
                 let storeInterval = 3.m
-                let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 }.reversed()
+                let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
                 Storage.default.db.async {
