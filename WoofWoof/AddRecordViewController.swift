@@ -73,17 +73,21 @@ class AddRecordViewController: ActionSheetController {
         }
     }
 
-    var selectedRecord: Record {
+    var selectedDate: Date {
         var comp = Date().components
         comp.hour = picker.selectedRow(inComponent: Component.hour.rawValue)
-        comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue) 
+        comp.minute = picker.selectedRow(inComponent: Component.minute.rawValue)
         comp.second = 0
+        return comp.toDate()
+    }
+
+    var selectedRecord: Record {
         kind = Record.Meal(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
         let u = picker.selectedRow(inComponent: Component.units.rawValue)
         if u > 0 {
             units = u
         }
-        let cd = comp.toDate()
+        let cd = selectedDate
         let record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
         record.meal = kind
         record.bolus = units ?? 0
@@ -197,7 +201,7 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
             return "\(row)"
 
         case .meal:
-            return Record.Meal(rawValue: row - 1)?.name.capitalized ?? "None"
+            return Record.Meal(rawValue: row - 1)?.name.capitalized ?? "Bolus"
 
         case .units:
             return "\(row)"
@@ -206,9 +210,11 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-            if Storage.default.allMeals.first(where: { $0.date > Date() - 4.h }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
+            let date = selectedDate
+            if Storage.default.allMeals.first(where: { $0.date > date - 4.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
                 let low = v + s * (Double(pickerView.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
-                setPrediction("Predicted = \(max(0,Int(low)))\n\n")
+                setPrediction("Predicted @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
+                self.prediction = Storage.default.prediction(for: selectedRecord)
             } else {
                 setPrediction(nil)
             }
