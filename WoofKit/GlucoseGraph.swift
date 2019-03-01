@@ -81,7 +81,9 @@ public class GlucoseGraph: UIView {
             contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
             setNeedsLayout()
             DispatchQueue.main.async {
-                self.contentHolder.contentOffset = CGPoint(x: self.contentHolder.contentSize.width - self.contentHolder.width, y: 0)
+                if !self.contentHolder.isDragging && !self.contentHolder.isDecelerating {
+                    self.contentHolder.contentOffset = CGPoint(x: self.contentHolder.contentSize.width - self.contentHolder.width, y: 0)
+                }
             }
         }
     }
