@@ -53,6 +53,7 @@ class GlucoseReport {
         let withGoodTime = withTime.filter { $0.1 < 20.m }
         var minValue: Double = 999
         var maxValue: Double = -1
+        var insulingPerDay = [Int:Int]()
         let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
             let (sum, total, below, inRange, above) = result
             let (gp, duration) = arg
@@ -65,6 +66,13 @@ class GlucoseReport {
             maxValue = max(maxValue, gp.value)
             return (x0, x1, x2, x3, x4)
         }
+        let records = Storage.default.allEntries.filter { $0.bolus > 0 }
+        for rec in records {
+            let comp = rec.date.components
+            let day = (comp.day ?? 0) + (comp.month ?? 0) * 31
+            insulingPerDay[day] = (insulingPerDay[day] ?? 0) + rec.bolus
+        }
+        let aveInsuline = Double(insulingPerDay.map { $0.value }.sum()) / max(Double(insulingPerDay.count),1)
         let aveG = sumG / totalT
         let a1c = (aveG / 18.05 + 2.52) / 1.583
 
@@ -107,26 +115,32 @@ class GlucoseReport {
                 PDFTextCell("Above target".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
                 PDFTextCell("In target".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
                 PDFTextCell("Below target".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
+                PDFTextCell("Units/Day".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
             ])
 
             try? table.addRow([
                 PDFTextCell(String(format: "%.0lf%%", timeAbove / totalT * 100).styled.font(normalFont).text(alignment: .center)),
                 PDFTextCell(String(format: "%.0lf%%", timeIn / totalT * 100).styled.font(normalFont).text(alignment: .center)),
                 PDFTextCell(String(format: "%.0lf%%", timeBelow / totalT * 100).styled.font(normalFont).text(alignment: .center)),
+                PDFTextCell(String(format: "%.1lfu", aveInsuline).styled.font(normalFont).text(alignment: .center)),
             ])
 
             try? table.addRow([
                 PDFTextCell("Average glucose".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
                 PDFTextCell("Estimated A1C".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
                 PDFTextCell("# Low events".styled.font(normalFont).traits(.traitBold).text(alignment: .center)),
-            ])
+                PDFTextCell(NSAttributedString()),
+           ])
 
             try? table.addRow([
                 PDFTextCell("\(Int(round(aveG))) mg/dL".styled.font(normalFont).text(alignment: .center)),
                 PDFTextCell(String(format: "%.1lf%%", a1c).styled.font(normalFont).text(alignment: .center)),
                 PDFTextCell("\(lowEvents.count)".styled.font(normalFont).text(alignment: .center)),
-            ])
-            table.rowBorderPattern = "- - -"
+                PDFTextCell(NSAttributedString()),
+           ])
+
+
+            table.rowBorderPattern = "- - - -"
 
             maker.add(table)
 

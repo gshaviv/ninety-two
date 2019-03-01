@@ -239,14 +239,15 @@ class MiaoMiao {
                 defaults[.badDataCount] = 0
                 serial = data.serialNumber
                 sensorAge = data.minutesSinceStart.m
-                if data.minutesSinceStart < 45 {
+                let minutes = Int((sensorAge ?? 0) / 60)
+                if minutes < 45 {
                     if shortRefresh == nil || shortRefresh == true {
                         shortRefresh = false
                         Command.send(Code.startupFrequency)
                     }
                     DispatchQueue.main.async {
-                        log("New sensor: \(data.minutesSinceStart)m old")
-                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("New sensor warming up: \(data.minutesSinceStart)m") }
+                        log("New sensor: \(minutes)m old")
+                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("New sensor warming up: \(minutes)m") }
                     }
                     return
                 }
