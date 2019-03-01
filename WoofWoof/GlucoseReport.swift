@@ -191,7 +191,7 @@ class GlucoseReport {
                         let points = event.map { CGPoint(x: xPos($0.date - base), y: yPos($0.value)) }
                         let path = UIBezierPath()
                         path.move(to: points[0])
-                        path.addCurveThrough(points: points[1...])
+                        path.addCurveThrough(points: points[0...])
                         path.addLine(to: points[0])
                         path.fill()
                         path.stroke()
@@ -200,7 +200,7 @@ class GlucoseReport {
                             let points = event.map { CGPoint(x: xPos($0.date - later), y: yPos($0.value)) }
                             let path = UIBezierPath()
                             path.move(to: points[0])
-                            path.addCurveThrough(points: points[1...])
+                            path.addCurveThrough(points: points[0...])
                             path.addLine(to: points[0])
                             path.fill()
                             path.stroke()
