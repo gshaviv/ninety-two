@@ -12,12 +12,6 @@ import WoofKit
 
 class HistoryViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
-    @IBOutlet var percentLowLabel: UILabel!
-    @IBOutlet var aveGlucoseLabel: UILabel!
-    @IBOutlet var percentInRangeLabel: UILabel!
-    @IBOutlet var a1cLabel: UILabel!
-    @IBOutlet var percentHighLabel: UILabel!
-    @IBOutlet var pieChart: PieChart!
     @IBOutlet var backButton: UIButton!
     @IBOutlet var forwardButton: UIButton!
     @IBOutlet var dateLabel: UILabel!

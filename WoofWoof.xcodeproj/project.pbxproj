@@ -18,6 +18,8 @@
 		E417F4B821E8CFA200C6BC9D /* SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E417F4BC21E8CFB200C6BC9D /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
 		E417F4BD21E8CFB200C6BC9D /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
+		E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F93D02223237B000CC69F /* SummaryViewController.swift */; };
+		E41F93D42223DD5D000CC69F /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F93D32223DD5D000CC69F /* ContainerView.swift */; };
 		E4230F8321E9DA4200A297A5 /* PDFCreation.h in Headers */ = {isa = PBXBuildFile; fileRef = E4230F8121E9DA4200A297A5 /* PDFCreation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4230F8621E9DA4200A297A5 /* PDFCreation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4230F7F21E9DA4200A297A5 /* PDFCreation.framework */; };
 		E4230F8721E9DA4200A297A5 /* PDFCreation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E4230F7F21E9DA4200A297A5 /* PDFCreation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -292,6 +294,8 @@
 		E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		E417F4B521E8CFA200C6BC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E417F4C221E8D21300C6BC9D /* SiriIntents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntents.entitlements; sourceTree = "<group>"; };
+		E41F93D02223237B000CC69F /* SummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryViewController.swift; sourceTree = "<group>"; };
+		E41F93D32223DD5D000CC69F /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		E4230F7F21E9DA4200A297A5 /* PDFCreation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PDFCreation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4230F8121E9DA4200A297A5 /* PDFCreation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDFCreation.h; sourceTree = "<group>"; };
 		E4230F8221E9DA4200A297A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -715,6 +719,8 @@
 				E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */,
 				E4C4E0BF21FC41880046D28F /* Settings.storyboard */,
 				E4892B9C2211EC5600A647B8 /* SearchViewController.swift */,
+				E41F93D02223237B000CC69F /* SummaryViewController.swift */,
+				E41F93D32223DD5D000CC69F /* ContainerView.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1242,10 +1248,12 @@
 				E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
+				E41F93D42223DD5D000CC69F /* ContainerView.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
+				E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */,
 				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,

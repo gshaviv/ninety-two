@@ -26,18 +26,18 @@ class ViewController: UIViewController {
     @IBOutlet var sensorAgeLabel: UILabel!
     @IBOutlet var agoLabel: UILabel!
     @IBOutlet var trendLabel: UILabel!
-    @IBOutlet var percentLowLabel: UILabel!
-    @IBOutlet var aveGlucoseLabel: UILabel!
-    @IBOutlet var percentInRangeLabel: UILabel!
-    @IBOutlet var a1cLabel: UILabel!
-    @IBOutlet var percentHighLabel: UILabel!
-    @IBOutlet var pieChart: PieChart!
+    var summaryController: SummaryViewController?
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     @IBOutlet var iobLabel: UILabel!
-    @IBOutlet var lowCountLabel: UILabel!
-    @IBOutlet var summaryPeriodLabel: UILabel!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let c = segue.destination as? SummaryViewController {
+            summaryController = c
+            NotificationCenter.default.addObserver(c, selector: #selector(SummaryViewController.updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
+        }
+    }
 
     private func batteryLevelIcon(for level: Int) -> UIImage {
         switch level {
@@ -99,7 +99,6 @@ class ViewController: UIViewController {
                 }
             }
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -107,106 +106,6 @@ class ViewController: UIViewController {
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
     }
 
-    @objc private func updateSummary() {
-        do {
-            defaults[.lastStatisticsCalculation] = Date()
-            let child = try Storage.default.db.createChild()
-            var lowCount = 0
-            var inLow = false
-            summaryPeriodLabel.text = "Last \(defaults.summaryPeriod)d"
-            DispatchQueue.global().async {
-                var lowStart: Date?
-                var lowTime = [TimeInterval]()
-                if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
-                    let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
-                    let withTime = zip(readings.dropLast(), diffs)
-                    let withGoodTime = withTime.filter { $0.1 < 20.m }
-                    var previousPoint: GlucosePoint?
-                    var bands = [UserDefaults.ColorKey: TimeInterval]()
-                    let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
-                        let (sum, total, below, inRange, above) = result
-                        let (gp, duration) = arg
-                        let x0 = sum + gp.value * duration
-                        let x1 = total + duration
-                        let x2 = gp.value < defaults[.minRange] ? below + duration : below
-                        let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
-                        let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
-                        if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
-                            let key: UserDefaults.ColorKey
-                            switch gp.value {
-                            case ...defaults[.level0]:
-                                key = .color0
-                            case ...defaults[.level1]:
-                                key = .color1
-                            case ...defaults[.level2]:
-                                key = .color2
-                            case ...defaults[.level3]:
-                                key = .color3
-                            case ...defaults[.level4]:
-                                key = .color4
-                            default:
-                                key = .color5
-                            }
-                            if let time = bands[key] {
-                                bands[key] = time + duration
-                            } else {
-                                bands[key] = duration
-                            }
-                        }
-                        if gp.value < defaults[.minRange] {
-                            if !inLow {
-                                lowCount += 1
-                                if let previous = previousPoint {
-                                    let d = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
-                                    lowStart = d
-                                } else {
-                                    lowStart = gp.date
-                                }
-                            }
-                            inLow = true
-                        } else {
-                            if inLow, let lowStart = lowStart {
-                                if let previous = previousPoint {
-                                    let d = previous.date + (defaults[.minRange] - previous.value) / (gp.value - previous.value) * (gp.date - previous.date)
-                                    lowTime.append(d - lowStart)
-                                } else {
-                                    lowTime.append(gp.date - lowStart)
-                                }
-                            }
-                            inLow = false
-                        }
-                        previousPoint = gp
-                        return (x0, x1, x2, x3, x4)
-                    }
-                    let aveG = sumG / totalT
-                    let a1c = (aveG / 18.05 + 2.52) / 1.583
-                    let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
-                    DispatchQueue.main.async {
-                        let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
-                        self.lowCountLabel.text = "\(lowCount) (\(medianTime))"
-                        self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
-                        self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
-                        self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
-                        self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
-                        self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        var slices = [UserDefaults.ColorKey.color0,
-                                      UserDefaults.ColorKey.color1,
-                                      UserDefaults.ColorKey.color2,
-                                      UserDefaults.ColorKey.color3,
-                                      UserDefaults.ColorKey.color4].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
-                            if let v = bands[key] {
-                                return PieChart.Slice(value: CGFloat(v), color: defaults[key])
-                            } else {
-                                return nil
-                            }
-                        }
-                        slices += [PieChart.Slice(value: CGFloat(timeAbove), color: .yellow), PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
-                        self.pieChart.slices = slices
-                    }
-                }
-            }
-        } catch {}
-    }
 
     func update() {
         if !connectingLabel.isHidden {
@@ -264,8 +163,8 @@ class ViewController: UIViewController {
         } else {
             iobLabel.isHidden = true
         }
-        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(3.h, defaults.summaryPeriod.d / 20), 1.d) {
-            updateSummary()
+        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(2.h, defaults.summaryPeriod.d / 50), 8.h) {
+            summaryController?.updateSummary()
         }
     }
 
@@ -348,13 +247,6 @@ class ViewController: UIViewController {
 
         sheet.addAction(UIAlertAction(title: "History", style: .default, handler: { (_) in
             let hvc = self.storyboard?.instantiateViewController(withIdentifier: "history") as? HistoryViewController
-            _ = hvc?.view
-            hvc?.percentLowLabel.text = self.percentLowLabel.text
-            hvc?.aveGlucoseLabel.text = self.aveGlucoseLabel.text
-            hvc?.percentInRangeLabel.text = self.percentInRangeLabel.text
-            hvc?.a1cLabel.text = self.a1cLabel.text
-            hvc?.percentHighLabel.text = self.percentHighLabel.text
-            hvc?.pieChart.slices = self.pieChart.slices
             self.show(hvc!, sender: nil)
         }))
 

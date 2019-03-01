@@ -51,6 +51,46 @@ public class Storage: NSObject {
         _allEntries = nil
     }
 
+    public func estimateInsulinReaction() -> Double? {
+        let boluses = allEntries.enumerated().compactMap { (arg) -> Record? in
+            guard arg.offset > 0 && arg.element.meal == nil && arg.offset < allEntries.count - 1 else {
+                return nil
+            }
+            if arg.element.date - allEntries[arg.offset - 1].date < 5.h || allEntries[arg.offset + 1].date - arg.element.date < (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60 {
+                return nil
+            }
+            return arg.element
+        }
+        var impact = [Double]()
+        for bolus in boluses {
+            guard let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > bolus.date && GlucosePoint.date < bolus.date + (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60).orderBy(GlucosePoint.date)), !readings.isEmpty else {
+                continue
+            }
+            let starting = readings.last { $0.date <  bolus.date + defaults[.delayMinutes] * 60} ?? readings[0]
+            let startInsulin = bolus.insulinAction(at: starting.date).iob
+            for gp in readings {
+                if gp.date < starting.date {
+                    continue
+                }
+                let insulinWorked = startInsulin - bolus.insulinAction(at: gp.date).iob
+                guard insulinWorked > 1 else {
+                    continue
+                }
+                let dropped = gp.value - starting.value
+                guard dropped < 0 else {
+                    continue
+                }
+                impact.append(dropped / insulinWorked)
+            }
+        }
+
+        guard !impact.isEmpty else {
+            return nil
+        }
+
+        return impact.sorted().median()
+    }
+
     public func relevantMeals(to record: Record) -> [(Record, Date)] {
         var possibleRecords = [(Record,Date)]()
 
@@ -80,7 +120,7 @@ public class Storage: NSObject {
             possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
         let ionstart = record.insulinOnBoardAtStart
-        let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 1 }
+        let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 0.5 }
         var relevantMeals = meals.filter { $0.0.meal == record.meal || record.note == nil || record.note == $0.0.note }
         if let note = record.note {
             let posible = relevantMeals.filter { $0.0.note?.hasPrefix(note) == true }
@@ -89,7 +129,7 @@ public class Storage: NSObject {
             }
         }
         let stricter = relevantMeals.filter { $0.0.meal == record.meal }
-        if stricter.count > 3 {
+        if stricter.count > 2 {
             relevantMeals = stricter
         }
         return relevantMeals

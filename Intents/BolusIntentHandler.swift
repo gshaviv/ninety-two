@@ -68,7 +68,7 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
                         formatter.dateStyle = .none
                         formatter.timeStyle = .short
                         if prediction.h90 > prediction.h10 && prediction.low50 > prediction.low {
-                            let phrase = "\(blurb). Based on \(prediction.mealCount) previous similar meals, your glucose will be between \(Int(prediction.h10)) and \(Int(prediction.h90)) with an 80% chance, most likely will be \(Int(prediction.h50)) at \(formatter.string(from: prediction.highDate)). With a 90% it will stay above \(Int(prediction.low))."
+                            let phrase = "\(blurb). Based on \(prediction.mealCount) previous similar meals, your glucose will be \(Int(prediction.h50)) and will stay above \(Int(prediction.low))."
                             completion(DiaryIntentResponse.success(phrase: phrase))
                         } else {
                             completion(DiaryIntentResponse.success(phrase: blurb))

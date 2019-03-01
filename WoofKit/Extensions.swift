@@ -221,6 +221,19 @@ extension Array where Element == Double {
     }
 }
 
+extension UIView {
+    public var controller: UIViewController? {
+        var responder = self.next
+        repeat {
+            if let vc = responder as? UIViewController {
+                return vc
+            }
+            responder = responder?.next
+        } while responder != nil
+        return nil
+    }
+}
+
 extension Bundle {
     public static var documentsPath: String {
         return NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!

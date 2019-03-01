@@ -45,6 +45,7 @@ class MiaoMiao {
             if let serial = serial, serial != defaults[.sensorSerial] {
                 defaults[.additionalSlope] = 1
                 defaults[.nextCalibration] = Date()
+                defaults[.sensorBegin] = nil
             }
         }
     }
@@ -236,9 +237,9 @@ class MiaoMiao {
 
             if let data = SensorData(uuid: Data(bytes: packetData[5 ..< 13]), bytes: Array(packetData[18 ..< 362]), derivedAlgorithmParameterSet: tempCorrection), data.hasValidCRCs {
                 defaults[.badDataCount] = 0
-                sensorAge = data.minutesSinceStart.m
                 serial = data.serialNumber
-                if data.minutesSinceStart < 40 {
+                sensorAge = data.minutesSinceStart.m
+                if data.minutesSinceStart < 45 {
                     if shortRefresh == nil || shortRefresh == true {
                         shortRefresh = false
                         Command.send(Code.startupFrequency)
@@ -302,7 +303,23 @@ class MiaoMiao {
         }
     }
 
-    public static var sensorAge: TimeInterval?
+    public static var sensorAge: TimeInterval? {
+        get {
+            if let start = defaults[.sensorBegin] {
+                return Date() - start
+            }
+            return nil
+        }
+        set {
+            if let newValue = newValue {
+                if defaults[.sensorBegin] == nil {
+                    defaults[.sensorBegin] = Date() - newValue
+                }
+            } else {
+                defaults[.sensorBegin] = nil
+            }
+        }
+    }
     public static var trend: [GlucosePoint]? {
         didSet {
             allReadingsCalculater.invalidate()

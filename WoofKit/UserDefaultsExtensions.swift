@@ -23,6 +23,7 @@ extension UserDefaults {
         case lastEventAlertTime
         case nextCalibration
         case nextNoSensorAlert
+        case sensorBegin
     }
 
     public enum DoubleKey: String {

@@ -50,7 +50,9 @@ class AddRecordViewController: ActionSheetController {
         return wordList.sorted()
     }()
     private lazy var iob: Double = editRecord?.insulinOnBoardAtStart ?? Storage.default.insulinOnBoard(at: Date())
-
+    private var sensitivity = Calculation {
+        return Storage.default.estimateInsulinReaction()
+    }
     @IBAction func handleCancel(_ sender: Any) {
         onSelect = nil
         dismiss(animated: true) {
@@ -204,10 +206,15 @@ extension AddRecordViewController: UIPickerViewDelegate, UIPickerViewDataSource 
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-            self.setPrediction(nil)
+            if Storage.default.allMeals.first(where: { $0.date > Date() - 4.h }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
+                let low = v + s * (Double(pickerView.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
+                setPrediction("Predicted = \(max(0,Int(low)))\n\n")
+            } else {
+                setPrediction(nil)
+            }
         } else {
             predict()
-        }
+        } 
         if let rec = editRecord {
             switch Component(rawValue: component)! {
             case .hour, .minute:
