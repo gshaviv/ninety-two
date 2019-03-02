@@ -167,7 +167,7 @@ class MiaoMiao {
                     shortRefresh = true
                     Command.send(Code.shortFrequency)
                 }
-                if let d = defaults[.nextNoSensorAlert], Date() > d {
+                if let d = defaults[.nextNoSensorAlert], Date() > d && UIApplication.shared.applicationState == .background {
                     defaults[.nextNoSensorAlert] = Date() + 10.m
                     DispatchQueue.main.async {
                         let notification = UNMutableNotificationContent()
@@ -282,6 +282,9 @@ class MiaoMiao {
                     }
 
                 case .expired:
+                    let trendPoints = data.trendMeasurements().map { $0.trendPoint }
+                    let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
+                    record(trend: trendPoints, history: historyPoints)
                     DispatchQueue.main.async {
                         log("sensor expired")
                         MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor expired") }
