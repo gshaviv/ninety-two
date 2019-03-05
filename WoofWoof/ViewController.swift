@@ -96,6 +96,9 @@ class ViewController: UIViewController {
 
                 case .ready:
                     self.connectingLabel.text = "MiaoMiao connected"
+                    if MiaoMiao.currentGlucose != nil {
+                        self.connectingLabel.isHidden = true
+                    }
                 }
             }
         }
@@ -142,6 +145,12 @@ class ViewController: UIViewController {
             sensorAgeLabel.text = "\(age / 24 / 60)d:\(age / 60 % 24)h"
         } else {
             sensorAgeLabel.text = "?"
+        }
+        switch MiaoMiao.sensorState {
+        case .expired:
+            sensorAgeLabel.textColor = .red
+        default:
+            sensorAgeLabel.textColor = .black
         }
         if let trend = trend {
             trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "", trend)
@@ -688,6 +697,10 @@ extension ViewController: MiaoMiaoDelegate {
                 })
             }
             update()
+        } else {
+            if !connectingLabel.isHidden {
+                connectingLabel.isHidden = true
+            }
         }
     }
 }

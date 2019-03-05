@@ -9,10 +9,13 @@
 import Foundation
 import os
 
+private let general = OSLog(subsystem: "92", category: "🔷")
+private let error = OSLog(subsystem: "92", category: "❌")
+
 public func log(_ msg: String) {
-    os_log(.default, "%{public}@", msg)
+    os_log(.default, log: general, "%{public}@", msg)
 }
 
 public func logError(_ msg: String) {
-    os_log(.error, "%{public}@", msg)
+    os_log(.error, log: error, "%{public}@", msg)
 }

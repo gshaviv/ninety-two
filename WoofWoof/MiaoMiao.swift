@@ -116,6 +116,7 @@ class MiaoMiao {
     }
 
     private static var packetData: [Byte] = []
+    public static var sensorState: SensorState = .unknown
 
     private static func prepareForNewSensor() {
         if !pendingReadings.isEmpty {
@@ -247,6 +248,7 @@ class MiaoMiao {
                 defaults[.badDataCount] = 0
                 serial = data.serialNumber
                 sensorAge = data.minutesSinceStart.m
+                sensorState = data.state
                 switch data.state {
                 case .notYetStarted:
                     DispatchQueue.main.async {
@@ -285,10 +287,8 @@ class MiaoMiao {
                     let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                     let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                     record(trend: trendPoints, history: historyPoints)
-                    DispatchQueue.main.async {
-                        log("sensor expired")
-                        MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor expired") }
-                    }
+                    log("sensor expired")
+
 
                 case .failure:
                     if let sr = shortRefresh, !sr {

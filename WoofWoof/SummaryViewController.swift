@@ -50,14 +50,23 @@ class SummaryViewController: UIViewController {
                     var bands = [UserDefaults.ColorKey: TimeInterval]()
                     var maxG:Double = 0
                     var minG:Double = 9999
-                    let (sumG, totalT, timeBelow, timeIn, timeAbove) = withGoodTime.reduce((0.0, 0.0, 0.0, 0.0, 0.0)) { (result, arg) -> (Double, Double, Double, Double, Double) in
-                        let (sum, total, below, inRange, above) = result
+                    var timeBelow = Double(0)
+                    var timeAbove = Double(0)
+                    let (sumG, totalT) = withGoodTime.reduce((0.0, 0.0)) { (result, arg) -> (Double, Double) in
+                        let (sum, total) = result
                         let (gp, duration) = arg
                         let x0 = sum + gp.value * duration
                         let x1 = total + duration
-                        let x2 = gp.value < defaults[.minRange] ? below + duration : below
-                        let x3 = gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] ? inRange + duration : inRange
-                        let x4 = gp.value >= defaults[.maxRange] ? above + duration : above
+                        switch gp.value {
+                        case ..<defaults[.minRange]:
+                            timeBelow += duration
+
+                        case defaults[.maxRange]...:
+                            timeAbove += duration
+
+                        default:
+                            break
+                        }
                         maxG = max(maxG, gp.value)
                         minG = min(minG, gp.value)
                         if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
@@ -105,7 +114,7 @@ class SummaryViewController: UIViewController {
                             inLow = false
                         }
                         previousPoint = gp
-                        return (x0, x1, x2, x3, x4)
+                        return (x0, x1)
                     }
                     let aveG = sumG / totalT
                     let a1c = (aveG / 18.05 + 2.52) / 1.583
@@ -117,7 +126,8 @@ class SummaryViewController: UIViewController {
                         self.maxLabel.text = maxG.formatted(with: "%.0lf")
                         self.minLabel.text = minG.formatted(with: "%.0lf")
                         self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
-                        self.percentInRangeLabel.text = String(format: "%.1lf%%", timeIn / totalT * 100)
+                        let percentIn = (1000 - round(timeBelow / totalT * 1000) - round(timeAbove / totalT * 1000))/10
+                        self.percentInRangeLabel.text = String(format: "%.1lf%%", percentIn)
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
                         self.a1cLabel.text = String(format: "%.1lf%%", a1c)

@@ -9,6 +9,10 @@
 import WatchKit
 import WatchConnectivity
 
+extension WKExtension {
+    static public let willEnterForegroundNotification = Notification.Name("willEnterForeground")
+    static public let didEnterBackgroundNotification = Notification.Name("didEnterBackground")
+}
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var data = DisplayValue(date: Date(), string: "-")
@@ -24,12 +28,12 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationWillEnterForeground() {
-        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            if !readings.isEmpty {
-                ctr.updateTime()
-            }
-            refresh(blank: true)
-        }
+        refresh(blank: true)
+        NotificationCenter.default.post(name: WKExtension.willEnterForegroundNotification, object: nil)
+    }
+
+    func applicationDidEnterBackground() {
+        NotificationCenter.default.post(name: WKExtension.didEnterBackgroundNotification, object: nil)
     }
 
 
@@ -38,7 +42,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             return
         }
         if blank, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.setDim()
+            ctr.isDimmed = true
         }
         WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double else {
@@ -72,14 +76,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
 
-    func applicationWillResignActive() {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, etc.
-        //        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date() + refreshInterval, userInfo: nil) { (err) in
-        //
-        //        }
-    }
-
     //    var pendingTasks = Set<WKRefreshBackgroundTask>()
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
         // Sent when the system needs to launch the application in the background to process tasks. Tasks arrive in a set, so loop through and process each one.
@@ -90,7 +86,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                    ctr.setDim()
+                    ctr.isDimmed = true
                 }
                 
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
@@ -122,9 +118,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 extension ExtensionDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if session.activationState == .activated, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.updateTime()
-            refresh(blank: true)
+        if session.activationState == .activated {
+            DispatchQueue.main.async {
+                self.refresh(blank: true)
+            }
         }
     }
 

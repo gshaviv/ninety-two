@@ -14,26 +14,57 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var trendLabel: WKInterfaceLabel!
     @IBOutlet var agoLabel: WKInterfaceLabel!
     @IBOutlet var imageView: WKInterfaceImage!
+    var isDimmed = false {
+        didSet {
+            glucoseLabel.setAlpha(isDimmed ? 0.3 : 1)
+            trendLabel.setAlpha(isDimmed ? 0.3 : 1)
+            agoLabel.setAlpha(isDimmed ? 0.3 : 1)
+            imageView.setAlpha(isDimmed ? 0.5 : 1)
+            if !isDimmed {
+                updateTime()
+            }
+        }
+    }
+    var cancelUpdate = false
+    var triggered = false
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
     }
 
-    override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
+    @objc private func didEnterForeground() {
+        updateTime()
+    }
+
+    override func willActivate() {
+        super.willActivate()
+        updateTime()
     }
 
     func updateTime() {
+        if isDimmed || triggered {
+            return
+        }
+        if cancelUpdate {
+            cancelUpdate = false
+            return
+        }
+        if WKExtension.shared().applicationState == .background || isDimmed {
+            return
+        }
         if let last = WKExtension.extensionDelegate.readings.last {
-            let minutes = Int(Date().timeIntervalSince(last.date) / 60)
-            switch minutes {
-            case 0:
-                agoLabel.setText("Now")
-
-            default:
-                agoLabel.setText("\(minutes)m")
-            }
+            let minutes = Int(Date().timeIntervalSince(last.date))
+            let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
+            let attr = String(format: "%ld:%02ld", minutes / 60, minutes % 60).styled.color(.white).font(f)
+            self.agoLabel.setAttributedText(attr)
+        } else {
+            self.agoLabel.setText("--")
+        }
+        triggered = true
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+            self.triggered = false
+            self.updateTime()
         }
     }
 
@@ -41,11 +72,10 @@ class InterfaceController: WKInterfaceController {
         guard let last = WKExtension.extensionDelegate.readings.last else {
             return
         }
-        setDim(false)
+        isDimmed = false
 
         glucoseLabel.setText("\(Int(round(last.value)))\(WKExtension.extensionDelegate.trendSymbol)")
         trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
-        updateTime()
         DispatchQueue.global().async {
             if let image = self.createImage() {
                 DispatchQueue.main.async {
@@ -60,18 +90,14 @@ class InterfaceController: WKInterfaceController {
     }
 
     func showError() {
-        setDim(false)
+        isDimmed = false
+        cancelUpdate = true
         glucoseLabel.setText("?")
         trendLabel.setText("")
         agoLabel.setText("")
     }
 
-    func setDim(_ dim: Bool = true) {
-        glucoseLabel.setAlpha(dim ? 0.3 : 1)
-        trendLabel.setAlpha(dim ? 0.3 : 1)
-        agoLabel.setAlpha(dim ? 0.3 : 1)
-        imageView.setAlpha(dim ? 0.5 : 1)
-    }
+
 
     func createImage() -> UIImage? {
         let colors = [0 ... 55: UIColor.red,
