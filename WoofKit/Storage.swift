@@ -49,6 +49,7 @@ public class Storage: NSObject {
     }
     @objc private func didReceiveMemoryWarning() {
         _allEntries = nil
+        lastDay = Today()
     }
 
     public func estimateInsulinReaction() -> Double? {
@@ -119,11 +120,11 @@ public class Storage: NSObject {
         }
         let ionstart = record.insulinOnBoardAtStart
         let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 0.5 }
-        var relevantMeals = meals.filter { $0.0.meal == record.meal || record.note == nil || record.note == $0.0.note }
-        if let note = record.note {
-            let posible = relevantMeals.filter { $0.0.note?.hasPrefix(note) == true }
-            if !posible.isEmpty {
-                relevantMeals = posible
+        var relevantMeals = meals.filter {
+            if let note = record.note {
+                return note == $0.0.note
+            } else {
+                return record.meal == $0.0.meal
             }
         }
         let stricter = relevantMeals.filter { $0.0.meal == record.meal }
@@ -163,6 +164,9 @@ public class Storage: NSObject {
                 highs.append(stat.0)
                 lows.append(stat.2)
                 timeToHigh.append(stat.1)
+            }
+            guard !highs.isEmpty else {
+                return nil
             }
             let predictedHigh = CGFloat(round(highs.sorted().median() + current.value))
             let predictedHigh25 = CGFloat(round(highs.sorted().percentile(0.1) + current.value))

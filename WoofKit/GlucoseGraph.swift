@@ -106,6 +106,10 @@ public class GlucoseGraph: UIView {
     }
     public var prediction: Prediction? {
         didSet {
+            let h = CGFloat(ceil((prediction?.h50 ?? 0) / 5) * 5)
+            if h > yRange.max {
+                yRange.max = h
+            }
             contentView.setNeedsDisplay()
         }
     }
@@ -125,7 +129,6 @@ public class GlucoseGraph: UIView {
     private var xAxis: DrawingView!
     private var xAxisHeight: CGFloat = 30
     private var yAxis: DrawingView!
-
 
     private var contentWidthConstraint: NSLayoutConstraint?
 

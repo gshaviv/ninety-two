@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreBluetooth
+import UIKit
 
 typealias Byte = UInt8
 
@@ -15,6 +16,7 @@ public class Central: NSObject {
     internal static let service = CBUUID(string: "6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
     internal static let transmit = CBUUID(string: "6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
     internal static let receive = CBUUID(string: "6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
+    private var bgTask: UIBackgroundTaskIdentifier?
 
     public static var manager = Central()
     private var centralManager: CBCentralManager!
@@ -78,10 +80,15 @@ public class Central: NSObject {
 
             case (_, .found):
                 if let gcmDevice = gcmDevice {
+                    bgTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                     centralManager.connect(gcmDevice, options: nil)
                 }
 
             case (_, .ready):
+                if let task = bgTask {
+                    UIApplication.shared.endBackgroundTask(task)
+                    bgTask = nil
+                }
                 break
 
             case (.unknown, .unavailable):

@@ -35,7 +35,6 @@ class ViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let c = segue.destination as? SummaryViewController {
             summaryController = c
-            NotificationCenter.default.addObserver(c, selector: #selector(SummaryViewController.updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
         }
     }
 
@@ -96,9 +95,9 @@ class ViewController: UIViewController {
 
                 case .ready:
                     self.connectingLabel.text = "MiaoMiao connected"
-                    if MiaoMiao.currentGlucose != nil {
-                        self.connectingLabel.isHidden = true
-                    }
+//                    if MiaoMiao.currentGlucose != nil {
+//                        self.connectingLabel.isHidden = true
+//                    }
                 }
             }
         }
@@ -164,7 +163,7 @@ class ViewController: UIViewController {
         } else {
             iobLabel.isHidden = true
         }
-        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(2.h, defaults.summaryPeriod.d / 50), 8.h) {
+        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(2.h, defaults.summaryPeriod.d / 50), 5.h) {
             summaryController?.updateSummary()
         }
     }
@@ -299,7 +298,7 @@ class ViewController: UIViewController {
                 }
             }
         }
-        ctr.addEnum("Summary Timeframe", count: 5, get: { () -> Int in
+        ctr.addEnum("Summary Timeframe", count: UserDefaults.summaryPeriods.count, get: { () -> Int in
             return defaults[.summaryPeriod]
         }, set: {
             defaults[.summaryPeriod] = $0
@@ -649,6 +648,8 @@ class ViewController: UIViewController {
 
     @objc private func didEnterBackground() {
         updater = nil
+        graphView.points = []
+        graphView.records = []
     }
 
     private func trendValue() -> Double? {

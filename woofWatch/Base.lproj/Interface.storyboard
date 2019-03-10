@@ -16,11 +16,11 @@
                     <items>
                         <group width="1" alignment="left" id="guQ-eW-pCe">
                             <items>
-                                <label alignment="left" verticalAlignment="center" text="1m" id="8eL-2P-Wbi"/>
-                                <label alignment="right" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
-                                <label alignment="right" verticalAlignment="center" text="95x" id="CJy-43-4iV">
+                                <label alignment="left" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
+                                <label alignment="center" verticalAlignment="center" text="95x" id="CJy-43-4iV">
                                     <fontDescription key="font" style="UICTFontTextStyleTitle1"/>
                                 </label>
+                                <label alignment="right" verticalAlignment="center" text="1m" id="8eL-2P-Wbi"/>
                             </items>
                         </group>
                         <imageView width="1" height="110" alignment="left" contentMode="scaleAspectFit" id="o4d-03-Fc5"/>

@@ -29,6 +29,7 @@ class SummaryViewController: UIViewController {
 
         preferredContentSize = stackView.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width, height: 0), withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.fittingSizeLevel)
         updateSummary()
+        NotificationCenter.default.addObserver(self, selector: #selector(updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
     }
     
 
@@ -150,5 +151,18 @@ class SummaryViewController: UIViewController {
         } catch {}
     }
 
+    @IBAction private func changePeriod() {
+        let ctr = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "enum") as! EnumViewController
+        ctr.count = UserDefaults.summaryPeriods.count
+        ctr.title = "Summary Timeframe"
+        ctr.value = defaults[.summaryPeriod]
+        ctr.setter = {
+            defaults[.summaryPeriod] = $0
+        }
+        ctr.getValue = {
+            $0 == 0 ? "24 hours" : "\(UserDefaults.summaryPeriods[$0]) days"
+        }
+        present(ctr, animated: true, completion: nil)
+    }
 
 }

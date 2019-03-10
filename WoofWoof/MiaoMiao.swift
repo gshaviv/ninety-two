@@ -88,7 +88,11 @@ class MiaoMiao {
             _last24 = newValue
         }
     }
-    private static var pendingReadings: [GlucosePoint] = []
+    private static var pendingReadings: [GlucosePoint] = [] {
+        didSet {
+            allReadingsCalculater.invalidate()
+        }
+    }
 
 
     class Command {
@@ -393,21 +397,20 @@ class MiaoMiao {
     }
     private static var lastDate: Date = Date.distantPast
     private static var allReadingsCalculater = Calculation { () -> [GlucoseReading] in
-        var together = last24hReadings
         var toAppend = [GlucosePoint]()
         var last = Date.distantFuture
         for point in trend ?? [] {
-            if let h = together.last, point.date < h.date + 2.m⁚30.s {
-                break
-            }
-            if point.date < last {
+             if point.date < last {
                 last = point.date - 2.m⁚30.s
                 toAppend.append(point)
             }
         }
-        together.append(contentsOf: toAppend.reversed())
 
-        return together
+        if toAppend.isEmpty {
+            return last24hReadings
+        }
+
+        return last24hReadings.filter { $0.date < toAppend.last!.date - 2.m } + toAppend.reversed()
     }
 
     public static var currentGlucose: GlucosePoint? {
@@ -471,6 +474,10 @@ class MiaoMiao {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }
             }
         }
+    }
+
+    static public func unloadMemory() {
+        _last24 = []
     }
 }
 

@@ -85,7 +85,10 @@ public class Record : Hashable, Equatable {
     }
 
     private  func commonInit() {
-        iobCalc = Calculation {
+        iobCalc = Calculation { [weak self] in
+            guard let self = self else {
+                return 0
+            }
             let fromDate = self.date - (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
             return Storage.default.allMeals.filter { $0.date > fromDate && $0.date < self.date }.reduce(0.0) { $0 + $1.insulinAction(at: self.date).iob }
         }

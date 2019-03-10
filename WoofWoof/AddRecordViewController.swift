@@ -276,9 +276,6 @@ extension AddRecordViewController {
     func setPrediction(_ str: String?) {
         if let str = str {
             predictionLabel.text = str
-            if iob > 0 {
-                predictionLabel.text = "\(str), BOB=\(iob.formatted(with: "%.1lf"))U"
-            }
             predictionLabel.alpha = 1
         } else {
             predictionLabel.text = "No prediction available\n\n"
@@ -286,6 +283,7 @@ extension AddRecordViewController {
                 predictionLabel.text = "BOB = \(iob.formatted(with: "%.1lf"))U\n\n"
             }
             predictionLabel.alpha = 0.5
+            self.prediction = nil
         }
     }
 
@@ -299,10 +297,12 @@ extension AddRecordViewController {
                 return
             }
             DispatchQueue.main.async {
-                if p.h50 > p.h10  {
-                    self.setPrediction("\(p.mealCount) comparable meals\n\(p.h10)<\(p.h50)<\(p.h90) @ \(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute))\nLow ≥ \(p.low)")
+                if p.h50 < p.h90  && p.low50 > p.low {
+                    self.setPrediction("\(p.mealCount) comparable meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low), 50%=\(p.low50)")
+                } else if p.h50 < p.h90 {
+                    self.setPrediction("\(p.mealCount) comparable meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low)")
                 } else {
-                    self.setPrediction("\(p.mealCount) comparable meals\n\(p.h50) @ \(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute))\nLow ≥ \(p.low)")
+                    self.setPrediction("\(p.mealCount) comparable meals\n@\(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute)): 50%=\(p.h50)\nLow: \(p.low)")
                 }
                 self.prediction = p
             }
