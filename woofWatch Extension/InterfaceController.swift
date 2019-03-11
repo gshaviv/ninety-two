@@ -19,7 +19,7 @@ class InterfaceController: WKInterfaceController {
             glucoseLabel.setAlpha(isDimmed ? 0.3 : 1)
             trendLabel.setAlpha(isDimmed ? 0.3 : 1)
             agoLabel.setAlpha(isDimmed ? 0.3 : 1)
-            imageView.setAlpha(isDimmed ? 0.5 : 1)
+            imageView.setAlpha(isDimmed ? 0.65 : 1)
             if !isDimmed {
                 updateTime()
             }
@@ -114,7 +114,9 @@ class InterfaceController: WKInterfaceController {
         let points = WKExtension.extensionDelegate.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
         let yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
-        let xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
+        let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
+        let maxDate = Date() - latest < 5.m ? latest : Date()
+        let xRange = (min: maxDate - 4.h, max: maxDate)
 
         let size = CGSize(width: width, height: 110 * WKInterfaceDevice.current().screenScale)
         UIGraphicsBeginImageContext(size)
