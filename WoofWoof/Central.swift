@@ -239,7 +239,9 @@ extension Central {
     }
 
     func send(data: Data) {
+        if let writeChannel = writeChannel {
         gcmDevice?.writeValue(data, for: writeChannel, type: .withoutResponse)
+        }
     }
 }
 
