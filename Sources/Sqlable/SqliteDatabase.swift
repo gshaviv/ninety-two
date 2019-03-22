@@ -34,7 +34,7 @@ public protocol SqlPrintable {
 
 /// Class for managing a single database connection.
 public class SqliteDatabase {
-	let db : OpaquePointer!
+	public let db : OpaquePointer!
 	let filepath : String
 	
 	var parent : SqliteDatabase?
@@ -73,21 +73,22 @@ public class SqliteDatabase {
 	///	- Parameters:
 	///		- filePath: The path of the database file
 	/// - Throws: SqlError if the database couldn't be created
-	public init(filepath : String) throws {
+    public init(filepath: String, readOnly: Bool = false) throws {
 		self.filepath = filepath
 		
 		do {
-			db = try SqliteDatabase.openDatabase(filepath)
+            db = try SqliteDatabase.openDatabase(filepath, readOnly: readOnly)
 		} catch let error {
 			db = nil
 			throw error
 		}
-		
-		try execute("pragma foreign_keys = on")
-		try execute("pragma journal_mode = WAL")
-		try execute("pragma busy_timeout = 1000000")
-		
-		sqlite3_update_hook(db, onUpdate, unsafeBitCast(self, to: UnsafeMutableRawPointer.self))
+
+        if !readOnly {
+            try execute("pragma foreign_keys = on")
+            try execute("pragma journal_mode = WAL")
+            try execute("pragma busy_timeout = 1000000")
+            sqlite3_update_hook(db, onUpdate, unsafeBitCast(self, to: UnsafeMutableRawPointer.self))
+        }
 	}
 	
 	
@@ -128,10 +129,11 @@ public class SqliteDatabase {
 		eventHandlers.removeValue(forKey: id)
 	}
 	
-	static func openDatabase(_ filepath : String) throws -> OpaquePointer {
+    static func openDatabase(_ filepath : String, readOnly: Bool) throws -> OpaquePointer {
 		var db : OpaquePointer? = nil
-		
-		let result = sqlite3_open(filepath, &db)
+
+        let result = sqlite3_open_v2(filepath, &db, readOnly ? SQLITE_OPEN_READONLY : SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil)
+//        let result = sqlite3_open(filepath, &db)
 		if result != SQLITE_OK {
 			throw sqlErrorForCode(Int(result))
 		}
@@ -345,14 +347,16 @@ public class SqliteDatabase {
 			var waits = 1000
 			
 			loop: while true {
-				switch sqlite3_step(handle) {
+                let stat = sqlite3_step(handle)
+				switch stat {
 				case SQLITE_ROW: continue
 				case SQLITE_DONE: break loop
 				case SQLITE_BUSY:
 					if waits == 0 { try throwLastError(db) }
 					waits -= 1
 					usleep(10000)
-				case _: try throwLastError(db)
+				case _:
+                    try throwLastError(db)
 				}
 			}
 			
@@ -384,7 +388,7 @@ public class SqliteDatabase {
 			loop: while true {
 				switch sqlite3_step(handle) {
 				case SQLITE_ROW:
-					rows.append(try T(row: ReadRow(handle: handle, tablename: T.tableName)))
+                    rows.append(try T(row: ReadRow(handle: handle, tablename: T.tableName), db: self))
 					continue
 				case SQLITE_DONE: break loop
 				case SQLITE_BUSY:
@@ -422,7 +426,7 @@ public class SqliteDatabase {
 		return returnValue
 	}
 	
-	private func bindValues(_ db : OpaquePointer, handle : OpaquePointer, values : [SqlValue], from : Int) throws {
+	public func bindValues(_ db : OpaquePointer, handle : OpaquePointer, values : [SqlValue], from : Int) throws {
 		for (i, value) in values.enumerated() {
 			try value.bind(db, handle: handle, index: Int32(i + from))
 		}

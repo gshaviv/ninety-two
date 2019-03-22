@@ -64,6 +64,14 @@ public protocol Sqlable {
 	///		- row: An object which can be used to access data from a row returned from the database.
 	///	- Throws: A SqlError, preferrebly ReadError, if the row couldn't be parsed correctly.
 	init(row : ReadRow) throws
+
+    init(row: ReadRow, db: SqliteDatabase) throws
+}
+
+extension Sqlable {
+    public init(row: ReadRow, db: SqliteDatabase) throws {
+        try self.init(row: row)
+    }
 }
 
 public extension Sqlable {
@@ -121,8 +129,8 @@ public extension Sqlable {
 	///
 	/// - Returns: An insert statement instance.
 	func insert() -> Statement<Self, Int> {
-        let values = Self.tableLayout.compactMap { column in valueForColumn(column).flatMap { (column, $0) } }
-		return Statement(operation: .insert(values))
+        let values = type(of: self).tableLayout.compactMap { column in valueForColumn(column).flatMap { (column, $0) } }
+        return Statement(operation: .insert(values.isEmpty ? [(type(of: self).primaryColumn()!,Null())] : values))
 	}
 	
 	/// Create a delete statement, which can be run against a database.

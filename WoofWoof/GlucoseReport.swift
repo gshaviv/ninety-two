@@ -411,7 +411,7 @@ class GlucoseReport {
         if points.count < 24 {
             return
         }
-        let meals = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.meal != Null())) ?? []
+        let meals = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.type != Null())) ?? []
         let boluses = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.bolus > 0)) ?? []
         let syringeImage = UIImage(named: "syringe-hires")!
         let mealImage = UIImage(named: "meal-hires")!
@@ -538,11 +538,11 @@ class GlucoseReport {
         })
     }
 
-    func mealReport(kind: Record.Meal, maker: PDFCreator) {
-        guard let meals = Storage.default.db.evaluate(Record.read().filter(Record.meal == kind.rawValue && Record.date > self.start && Record.date < self.end)), !meals.isEmpty else {
+    func mealReport(kind: Record.MealType, maker: PDFCreator) {
+        guard let meals = Storage.default.db.evaluate(Record.read().filter(Record.type == kind.rawValue && Record.date > self.start && Record.date < self.end)), !meals.isEmpty else {
             return
         }
-        guard let allMeals = Storage.default.db.evaluate(Record.read().filter(Record.meal != Null() && Record.date > self.start && Record.date < self.end).orderBy(Record.date)) else {
+        guard let allMeals = Storage.default.db.evaluate(Record.read().filter(Record.type != Null() && Record.date > self.start && Record.date < self.end).orderBy(Record.date)) else {
             return
         }
         var afterMealBuckets = Array(repeating: [Double](), count: 10)

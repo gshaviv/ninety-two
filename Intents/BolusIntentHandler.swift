@@ -14,15 +14,15 @@ import Sqlable
 
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
-        let kind: Record.Meal?
-        if let meal = Record.Meal(name: intent.meal) {
+        let kind: Record.MealType?
+        if let meal = Record.MealType(name: intent.meal) {
             kind = meal
         } else {
             var count = Array<Int>(repeating: 0, count: 4)
             var diff = Array<TimeInterval>(repeating: 0, count: 4)
             Storage.default.allMeals.forEach {
-                count[$0.meal!.rawValue] += 1
-                diff[$0.meal!.rawValue] += abs(Date() - $0.date)
+                count[$0.type!.rawValue] += 1
+                diff[$0.type!.rawValue] += abs(Date() - $0.date)
             }
             let ave = zip(count, diff).map { $0.1 / Double(max($0.0,1)) }.enumerated().reduce((0, 24.h)) {
                 if $1.1 < $0.1 {
@@ -31,7 +31,7 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
                     return $0
                 }
             }
-            kind = Record.Meal(rawValue: ave.0)
+            kind = Record.MealType(rawValue: ave.0)
         }
         let note = intent.note?.isEmpty == true ? nil : intent.note
         let bolus = intent.units?.intValue ?? 0
@@ -39,7 +39,7 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
         Storage.default.db.async {
             let record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when)
             record.bolus = bolus
-            record.meal = kind
+            record.type = kind
             record.note = note
             if record.isMeal && bolus == 0 && note == nil {
                 completion(DiaryIntentResponse(code: .continueInApp, userActivity: nil))

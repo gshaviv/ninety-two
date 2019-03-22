@@ -82,7 +82,7 @@ class SearchViewController: UITableViewController {
             try Storage.default.db.perform(record.delete())
             tableView.deleteRows(at: [indexPath], with: .automatic)
             Storage.default.reloadToday()
-            search(string: search.text ?? "", scope: Record.Meal(rawValue: search.selectedScopeButtonIndex - 1))
+            search(string: search.text ?? "", scope: Record.MealType(rawValue: search.selectedScopeButtonIndex - 1))
         } catch { }
     }
 
@@ -91,17 +91,17 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        search(string: searchText, scope: Record.Meal(rawValue: searchBar.selectedScopeButtonIndex - 1))
+        search(string: searchText, scope: Record.MealType(rawValue: searchBar.selectedScopeButtonIndex - 1))
     }
 
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         let searchText = searchBar.text ?? ""
-        search(string: searchText, scope: Record.Meal(rawValue: selectedScope - 1))
+        search(string: searchText, scope: Record.MealType(rawValue: selectedScope - 1))
     }
 
-    func search(string: String, scope: Record.Meal?) {
+    func search(string: String, scope: Record.MealType?) {
         filtered = Array(Storage.default.allMeals.filter {
-            if let mealType = scope, $0.meal != mealType {
+            if let mealType = scope, $0.type != mealType {
                 return false
             }
             if string.isEmpty {
@@ -119,7 +119,7 @@ class RecordCell: UITableViewCell {
     @IBOutlet var bolusLabel: UILabel?
     var record: Record! {
         didSet {
-            typeLabel?.text = record.meal?.name.capitalized
+            typeLabel?.text = record.type?.name.capitalized
             noteLabel?.text = record.note
             bolusLabel?.text = record.bolus > 0 ? "\(record.bolus)U" : nil
             let formatter = DateFormatter()

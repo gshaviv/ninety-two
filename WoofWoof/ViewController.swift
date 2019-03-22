@@ -33,8 +33,46 @@ class ViewController: UIViewController {
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let c = segue.destination as? SummaryViewController {
+        switch segue.destination {
+        case let c as SummaryViewController:
             summaryController = c
+
+        case let nav as UINavigationController:
+            switch nav.viewControllers[0] {
+            case let c as RecordViewController:
+                if let r = sender as? Record {
+                    c.editRecord = r
+                    c.onSelect = { (_,prediction) in
+                        self.graphView.prediction = prediction
+                        self.graphView.records = Storage.default.lastDay.entries
+                    }
+                    c.onCancel = {
+                        self.graphView.prediction = nil
+                        self.graphView.records = Storage.default.lastDay.entries
+                    }
+                } else {
+                    c.onSelect = { (record, prediction) in
+                        if !Storage.default.allEntries.map({ $0.id }).contains(record.id) {
+                            Storage.default.reloadToday()
+                            if defaults[.writeHealthKit] && record.bolus > 0 {
+                                HealthKitManager.shared?.write(records: [record])
+                            }
+                        }
+                        self.graphView.records = Storage.default.lastDay.entries
+                        let interaction = INInteraction(intent: record.intent, response: nil)
+                        interaction.donate { _ in }
+                        if let prediction = prediction {
+                            self.graphView.prediction = prediction
+                        }
+                    }
+                }
+
+            default:
+                break
+            }
+
+        default:
+            break
         }
     }
 
@@ -177,30 +215,8 @@ class ViewController: UIViewController {
         }
     }
 
-    func addRecord(meal: Record.Meal? = nil, units: Int? = nil, note: String? = nil) {
-        let ctr = AddRecordViewController()
-        ctr.kind = meal
-        ctr.units = units
-        ctr.note = note
-        ctr.onSelect = { (record, prediction) in
-            if record.id == nil {
-                record.save(to: Storage.default.db)
-                Storage.default.lastDay.entries.append(record)
-                if defaults[.writeHealthKit] && record.bolus > 0 {
-                    HealthKitManager.shared?.write(records: [record])
-                }
-            } else {
-                record.save(to: Storage.default.db)
-            }
-            self.graphView.records = Storage.default.lastDay.entries
-            let interaction = INInteraction(intent: record.intent, response: nil)
-            interaction.donate { _ in }
-            if let prediction = prediction {
-                self.graphView.prediction = prediction
-            }
-            
-        }
-        present(ctr, animated: true, completion: nil)
+    func addRecord(meal: Record.MealType? = nil, units: Int? = nil, note: String? = nil) {
+        self.performSegue(withIdentifier: "addRecord", sender: nil)
     }
 
     func addManualMeasurement() {
@@ -230,7 +246,7 @@ class ViewController: UIViewController {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
         sheet.addAction(UIAlertAction(title: "Add to Diary", style: .default, handler: { (_) in
-            self.addRecord()
+            self.performSegue(withIdentifier: "addRecord", sender: nil)
         }))
 
         sheet.addAction(UIAlertAction(title: "Add Manual Measurement", style: .default, handler: { (_) in
@@ -246,8 +262,7 @@ class ViewController: UIViewController {
         }))
 
         sheet.addAction(UIAlertAction(title: "History", style: .default, handler: { (_) in
-            let hvc = self.storyboard?.instantiateViewController(withIdentifier: "history") as? HistoryViewController
-            self.show(hvc!, sender: nil)
+            self.performSegue(withIdentifier: "history", sender: nil)
         }))
 
         sheet.addAction(UIAlertAction(title: "Report", style: .default, handler: { (_) in
@@ -460,19 +475,19 @@ class ViewController: UIViewController {
         group.wait()
 
         var entries = [Record: Int]()
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.breakfast)) {
-            entries[Record(date: Date.distantFuture, meal: Record.Meal.breakfast)] = 400
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.breakfast)) {
+            entries[Record(date: Date.distantFuture, meal: Record.MealType.breakfast)] = 400
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.lunch)) {
-            entries[Record(date: Date.distantFuture, meal: Record.Meal.lunch)] = 300
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.lunch)) {
+            entries[Record(date: Date.distantFuture, meal: Record.MealType.lunch)] = 300
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.dinner)) {
-            entries[Record(date: Date.distantFuture, meal: Record.Meal.dinner)] = 200
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.dinner)) {
+            entries[Record(date: Date.distantFuture, meal: Record.MealType.dinner)] = 200
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.Meal.other)) {
-            entries[Record(date: Date.distantFuture, meal: Record.Meal.other)] = 100
+        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.other)) {
+            entries[Record(date: Date.distantFuture, meal: Record.MealType.other)] = 100
         }
-        Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.meal, bolus: $0.bolus, note: $0.note) }.forEach {
+        Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.type, bolus: $0.bolus, note: $0.note) }.forEach {
             if !siriActions.contains($0) {
                 if let count = entries[$0] {
                     entries[$0] = count + 1
@@ -492,7 +507,7 @@ class ViewController: UIViewController {
             }
         }
         for key in entries.keys {
-            if key.meal != nil, let note = key.note {
+            if key.type != nil, let note = key.note {
                 let r = Record(date: Date.distantFuture, meal: nil, bolus: key.bolus, note: note)
                 if let full = entries[key], let partial = entries[r], partial == full {
                     entries[r] = nil
@@ -722,17 +737,18 @@ extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
 
 extension ViewController: GlucoseGraphDelegate {
     func didDoubleTap(record: Record) {
-        let ctr = AddRecordViewController()
-        ctr.editRecord = record
-        ctr.onSelect = { (_,_) in
-            self.graphView.prediction = nil
-            self.graphView.records = Storage.default.lastDay.entries
-        }
-        ctr.onCancel = {
-            self.graphView.prediction = nil
-            self.graphView.records = Storage.default.lastDay.entries
-        }
-        present(ctr, animated: true, completion: nil)
+        self.performSegue(withIdentifier: "addRecord", sender: record)
+//        let ctr = AddRecordViewController()
+//        ctr.editRecord = record
+//        ctr.onSelect = { (_,_) in
+//            self.graphView.prediction = nil
+//            self.graphView.records = Storage.default.lastDay.entries
+//        }
+//        ctr.onCancel = {
+//            self.graphView.prediction = nil
+//            self.graphView.records = Storage.default.lastDay.entries
+//        }
+//        present(ctr, animated: true, completion: nil)
     }
 
     func didTouch(record: Record) {

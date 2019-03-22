@@ -42,19 +42,45 @@ extension Array where Element: Hashable {
 
 
 extension SqliteDatabase {
-    static private let globalQueue = DispatchQueue(label: "db")
+    static private let dbQueue = DispatchQueue(label: "db")
 
     @discardableResult public func perform<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) throws -> R {
-        return try statement().run(self)
+        return try SqliteDatabase.dbQueue.sync {
+            try statement().run(self)
+        }
     }
 
     @discardableResult public func evaluate<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) -> R? {
         var result: R?
-        SqliteDatabase.globalQueue.sync {
+        SqliteDatabase.dbQueue.sync {
             result = try? statement().run(self)
         }
         return result
     }
+
+//    @discardableResult public func execute(_ sqlString: String, values: [SqlType]) -> [Any] {
+//        guard let sql = sqlString.cString(using: String.Encoding.utf8) else {
+//            fatalError("Invalid SQL")
+//        }
+//        var handlePointer : OpaquePointer? = nil
+//        if sqlite3_prepare_v2(db, sql, -1, &handlePointer, nil) != SQLITE_OK {
+//            try throwLastError(db)
+//        }
+//        guard let handle = handlePointer else {
+//            fatalError("No SQL handle received")
+//        }
+//        try bindValues(db, handle: handle, values: statement.values, from: 1)
+//
+//        var returnValue = [Any]()
+//        loop: while true {
+//            switch sqlite3_step(handle) {
+//            case SQLITE_ROW:
+//                returnValue.append(try T(row: ReadRow(handle: handle, tablename: T.tableName), db: self))
+//                continue
+//            case SQLITE_DONE: break loop
+//            }
+//        }
+//    }
 }
 
 extension Collection where Element: SignedNumeric {
@@ -65,6 +91,28 @@ extension Collection where Element: SignedNumeric {
             $0.append($1 - last)
             last = $1
         }
+    }
+}
+
+extension Double {
+    public func significantDigits(_ n: Int) -> String {
+        let str = formatted(with: "%.\(n)lf")
+        var idx = str.endIndex
+        while idx != str.startIndex  {
+            idx = str.index(before: idx)
+            if str[idx] == "0" {
+                continue
+            }
+            break
+        }
+        if str[idx] == "." {
+            if idx == str.startIndex {
+                return "0"
+            }
+            idx = str.index(before: idx)
+        }
+        let trimmed = str[...idx]
+        return trimmed.isEmpty ? "0" : String(trimmed)
     }
 }
 

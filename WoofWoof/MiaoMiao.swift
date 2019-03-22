@@ -275,16 +275,24 @@ class MiaoMiao {
                     }
 
                 case .ready:
-                    let trendPoints = data.trendMeasurements().map { $0.trendPoint }
-                    let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
-                    record(trend: trendPoints, history: historyPoints)
-                    if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
-                        if let sensorAge = sensorAge, sensorAge < 1.d {
-                            defaults[.nextCalibration] = Date() + 6.h
-                        } else {
-                            defaults[.nextCalibration] = nil
+                    if let age = sensorAge, age < 30.m {
+                        DispatchQueue.main.async {
+                            let minutes = Int((self.sensorAge ?? 0) / 60)
+                            log("New sensor: \(minutes)m old")
+                            MiaoMiao.delegate?.forEach { $0.miaomiaoError("Sensor starting up: \(minutes)m") }
                         }
-                        showCalibrationAlert()
+                    } else {
+                        let trendPoints = data.trendMeasurements().map { $0.trendPoint }
+                        let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
+                        record(trend: trendPoints, history: historyPoints)
+                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
+                            if let sensorAge = sensorAge, sensorAge < 1.d {
+                                defaults[.nextCalibration] = Date() + 6.h
+                            } else {
+                                defaults[.nextCalibration] = nil
+                            }
+                            showCalibrationAlert()
+                        }
                     }
 
                 case .expired:

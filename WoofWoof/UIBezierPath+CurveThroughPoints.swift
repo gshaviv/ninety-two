@@ -15,7 +15,7 @@ extension UIBezierPath {
     /**
         @param: points Points your bezier wants to through. You must give at least 1 point (different from current point) for drawing curve.
     */
-    public func addCurveThrough(points: ArraySlice<CGPoint>, contractionFactor: CGFloat = 0.7) {
+    public func addCurveThrough(points: ArraySlice<CGPoint>, contractionFactor: CGFloat = 0.6) {
     
         assert(points.count > 0, "You must give at least 1 point for drawing the bezier.");
         

@@ -12,19 +12,19 @@ import Intents
 
 public class Record : Hashable, Equatable {
     public static func == (lhs: Record, rhs: Record) -> Bool {
-        return lhs.date == rhs.date && lhs.meal == rhs.meal && rhs.bolus == lhs.bolus && lhs.note == rhs.note
+        return lhs.date == rhs.date && lhs.type == rhs.type && rhs.bolus == lhs.bolus && lhs.note == rhs.note
     }
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(date)
-        hasher.combine(meal)
+        hasher.combine(type)
         hasher.combine(note)
         hasher.combine(bolus)
     }
 
     public var date: Date
 
-    public enum Meal: Int {
+    public enum MealType: Int {
         case breakfast
         case lunch
         case dinner
@@ -69,18 +69,20 @@ public class Record : Hashable, Equatable {
         }
     }
 
-    public var meal: Meal?
+    public var type: MealType?
     public var bolus: Int
     private(set) public var id: Int?
     public var note: String?
+    public var mealId: Int?
+    public var carbs: Double = 0
 
-    public init(id: Int? = nil, date: Date, meal: Meal? = nil, bolus: Int? = nil, note: String? = nil) {
+    public init(id: Int? = nil, date: Date, meal: MealType? = nil, bolus: Int? = nil, note: String? = nil) {
         self.date = date
-        self.meal = meal
+        self.type = meal
         self.bolus = bolus ?? 0
         self.note = note
         self.id = id
-
+    
         commonInit()
     }
 
@@ -97,31 +99,35 @@ public class Record : Hashable, Equatable {
 
     public required init(row: ReadRow) throws {
         id = try row.get(Record.id)
-        if let rv: Int = try row.get(Record.meal) {
-            meal = Meal(rawValue: rv)
+        if let rv: Int = try row.get(Record.type) {
+            type = MealType(rawValue: rv)
         }
         bolus = try row.get(Record.bolus) ?? 0
         note = try row.get(Record.note)
         date = try row.get(Record.date)
+        mealId = try row.get(Record.mealId)
+        carbs = try row.get(Record.carbs) ?? 0
         commonInit()
     }
 }
 
 extension Record: Sqlable {
     public static let id = Column("id", .integer, PrimaryKey(autoincrement: true))
-    public static let meal = Column("meal", .nullable(.integer))
+    public static let type = Column("meal", .nullable(.integer))
     public static let bolus = Column("bolus", .integer)
     public static let note = Column("note", .nullable(.text))
     public static let date = Column("date", .date)
-    public static var tableLayout = [id, meal, bolus, note, date]
+    public static var mealId = Column("mealid", .integer)
+    public static var carbs = Column("carbs", .real)
+    public static var tableLayout = [id, type, bolus, note, date, mealId, carbs]
 
     public func valueForColumn(_ column: Column) -> SqlValue? {
         switch column {
         case Record.id:
             return id
 
-        case Record.meal:
-            return meal?.rawValue
+        case Record.type:
+            return type?.rawValue
 
         case Record.bolus:
             return bolus
@@ -132,6 +138,12 @@ extension Record: Sqlable {
         case Record.date:
             return date
 
+        case Record.mealId:
+            return mealId
+
+        case Record.carbs:
+            return carbs
+            
         default:
             return nil
         }
@@ -161,14 +173,14 @@ extension Record {
         return bolus > 0
     }
     public var isMeal: Bool {
-        return meal != nil
+        return type != nil
     }
     public var intent: DiaryIntent {
         let foods = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: [String]]
 
         var suggested: String = ""
         let intent = DiaryIntent()
-        if let meal = meal {
+        if let meal = type {
             let notePhrase: String
             if let note = note?.lowercased() {
                 intent.note = self.note
@@ -215,7 +227,7 @@ extension Record {
             intent.units = NSNumber(value: bolus)
             if suggested.isEmpty {
                 suggested = "I took "
-            } else if meal == nil {
+            } else if type == nil {
                 suggested += ", and I took "
             } else {
                 suggested += ", with "
@@ -257,6 +269,6 @@ extension Record {
 
 extension DiaryIntent {
     public var record: Record {
-        return Record(date: Date.distantFuture, meal: Record.Meal(name: meal), bolus: units?.intValue, note: note?.isEmpty == true ? nil : note)
+        return Record(date: Date.distantFuture, meal: Record.MealType(name: meal), bolus: units?.intValue, note: note?.isEmpty == true ? nil : note)
     }
 }

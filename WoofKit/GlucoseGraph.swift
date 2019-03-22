@@ -17,6 +17,8 @@ extension GlucoseGraphDelegate {
     public func didDoubleTap(record: Record) { }
 }
 
+private let contractionFactor = CGFloat(0.6)
+
 public struct Prediction {
     public let highDate: Date
     public let h10: CGFloat
@@ -276,17 +278,17 @@ public class GlucoseGraph: UIView {
         let curve = UIBezierPath()
         if holes.isEmpty {
             curve.move(to: p[0])
-            curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+            curve.addCurveThrough(points: p[1...], contractionFactor: contractionFactor)
         } else {
             var idx = 0
             for hole in holes {
                 curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: 0.65)
+                curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: contractionFactor)
                 idx = hole
             }
             if idx < p.count - 1 {
                 curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx ..< p.count], contractionFactor: 0.65)
+                curve.addCurveThrough(points: p[idx ..< p.count], contractionFactor: contractionFactor)
             }
         }
         UIColor.darkGray.set()

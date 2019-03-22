@@ -83,6 +83,11 @@
 		E432763421FAF7D700A3755F /* words.json in Resources */ = {isa = PBXBuildFile; fileRef = E432763221FAEF4A00A3755F /* words.json */; };
 		E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43F24A22208AA75005B0247 /* HealthKitManager.swift */; };
 		E43F24A6220A0A85005B0247 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E43F24A5220A0A85005B0247 /* HealthKit.framework */; };
+		E44250B5223D81BF00CE7CA9 /* RecordAppExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44250B4223D81BF00CE7CA9 /* RecordAppExtension.swift */; };
+		E44C000A223CF5560022835A /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44C0009223CF5560022835A /* RecordViewController.swift */; };
+		E44CFFF6223B93590022835A /* foo.db in Resources */ = {isa = PBXBuildFile; fileRef = E44CFFF4223B93590022835A /* foo.db */; };
+		E44CFFFC223C189C0022835A /* Food.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44CFFF9223C0CF00022835A /* Food.swift */; };
+		E44CFFFE223C20CB0022835A /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44CFFFD223C20CB0022835A /* Meal.swift */; };
 		E44EEC7321E9C52600F966A8 /* IntentsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44EEC7221E9C52600F966A8 /* IntentsUI.framework */; };
 		E44EEC7621E9C52600F966A8 /* IntentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EEC7521E9C52600F966A8 /* IntentViewController.swift */; };
 		E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EEC7721E9C52600F966A8 /* UI.storyboard */; };
@@ -96,8 +101,6 @@
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
-		E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E488740121F249D500694F6C /* AddRecordViewController.swift */; };
-		E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E488740221F249D500694F6C /* AddRecordViewController.xib */; };
 		E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4892B9C2211EC5600A647B8 /* SearchViewController.swift */; };
 		E48B2D5F21F6109C001B19EB /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48B2D5E21F6109C001B19EB /* Record.swift */; };
 		E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */; };
@@ -122,6 +125,7 @@
 		E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */; };
 		E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D121FCB8230046D28F /* EFControl.swift */; };
 		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
+		E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
@@ -359,6 +363,12 @@
 		E432763221FAEF4A00A3755F /* words.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = words.json; path = WoofKit/words.json; sourceTree = SOURCE_ROOT; };
 		E43F24A22208AA75005B0247 /* HealthKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		E43F24A5220A0A85005B0247 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		E44250B4223D81BF00CE7CA9 /* RecordAppExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordAppExtension.swift; sourceTree = "<group>"; };
+		E44C0009223CF5560022835A /* RecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
+		E44CFFBE2239965F0022835A /* sr.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = sr.db; sourceTree = "<group>"; };
+		E44CFFF4223B93590022835A /* foo.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = foo.db; sourceTree = "<group>"; };
+		E44CFFF9223C0CF00022835A /* Food.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Food.swift; sourceTree = "<group>"; };
+		E44CFFFD223C20CB0022835A /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntentUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44EEC7221E9C52600F966A8 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		E44EEC7521E9C52600F966A8 /* IntentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentViewController.swift; sourceTree = "<group>"; };
@@ -370,8 +380,6 @@
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
-		E488740121F249D500694F6C /* AddRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecordViewController.swift; sourceTree = "<group>"; };
-		E488740221F249D500694F6C /* AddRecordViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddRecordViewController.xib; sourceTree = "<group>"; };
 		E4892B9C2211EC5600A647B8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
@@ -398,6 +406,7 @@
 		E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFSliderView.swift; sourceTree = "<group>"; };
 		E4C4E0D121FCB8230046D28F /* EFControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFControl.swift; sourceTree = "<group>"; };
 		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
+		E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareMealViewController.swift; sourceTree = "<group>"; };
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
@@ -684,6 +693,8 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E44CFFBE2239965F0022835A /* sr.db */,
+				E44CFFF4223B93590022835A /* foo.db */,
 				E43F24A22208AA75005B0247 /* HealthKitManager.swift */,
 				E42A290C21E728EB0084D181 /* WoofWoof.entitlements */,
 				E40021B821D7BA6C001AB34D /* Repeater.swift */,
@@ -714,14 +725,17 @@
 				E4230FC221EA74C000A297A5 /* DateRangePickerController.xib */,
 				E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */,
 				E4230FC421EB04C600A297A5 /* GlucoseReport.swift */,
-				E488740121F249D500694F6C /* AddRecordViewController.swift */,
-				E488740221F249D500694F6C /* AddRecordViewController.xib */,
 				E432762521F8FA6B00A3755F /* AutoComleteTextField.swift */,
 				E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */,
 				E4C4E0BF21FC41880046D28F /* Settings.storyboard */,
 				E4892B9C2211EC5600A647B8 /* SearchViewController.swift */,
 				E41F93D02223237B000CC69F /* SummaryViewController.swift */,
 				E41F93D32223DD5D000CC69F /* ContainerView.swift */,
+				E44CFFF9223C0CF00022835A /* Food.swift */,
+				E44CFFFD223C20CB0022835A /* Meal.swift */,
+				E44C0009223CF5560022835A /* RecordViewController.swift */,
+				E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */,
+				E44250B4223D81BF00CE7CA9 /* RecordAppExtension.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1081,7 +1095,7 @@
 				E42E2AF521E0A33A004FD560 /* Siri_Urgent_Low_Glucose.caf in Resources */,
 				E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */,
 				E42E2AF221E0A33A004FD560 /* Siri_Glucose_Rising_Fast.caf in Resources */,
-				E488740421F249D500694F6C /* AddRecordViewController.xib in Resources */,
+				E44CFFF6223B93590022835A /* foo.db in Resources */,
 				E42E2AF421E0A33A004FD560 /* Siri_Calibration_Needed.caf in Resources */,
 				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
 				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
@@ -1235,10 +1249,13 @@
 				E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */,
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
+				E44CFFFE223C20CB0022835A /* Meal.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
+				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
+				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
 				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
 				E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */,
@@ -1252,8 +1269,10 @@
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E41F93D42223DD5D000CC69F /* ContainerView.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
+				E44250B5223D81BF00CE7CA9 /* RecordAppExtension.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
+				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */,
 				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
@@ -1261,7 +1280,6 @@
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
-				E488740321F249D500694F6C /* AddRecordViewController.swift in Sources */,
 				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 				E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */,

@@ -99,31 +99,42 @@ class HistoryViewController: UIViewController {
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
     }
 
-    @IBAction func setDate() {
-        guard let ctr = storyboard?.instantiateViewController(withIdentifier: "setDate") as? DatePickerViewController else {
-            return
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.destination {
+        case let ctr as DatePickerViewController:
+            ctr.startDate = displayDay
+            ctr.onSelect = {
+                self.displayDay = $0
+            }
+
+        case let nav as UINavigationController:
+            switch nav.viewControllers[0] {
+            case let c as RecordViewController:
+                if let r = sender as? Record {
+                    c.editRecord = r
+                    c.onSelect = { (_,prediction) in
+                        self.graphView.prediction = prediction
+                        Storage.default.reloadToday()
+                        self.graphView.records = Storage.default.allEntries.filter { $0.date > self.displayDay.startOfDay && $0.date < self.displayDay.endOfDay }
+                    }
+                    c.onCancel = {
+                        self.graphView.prediction = nil
+                    }
+                }
+
+            default:
+                break
+            }
+
+        default:
+            break
         }
-        ctr.startDate = displayDay
-        ctr.onSelect = {
-            self.displayDay = $0
-        }
-        present(ctr, animated: true, completion: nil)
     }
 }
 
 extension HistoryViewController: GlucoseGraphDelegate {
     func didDoubleTap(record: Record) {
-        let ctr = AddRecordViewController()
-        ctr.editRecord = record
-        ctr.onSelect = { (_,_) in
-            self.graphView.prediction = nil
-            self.graphView.records = Storage.default.lastDay.entries
-        }
-        ctr.onCancel = {
-            self.graphView.prediction = nil
-            self.graphView.records = Storage.default.lastDay.entries
-        }
-        present(ctr, animated: true, completion: nil)
+        performSegue(withIdentifier: "addRecord", sender: record)
     }
 
     func didTouch(record: Record) {

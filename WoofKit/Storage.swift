@@ -54,7 +54,7 @@ public class Storage: NSObject {
 
     public func estimateInsulinReaction() -> Double? {
         let boluses = allEntries.enumerated().compactMap { (arg) -> (record:Record, time:TimeInterval)? in
-            guard arg.offset > 0 && arg.element.meal == nil && arg.offset < allEntries.count - 1 else {
+            guard arg.offset > 0 && arg.element.type == nil && arg.offset < allEntries.count - 1 else {
                 return nil
             }
             if arg.element.date - allEntries[arg.offset - 1].date < 5.h  {
@@ -98,17 +98,17 @@ public class Storage: NSObject {
             guard meal.date < record.date else {
                 break
             }
-            guard meal.meal != nil && meal.id != record.id else {
+            guard meal.type != nil && meal.id != record.id else {
                 continue
             }
             var endTime = meal.date + 5.h
             var extra = 0
             if idx < allEntries.count - 1 {
                 for fixup in allEntries[(idx+1)...] {
-                    guard fixup.date < endTime || fixup.meal == nil else {
+                    guard fixup.date < endTime || fixup.type == nil else {
                         break
                     }
-                    if fixup.meal != nil {
+                    if fixup.type != nil {
                         endTime = fixup.date
                         break
                     }
@@ -116,7 +116,7 @@ public class Storage: NSObject {
                     endTime = max(endTime, fixup.date + timeframe)
                 }
             }
-            possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.meal, bolus: meal.bolus + extra, note: meal.note), endTime))
+            possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.type, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
         let ionstart = record.insulinOnBoardAtStart
         let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 0.5 }
@@ -124,10 +124,10 @@ public class Storage: NSObject {
             if let note = record.note {
                 return note == $0.0.note
             } else {
-                return record.meal == $0.0.meal
+                return record.type == $0.0.type
             }
         }
-        let stricter = relevantMeals.filter { $0.0.meal == record.meal }
+        let stricter = relevantMeals.filter { $0.0.type == record.type }
         if stricter.count > 2 {
             relevantMeals = stricter
         }

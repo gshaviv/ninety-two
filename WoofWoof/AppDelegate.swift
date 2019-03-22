@@ -59,6 +59,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             log("Notifications granted=\(granted)")
         })
 
+        try! Storage.default.db.createTable(FoodServing.self)
+//        try? Storage.default.db.execute("drop table table_meal")
+        try! Storage.default.db.createTable(Meal.self)
+//        try? Storage.default.db.execute("alter table \(Record.tableName) add mealid integer")
+//        try? Storage.default.db.execute("alter table \(Record.tableName) add carbs real not null default 0")
         WCSession.default.delegate = self
         WCSession.default.activate()
 
@@ -272,7 +277,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         switch userActivity.activityType {
         case "DiaryIntent":
-            ctr.addRecord(meal: Record.Meal(name: userActivity.interaction?.intent.value(forKey: "meal") as? String), units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue, note: userActivity.interaction?.intent.value(forKey: "note") as? String)
+            ctr.addRecord(meal: Record.MealType(name: userActivity.interaction?.intent.value(forKey: "meal") as? String), units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue, note: userActivity.interaction?.intent.value(forKey: "note") as? String)
 
         default:
             break

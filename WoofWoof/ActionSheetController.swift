@@ -65,8 +65,8 @@ private class ActionPresenter: UIPresentationController {
     @objc private func keyboardFrameWillChange(_ note: Notification?) {
         let keyboardFrame = (note?.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
 
-        if let keyboardFrame = keyboardFrame {
-            keyboardTopInContainr = containerView!.convert(keyboardFrame, from: containerView!.window).minY
+        if let keyboardFrame = keyboardFrame, let containerView = containerView {
+            keyboardTopInContainr = containerView.convert(keyboardFrame, from: containerView.window).minY
 
             var duration = (note?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.3
             if duration == 0 && !((note?.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? NSNumber)?.boolValue ?? true) {
