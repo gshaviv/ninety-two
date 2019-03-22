@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import WoofKit
 
 public protocol PDFCreatorCell: PDFCreatorSection {
     var width: CGFloat { get }

@@ -215,16 +215,3 @@ extension String {
     }
 }
 
-extension Array where Element: Numeric, Element: Comparable {
-    func sum() -> Element {
-        return reduce(0, +)
-    }
-
-    func biggest() -> Element {
-        return reduce(self[0]) { Swift.max($0, $1) }
-    }
-
-    func smallest() -> Element {
-        return reduce(self[0]) { Swift.min($0, $1) }
-    }
-}
