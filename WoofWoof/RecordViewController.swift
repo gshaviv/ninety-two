@@ -150,6 +150,11 @@ class RecordViewController: UIViewController {
             if meal.id == nil {
                 try! meal.save()
             }
+            if let mealId = record.mealId, mealId != meal.id {
+                if let records = Storage.default.db.evaluate(Record.read().filter(Record.mealId == mealId)), records.count == 1 {
+                    record.meal.discard(db: Storage.default.db)
+                }
+            }
             record.mealId = meal.id
         }
         record.save(to: Storage.default.db)
@@ -289,7 +294,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
         } else {
             let appendedMeal = Meal(name: noteField.text)
             meal.servings.forEach {
-                self.meal.append($0)
+                appendedMeal.append($0)
             }
             selectedMeal.servings.forEach {
                 appendedMeal.append($0)
@@ -303,7 +308,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
         if meal.id != nil {
             let appendedMeal = Meal(name: noteField.text)
             meal.servings.forEach {
-                self.meal.append($0)
+                appendedMeal.append($0)
             }
             meal = appendedMeal
         }
@@ -315,7 +320,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
 
 extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        mealHeader.text = "Carbs: \(meal.totalCarbs.significantDigits(0))g"
+        mealHeader.text = "Carbs: \(meal.totalCarbs.formatted(with: "%.0lf"))g"
         return meal.servingCount
     }
 
@@ -323,17 +328,14 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "serving") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "serving")
         let serving = meal[indexPath.row]
         cell.textLabel?.text = serving.food.name.capitalized
-        cell.detailTextLabel?.text = "\(serving.amount.significantDigits(3)) \(serving.food.householdName.lowercased())"
+        cell.textLabel?.numberOfLines = 2
+        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.significantDigits(3)) \(serving.food.householdName.lowercased())"
         return cell
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
-
-//    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-//        return .delete
-//    }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         tableView.beginUpdates()

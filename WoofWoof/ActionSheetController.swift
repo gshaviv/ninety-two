@@ -154,13 +154,13 @@ private class ActionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             presentedControllerView.frame = initialFrame
             containerView.addSubview(presentedControllerView)
 
-            UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1.0, options: UIView.AnimationOptions.curveLinear, animations: { () -> Void in
+            UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.0, options: UIView.AnimationOptions.curveLinear, animations: { () -> Void in
                 presentedControllerView.frame = finalFrame
             }, completion: { completed in
                 transitionContext.completeTransition(completed)
             })
         } else {
-            UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: UIView.AnimationOptions.curveLinear, animations: { () -> Void in
+            UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.0, options: UIView.AnimationOptions.curveLinear, animations: { () -> Void in
                 presentedControllerView.frame = initialFrame
             }, completion: { (completed: Bool) in
                 transitionContext.completeTransition(completed)

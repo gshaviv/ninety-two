@@ -92,6 +92,9 @@ class Meal {
     }
 
     func remove(servingAt idx: Int) {
+        if servings[idx].id != nil {
+            Storage.default.db.evaluate(servings[idx].delete())
+        }
         servings.remove(at: idx)
     }
 

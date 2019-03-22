@@ -58,6 +58,20 @@ extension SqliteDatabase {
         return result
     }
 
+    public func async(_ dbOp: @escaping () -> Void) {
+        Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
+            dbOp()
+        })
+    }
+    
+    public func sync(_ dbOp: @escaping () -> Void) {
+        Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
+            dbOp()
+        })
+    }
+
+
+
 //    @discardableResult public func execute(_ sqlString: String, values: [SqlType]) -> [Any] {
 //        guard let sql = sqlString.cString(using: String.Encoding.utf8) else {
 //            fatalError("Invalid SQL")
@@ -97,6 +111,9 @@ extension Collection where Element: SignedNumeric {
 extension Double {
     public func significantDigits(_ n: Int) -> String {
         let str = formatted(with: "%.\(n)lf")
+        guard str.contains(".") else {
+            return str
+        }
         var idx = str.endIndex
         while idx != str.startIndex  {
             idx = str.index(before: idx)

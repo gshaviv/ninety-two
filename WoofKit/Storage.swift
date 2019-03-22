@@ -12,7 +12,7 @@ import Sqlable
 
 public class Storage: NSObject {
     public static let `default` = Storage()
-    fileprivate var lockfile: URL = {
+    internal var lockfile: URL = {
         let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
         if !FileManager.default.fileExists(atPath: url.path) {
             try? "lock".write(to: url, atomically: true, encoding: .utf8)
@@ -220,19 +220,3 @@ public class Today {
     }()
 }
 
-extension SqliteDatabase {
-    public func async(_ dbOp: @escaping () -> Void) {
-        DispatchQueue.global().async {
-            Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
-                dbOp()
-            })
-        }
-    }
-
-    public func sync(_ dbOp: @escaping () -> Void) {
-        Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
-            dbOp()
-        })
-    }
-
-}

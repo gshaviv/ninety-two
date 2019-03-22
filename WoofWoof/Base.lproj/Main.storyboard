@@ -220,7 +220,7 @@
             </objects>
             <point key="canvasLocation" x="1151" y="-627"/>
         </scene>
-        <!--Add Record-->
+        <!--Autocomplete Data Source-->
         <scene sceneID="TkH-xb-pXy">
             <objects>
                 <viewController id="Uek-Uy-uXT" customClass="RecordViewController" customModule="WoofWoof" customModuleProvider="target" sceneMemberID="viewController">
@@ -239,6 +239,15 @@
                                         <nil key="textColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <textInputTraits key="textInputTraits"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="minCharactersForSuggestion">
+                                                <integer key="value" value="0"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <outlet property="autocompleteDataSource" destination="Uek-Uy-uXT" id="Wbv-nA-oHI"/>
+                                            <outlet property="delegate" destination="Uek-Uy-uXT" id="KJq-pK-Vs4"/>
+                                        </connections>
                                     </textField>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Prediction" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="saY-1V-DLc">
                                         <rect key="frame" x="0.0" y="38" width="359" height="20.5"/>
@@ -321,6 +330,7 @@
                         <outlet property="noteField" destination="0Ri-Uc-qDS" id="pp4-MA-ZC5"/>
                         <outlet property="picker" destination="7uJ-xL-yqD" id="AuY-t3-reo"/>
                         <outlet property="predictionLabel" destination="saY-1V-DLc" id="eoF-lF-uFE"/>
+                        <segue destination="5Q1-d5-gqb" kind="presentation" identifier="amount" id="Ndh-Sv-h7U"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="27U-LS-FEi" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1072,6 +1082,7 @@
         <image name="plus" width="20" height="20"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="Ndh-Sv-h7U"/>
         <segue reference="Erz-BJ-3jg"/>
         <segue reference="IJY-fY-crx"/>
     </inferredMetricsTieBreakers>

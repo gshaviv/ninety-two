@@ -141,7 +141,7 @@ extension PrepareMealViewController: UISearchResultsUpdating {
         PrepareMealViewController.searchQueue.async {
             let foundFood:[Food]
             if term.count > 3 {
-                let words = term.components(separatedBy: " ").filter { !$0.isEmpty }.sorted {
+                let words = term.lowercased().components(separatedBy: " ").filter { !$0.isEmpty }.sorted {
                     switch ($0.hasPrefix("!"), $1.hasPrefix("!")) {
                     case (false, false):
                         return $0.count > $1.count
@@ -160,16 +160,16 @@ extension PrepareMealViewController: UISearchResultsUpdating {
                 if words.count == 1 {
                     found = Food.matching(term: words[0])
                 } else {
-                    found = Food.matching(term: words[0])?.filter { (check) in
+                    found = Food.matching(term: words[0])?.filter {
                         for word in words[1...] {
                             switch word.hasPrefix("!") {
                             case false:
-                                if !check.name.lowercased().contains(word) {
+                                if !$0.name.lowercased().contains(word) {
                                     return false
                                 }
 
                             case true:
-                                if check.name.lowercased().contains(word[1...]) {
+                                if $0.name.lowercased().contains(word[1...]) {
                                     return false
                                 }
                             }
