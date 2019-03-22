@@ -345,7 +345,7 @@ public class GlucoseGraph: UIView {
                 touchables.append((CGRect(center: center, size: mealSize), r))
                 y += above ? mealSize.height + 4 : -mealSize.height - 4
                 if let note = r.note {
-                    let text = note.styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                    let text = (r.carbs > 0 ? "\(note) (\(r.carbs.formatted(with: "%.0lf")))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
                     let size = text.size()
                     let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
                     let check = r1.insetBy(dx: -3, dy: -6)
