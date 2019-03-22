@@ -70,7 +70,10 @@ class PrepareMealViewController: UITableViewController {
         case .meals:
             let meal = foundMeal[indexPath.row]
             cell.textLabel?.text = meal.name
-            cell.detailTextLabel?.text = meal.servings.map { $0.food.name.capitalized }.joined(separator: ", ")
+            cell.detailTextLabel?.text = meal.servings.map {
+                let c = $0.food.name.components(separatedBy: ",")
+                return (c.count > 1 ? c[1] : c[0]).capitalized
+            }.joined(separator: ", ")
 
         case .food:
             let food = foundFood[indexPath.row]
