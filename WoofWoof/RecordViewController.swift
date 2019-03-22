@@ -130,7 +130,7 @@ class RecordViewController: UIViewController {
     @IBAction func handleDelete() {
         onSelect = nil
         if let edit = editRecord {
-            Storage.default.db.evaluate(edit.delete())
+            edit.discard()
             Storage.default.reloadToday()
         }
         dismiss(animated: true) {

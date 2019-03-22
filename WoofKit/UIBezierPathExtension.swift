@@ -9,7 +9,6 @@
 import UIKit
 
 extension UIBezierPath {
-
     public func interpolate(points interpolationPoints: ArraySlice<CGPoint>, step: CGFloat = 1) {
         interpolate(points: Array(interpolationPoints), step: step)
     }
