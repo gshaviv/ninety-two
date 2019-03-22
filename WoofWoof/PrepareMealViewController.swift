@@ -40,6 +40,9 @@ class PrepareMealViewController: UITableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         searchController.isActive = true
+        DispatchQueue.main.after(withDelay: 0.31) {
+            self.searchController.searchBar.becomeFirstResponder()
+        }
     }
 
     // MARK: - Table view data source

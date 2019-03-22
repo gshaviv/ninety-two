@@ -81,6 +81,11 @@ class RecordViewController: UIViewController {
         return record
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        noteField.resignFirstResponder()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         noteField.text = meal.name
