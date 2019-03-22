@@ -96,6 +96,8 @@
 		E44EEC8421E9C5C800F966A8 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
 		E44EEC8521E9C77A00F966A8 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
 		E44EEC8621E9C78000F966A8 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
+		E44F98CD2244C43000C51411 /* UIBezierPathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */; };
+		E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
@@ -375,6 +377,8 @@
 		E44EEC7821E9C52600F966A8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/UI.storyboard; sourceTree = "<group>"; };
 		E44EEC7A21E9C52600F966A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E44EEC8221E9C58300F966A8 /* SiriIntentUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntentUI.entitlements; sourceTree = "<group>"; };
+		E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBezierPathExtension.swift; sourceTree = "<group>"; };
+		E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AkimaInterpolator.swift; sourceTree = "<group>"; };
 		E45907DE21D550FA00B139CF /* GlucoseGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseGraph.swift; sourceTree = "<group>"; };
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
@@ -579,6 +583,8 @@
 				E48B2D5E21F6109C001B19EB /* Record.swift */,
 				E42A294821E886C70084D181 /* WoofKit.h */,
 				E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */,
+				E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */,
+				E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */,
 				E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */,
 				E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */,
 				E45907E121D5536400B139CF /* AutoLayoutExtension.swift */,
@@ -1209,9 +1215,11 @@
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
 				E4922A2D2202059E004CABB8 /* KVO.swift in Sources */,
+				E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */,
 				E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */,
 				E42A295321E8872B0084D181 /* DrawingView.swift in Sources */,
 				E42A295621E8873D0084D181 /* AutoLayoutExtension.swift in Sources */,
+				E44F98CD2244C43000C51411 /* UIBezierPathExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

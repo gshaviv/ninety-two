@@ -277,18 +277,21 @@ public class GlucoseGraph: UIView {
         }
         let curve = UIBezierPath()
         if holes.isEmpty {
-            curve.move(to: p[0])
-            curve.addCurveThrough(points: p[1...], contractionFactor: contractionFactor)
+//            curve.move(to: p[0])
+//            curve.addCurveThrough(points: p[1...], contractionFactor: contractionFactor)
+            curve.interpolate(points: p)
         } else {
             var idx = 0
             for hole in holes {
-                curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: contractionFactor)
+//                curve.move(to: p[idx])
+//                curve.addCurveThrough(points: p[idx ..< hole], contractionFactor: contractionFactor)
+                curve.interpolate(points: p[idx ..< hole])
                 idx = hole
             }
             if idx < p.count - 1 {
-                curve.move(to: p[idx])
-                curve.addCurveThrough(points: p[idx ..< p.count], contractionFactor: contractionFactor)
+//                curve.move(to: p[idx])
+//                curve.addCurveThrough(points: p[idx ..< p.count], contractionFactor: contractionFactor)
+                curve.interpolate(points: p[idx ..< p.count])
             }
         }
         UIColor.darkGray.set()
