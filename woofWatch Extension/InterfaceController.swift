@@ -151,8 +151,9 @@ class InterfaceController: WKInterfaceController {
         let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !p.isEmpty {
             let curve = UIBezierPath()
-                curve.move(to: p[0])
-                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+//                curve.move(to: p[0])
+//                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
+            curve.interpolate(points: p)
             UIColor.darkGray.set()
             curve.lineWidth = lineWidth
             curve.stroke()

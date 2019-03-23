@@ -329,7 +329,7 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
         let serving = meal[indexPath.row]
         cell.textLabel?.text = serving.food.name.capitalized
         cell.textLabel?.numberOfLines = 2
-        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.significantDigits(3)) \(serving.food.householdName.lowercased())"
+        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.maxDigits(3)) \(serving.food.householdName.lowercased())"
         return cell
     }
 

@@ -18,6 +18,7 @@
                             <items>
                                 <label alignment="left" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
                                 <label alignment="center" verticalAlignment="center" text="95x" id="CJy-43-4iV">
+                                    <color key="textColor" red="0.83216959239999999" green="0.98548370600000001" blue="0.47333085539999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <fontDescription key="font" style="UICTFontTextStyleTitle1"/>
                                 </label>
                                 <label alignment="right" verticalAlignment="center" text="1m" id="8eL-2P-Wbi"/>

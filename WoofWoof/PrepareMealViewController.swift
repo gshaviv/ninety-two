@@ -30,6 +30,7 @@ class PrepareMealViewController: UITableViewController {
         super.viewDidLoad()
 
         searchController.searchResultsUpdater = self
+        searchController.delegate = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search Food & Meals"
         navigationItem.searchController = searchController
@@ -40,9 +41,6 @@ class PrepareMealViewController: UITableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         searchController.isActive = true
-        DispatchQueue.main.after(withDelay: 0.31) {
-            self.searchController.searchBar.becomeFirstResponder()
-        }
     }
 
     // MARK: - Table view data source
@@ -122,6 +120,14 @@ extension PrepareMealViewController: ServingViewControllerDelegate {
         let serving = FoodServing(id: from.id, amount: amount, mealId: nil)
         delegate?.didSelectServing(serving)
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension PrepareMealViewController: UISearchControllerDelegate {
+    func didPresentSearchController(_ searchController: UISearchController) {
+        DispatchQueue.main.async {
+            searchController.searchBar.becomeFirstResponder()
+        }
     }
 }
 

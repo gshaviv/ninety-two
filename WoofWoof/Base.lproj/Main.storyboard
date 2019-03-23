@@ -231,7 +231,7 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="tl5-zz-tcK">
                                 <rect key="frame" x="8" y="72" width="359" height="595"/>
                                 <subviews>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Note" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0Ri-Uc-qDS" customClass="AutoComleteTextField" customModule="WoofWoof" customModuleProvider="target">
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Note" borderStyle="bezel" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0Ri-Uc-qDS" customClass="AutoComleteTextField" customModule="WoofWoof" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="359" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="kl7-gV-atp"/>

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import WoofKit
 
 public protocol PDFCreatorCell: PDFCreatorSection {
     var width: CGFloat { get }
@@ -131,5 +130,19 @@ extension PDFTableSection: PDFCreatorSection {
         }
 
         return rowHeight.sum() + CGFloat(rowHeight.count) * (padding.top + padding.bottom)
+    }
+}
+
+extension Array where Element: Numeric, Element: Comparable {
+    fileprivate func sum() -> Element {
+        return reduce(0, +)
+    }
+
+    fileprivate func biggest() -> Element {
+        return reduce(self[0]) { Swift.max($0, $1) }
+    }
+
+    fileprivate func smallest() -> Element {
+        return reduce(self[0]) { Swift.min($0, $1) }
     }
 }

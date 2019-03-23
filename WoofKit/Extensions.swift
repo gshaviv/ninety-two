@@ -109,7 +109,7 @@ extension Collection where Element: SignedNumeric {
 }
 
 extension Double {
-    public func significantDigits(_ n: Int) -> String {
+    public func maxDigits(_ n: Int) -> String {
         let str = formatted(with: "%.\(n)lf")
         guard str.contains(".") else {
             return str
