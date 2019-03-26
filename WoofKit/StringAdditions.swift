@@ -267,3 +267,23 @@ public extension String {
         return Int(self)
     }
 }
+
+extension String {
+    public func sentenceCase() -> String {
+        return capitalizeBy(delimeter: ":", other: [".","\n"])
+    }
+
+    public func listCase() -> String {
+        return capitalizeBy(delimeter: ":", other: [".",",",";"," and"," with","\n"])
+    }
+
+    private func capitalizeBy(delimeter: String, other: [String]) -> String {
+        return components(separatedBy: delimeter).map {
+            other.isEmpty ? $0.trimmingCharacters(in: CharacterSet.whitespaces).firstUpperCase : $0.capitalizeBy(delimeter: other[0], other: Array(other[1...]))
+            }.joined(separator: "\(delimeter) ")
+    }
+
+    public var firstUpperCase: String {
+        return prefix(1).uppercased() + dropFirst().lowercased()
+    }
+}

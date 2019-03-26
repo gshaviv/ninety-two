@@ -131,6 +131,28 @@ extension Double {
         let trimmed = str[...idx]
         return trimmed.isEmpty ? "0" : String(trimmed)
     }
+
+    static public var fractions = [
+        (0.0,""),(0.1, "⅒"),(0.125,"⅛"),(0.167,"⅙"),
+        (0.2, "⅕"),(0.25,"¼"),(0.333,"⅓"),
+        (0.375,"⅜"),(0.4,"⅖"),(0.5,"½"),
+        (0.6,"⅗"),(0.625,"⅝"),(0.667,"⅔"),(0.75,"¾"),
+        (0.8,"⅘"),(0.833,"⅚"),(0.875,"⅞")
+    ]
+
+    public func asFraction() -> String {
+        let units = Int(self)
+        let fraction = self - Double(units)
+        var minIndex = 0
+        var minValue = 2.0
+        for (idx, value) in Double.fractions.enumerated() {
+            if abs(value.0 - fraction) < minValue {
+                minIndex = idx
+                minValue = abs(value.0 - fraction)
+            }
+        }
+        return "\(units)\(Double.fractions[minIndex].1)"
+    }
 }
 
 extension UIColor {

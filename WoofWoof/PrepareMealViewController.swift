@@ -28,7 +28,7 @@ class PrepareMealViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+//        registerForPreviewing(with: self, sourceView: tableView)
         searchController.searchResultsUpdater = self
         searchController.delegate = self
         searchController.obscuresBackgroundDuringPresentation = false
@@ -76,7 +76,7 @@ class PrepareMealViewController: UITableViewController {
         case .food:
             let food = foundFood[indexPath.row]
             cell.textLabel?.text = food.name.capitalized
-            cell.detailTextLabel?.text = food.ingredients
+            cell.detailTextLabel?.text = food.ingredients?.listCase()
         }
         return cell
     }
@@ -125,6 +125,7 @@ extension PrepareMealViewController: ServingViewControllerDelegate {
 
 extension PrepareMealViewController: UISearchControllerDelegate {
     func didPresentSearchController(_ searchController: UISearchController) {
+        searchController.registerForPreviewing(with: self, sourceView: tableView)
         DispatchQueue.main.async {
             searchController.searchBar.becomeFirstResponder()
         }
@@ -198,6 +199,24 @@ extension PrepareMealViewController: UISearchResultsUpdating {
     }
 }
 
+extension PrepareMealViewController: UIViewControllerPreviewingDelegate {
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let indexPath = tableView.indexPathForRow(at: location), indexPath.section == Section.food.rawValue,
+            let ctr = storyboard?.instantiateViewController(withIdentifier: "preview") as? FoodViewController else {
+            return nil
+        }
+        ctr.food = foundFood[indexPath.row]
+        ctr.origin = self
+        return ctr
+    }
+
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: nil)
+    }
+
+
+}
+
 protocol ServingViewControllerDelegate: class {
     func didSelectAmount(_ amount: Double, from: Food)
 }
@@ -213,13 +232,6 @@ class ServingViewController: ActionSheetController {
         case unit
         case fraction
     }
-    private var fractions = [
-        (0.0,""),(0.1, "⅒"),(0.125,"⅛"),(0.167,"⅙"),
-        (0.2, "⅕"),(0.25,"¼"),(0.333,"⅓"),
-        (0.375,"⅜"),(0.4,"⅖"),(0.5,"½"),
-        (0.6,"⅗"),(0.625,"⅝"),(0.667,"⅔"),(0.75,"¾"),
-        (0.8,"⅘"),(0.833,"⅚"),(0.875,"⅞")
-    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -231,7 +243,7 @@ class ServingViewController: ActionSheetController {
         let fraction = food.householdSize - Double(units)
         var minIndex = 0
         var minValue = 2.0
-        for (idx, value) in fractions.enumerated() {
+        for (idx, value) in Double.fractions.enumerated() {
             if abs(value.0 - fraction) < minValue {
                 minIndex = idx
                 minValue = abs(value.0 - fraction)
@@ -247,7 +259,7 @@ class ServingViewController: ActionSheetController {
     }
 
     @IBAction func handleSelect(_ sender: Any) {
-        let amount = Double(picker.selectedRow(inComponent: Component.unit.rawValue)) + fractions[picker.selectedRow(inComponent: Component.fraction.rawValue)].0
+        let amount = Double(picker.selectedRow(inComponent: Component.unit.rawValue)) + Double.fractions[picker.selectedRow(inComponent: Component.fraction.rawValue)].0
         dismiss(animated: true) {
             self.delegate?.didSelectAmount(amount, from: self.food)
         }
@@ -264,7 +276,7 @@ extension ServingViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         case .unit:
             return 100
         case .fraction:
-            return fractions.count
+            return Double.fractions.count
         }
     }
 
@@ -274,7 +286,7 @@ extension ServingViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             return "\(row)"
 
         case .fraction:
-            return fractions[row].1
+            return Double.fractions[row].1
         }
     }
 }

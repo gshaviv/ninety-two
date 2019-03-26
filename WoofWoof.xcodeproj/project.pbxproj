@@ -129,6 +129,7 @@
 		E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D121FCB8230046D28F /* EFControl.swift */; };
 		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
 		E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */; };
+		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
@@ -412,6 +413,7 @@
 		E4C4E0D121FCB8230046D28F /* EFControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFControl.swift; sourceTree = "<group>"; };
 		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
 		E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareMealViewController.swift; sourceTree = "<group>"; };
+		E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodViewController.swift; sourceTree = "<group>"; };
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
@@ -743,6 +745,7 @@
 				E44C0009223CF5560022835A /* RecordViewController.swift */,
 				E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */,
 				E44250B4223D81BF00CE7CA9 /* RecordAppExtension.swift */,
+				E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1281,6 +1284,7 @@
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
 				E44250B5223D81BF00CE7CA9 /* RecordAppExtension.swift in Sources */,
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
+				E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */,
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,

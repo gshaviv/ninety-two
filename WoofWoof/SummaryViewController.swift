@@ -44,79 +44,97 @@ class SummaryViewController: UIViewController {
                 var lowStart: Date?
                 var lowTime = [TimeInterval]()
                 if let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - defaults.summaryPeriod.d).orderBy(GlucosePoint.date)), !readings.isEmpty {
-                    let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
-                    let withTime = zip(readings.dropLast(), diffs)
-                    let withGoodTime = withTime.filter { $0.1 < 20.m }
+//                    let diffs = readings.map { $0.date.timeIntervalSince1970 }.diff()
+//                    let withTime = zip(readings.dropLast(), diffs)
+//                    let withGoodTime = withTime.filter { $0.1 < 20.m }
                     var previousPoint: GlucosePoint?
                     var bands = [UserDefaults.ColorKey: TimeInterval]()
                     var maxG:Double = 0
                     var minG:Double = 9999
                     var timeBelow = Double(0)
                     var timeAbove = Double(0)
-                    let (sumG, totalT) = withGoodTime.reduce((0.0, 0.0)) { (result, arg) -> (Double, Double) in
-                        let (sum, total) = result
-                        let (gp, duration) = arg
-                        let x0 = sum + gp.value * duration
-                        let x1 = total + duration
-                        switch gp.value {
-                        case ..<defaults[.minRange]:
-                            timeBelow += duration
-
-                        case defaults[.maxRange]...:
-                            timeAbove += duration
-
-                        default:
-                            break
+                    var totalT = Double(0)
+                    var sumG = Double(0)
+                    readings.forEach { gp in
+                        defer {
+                            previousPoint = gp
                         }
-                        maxG = max(maxG, gp.value)
-                        minG = min(minG, gp.value)
-                        if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
-                            let key: UserDefaults.ColorKey
-                            switch gp.value {
-                            case ...defaults[.level0]:
-                                key = .color0
-                            case ...defaults[.level1]:
-                                key = .color1
-                            case ...defaults[.level2]:
-                                key = .color2
-                            case ...defaults[.level3]:
-                                key = .color3
-                            case ...defaults[.level4]:
-                                key = .color4
+                        if let previous = previousPoint {
+                            let duration = gp.date - previous.date
+                            guard duration < 1.h else {
+                                return
+                            }
+                            sumG += gp.value * duration
+                            totalT += duration
+                            switch (previous.value, gp.value) {
+                            case (..<defaults[.minRange], ..<defaults[.minRange]):
+                                timeBelow += duration
+
+                            case (defaults[.maxRange]..., defaults[.maxRange]...):
+                                timeAbove += duration
+
+                            case (_, ..<defaults[.minRange]):
+                                timeBelow += duration * (defaults[.minRange] - gp.value) / (previous.value - gp.value)
+
+                            case (..<defaults[.minRange],_):
+                                timeBelow += duration * (defaults[.minRange] - previous.value) / (gp.value - previous.value)
+
+                            case (_, defaults[.maxRange]...):
+                                timeAbove += duration * (gp.value - defaults[.maxRange]) / (gp.value - previous.value)
+
+                            case (defaults[.maxRange]..., _):
+                                timeAbove += duration * (previous.value - defaults[.maxRange]) / (previous.value - gp.value)
+
                             default:
-                                key = .color5
+                                break
                             }
-                            if let time = bands[key] {
-                                bands[key] = time + duration
-                            } else {
-                                bands[key] = duration
+
+                            maxG = max(maxG, gp.value)
+                            minG = min(minG, gp.value)
+                            if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
+                                let key: UserDefaults.ColorKey
+                                switch gp.value {
+                                case ...defaults[.level0]:
+                                    key = .color0
+                                case ...defaults[.level1]:
+                                    key = .color1
+                                case ...defaults[.level2]:
+                                    key = .color2
+                                case ...defaults[.level3]:
+                                    key = .color3
+                                case ...defaults[.level4]:
+                                    key = .color4
+                                default:
+                                    key = .color5
+                                }
+                                if let time = bands[key] {
+                                    bands[key] = time + duration
+                                } else {
+                                    bands[key] = duration
+                                }
                             }
-                        }
-                        if gp.value < defaults[.minRange] {
-                            if !inLow {
-                                lowCount += 1
-                                if let previous = previousPoint {
+
+                            if gp.value < defaults[.minRange] {
+                                if !inLow {
+                                    lowCount += 1
                                     let d = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
                                     lowStart = d
-                                } else {
-                                    lowStart = gp.date
                                 }
-                            }
-                            inLow = true
-                        } else {
-                            if inLow, let lowStart = lowStart {
-                                if let previous = previousPoint {
+                                inLow = true
+                            } else {
+                                if inLow, let lowStart = lowStart {
                                     let d = previous.date + (defaults[.minRange] - previous.value) / (gp.value - previous.value) * (gp.date - previous.date)
                                     lowTime.append(d - lowStart)
-                                } else {
-                                    lowTime.append(gp.date - lowStart)
                                 }
+                                inLow = false
                             }
-                            inLow = false
                         }
-                        previousPoint = gp
-                        return (x0, x1)
                     }
+
+                    let start = (Date() - defaults.summaryPeriod.d).endOfDay
+                    let end = defaults.summaryPeriod > 1 ? Date().startOfDay : Date()
+                    let averageBolus = Storage.default.allEntries.filter { $0.date > start  && $0.date < end }.reduce(0.0) { $0 + Double($1.bolus) } / (end - start) * 1.d
+
                     let aveG = sumG / totalT
                     let a1c = (aveG / 18.05 + 2.52) / 1.583
                     let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
@@ -124,8 +142,8 @@ class SummaryViewController: UIViewController {
                         let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
                         self.lowCountLabel.text = "\(lowCount)"
                         self.medianLowLabel.text = medianTime
-                        self.maxLabel.text = maxG.formatted(with: "%.0lf")
-                        self.minLabel.text = minG.formatted(with: "%.0lf")
+                        self.maxLabel.text = "\(maxG.formatted(with: "%.0lf")) / \(minG.formatted(with: "%.0lf"))"
+                        self.minLabel.text = averageBolus.formatted(with: "%.1lfu")
                         self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
                         let percentIn = (1000 - round(timeBelow / totalT * 1000) - round(timeAbove / totalT * 1000))/10
                         self.percentInRangeLabel.text = String(format: "%.1lf%%", percentIn)

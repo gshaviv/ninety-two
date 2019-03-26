@@ -57,17 +57,27 @@ class MiaoMiao {
         get {
             if _last24.isEmpty {
                 let end = Date()
-                if let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d && GlucosePoint.value > 0).orderBy(GlucosePoint.date)),
+                if let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d - 30.m && GlucosePoint.value > 0).orderBy(GlucosePoint.date)),
                     let calibrations = Storage.default.db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
                     if calibrations.isEmpty {
-                        _last24 = readings
+                        _last24 = readings.enumerated().compactMap {
+                            if $0.offset == 0 {
+                                return $0.element
+                            } else if readings[$0.offset - 1].date + 3.m < $0.element.date {
+                                return $0.element
+                            } else {
+                                return nil
+                            }
+                        }
                     } else {
                         var rIdx = 0
                         var cIdx = 0
                         var together = [GlucoseReading]()
                         repeat {
                             if readings[rIdx].date < calibrations[cIdx].date {
-                                together.append(readings[rIdx])
+                                if let last = together.last?.date, readings[rIdx].date > last + 2.m {
+                                    together.append(readings[rIdx])
+                                }
                                 rIdx += 1
                             } else {
                                 together.append(calibrations[cIdx])
@@ -450,7 +460,7 @@ class MiaoMiao {
             }
             MiaoMiao.trend = trend.filter { $0.value > 0 }
             if !added.isEmpty {
-                _last24.append(contentsOf: added)
+                addPoints(added)
                 pendingReadings.append(contentsOf: added)
                 if defaults[.writeHealthKit] {
                     HealthKitManager.shared?.findLast {
@@ -463,9 +473,16 @@ class MiaoMiao {
                 Storage.default.db.async {
                     do {
                         try Storage.default.db.transaction { db in
+                            var lastDate = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 8.h).orderBy(GlucosePoint.date))?.last?.date
                             try pendingReadings.forEach {
-                                try db.perform($0.insert())
-                                added.append($0)
+                                if let lastDate = lastDate {
+                                    if $0.date - 3.m > lastDate {
+                                        try db.perform($0.insert())
+                                    }
+                                } else {
+                                    try db.perform($0.insert())
+                                }
+                                lastDate = $0.date
                             }
 
                             pendingReadings = []
@@ -475,11 +492,19 @@ class MiaoMiao {
                     }
                 }
             }
-            if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h }), idx > 0 {
+            if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h - 30.m }), idx > 0 {
                 _last24 = Array(last24hReadings[idx...])
             }
             DispatchQueue.main.async {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }
+            }
+        }
+    }
+
+    static private func addPoints(_ data: [GlucoseReading]) {
+        for point in data {
+            if point.date - 3.m > (_last24.last?.date ?? Date.distantFuture) {
+                _last24.append(point)
             }
         }
     }

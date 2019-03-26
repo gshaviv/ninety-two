@@ -276,7 +276,8 @@ extension RecordViewController: UITextFieldDelegate {
 
 extension RecordViewController: AutoComleteTextFieldDataSource {
     func autocompleteAttributedCompletions(textField: AutoComleteTextField, text: String) -> [NSAttributedString] {
-        return picker.selectedRow(inComponent: Component.meal.rawValue) == 0 ? [] : mealNotes.filter { $0.string.hasPrefix(text) }
+        let lower = text.lowercased()
+        return picker.selectedRow(inComponent: Component.meal.rawValue) == 0 ? [] : mealNotes.filter { $0.string.lowercased().hasPrefix(lower) }
     }
 }
 
@@ -302,6 +303,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
             meal = appendedMeal
         }
         mealTable.reloadData()
+        predict()
     }
 
     func didSelectServing(_ serving: FoodServing) {
@@ -314,6 +316,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
         }
         meal.append(serving)
         mealTable.reloadData()
+        predict()
     }
 
 }
@@ -329,7 +332,7 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
         let serving = meal[indexPath.row]
         cell.textLabel?.text = serving.food.name.capitalized
         cell.textLabel?.numberOfLines = 2
-        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.maxDigits(3)) \(serving.food.householdName.lowercased())"
+        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.asFraction()) \(serving.food.householdName.lowercased())"
         return cell
     }
 

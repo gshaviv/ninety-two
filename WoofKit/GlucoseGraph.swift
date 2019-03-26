@@ -73,7 +73,7 @@ public class GlucoseGraph: UIView {
             for (idx, gp) in points[1...].enumerated() {
                 if gp.isCalibration {
                     holes.append(idx + 1)
-                } else if gp.date - points[idx].date > 30.m {
+                } else if gp.date - points[idx].date > 1.h {
                     holes.append(idx + 1)
                 }
             }
