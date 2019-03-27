@@ -151,7 +151,7 @@ extension Double {
                 minValue = abs(value.0 - fraction)
             }
         }
-        return "\(units)\(Double.fractions[minIndex].1)"
+        return units == 0 ? "\(Double.fractions[minIndex].1)" : "\(units)\(Double.fractions[minIndex].1)"
     }
 }
 

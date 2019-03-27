@@ -36,11 +36,14 @@ class PrepareMealViewController: UITableViewController {
         navigationItem.searchController = searchController
         definesPresentationContext = true
         title = "Add Food"
+        clearsSelectionOnViewWillAppear = false
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        searchController.isActive = true
+        if isMovingToParent {
+            searchController.isActive = true
+        }
     }
 
     // MARK: - Table view data source
@@ -59,11 +62,29 @@ class PrepareMealViewController: UITableViewController {
         }
     }
 
+    @objc private func accessoryTap(_ sender: UITapGestureRecognizer) {
+        let tag = sender.view!.tag
+        let ip = IndexPath(row: tag / 2, section: tag % 2)
+        tableView(tableView, accessoryButtonTappedForRowWith: ip)
+    }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "food") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "food")
         cell.detailTextLabel?.numberOfLines = 3
         cell.textLabel?.numberOfLines = 2
+        let button = UILabel(frame: .zero)
+        button.text = "Add"
+        button.font = UIFont.preferredFont(forTextStyle: .caption2)
+//        button.layer.borderColor = UIColor.black.cgColor
+//        button.layer.borderWidth = 1
+        button.textColor = view.tintColor
+        button.sizeToFit()
+        let size = button.frame.size
+        button.frame.size = CGSize(width: size.width + 16, height: size.height + 8)
+        button.isUserInteractionEnabled = true
+        button.tag = indexPath.row * 2 + indexPath.section
+        button.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(accessoryTap(_:))))
+        cell.accessoryView = button
         switch Section(rawValue: indexPath.section)! {
         case .meals:
             let meal = foundMeal[indexPath.row]
@@ -90,7 +111,7 @@ class PrepareMealViewController: UITableViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         switch Section(rawValue: indexPath.section)! {
         case .food:
             performSegue(withIdentifier: "amount", sender: foundFood[indexPath.row])
@@ -100,6 +121,16 @@ class PrepareMealViewController: UITableViewController {
         }
     }
 
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch Section(rawValue: indexPath.section)! {
+        case .food:
+            performSegue(withIdentifier: "food", sender: foundFood[indexPath.row])
+        case .meals:
+            break
+        }
+    }
+
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
         case let ctr as ServingViewController:
@@ -108,6 +139,13 @@ class PrepareMealViewController: UITableViewController {
             }
             ctr.food = food
             ctr.delegate = self
+
+        case let ctr as FoodViewController:
+            guard let food = sender as? Food else {
+                return
+            }
+            ctr.food = food
+
         default:
             break
         }
@@ -274,7 +312,10 @@ extension ServingViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         switch Component(rawValue: component)! {
         case .unit:
-            return 100
+            if food.householdName.lowercased().hasPrefix("g") {
+                return 301
+            }
+            return 101
         case .fraction:
             return Double.fractions.count
         }
