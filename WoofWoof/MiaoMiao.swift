@@ -75,7 +75,9 @@ class MiaoMiao {
                         var together = [GlucoseReading]()
                         repeat {
                             if readings[rIdx].date < calibrations[cIdx].date {
-                                if let last = together.last?.date, readings[rIdx].date > last + 2.m {
+                                if together.isEmpty {
+                                    together.append(readings[rIdx])
+                                } else if let last = together.last?.date, readings[rIdx].date > last + 2.m {
                                     together.append(readings[rIdx])
                                 }
                                 rIdx += 1
@@ -86,6 +88,8 @@ class MiaoMiao {
                         } while rIdx < readings.count && cIdx < calibrations.count
                         if rIdx < readings.count {
                             readings[rIdx...].forEach { together.append($0) }
+                        } else if cIdx < calibrations.count {
+                            calibrations[cIdx...].forEach { together.append($0) }
                         }
 
                         _last24 = together
@@ -443,20 +447,7 @@ class MiaoMiao {
                 let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
-                Storage.default.db.async {
-                    do {
-                        try Storage.default.db.transaction { db in
-                            try history.forEach {
-                                try db.perform($0.insert())
-                            }
-                        }
-                        history.forEach {
-                            added.append($0)
-                        }
-                    } catch let error {
-                        logError("\(error)")
-                    }
-                }
+                pendingReadings.append(contentsOf: history.filter { $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed())
             }
             MiaoMiao.trend = trend.filter { $0.value > 0 }
             if !added.isEmpty {
