@@ -165,7 +165,7 @@ public class GlucoseGraph: UIView {
                       (defaults[.level3], defaults[.color3]),
                       (defaults[.level4], defaults[.color4]),
                       (999.0, defaults[.color5])]
-        guard historyPoints != nil && trendPoints != nil else {
+        guard self.historyPoints != nil && self.trendPoints != nil else {
             return
         }
         let ctx = UIGraphicsGetCurrentContext()
@@ -293,27 +293,29 @@ public class GlucoseGraph: UIView {
             median.stroke()
             ctx?.restoreGState()
         }
-        var all = [CGPoint]()
+        let historyPoints = self.historyPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let trendPoints = self.trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let all = historyPoints + trendPoints
+        let plotter = Plot(points: all)
         do {
-            let p = historyPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+            let p = historyPoints
             if p.isEmpty {
                 return
             }
-            all = p
             let curve = UIBezierPath()
             if holes.isEmpty {
-                curve.interpolate(points: p)
+                curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
             } else {
                 var idx = 0
                 for hole in holes {
                     guard hole < p.count else {
                         continue
                     }
-                    curve.interpolate(points: p[idx ..< hole])
+                    curve.append(plotter.line(from: p[idx].x, to: p[hole].x))
                     idx = hole
                 }
                 if idx < p.count - 1 {
-                    curve.interpolate(points: p[idx ..< p.count])
+                    curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
                 }
             }
             UIColor.darkGray.set()
@@ -330,17 +332,16 @@ public class GlucoseGraph: UIView {
         }
 
         do {
-            var p = trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+            var p = trendPoints
             if p.isEmpty {
                 return
             }
-            all.append(contentsOf: p)
             if let last = historyPoints.last {
-                p.insert(CGPoint(x: xCoor(last.date), y: yCoor(CGFloat(last.value))), at: 0)
+                p.insert(last, at: 0)
             }
             let curve = UIBezierPath()
             if holes.isEmpty {
-                curve.interpolate(points: p)
+                curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
             } else {
                 var idx = 0
                 for h in holes {
@@ -348,11 +349,11 @@ public class GlucoseGraph: UIView {
                     guard hole < p.count && hole >= 0 else {
                         continue
                     }
-                    curve.interpolate(points: p[idx ..< hole])
+                    curve.append(plotter.line(from: p[idx].x, to: p[hole].x))
                     idx = hole
                 }
                 if idx < p.count - 1 {
-                    curve.interpolate(points: p[idx ..< p.count])
+                    curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
                 }
             }
             UIColor(white: 0.5, alpha: 1).set()
