@@ -20,6 +20,7 @@ class PrepareMealViewController: UITableViewController {
     var foundMeal = [Meal]()
     let searchController = UISearchController(searchResultsController: nil)
     weak var delegate: PrepareMealViewControllerDelegate?
+    var lastTerm = ""
 
     enum Section: Int {
         case meals
@@ -33,6 +34,8 @@ class PrepareMealViewController: UITableViewController {
         searchController.delegate = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search Food & Meals"
+        searchController.searchBar.autocorrectionType = .yes
+        searchController.searchBar.spellCheckingType = .yes
         navigationItem.searchController = searchController
         definesPresentationContext = true
         title = "Add Food"
@@ -180,9 +183,13 @@ extension PrepareMealViewController: UISearchResultsUpdating {
             tableView.reloadData()
             return
         }
-        if term.hasSuffix(" ") || term.hasSuffix("!") {
+        if term.hasSuffix("!") {
             return
         }
+        if term.hasSuffix(" ") && term.count == lastTerm.count + 1 {
+            return
+        }
+        lastTerm = term
         PrepareMealViewController.searchQueue.async {
             let foundFood:[Food]
             if term.count > 3 {

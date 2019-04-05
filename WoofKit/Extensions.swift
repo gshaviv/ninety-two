@@ -467,3 +467,11 @@ extension UIColor {
         return UInt32(r * 255) << 16 + UInt32(g * 255) << 8 + UInt32(b * 255)
     }
 }
+
+public func - (lhs: CGFloat, rhs: [Double]) -> [CGFloat] {
+    return rhs.map { lhs - CGFloat($0) }
+}
+
+public func + (lhs: CGFloat, rhs: [Double]) -> [CGFloat] {
+    return rhs.map { lhs + CGFloat($0) }
+}

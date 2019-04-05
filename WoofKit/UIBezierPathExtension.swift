@@ -79,5 +79,17 @@ public class Plot {
         return path
     }
 
+    public func value(at x: CGFloat) -> CGFloat {
+        return akima.interpolate(value: x)
+    }
+
+    public func intersects(_ rect: CGRect) -> Bool {
+        for x in stride(from: rect.minX, to: rect.maxX, by: 2) {
+            if rect.contains(CGPoint(x: x, y: value(at: x))) {
+                return true
+            }
+        }
+        return false
+    }
 
 }

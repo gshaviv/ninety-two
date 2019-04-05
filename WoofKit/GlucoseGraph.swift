@@ -297,10 +297,10 @@ public class GlucoseGraph: UIView {
         let trendPoints = self.trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let all = historyPoints + trendPoints
         let plotter = Plot(points: all)
-        do {
+        do1: do {
             let p = historyPoints
             if p.isEmpty {
-                return
+                break do1
             }
             let curve = UIBezierPath()
             if holes.isEmpty {
@@ -308,10 +308,10 @@ public class GlucoseGraph: UIView {
             } else {
                 var idx = 0
                 for hole in holes {
-                    guard hole < p.count else {
+                    guard hole <= p.count && hole > 0 else {
                         continue
                     }
-                    curve.append(plotter.line(from: p[idx].x, to: p[hole].x))
+                    curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
                     idx = hole
                 }
                 if idx < p.count - 1 {
@@ -331,10 +331,10 @@ public class GlucoseGraph: UIView {
             fill.fill()
         }
 
-        do {
+        do2: do {
             var p = trendPoints
             if p.isEmpty {
-                return
+                break do2
             }
             if let last = historyPoints.last {
                 p.insert(last, at: 0)
@@ -346,10 +346,10 @@ public class GlucoseGraph: UIView {
                 var idx = 0
                 for h in holes {
                     let hole = h - historyPoints.count + 1
-                    guard hole < p.count && hole >= 0 else {
+                    guard hole <= p.count && hole > 0 else {
                         continue
                     }
-                    curve.append(plotter.line(from: p[idx].x, to: p[hole].x))
+                    curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
                     idx = hole
                 }
                 if idx < p.count - 1 {
@@ -360,7 +360,7 @@ public class GlucoseGraph: UIView {
             curve.lineWidth = lineWidth
             curve.stroke()
             let fill = UIBezierPath()
-            let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
+            let dotSize = CGSize(width: 2 * dotRadius - 1, height: 2 * dotRadius - 1)
             for point in p {
                 fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
             }
@@ -376,47 +376,85 @@ public class GlucoseGraph: UIView {
         c.setStroke()
         touchables = []
         for r in records {
-            let v = findValue(at: r.date)
-            let above = CGFloat(v) < (yRange.max + yRange.min) / 2
             let x = xCoor(r.date)
-            var y = above ? 8 : size.height - 8
-            if r.isBolus {
-                let units = r.bolus
-                let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
-                syringeImage.fill(at: center, with: c)
-                let iob = r.insulinAction(at: Date()).iob
-                let text = "\(units) \(iob > 0 ? "(\(iob.formatted(with: "%.1lf")))" : "")".styled.systemFont(size: 14).color(.darkGray)
-                text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2))
-                touchables.append((CGRect(center: center, size: syringeSize), r))
-                y += above ? syringeSize.height + 4 : -syringeSize.height - 4
+            let v = plotter.value(at: x)
+            let above = v > contentView.bounds.height / 2
+            let positions: [CGFloat]
+            if above {
+                positions = (v - [80.0,100.0,120.0,150.0,200.0,250.0,300.0]).filter { $0 > 8 } + [8.0]
+            } else {
+                positions = (v + [80.0,100.0,120.0,150.0,200.0,250.0,300.0]).filter { $0 < size.height - 8 } + [size.height - 8]
             }
-            if r.isMeal {
-                let center = CGPoint(x: x, y: y + (above ? mealSize.height / 2 : -mealSize.height / 2))
-                mealImage.fill(at: center, with: c)
-                touchables.append((CGRect(center: center, size: mealSize), r))
-                y += above ? mealSize.height + 4 : -mealSize.height - 4
-                if let note = r.note {
-                    let text = (r.carbs > 0 ? "\(note) (\(r.carbs.formatted(with: "%.0lf")))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
-                    let size = text.size()
-                    let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
-                    let check = r1.insetBy(dx: -3, dy: -6)
-                    if all.first(where: { check.contains($0) }) != nil {
-                        let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
-                        let check = r2.insetBy(dx: -3, dy: -6)
-                        if all.first(where: { check.contains($0) }) != nil {
-                            text.draw(in: r1)
-                        } else {
-                            text.draw(in: r2)
-                        }
+            for position in positions {
+                let isLast = (position == positions.last!)
+                var y = position
+                var drawers = [()->Void]()
+                if r.isBolus {
+                    let units = r.bolus
+                    let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
+                    let frame = CGRect(center: center, size: syringeSize)
+                    let iob = r.insulinAction(at: Date()).iob
+                    let text = "\(units) \(iob > 0 ? "(\(iob.formatted(with: "%.1lf")))" : "")".styled.systemFont(size: 14).color(.darkGray)
+                    let textFrame = CGRect(origin: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2), size: text.size())
+                    if (plotter.intersects(frame) || plotter.intersects(textFrame)) && !isLast {
+                        continue
                     } else {
-                        text.draw(in: r1)
+                        drawers.append {
+                            syringeImage.fill(at: center, with: c)
+                            //                            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2))
+                            text.draw(in: textFrame)
+                            self.touchables.append((CGRect(center: center, size: syringeSize), r))
+                        }
+                    }
+                    y += above ? syringeSize.height + 4 : -syringeSize.height - 4
+                }
+                if r.isMeal {
+                    let center = CGPoint(x: x, y: y + (above ? mealSize.height / 2 : -mealSize.height / 2))
+                    let frame = CGRect(center: center, size: mealSize)
+                    if plotter.intersects(frame) && !isLast {
+                        continue
+                    } else {
+                        drawers.append {
+                            mealImage.fill(at: center, with: c)
+                            self.touchables.append((CGRect(center: center, size: mealSize), r))
+                        }
+                    }
+                    y += above ? mealSize.height + 4 : -mealSize.height - 4
+                    if let note = r.note {
+                        let text = (r.carbs > 0 ? "\(note): \(r.carbs.formatted(with: "%.0lf"))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                        let size = text.size()
+                        let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+                        let check = r1.insetBy(dx: -3, dy: -6)
+                        if plotter.intersects(check) {
+                            let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
+                            let check = r2.insetBy(dx: -3, dy: -6)
+                            if  plotter.intersects(check) {
+                                if isLast {
+                                    drawers.append {
+                                        text.draw(in: r1)
+                                    }
+                                } else {
+                                    continue
+                                }
+                            } else {
+                                drawers.append {
+                                    text.draw(in: r2)
+                                }
+                            }
+                        } else {
+                            drawers.append {
+                                text.draw(in: r1)
+                            }
+                        }
                     }
                 }
+                drawers.forEach { $0() }
+                ctx?.beginPath()
+                ctx?.move(to: CGPoint(x: x, y: y))
+                ctx?.addLine(to: CGPoint(x: x, y: v + (above ? -3 : 3)))
+                ctx?.strokePath()
+                break
             }
-            ctx?.beginPath()
-            ctx?.move(to: CGPoint(x: x, y: y))
-            ctx?.addLine(to: CGPoint(x: x, y: yCoor(CGFloat(v)) + (above ? -10 : 10)))
-            ctx?.strokePath()
         }
 
         if let manual = manual {
