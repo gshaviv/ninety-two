@@ -431,7 +431,7 @@ extension Date {
 }
 
 public extension DispatchQueue {
-    public func after(withDelay delay: Double, closure: @escaping (() -> Void)) {
+    func after(withDelay delay: Double, closure: @escaping (() -> Void)) {
         let dispatchTime: DispatchTime = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         asyncAfter(deadline: dispatchTime, execute: closure)
     }

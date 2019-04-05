@@ -13,8 +13,10 @@ extension NSObject {
         fileprivate let target: UnsafeMutableRawPointer
         fileprivate let targetObject: AnyObject? // only needed in ios 10 to ensure target is not released before observation, not needed in ios 11
         let keypath: AnyKeyPath
-        var hashValue: Int {
-            return keypath.hashValue ^ target.hashValue
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(keypath)
+            hasher.combine(target)
         }
 
         static func ==(lhs: NSObject.Record, rhs: NSObject.Record) -> Bool {

@@ -137,6 +137,9 @@ extension Central: CBCentralManagerDelegate {
         case .poweredOn:
             state = .bluetoothOn
             // state change will trigger transition to Step 2
+
+        @unknown default:
+            break
         }
     }
 
@@ -234,7 +237,7 @@ extension Central: CBPeripheralDelegate {
 extension Central {
 
     func send(bytes: [Byte]) {
-        let data = Data(bytes: bytes)
+        let data = Data(bytes)
         send(data: data)
     }
 

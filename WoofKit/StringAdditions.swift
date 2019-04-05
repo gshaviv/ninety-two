@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension String {
+extension String {
     public subscript(index: Int) -> String {
         get {
             return String(self[self.index(self.startIndex, offsetBy: index)])
@@ -71,7 +71,7 @@ public extension NSRange {
     static let notFound: NSRange = NSRange(location: NSNotFound, length: 0)
 }
 
-public extension String {
+extension String {
     public var nsRange: NSRange {
         return NSRange(startIndex ..< endIndex, in: self)
     }
@@ -81,7 +81,7 @@ public extension String {
     }
 
 
-    func format(_ args: Any?...) -> String {
+    public func format(_ args: Any?...) -> String {
         var output = ""
         let scanner = Scan(string: self)
         enum State {
@@ -202,12 +202,12 @@ extension Int {
 
 public extension String {
     /// Trimming string whitespace
-    public var trimmed: String {
+    var trimmed: String {
         return trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Returns string's path extension. Like NSString but Swift
-    public var pathExtension: String {
+    var pathExtension: String {
         if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
             return String(self[idx...])
         }
@@ -215,7 +215,7 @@ public extension String {
     }
 
     /// Returns string's last path component. Like NSString but Swift
-    public var lastPathComponent: String {
+    var lastPathComponent: String {
         if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.upperBound {
             return String(self[idx...])
         }
@@ -223,7 +223,7 @@ public extension String {
     }
 
     /// Delete last path component, like NSString, but swift, return without the trailing /
-    public var deletingLastPathComponent: String {
+    var deletingLastPathComponent: String {
         if let idx = self.range(of: "/", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
             return String(self[..<idx])
         }
@@ -231,11 +231,11 @@ public extension String {
     }
 
     /// Add path components, like NSString but swift
-    public func appending(pathComponent str: String) -> String {
+    func appending(pathComponent str: String) -> String {
         return hasSuffix("/") || str.hasPrefix("/") ? "\(self)\(str)" : "\(self)/\(str)"
     }
 
-    public mutating func append(pathComponent str: String) {
+    mutating func append(pathComponent str: String) {
         if !hasSuffix("/") && !str.hasPrefix("/") {
             append("/")
         }
@@ -243,11 +243,11 @@ public extension String {
     }
 
     /// add path extension
-    public func appending(pathExtension ext: String) -> String {
+    func appending(pathExtension ext: String) -> String {
         return hasSuffix(".") || ext.hasPrefix(".") ? "\(self)\(ext)" : "\(self).\(ext)"
     }
 
-    public mutating func append(pathExtension ext: String) {
+    mutating func append(pathExtension ext: String) {
         if !hasSuffix(".") && !ext.hasPrefix(".") {
             append(".")
         }
@@ -255,7 +255,7 @@ public extension String {
     }
 
     /// Delete path extension
-    public var deletingPathExtension: String {
+    var deletingPathExtension: String {
         if let idx = self.range(of: ".", options: .backwards, range: self.startIndex ..< self.endIndex, locale: nil)?.lowerBound {
             return String(self[..<idx])
         }
@@ -263,7 +263,7 @@ public extension String {
     }
 
     /// Convenience method so optionals can be used.. e.g. myString?.toInt()
-    public func toInt() -> Int? {
+    func toInt() -> Int? {
         return Int(self)
     }
 }

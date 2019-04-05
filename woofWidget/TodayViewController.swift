@@ -136,6 +136,9 @@ class TodayViewController: UIViewController, NCWidgetProviding {
 
         case .expanded:
             graphView.isHidden = false
+
+        @unknown default:
+            graphView.isHidden = true
         }
     }
     
