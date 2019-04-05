@@ -84,9 +84,37 @@ public class Plot {
     }
 
     public func intersects(_ rect: CGRect) -> Bool {
-        for x in stride(from: rect.minX, to: rect.maxX, by: 2) {
-            if rect.contains(CGPoint(x: x, y: value(at: x))) {
+        var isAbove: Bool? = nil
+        var values = [CGFloat]()
+        var x = rect.minX
+        while x < rect.maxX {
+            values.append(x)
+            x += max(rect.width / 10, 2)
+        }
+        if x < rect.maxX {
+            values.append(rect.maxX)
+        }
+        for x in values {
+            let y = value(at: x)
+            if let isAbove = isAbove {
+                if isAbove {
+                    if y > rect.maxY {
+                        continue
+                    }
+                } else {
+                    if y < rect.minY {
+                        continue
+                    }
+                }
                 return true
+            } else {
+                if y < rect.minY {
+                    isAbove = false
+                } else if y > rect.maxY {
+                    isAbove = true
+                } else {
+                    return true
+                }
             }
         }
         return false

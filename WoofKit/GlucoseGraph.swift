@@ -212,7 +212,7 @@ public class GlucoseGraph: UIView {
             ctx?.saveGState()
             ctx?.setLineWidth(3)
             ctx?.saveGState()
-            ctx?.setLineDash(phase: 0, lengths: [8,6])
+            ctx?.setLineDash(phase: 0, lengths: [2,8])
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.3).set()
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
