@@ -475,3 +475,11 @@ public func - (lhs: CGFloat, rhs: [Double]) -> [CGFloat] {
 public func + (lhs: CGFloat, rhs: [Double]) -> [CGFloat] {
     return rhs.map { lhs + CGFloat($0) }
 }
+
+public func + (lhs: CGSize, rhs: CGSize) -> CGSize {
+    return CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
+}
+
+public func - (lhs: CGSize, rhs: CGSize) -> CGSize {
+    return CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
+}

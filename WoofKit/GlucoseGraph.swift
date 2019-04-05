@@ -381,18 +381,21 @@ public class GlucoseGraph: UIView {
             let above = v > contentView.bounds.height / 2
             let positions: [CGFloat]
             if above {
-                positions = (v - [80.0,100.0,120.0,150.0,200.0,250.0,300.0]).filter { $0 > 8 } + [8.0]
+                positions = (v - [80.0,100.0,120.0,150.0,180.0,200.0,250.0,300.0,350.0]).filter { $0 > 8 } + [8.0]
             } else {
-                positions = (v + [80.0,100.0,120.0,150.0,200.0,250.0,300.0]).filter { $0 < size.height - 8 } + [size.height - 8]
+                positions = (v + [80.0,100.0,120.0,150.0,180.0,200.0,250.0,300.0,350.0]).filter { $0 < size.height - 8 } + [size.height - 8]
             }
             for position in positions {
+                if position == positions[0] && r.isMeal {
+                    continue
+                }
                 let isLast = (position == positions.last!)
                 var y = position
                 var drawers = [()->Void]()
                 if r.isBolus {
                     let units = r.bolus
                     let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
-                    let frame = CGRect(center: center, size: syringeSize)
+                    let frame = CGRect(center: center, size: syringeSize + CGSize(width: 4, height: 4))
                     let iob = r.insulinAction(at: Date()).iob
                     let text = "\(units) \(iob > 0 ? "(\(iob.formatted(with: "%.1lf")))" : "")".styled.systemFont(size: 14).color(.darkGray)
                     let textFrame = CGRect(origin: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2), size: text.size())
@@ -401,7 +404,6 @@ public class GlucoseGraph: UIView {
                     } else {
                         drawers.append {
                             syringeImage.fill(at: center, with: c)
-                            //                            text.draw(at: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2))
                             text.draw(in: textFrame)
                             self.touchables.append((CGRect(center: center, size: syringeSize), r))
                         }
@@ -410,7 +412,7 @@ public class GlucoseGraph: UIView {
                 }
                 if r.isMeal {
                     let center = CGPoint(x: x, y: y + (above ? mealSize.height / 2 : -mealSize.height / 2))
-                    let frame = CGRect(center: center, size: mealSize)
+                    let frame = CGRect(center: center, size: mealSize + CGSize(width: 4, height: 4))
                     if plotter.intersects(frame) && !isLast {
                         continue
                     } else {
@@ -424,10 +426,10 @@ public class GlucoseGraph: UIView {
                         let text = (r.carbs > 0 ? "\(note): \(r.carbs.formatted(with: "%.0lf"))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
                         let size = text.size()
                         let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
-                        let check = r1.insetBy(dx: -3, dy: -6)
+                        let check = r1.insetBy(dx: -6, dy: -6)
                         if plotter.intersects(check) {
                             let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
-                            let check = r2.insetBy(dx: -3, dy: -6)
+                            let check = r2.insetBy(dx: -6, dy: -6)
                             if  plotter.intersects(check) {
                                 if isLast {
                                     drawers.append {

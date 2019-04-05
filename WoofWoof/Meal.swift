@@ -68,7 +68,12 @@ extension FoodServing: Sqlable {
 }
 
 class Meal {
-    private(set) var id: Int?
+    private(set) var id: Int? {
+        didSet {
+            // debug
+            assert(!(id != nil && oldValue != nil))
+        }
+    }
     var name: String?
     private(set) var servings: [FoodServing]
 
