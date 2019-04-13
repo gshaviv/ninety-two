@@ -219,7 +219,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
             let date = selectedDate
-            if Storage.default.allMeals.first(where: { $0.date > date - 4.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
+            if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
                 let low = v + s * (Double(pickerView.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
                 setPrediction("Predicted @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
                 self.prediction = Storage.default.prediction(for: selectedRecord)

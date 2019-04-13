@@ -116,7 +116,7 @@ class InterfaceController: WKInterfaceController {
         let yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
         let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
         let maxDate = Date() - latest < 5.m ? latest : Date()
-        let xRange = (min: maxDate - 4.h, max: maxDate)
+        let xRange = (min: maxDate - 3.h, max: maxDate)
 
         let size = CGSize(width: width, height: 110 * WKInterfaceDevice.current().screenScale)
         UIGraphicsBeginImageContext(size)
