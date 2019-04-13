@@ -39,7 +39,6 @@
 		E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425663C21CD702900469232 /* SensorSerialNumber.swift */; };
 		E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
 		E425664921CE65CA00469232 /* Sqlable.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664F21CE6F9A00469232 /* DefaultKey.swift */; };
 		E42A291E21E77B2A0084D181 /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A291D21E77B2A0084D181 /* NotificationCenter.framework */; };
 		E42A292121E77B2A0084D181 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
 		E42A292421E77B2A0084D181 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
@@ -327,7 +326,6 @@
 		E425663C21CD702900469232 /* SensorSerialNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorSerialNumber.swift; sourceTree = "<group>"; };
 		E425663F21CE65A400469232 /* Sqlable.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sqlable.xcodeproj; path = Sqlable/Sqlable.xcodeproj; sourceTree = "<group>"; };
 		E425664D21CE66A200469232 /* GlucosePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucosePoint.swift; sourceTree = "<group>"; };
-		E425664F21CE6F9A00469232 /* DefaultKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultKey.swift; sourceTree = "<group>"; };
 		E42A290C21E728EB0084D181 /* WoofWoof.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WoofWoof.entitlements; sourceTree = "<group>"; };
 		E42A291B21E77B2A0084D181 /* woofWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = woofWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42A291D21E77B2A0084D181 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
@@ -707,7 +705,6 @@
 				E43F24A22208AA75005B0247 /* HealthKitManager.swift */,
 				E42A290C21E728EB0084D181 /* WoofWoof.entitlements */,
 				E40021B821D7BA6C001AB34D /* Repeater.swift */,
-				E425664F21CE6F9A00469232 /* DefaultKey.swift */,
 				E425663A21CD6F8A00469232 /* TemperatureAlgorithmParameters.swift */,
 				E425663C21CD702900469232 /* SensorSerialNumber.swift */,
 				E48F42C221C6DA5E001AF4CD /* CRC.swift */,
@@ -1300,7 +1297,6 @@
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
-				E425665021CE6F9A00469232 /* DefaultKey.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 				E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */,
 				E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */,

@@ -24,6 +24,7 @@ extension UserDefaults {
         case nextCalibration
         case nextNoSensorAlert
         case sensorBegin
+        case parameterCalcDate
     }
 
     public enum DoubleKey: String {
@@ -36,6 +37,9 @@ extension UserDefaults {
         case diaMinutes
         case peakMinutes
         case delayMinutes
+        case carbRate
+        case insulinRate
+        case carbThreshold
     }
 
     public enum IntKey: String {
@@ -89,7 +93,7 @@ extension UserDefaults {
                                        BoolKey.includeMealReport.key: true,
                                        BoolKey.includeDailyReport.key: true,
                                        BoolKey.includePatternReport.key: true,
-                                       BoolKey.alertVibrate.key: true
+                                       BoolKey.alertVibrate.key: true,
                                        ]
 
         register(defaults: defaults)

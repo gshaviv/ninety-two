@@ -33,7 +33,7 @@ extension UIBezierPath {
         let akima = AkimaInterpolator(points: points)
         var isFirst = true
         for x in stride(from: inputPoints.first!.x, to: inputPoints.last!.x, by: abs(step) * signedStep) {
-            let point = CGPoint(x: x, y: akima.interpolate(value: x))
+            let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
             if isFirst {
                 isFirst = false
                 move(to: point)
@@ -68,7 +68,7 @@ public class Plot {
         let path = UIBezierPath()
         var isFirst = moveToFirst
         for x in stride(from: x0, to: x1, by: 1) {
-            let point = CGPoint(x: x, y: akima.interpolate(value: x))
+            let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
             if isFirst {
                 isFirst = false
                 path.move(to: point)
@@ -80,13 +80,20 @@ public class Plot {
     }
 
     public func value(at x: CGFloat) -> CGFloat {
-        return akima.interpolate(value: x)
+        if x > akima.maxX {
+            return akima.interpolateValue(at: akima.maxX)
+        } else {
+            return akima.interpolateValue(at: x)
+        }
     }
 
     public func intersects(_ rect: CGRect) -> Bool {
         var isAbove: Bool? = nil
         var values = [CGFloat]()
         var x = rect.minX
+        if akima.maxX < x {
+            return false
+        }
         while x < rect.maxX {
             values.append(x)
             x += max(rect.width / 10, 2)
@@ -95,6 +102,9 @@ public class Plot {
             values.append(rect.maxX)
         }
         for x in values {
+            if akima.maxX < x {
+                continue
+            }
             let y = value(at: x)
             if let isAbove = isAbove {
                 if isAbove {
