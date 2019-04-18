@@ -217,6 +217,9 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 && pickerView.selectedRow(inComponent: Component.units.rawValue) == 0 {
+            pickerView.selectRow(1, inComponent: Component.units.rawValue, animated: true)
+        }
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
             let date = selectedDate
             if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
@@ -361,7 +364,7 @@ extension RecordViewController {
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .short
-            let predictedValue = current + (meal.totalCarbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * Double(picker.selectedRow(inComponent: Component.units.rawValue))
+            let predictedValue = current + (meal.totalCarbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (Double(picker.selectedRow(inComponent: Component.units.rawValue)) + iob)
 
             predictionLabel.text = "BG after meal\n\(Int(predictedValue)) @ \(formatter.string(from: when))\n"
             predictionLabel.alpha = 1
