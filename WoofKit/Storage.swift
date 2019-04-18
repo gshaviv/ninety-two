@@ -92,13 +92,19 @@ public class Storage: NSObject {
 
     public func relevantMeals(to record: Record) -> [(Record, Date)] {
         var possibleRecords = [(Record,Date)]()
+        guard let note = record.note else {
+            return []
+        }
 
         let timeframe = defaults[.diaMinutes] * 60 + defaults[.delayMinutes] * 60
         for (idx, meal) in allEntries.enumerated() {
             guard meal.date < record.date else {
                 break
             }
-            guard meal.type != nil && meal.id != record.id else {
+            guard meal.note == note else {
+                continue
+            }
+            guard meal.type != nil && meal.id != record.id   else {
                 continue
             }
             var endTime = meal.date + 5.h
@@ -120,18 +126,7 @@ public class Storage: NSObject {
         }
         let ionstart = record.insulinOnBoardAtStart
         let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 0.5 }
-        var relevantMeals = meals.filter {
-            if let note = record.note {
-                return note == $0.0.note
-            } else {
-                return record.type == $0.0.type
-            }
-        }
-        let stricter = relevantMeals.filter { $0.0.type == record.type }
-        if stricter.count > 2 {
-            relevantMeals = stricter
-        }
-        return relevantMeals
+        return meals
     }
     public func prediction(for record: Record, current level: Double? = nil) -> Prediction? {
         let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
