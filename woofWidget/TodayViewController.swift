@@ -33,6 +33,10 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 graphView.points = points
                 graphView.yRange.max = ceil(graphView.yRange.max / 10) * 10
                 graphView.yRange.min = floor(graphView.yRange.min / 5) * 5
+                if graphView.yRange.max - graphView.yRange.min < 40 {
+                    let mid = (graphView.yRange.max + graphView.yRange.min) / 2
+                    graphView.yRange = mid < 90 ? (min: graphView.yRange.min, max: graphView.yRange.min + 40) : (min: mid - 20, max: mid + 20)
+                }
                 graphView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
                 graphView.xTimeSpan = graphView.xRange.max - graphView.xRange.min
                 graphView.records = Storage.default.lastDay.entries

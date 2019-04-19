@@ -420,11 +420,12 @@ extension RecordViewController {
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
-            if let interupt = meals.filter({ $0.date < meal.date + after && $0.date > meal.date }).sorted(by: { $0.date < $1.date }).first {
-                carbs = meal.isMeal ? (interupt.date - meal.date) / after * meal.carbs : 0
-                units = Double(meal.bolus) - meal.insulinAction(at: interupt.date).iob
-                bgAfter = interpolator.interpolateValue(at: CGFloat(interupt.date.timeIntervalSince1970))
+            if let _ = meals.filter({ $0.date < meal.date + after && $0.date > meal.date }).sorted(by: { $0.date < $1.date }).first {
+                continue
             } else {
+                if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < meal.date + after && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
+                    continue
+                }
                 units = Double(meal.bolus)
                 carbs = meal.carbs
                 bgAfter = interpolator.interpolateValue(at: CGFloat((meal.date + after).timeIntervalSince1970))
@@ -459,6 +460,7 @@ extension RecordViewController {
         var cost = Double.greatestFiniteMagnitude
         for _ in 0 ..< 50 {
             let found = estimate2(effects: effects)
+            log("found: ri=\(found.ri.formatted(with: "%.1lf")) rc=\(found.rc.formatted(with: "%.1lf")) ci=\(found.ci.formatted(with: "%.1lf")) cost=\(Int(found.cost))")
             if found.cost < cost {
                 s = (found.ri, found.rc, found.ci)
                 cost = found.cost
