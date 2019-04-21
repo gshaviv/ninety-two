@@ -70,13 +70,12 @@ public class Storage: NSObject {
             let starting = readings.last { $0.date <  bolus.record.date + defaults[.delayMinutes] * 60 } ?? readings[0]
             let startInsulin = bolus.record.insulinAction(at: starting.date).iob
             for ending in readings {
-//            let ending = readings.last!
             let insulinWorked = startInsulin - bolus.record.insulinAction(at: ending.date).iob
             guard insulinWorked > 1, ending.date > starting.date else {
                 continue
             }
             let dropped = ending.value - starting.value
-            guard dropped < 0 else {
+            guard dropped < 0, ending.value > 70 else {
                 continue
             }
             impact.append(dropped / insulinWorked)
@@ -121,6 +120,9 @@ public class Storage: NSObject {
                     extra += fixup.bolus
                     endTime = max(endTime, fixup.date + timeframe)
                 }
+            }
+            if let low = db.evaluate(GlucosePoint.read().filter(GlucosePoint.value < 70 && GlucosePoint.date > meal.date && GlucosePoint.date < endTime)), !low.isEmpty {
+                continue
             }
             possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.type, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
