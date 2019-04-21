@@ -73,8 +73,9 @@ class InterfaceController: WKInterfaceController {
             return
         }
         isDimmed = false
+        let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
 
-        glucoseLabel.setText("\(Int(round(last.value)))\(WKExtension.extensionDelegate.trendSymbol)")
+        glucoseLabel.setText("\(levelStr)\(WKExtension.extensionDelegate.trendSymbol)")
         trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
         DispatchQueue.global().async {
             if let image = self.createImage() {

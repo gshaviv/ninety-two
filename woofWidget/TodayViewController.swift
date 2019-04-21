@@ -43,7 +43,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 let previous = points[1]
                 let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
                 let symbol = trendSymbol(for: trend)
-                glucoseLabel.text = "\(Int(round(current.value)))\(symbol)"
+                let levelStr = current.value > 70 ? current.value.formatted(with: "%.0lf") : current.value.formatted(with: "%.1lf")
+                glucoseLabel.text = "\(levelStr)\(symbol)"
                 trendLabel.text = String(format: "%.1lf", trend)
                 let iob = Storage.default.insulinOnBoard(at: Date())
                 if iob > 0 && UIScreen.main.bounds.width > 350.0 {

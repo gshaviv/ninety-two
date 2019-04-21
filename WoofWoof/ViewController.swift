@@ -164,7 +164,8 @@ class ViewController: UIViewController {
         }
         let trend = trendValue()
         if let current = MiaoMiao.currentGlucose {
-            currentGlucoseLabel.text = "\(Int(round(current.value)))\(trendSymbol(for: trend))"
+            let levelStr = current.value > 70 ? current.value.formatted(with: "%.0lf") : current.value.formatted(with: "%.1lf")
+            currentGlucoseLabel.text = "\(levelStr)\(trendSymbol(for: trend))"
             updateTimeAgo()
         } else {
             currentGlucoseLabel.text = "--"
@@ -738,17 +739,6 @@ extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
 extension ViewController: GlucoseGraphDelegate {
     func didDoubleTap(record: Record) {
         self.performSegue(withIdentifier: "addRecord", sender: record)
-//        let ctr = AddRecordViewController()
-//        ctr.editRecord = record
-//        ctr.onSelect = { (_,_) in
-//            self.graphView.prediction = nil
-//            self.graphView.records = Storage.default.lastDay.entries
-//        }
-//        ctr.onCancel = {
-//            self.graphView.prediction = nil
-//            self.graphView.records = Storage.default.lastDay.entries
-//        }
-//        present(ctr, animated: true, completion: nil)
     }
 
     func didTouch(record: Record) {
