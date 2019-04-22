@@ -204,8 +204,7 @@ class GlucoseReport {
                         let base = eventStart.date.startOfDay
                         let points = event.map { CGPoint(x: xPos($0.date - base), y: yPos($0.value)) }
                         let path = UIBezierPath()
-                        path.move(to: points[0])
-                        path.addCurveThrough(points: points[0...])
+                        path.append(Plot(points: points).line(from: points.first!.x, to: points.last!.x, moveToFirst: true))
                         path.addLine(to: points[0])
                         path.fill()
                         path.stroke()
@@ -213,8 +212,7 @@ class GlucoseReport {
                             let later = base + 24.h
                             let points = event.map { CGPoint(x: xPos($0.date - later), y: yPos($0.value)) }
                             let path = UIBezierPath()
-                            path.move(to: points[0])
-                            path.addCurveThrough(points: points[0...])
+                            path.append(Plot(points: points).line(from: points.first!.x, to: points.last!.x, moveToFirst: true))
                             path.addLine(to: points[0])
                             path.fill()
                             path.stroke()
@@ -320,26 +318,20 @@ class GlucoseReport {
             ctx?.clip(to: CGRect(origin: .zero, size: graphRect.size))
             let a10 = UIBezierPath()
             let coor10 = p10.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) }
-            let coor90 = Array(p90.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) }.reversed())
-            a10.move(to: coor10[0])
-            a10.addCurveThrough(points: coor10[1...])
-            a10.addLine(to: coor90[0])
-            a10.addCurveThrough(points: coor90[1...])
+            let coor90 = Array(p90.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) })
+            Plot(points: coor10).line(in: a10, from: coor10.first!.x, to: coor10.last!.x, moveToFirst: true)
+            Plot(points: coor90).line(in: a10, from: coor90.last!.x, to: coor90.first!.x, moveToFirst: false)
             a10.addLine(to: coor10[0])
 
             let coor25 = p25.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) }
-            let coor75 = Array(p75.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) }.reversed())
+            let coor75 = Array(p75.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) })
             let a25 = UIBezierPath()
-            a25.move(to: coor25[0])
-            a25.addCurveThrough(points: coor25[1...])
-            a25.addLine(to: coor75[0])
-            a25.addCurveThrough(points: coor75[1...])
+            Plot(points: coor25).line(in: a25, from: coor25.first!.x, to: coor25.last!.x, moveToFirst: true)
+            Plot(points: coor75).line(in: a25, from: coor75.last!.x, to: coor75.first!.x, moveToFirst: false)
             a25.addLine(to: coor25[0])
 
             let coor50 = p50.enumerated().map { CGPoint(x: xPos(Double($0.0) * 60 * 60 - 30.0 * 60), y: yPos($0.1)) }
-            let median = UIBezierPath()
-            median.move(to: coor50[0])
-            median.addCurveThrough(points: coor50[1...])
+            let median = Plot(points: coor50).line(from: coor50.first!.x, to: coor50.last!.x, moveToFirst: true)
 
             UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 0.5).setFill()
             a10.fill()

@@ -48,26 +48,27 @@ public class Plot {
     let akima: AkimaInterpolator
 
     public init(points inputPoints: [CGPoint]) {
-        let signedStep: CGFloat = inputPoints.last!.x > inputPoints.first!.x ? 1 : -1
-        var points = [inputPoints.first!]
-        for point in inputPoints[1...] {
-            if signedStep > 0 {
-                if points.last!.x < point.x {
-                    points.append(point)
-                }
-            } else {
-                if points.first!.x > point.x {
-                    points.insert(point, at: 0)
-                }
-            }
-        }
+        let points: [CGPoint] = inputPoints.last!.x > inputPoints.first!.x ? inputPoints : inputPoints.reversed()
+//        let signedStep: CGFloat = inputPoints.last!.x > inputPoints.first!.x ? 1 : -1
+//        var points = [inputPoints.first!]
+//        for point in inputPoints[1...] {
+//            if signedStep > 0 {
+//                if points.last!.x < point.x {
+//                    points.append(point)
+//                }
+//            } else {
+//                if points.first!.x > point.x {
+//                    points.insert(point, at: 0)
+//                }
+//            }
+//        }
         akima = AkimaInterpolator(points: points)
     }
 
     public func line(from x0: CGFloat, to x1: CGFloat, moveToFirst: Bool = true) -> UIBezierPath {
         let path = UIBezierPath()
         var isFirst = moveToFirst
-        for x in stride(from: x0, to: x1, by: 1) {
+        for x in stride(from: x0, to: x1, by: x1 > x0 ? 1 : -1) {
             let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
             if isFirst {
                 isFirst = false
@@ -77,6 +78,19 @@ public class Plot {
             }
         }
         return path
+    }
+
+    public func line(in path: UIBezierPath, from x0: CGFloat, to x1: CGFloat, moveToFirst: Bool = true) {
+        var isFirst = moveToFirst
+        for x in stride(from: x0, to: x1, by: x1 > x0 ? 1 : -1) {
+            let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
+            if isFirst {
+                isFirst = false
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
     }
 
     public func value(at x: CGFloat) -> CGFloat {
