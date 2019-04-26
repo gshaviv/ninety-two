@@ -747,9 +747,7 @@ extension ViewController: GlucoseGraphDelegate {
         }
 
         DispatchQueue.global().async {
-            guard let prediction = Storage.default.prediction(for: record) else {
-                return
-            }
+            let prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
             DispatchQueue.main.async {
                 self.graphView.prediction = prediction
             }

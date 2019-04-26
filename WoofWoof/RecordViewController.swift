@@ -359,16 +359,15 @@ extension RecordViewController {
         if let str = str {
             predictionLabel.text = str
             predictionLabel.alpha = 1
-        } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, meal.totalCarbs > defaults[.carbThreshold] {
-            let when = Date() + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
+        } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, meal.totalCarbs > defaults[.carbThreshold], let calculated = Storage.default.calculatedLevel(for: selectedRecord, currentLevel: current) {
+            let when = calculated.highDate
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .short
-            let predictedValue = current + (meal.totalCarbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (Double(picker.selectedRow(inComponent: Component.units.rawValue)) + iob)
 
-            predictionLabel.text = "BG after meal\n\(Int(predictedValue)) @ \(formatter.string(from: when))\n"
+            predictionLabel.text = "BG after meal\n\(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
-            self.prediction = nil
+            self.prediction = calculated
         } else {
             predictionLabel.text = "No prediction available\n\n"
             if iob > 0 {
