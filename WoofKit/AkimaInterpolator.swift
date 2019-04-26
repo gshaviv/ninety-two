@@ -21,7 +21,13 @@ public class AkimaInterpolator {
   private var c: [CGFloat]
   private var d: [CGFloat]
   
-  public init(points: [CGPoint]) {
+  public init(points input: [CGPoint]) {
+    var points = [input[0]]
+    for point in input[1...] {
+        if let last = points.last, point.x > last.x {
+            points.append(point)
+        }
+    }
     self.points = points
     n = points.count
     m = Array<CGFloat>(repeatElement(0.0, count: n + 3))
@@ -76,13 +82,7 @@ public class AkimaInterpolator {
   }
   
   public func interpolateValue(at x: CGFloat) -> CGFloat {
-    var index = 0
-    for (i, point) in points.enumerated() {
-      if x > point.x {
-        index = i
-      }
-      
-    }
+    let index = points.lastIndex(where: { x > $0.x }) ?? 0
     let dx = x - points[index].x
     return a[index] + b[index] * dx + c[index] * dx * dx + d[index] * dx * dx * dx
   }
