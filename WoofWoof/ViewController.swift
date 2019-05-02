@@ -133,12 +133,10 @@ class ViewController: UIViewController {
 
                 case .ready:
                     self.connectingLabel.text = "MiaoMiao connected"
-//                    if MiaoMiao.currentGlucose != nil {
-//                        self.connectingLabel.isHidden = true
-//                    }
                 }
             }
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(deletedPoints), name: DeletedPointsNotification, object: nil)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
@@ -585,6 +583,11 @@ class ViewController: UIViewController {
             }
         }
         show(ctr, sender: nil)
+    }
+
+    @objc private func deletedPoints() {
+        MiaoMiao.historyChanged()
+        Storage.default.reloadToday()
     }
 
     private func selectReportPeriod() {

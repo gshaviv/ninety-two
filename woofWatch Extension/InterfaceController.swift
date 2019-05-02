@@ -55,7 +55,7 @@ class InterfaceController: WKInterfaceController {
         }
         if let last = WKExtension.extensionDelegate.readings.last {
             let minutes = Int(Date().timeIntervalSince(last.date))
-            let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize - delta, weight: .medium)
+            let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
             let attr = String(format: "%ld:%02ld", minutes / 60, minutes % 60).styled.color(.white).font(f)
             self.agoLabel.setAttributedText(attr)
         } else {

@@ -19,6 +19,8 @@ extension GlucoseGraphDelegate {
 
 private let contractionFactor = CGFloat(0.6)
 
+public let DeletedPointsNotification = Notification.Name("deleted points")
+
 public struct Prediction {
     public let highDate: Date
     public let h10: CGFloat
@@ -65,6 +67,15 @@ public class GlucoseGraph: UIView {
     @IBInspectable var isScrollEnabled:Bool = true
     private var trendPoints: [GlucoseReading]!
     private var historyPoints: [GlucoseReading]!
+    @IBInspectable public var enableDelete: Bool = false {
+        didSet {
+            if enableDelete {
+                let long = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
+                long.delegate = self
+                contentView.addGestureRecognizer(long)
+            }
+        }
+    }
 
     public var points: [GlucoseReading]! {
         get {
@@ -95,7 +106,7 @@ public class GlucoseGraph: UIView {
             for (idx, gp) in points[1...].enumerated() {
                 if gp.isCalibration {
                     holes.append(idx + 1)
-                } else if gp.date - points[idx].date > 1.h {
+                } else if gp.date - points[idx].date > 1.h + 30.m {
                     holes.append(idx + 1)
                 }
             }
@@ -208,58 +219,76 @@ public class GlucoseGraph: UIView {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
-        if let prediction = prediction {
+        drawPrediction: if let prediction = prediction {
+            guard Storage.default.allEntries.filter({ $0.date > prediction.mealTime && $0.date < prediction.highDate }).isEmpty else {
+                self.prediction = nil
+                break drawPrediction
+            }
+            let duration = prediction.mealCount == 0 ? 15.m : 30.m
             ctx?.saveGState()
             ctx?.setLineWidth(3)
             ctx?.saveGState()
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.3).set()
-            ctx?.setLineDash(phase: 0, lengths: [2,8])
+            ctx?.setLineDash(phase: 0, lengths: [2,16])
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h90)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h10)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10)))
             ctx?.strokePath()
+            if prediction.mealCount > 0 {
+                ctx?.beginPath()
+                UIColor.blue.withAlphaComponent(0.6).set()
+                ctx?.setLineDash(phase: 0, lengths: [4,14])
+                ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
+                ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
+                ctx?.strokePath()
+            }
+            ctx?.restoreGState()
+            if prediction.h90 > prediction.h50 {
+                let prefix = prediction.mealCount > 2 ? "90% < " : ""
+                let text = "\(prefix)\(Int(prediction.h90))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
+            }
+            if prediction.h10 < prediction.h50 {
+                let prefix = prediction.mealCount > 2 ? "90% > " : ""
+                let text = "\(prefix)\(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10) - size.height, width: size.width, height: size.height))
+            }
+            do {
+                let prefix = prediction.mealCount > 2 ? "50% = " : ""
+                let text = "\(prefix)\(Int(prediction.h50))".styled.systemFont(size: 14).color(.blue)
+                let size = text.size()
+                text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50) - size.height, width: size.width, height: size.height))
+            }
+//            ctx?.beginPath()
+//            UIColor.blue.withAlphaComponent(0.6).set()
+//            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
+//            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
+//            ctx?.strokePath()
+//            ctx?.restoreGState()
+            ctx?.saveGState()
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.6).set()
             ctx?.setLineDash(phase: 0, lengths: [4,6])
-            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
-            ctx?.strokePath()
-
-            do {
-                let text = "90% < \(Int(prediction.h90))".styled.systemFont(size: 14).color(.blue)
-                let size = text.size()
-                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
-            }
-            do {
-                let text = "90% > \(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
-                let size = text.size()
-                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10) - size.height, width: size.width, height: size.height))
-            }
-            do {
-                let text = "50% = \(Int(prediction.h50))".styled.systemFont(size: 14).color(.blue)
-                let size = text.size()
-                text.draw(in: CGRect(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50) - size.height, width: size.width, height: size.height))
-            }
-            ctx?.beginPath()
-            UIColor.blue.withAlphaComponent(0.6).set()
-            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h50)))
             ctx?.strokePath()
             ctx?.restoreGState()
-            ctx?.beginPath()
-            UIColor.blue.withAlphaComponent(0.6).set()
-            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h50)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h50)))
-            ctx?.strokePath()
+            ctx?.saveGState()
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.3).set()
-            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h90)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h90)))
-            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - 30.m), y: yCoor(prediction.h10)))
-            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 30.m), y: yCoor(prediction.h10)))
+            if prediction.mealCount == 0 {
+                ctx?.setLineDash(phase: 0, lengths: [2,8])
+            }
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h90)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h10)))
             ctx?.strokePath()
+            ctx?.restoreGState()
             ctx?.restoreGState()
         }
         if let pattern = pattern {
@@ -373,6 +402,16 @@ public class GlucoseGraph: UIView {
             fill.fill()
         }
 
+        if !pointsToDelete.isEmpty {
+            let selected = UIBezierPath()
+            for idx in pointsToDelete {
+                let point = historyPoints[idx]
+                selected.append(UIBezierPath(ovalIn: CGRect(center: point, size: CGSize(width: 20, height: 20))))
+            }
+            UIColor.magenta.set()
+            selected.stroke()
+        }
+
         let syringeImage = UIImage(named: "syringe", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let syringeSize = syringeImage.size
         let mealImage = UIImage(named: "meal", in: Bundle(for: type(of:self)), compatibleWith: nil)!
@@ -427,31 +466,30 @@ public class GlucoseGraph: UIView {
                         }
                     }
                     y += above ? mealSize.height + 4 : -mealSize.height - 4
-                    if let note = r.note {
-                        let text = (r.carbs > 0 ? "\(note): \(r.carbs.formatted(with: "%.0lf"))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
-                        let size = text.size()
-                        let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
-                        let check = r1.insetBy(dx: -6, dy: -6)
-                        if plotter.intersects(check) {
-                            let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
-                            let check = r2.insetBy(dx: -6, dy: -6)
-                            if  plotter.intersects(check) {
-                                if isLast {
-                                    drawers.append {
-                                        text.draw(in: r1)
-                                    }
-                                } else {
-                                    continue
+                    let note = r.note ?? ""
+                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs.formatted(with: "%.0lf"))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                    let size = text.size()
+                    let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+                    let check = r1.insetBy(dx: -6, dy: -6)
+                    if plotter.intersects(check) {
+                        let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
+                        let check = r2.insetBy(dx: -6, dy: -6)
+                        if  plotter.intersects(check) {
+                            if isLast {
+                                drawers.append {
+                                    text.draw(in: r1)
                                 }
                             } else {
-                                drawers.append {
-                                    text.draw(in: r2)
-                                }
+                                continue
                             }
                         } else {
                             drawers.append {
-                                text.draw(in: r1)
+                                text.draw(in: r2)
                             }
+                        }
+                    } else {
+                        drawers.append {
+                            text.draw(in: r1)
                         }
                     }
                 }
@@ -764,6 +802,59 @@ public class GlucoseGraph: UIView {
         }
         self.touchPoint = best
     }
+
+    private var pointsToDelete = Set<Int>() {
+        didSet {
+            contentView.setNeedsDisplay()
+        }
+    }
+    @objc private func longPress(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began, .changed:
+            let yScale = contentView.bounds.size.height / (yRange.max - yRange.min)
+            let yCoor = { (self.yRange.max - $0) * yScale }
+            let xScale = contentView.bounds.size.width / CGFloat(xRange.max - xRange.min)
+            let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
+            let touchPoint = sender.location(in: contentView)
+            let historyPoints = self.historyPoints.enumerated().map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
+            let nearest = historyPoints.filter { abs(touchPoint.x - $0.element.x) < 40 && abs(touchPoint.y - $0.element.y) < 40 }.map { (offset: $0.offset, element: touchPoint.distance(to: $0.element)) }.sorted(by: { $0.element < $1.element }).first?.offset
+            if let nearest = nearest, !pointsToDelete.contains(nearest) {
+                pointsToDelete.insert(nearest)
+                let impacter = UIImpactFeedbackGenerator()
+                impacter.impactOccurred()
+            }
+
+
+        case .ended:
+            if !pointsToDelete.isEmpty {
+                let sheet = UIAlertController(title: "Delete point\(pointsToDelete.count > 1 ? "s" : "")?", message: "Really delete the selected point\(pointsToDelete.count > 1 ? "s" : "")?", preferredStyle: .actionSheet)
+                sheet.addAction(UIAlertAction(title: "Delete", style: .default, handler: { (_) in
+                    if var changedPoints = self.historyPoints {
+                        for selected in Array(self.pointsToDelete).sorted().reversed() {
+                            changedPoints.remove(at: selected)
+                            let date = self.historyPoints[selected].date
+                            try? Storage.default.db.execute("delete from \(GlucosePoint.tableName) where \(GlucosePoint.date.name) > \((date - 1.m).timeIntervalSince1970) and \(GlucosePoint.date.name) < \((date + 1.m).timeIntervalSince1970)")
+                        }
+//                        let offset = self.contentHolder.contentOffset
+                        NotificationCenter.default.post(name: DeletedPointsNotification, object: self)
+                        self.historyPoints = changedPoints
+                        self.pointsToDelete = []
+                        self.setNeedsDisplay()
+//                        DispatchQueue.main.async {
+//                            self.contentHolder.contentOffset = offset
+//                        }
+                    }
+                }))
+                sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
+                    self.pointsToDelete = []
+                }))
+                controller?.present(sheet, animated: true, completion: nil)
+            }
+
+        default:
+            break
+        }
+    }
 }
 
 extension GlucoseGraph: UIScrollViewDelegate {
@@ -772,6 +863,22 @@ extension GlucoseGraph: UIScrollViewDelegate {
         if touchPoint != nil {
             touchPoint = nil
         }
+    }
+}
+
+extension GlucoseGraph: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let yScale = contentView.bounds.size.height / (yRange.max - yRange.min)
+        let yCoor = { (self.yRange.max - $0) * yScale }
+        let xScale = contentView.bounds.size.width / CGFloat(xRange.max - xRange.min)
+        let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
+        let touchPoint = touch.location(in: contentView)
+        let historyPoints = self.historyPoints.enumerated().map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
+        let nearest = historyPoints.filter { abs(touchPoint.x - $0.element.x) < 40 && abs(touchPoint.y - $0.element.y) < 40 }.map { (offset: $0.offset, element: touchPoint.distance(to: $0.element)) }
+        if let _ = nearest.first {
+            return true
+        }
+        return false
     }
 }
 

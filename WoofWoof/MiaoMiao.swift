@@ -53,6 +53,9 @@ class MiaoMiao {
             allReadingsCalculater.invalidate()
         }
     }
+    static public func historyChanged() {
+        _last24 = []
+    }
     static var last24hReadings: [GlucoseReading] {
         get {
             if _last24.isEmpty {

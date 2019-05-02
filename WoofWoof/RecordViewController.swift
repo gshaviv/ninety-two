@@ -88,6 +88,7 @@ class RecordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setPrediction(nil)
         noteField.text = meal.name
         var now = Date()
         if now.minute > 58 {
@@ -117,6 +118,7 @@ class RecordViewController: UIViewController {
                 picker.selectRow(Record.MealType.dinner.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
             default:
                 picker.selectRow(0, inComponent: Component.meal.rawValue, animated: false)
+                picker.selectRow(1, inComponent: Component.units.rawValue, animated: false)
             }
         }
         if let units = editRecord?.bolus {
@@ -224,7 +226,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             let date = selectedDate
             if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
                 let low = v + s * (Double(pickerView.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
-                setPrediction("Predicted @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
+                setPrediction("Estimated @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
                 self.prediction = Storage.default.prediction(for: selectedRecord)
             } else {
                 setPrediction(nil)
@@ -349,7 +351,18 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         tableView.beginUpdates()
         tableView.deleteRows(at: [indexPath], with: .automatic)
-        meal.remove(servingAt: indexPath.row)
+        if meal.id != nil {
+            let appendedMeal = Meal(name: noteField.text)
+            meal.servings.enumerated().forEach {
+                guard $0.offset != indexPath.row else {
+                    return
+                }
+                appendedMeal.append($0.element)
+            }
+            meal = appendedMeal
+        } else {
+            meal.remove(servingAt: indexPath.row)
+        }
         tableView.endUpdates()
     }
 }
@@ -369,7 +382,7 @@ extension RecordViewController {
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
-            predictionLabel.text = "No prediction available\n\n"
+            predictionLabel.text = "Current BG: \(MiaoMiao.currentGlucose?.value.formatted(with: "%.0lf") ?? "unknown")\nBOB=\(iob.formatted(with: "%.1lf"))\n"
             if iob > 0 {
                 predictionLabel.text = "BOB = \(iob.formatted(with: "%.1lf"))U\n\n"
             }
@@ -416,18 +429,24 @@ extension RecordViewController {
         }
         let interpolator = AkimaInterpolator(points: bgHistory)
         for meal in meals {
+            var horizon = meal.date + after
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
-            if let _ = meals.filter({ $0.date < meal.date + after && $0.date > meal.date }).sorted(by: { $0.date < $1.date }).first {
+            if let _ = Storage.default.allEntries.filter({ $0.date < meal.date + after && $0.date > meal.date + 1.s }).first {
                 continue
             } else {
                 if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < meal.date + after && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
-                    continue
+                    horizon = Date(timeInterval: -10.m, since: low.first!.date)
+                    let ratio = (horizon - meal.date) / after
+                    units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
+                    carbs = meal.carbs * ratio
+                    bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
+                } else {
+                    units = Double(meal.bolus)
+                    carbs = meal.carbs
+                    bgAfter = interpolator.interpolateValue(at: CGFloat((meal.date + after).timeIntervalSince1970))
                 }
-                units = Double(meal.bolus)
-                carbs = meal.carbs
-                bgAfter = interpolator.interpolateValue(at: CGFloat((meal.date + after).timeIntervalSince1970))
             }
             let bgAtMeal = interpolator.interpolateValue(at: CGFloat(meal.date.timeIntervalSince1970))
             guard !bgAfter.isNaN && !bgAtMeal.isNaN else {
@@ -443,7 +462,7 @@ extension RecordViewController {
         guard !isEstimating else {
             return
         }
-        if let lastTime = defaults[.parameterCalcDate], lastTime < Date() - 7.d {
+        if let lastTime = defaults[.parameterCalcDate], lastTime < Date() - 1.d {
             return
         }
         isEstimating = true

@@ -77,9 +77,9 @@ public class Storage: NSObject {
         }
 
 
-        let predictedValue = current + max(0,(record.carbs - defaults[.carbThreshold])) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
-        let highest = current + max(0,(record.carbs * 1.1 - defaults[.carbThreshold] * 0.95)) * defaults[.carbRate] * 1.05 - 0.95 * defaults[.insulinRate] * (bolus + iob)
-        let lowest = current + max(0,(record.carbs * 0.9 - defaults[.carbThreshold] * 1.05)) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
+        let predictedValue = current + max(0,record.carbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
+        let highest = current + max(0,record.carbs * 1.1 - defaults[.carbThreshold] * 0.95) * defaults[.carbRate] * 1.05 - 0.95 * defaults[.insulinRate] * (bolus + iob)
+        let lowest = current + max(0,record.carbs * 0.9 - defaults[.carbThreshold] * 1.05) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
         if predictedValue < 50 || lowest < 40 {
             return nil
         }
@@ -138,6 +138,9 @@ public class Storage: NSObject {
                 continue
             }
             guard meal.type != nil && meal.id != record.id   else {
+                continue
+            }
+            guard meal.carbs == record.carbs || meal.carbs == 0 || record.carbs == 0 else {
                 continue
             }
             var endTime = meal.date + 5.h
