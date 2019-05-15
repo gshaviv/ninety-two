@@ -224,7 +224,7 @@ public class GlucoseGraph: UIView {
                 self.prediction = nil
                 break drawPrediction
             }
-            let duration = prediction.mealCount == 0 ? 15.m : 30.m
+            let duration = prediction.mealCount == 0 ? 20.m : 30.m
             ctx?.saveGState()
             ctx?.setLineWidth(3)
             ctx?.saveGState()
@@ -235,6 +235,8 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h10)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10)))
+            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
+            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
             ctx?.strokePath()
             if prediction.mealCount > 0 {
                 ctx?.beginPath()
@@ -242,6 +244,8 @@ public class GlucoseGraph: UIView {
                 ctx?.setLineDash(phase: 0, lengths: [4,14])
                 ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low)))
                 ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low)))
+                ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low50)))
+                ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low50)))
                 ctx?.strokePath()
             }
             ctx?.restoreGState()
@@ -263,12 +267,6 @@ public class GlucoseGraph: UIView {
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50) - size.height, width: size.width, height: size.height))
             }
-//            ctx?.beginPath()
-//            UIColor.blue.withAlphaComponent(0.6).set()
-//            ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
-//            ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
-//            ctx?.strokePath()
-//            ctx?.restoreGState()
             ctx?.saveGState()
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.6).set()
@@ -281,7 +279,9 @@ public class GlucoseGraph: UIView {
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.3).set()
             if prediction.mealCount == 0 {
-                ctx?.setLineDash(phase: 0, lengths: [2,8])
+                ctx?.setLineDash(phase: 0, lengths: [3,7])
+            } else {
+                ctx?.setLineDash(phase: 0, lengths: [6,4])
             }
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h90)))

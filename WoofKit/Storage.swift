@@ -78,7 +78,7 @@ public class Storage: NSObject {
 
 
         let predictedValue = current + max(0,record.carbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
-        let highest = current + max(0,record.carbs * 1.1 - defaults[.carbThreshold] * 0.95) * defaults[.carbRate] * 1.05 - 0.95 * defaults[.insulinRate] * (bolus + iob)
+        let highest = current + max(0,record.carbs * 1.1 - defaults[.carbThreshold]) * defaults[.carbRate] * 1.05 - defaults[.insulinRate] * (bolus + iob)
         let lowest = current + max(0,record.carbs * 0.9 - defaults[.carbThreshold] * 1.05) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
         if predictedValue < 50 || lowest < 40 {
             return nil
@@ -165,6 +165,9 @@ public class Storage: NSObject {
         }
         let ionstart = insulinOnBoard(at: record.date - 1.s)
         let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - ionstart) < 0.5 }
+        if meals.count > 12 {
+            return Array(meals.sorted(by: { $0.0.date > $1.0.date })[0 ..< 12])
+        }
         return meals
     }
     public func prediction(for record: Record, current level: Double? = nil) -> Prediction? {

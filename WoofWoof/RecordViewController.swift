@@ -222,18 +222,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 && pickerView.selectedRow(inComponent: Component.units.rawValue) == 0 {
             pickerView.selectRow(1, inComponent: Component.units.rawValue, animated: true)
         }
-        if pickerView.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-            let date = selectedDate
-            if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
-                let low = v + s * (Double(pickerView.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
-                setPrediction("Estimated @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
-                self.prediction = Storage.default.prediction(for: selectedRecord)
-            } else {
-                setPrediction(nil)
-            }
-        } else {
-            predict()
-        }
+        predict()
         if let rec = editRecord {
             switch Component(rawValue: component)! {
             case .hour, .minute:
@@ -277,6 +266,7 @@ extension RecordViewController: UITextFieldDelegate {
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        predict()
         return true
     }
 }
@@ -378,7 +368,7 @@ extension RecordViewController {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
 
-            predictionLabel.text = "BG after meal\n\(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
+            predictionLabel.text = "Estimated BG after meal\n\(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
@@ -392,6 +382,17 @@ extension RecordViewController {
     }
 
     @objc func predict() {
+        if picker.selectedRow(inComponent: Component.meal.rawValue) == 0 {
+            let date = selectedDate
+            if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
+                let low = v + s * (Double(picker.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
+                setPrediction("Estimated @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
+                self.prediction = Storage.default.prediction(for: selectedRecord)
+            } else {
+                setPrediction(nil)
+            }
+            return
+        }
         let record = selectedRecord
         queue.async {
             guard let p = Storage.default.prediction(for: record) else {
@@ -402,11 +403,11 @@ extension RecordViewController {
             }
             DispatchQueue.main.async {
                 if p.h50 < p.h90  && p.low50 > p.low {
-                    self.setPrediction("\(p.mealCount) comparable meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low), 50%=\(p.low50)")
+                    self.setPrediction("Estimate using \(p.mealCount) similar meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low), 50%=\(p.low50)")
                 } else if p.h50 < p.h90 {
-                    self.setPrediction("\(p.mealCount) comparable meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low)")
+                    self.setPrediction("Estimate using \(p.mealCount) similar meals\nHigh: 50%=\(p.h50), 90%<\(p.h90)\nLow: 90%>\(p.low)")
                 } else {
-                    self.setPrediction("\(p.mealCount) comparable meals\n@\(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute)): 50%=\(p.h50)\nLow: \(p.low)")
+                    self.setPrediction("Estimate using \(p.mealCount) similar meals\n@\(String(format: "%02ld:%02ld",p.highDate.hour, p.highDate.minute)): 50%=\(p.h50)\nLow: \(p.low)")
                 }
                 self.prediction = p
             }
