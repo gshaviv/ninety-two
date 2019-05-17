@@ -354,8 +354,8 @@ precedencegroup TimeConcat {
 
 infix operator ⁚: TimeConcat
 
-public func ⁚ (lhs: TimeInterval, rhs: TimeInterval) -> TimeInterval {
-    return lhs + rhs
+public func ⁚ (lhs: Int, rhs: Int) -> Int {
+    return lhs * 60 + rhs
 }
 
 extension UIView {

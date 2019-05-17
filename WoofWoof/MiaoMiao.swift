@@ -426,7 +426,7 @@ class MiaoMiao {
         var last = Date.distantFuture
         for point in trend ?? [] {
              if point.date < last {
-                last = point.date - 2.m⁚30.s
+                last = point.date - (2⁚30).s
                 toAppend.append(point)
             }
         }

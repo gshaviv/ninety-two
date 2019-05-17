@@ -56,7 +56,12 @@ class InterfaceController: WKInterfaceController {
         if let last = WKExtension.extensionDelegate.readings.last {
             let minutes = Int(Date().timeIntervalSince(last.date))
             let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
-            let attr = String(format: "%ld:%02ld", minutes / 60, minutes % 60).styled.color(.white).font(f)
+            let attr: NSAttributedString
+            if last.value < 70 {
+                attr = (minutes < 90 ? String(format: "%02ld", minutes) : String(format: "%ld:%02ld", minutes / 60, minutes % 60)).styled.color(.white).font(f)
+            } else {
+                attr = String(format: "%ld:%02ld", minutes / 60, minutes % 60).styled.color(.white).font(f)
+            }
             self.agoLabel.setAttributedText(attr)
         } else {
             self.agoLabel.setText("--")
@@ -76,10 +81,11 @@ class InterfaceController: WKInterfaceController {
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
 
         glucoseLabel.setText("\(levelStr)\(WKExtension.extensionDelegate.trendSymbol)")
-        if last.value > 70 {
-        trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
+        if last.value < 70 {
+            let tvalue = String(format: "%.1lf",WKExtension.extensionDelegate.trendValue).trimmingCharacters(in: CharacterSet(charactersIn: "0"))
+            trendLabel.setText(String(format: "%@%@", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", tvalue))
         } else {
-            trendLabel.setText("")
+            trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
         }
         DispatchQueue.global().async {
             if let image = self.createImage() {
