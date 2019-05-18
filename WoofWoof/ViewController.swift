@@ -461,12 +461,15 @@ class ViewController: UIViewController {
         let group = DispatchGroup()
         group.enter()
         var has = false
+        var hasBob = false
         INVoiceShortcutCenter.shared.getAllVoiceShortcuts { (results, _) in
             for voiceShortcut in results ?? [] {
                 if let i = voiceShortcut.shortcut.intent as? DiaryIntent {
                     siriActions.insert(i.record)
                 } else if voiceShortcut.shortcut.intent is CheckGlucoseIntent {
                     has = true
+                } else if voiceShortcut.shortcut.intent is CheckBOBIntent {
+                    hasBob = true
                 }
             }
             group.leave()
@@ -516,7 +519,7 @@ class ViewController: UIViewController {
             }
         }
         let common = entries.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }.filter { $0.1 > 6 }
-        if !common.isEmpty || !has {
+        if !common.isEmpty || !has || !hasBob {
             let top = common[0 ..< min(common.count, 8)].map { $0.0 }
             ctr.addGroup("Add Siri Shortcut")
             if !has {
@@ -526,6 +529,20 @@ class ViewController: UIViewController {
                 }) {
                     let intent = CheckGlucoseIntent()
                     intent.suggestedInvocationPhrase = "What's my glucose"
+                    if let shortcut = INShortcut(intent: intent) {
+                        let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+                        viewController.delegate = self
+                        self.present(viewController, animated: true)
+                    }
+                }
+            }
+            if !hasBob {
+                ctr.addRow(title: "Find my BOB", subtitle: "How much bolus on board?", configure: {
+                    $0.imageView?.image = UIImage(named: "AppIcon")
+                    $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
+                }) {
+                    let intent = CheckBOBIntent()
+                    intent.suggestedInvocationPhrase = "How much bolus on board"
                     if let shortcut = INShortcut(intent: intent) {
                         let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
                         viewController.delegate = self

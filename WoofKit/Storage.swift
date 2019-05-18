@@ -232,12 +232,19 @@ public class Storage: NSObject {
         return (highest.value - mealPoints[0].value, highest.date - meal.date, lowestAfterHigh.value - mealPoints[0].value)
     }
     public func insulinOnBoard(at date: Date) -> Double {
-        let dia = defaults[.diaMinutes] * 60
-        let records = db.evaluate(Record.read().filter(Record.bolus > 0 && Record.date > date - dia - defaults[.delayMinutes])) ?? []
+        let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        let records = allEntries.filter({ $0.isBolus && $0.date > date - dia })
         if records.isEmpty {
             return 0
         }
         return records.reduce(0) { $0 + $1.insulinAction(at: date).iob }
+    }
+    public func insulinHorizon() -> Date? {
+        let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        if let record = allEntries.filter({ $0.isBolus && $0.date > Date() - dia }).last {
+            return record.date + dia
+        }
+        return nil
     }
     public override init() {
         super.init()

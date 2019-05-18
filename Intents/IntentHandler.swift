@@ -21,6 +21,9 @@ class IntentHandler: INExtension {
         case is DiaryIntent:
             return DiaryHandler()
 
+        case is CheckBOBIntent:
+            return CheckBOBHandler()
+
         default:
             return nil
         }
@@ -81,5 +84,38 @@ extension CheckIntentHandler: NSFilePresenter {
 
     var presentedItemOperationQueue: OperationQueue {
         return OperationQueue.main
+    }
+}
+
+
+class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
+    func handle(intent: CheckBOBIntent, completion: @escaping (CheckBOBIntentResponse) -> Void) {
+        let bob = Storage.default.insulinOnBoard(at: Date())
+        guard let horizon = Storage.default.insulinHorizon() else {
+            completion(CheckBOBIntentResponse(code: .none, userActivity: nil))
+            return
+        }
+        var bobPhrase = bob.formatted(with: "%.1lf")
+        if bobPhrase.hasSuffix(".0") {
+            bobPhrase = bobPhrase[0 ..< (bobPhrase.count - 2)]
+        }
+        if bobPhrase == "0" {
+            let minLeft = rint((horizon - Date()) / 1.m)
+            if minLeft > 0 {
+                completion(CheckBOBIntentResponse.little(end: "\(Int(minLeft)) minutes"))
+            } else {
+                completion(CheckBOBIntentResponse.little(end: "less than a minutes"))
+            }
+        } else {
+            if horizon - Date() < 30.m {
+                let minLeft = "another \(Int(rint((horizon - Date()) / 1.m))) minutes"
+                completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: minLeft))
+            } else if horizon - Date() < 1.h + 15.m {
+                let whenPhrase = "until \(horizon.hour):\(horizon.minute)"
+                completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: whenPhrase))
+            } else {
+                completion(CheckBOBIntentResponse.success(bob: bobPhrase))
+            }
+        }
     }
 }

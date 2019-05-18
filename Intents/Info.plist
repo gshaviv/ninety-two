@@ -32,6 +32,7 @@
 			<array>
 				<string>CheckGlucoseIntent</string>
 				<string>DiaryIntent</string>
+				<string>CheckBOBIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
