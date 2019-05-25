@@ -190,6 +190,12 @@ extension PrepareMealViewController: UISearchResultsUpdating {
             return
         }
         lastTerm = term
+        let anyMeal = (term.isEmpty ? Storage.default.db.evaluate(Meal.read()) : Storage.default.db.evaluate(Meal.read().filter(Meal.name.like("%\(term)%")))) ?? []
+        let foundMeal = anyMeal.filter { $0.name != nil && $0.servings.count > 0 }.sorted { $0.name!.lowercased() < $1.name!.lowercased() }
+        DispatchQueue.main.async {
+            self.foundMeal = foundMeal
+            self.tableView.reloadData()
+        }
         PrepareMealViewController.searchQueue.async {
             let foundFood:[Food]
             if term.count > 2 {
@@ -234,11 +240,8 @@ extension PrepareMealViewController: UISearchResultsUpdating {
             } else {
                 foundFood = []
             }
-            let anyMeal = (term.isEmpty ? Storage.default.db.evaluate(Meal.read()) : Storage.default.db.evaluate(Meal.read().filter(Meal.name.like("%\(term)%")))) ?? []
-            let foundMeal = anyMeal.filter { $0.name != nil && $0.servings.count > 0 }.sorted { $0.name!.lowercased() < $1.name!.lowercased() }
             DispatchQueue.main.async {
                 self.foundFood = foundFood
-                self.foundMeal = foundMeal
                 self.tableView.reloadData()
             }
         }

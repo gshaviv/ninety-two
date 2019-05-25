@@ -262,11 +262,11 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
 extension RecordViewController: UITextFieldDelegate {
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        predict()
         return true
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        predict()
         return true
     }
 }
@@ -278,6 +278,8 @@ extension RecordViewController: AutoComleteTextFieldDataSource {
         return picker.selectedRow(inComponent: Component.meal.rawValue) == 0 ? [] : mealNotes.filter { $0.string.lowercased().hasPrefix(lower) }
     }
 }
+
+
 
 extension RecordViewController: PrepareMealViewControllerDelegate {
     func didSelectMeal(_ selectedMeal: Meal) {
@@ -434,20 +436,19 @@ extension RecordViewController {
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
-            if let _ = Storage.default.allEntries.filter({ $0.date < meal.date + after && $0.date > meal.date + 1.s }).first {
-                continue
+            if let firstAfter = Storage.default.allEntries.filter({ $0.date < horizon && $0.date > meal.date + 1.s }).first {
+                horizon = firstAfter.date - 1.s
+            }
+            if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < horizon && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
+                horizon = Date(timeInterval: -10.m, since: low.first!.date)
+                let ratio = (horizon - meal.date) / after
+                units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
+                carbs = meal.carbs * ratio
+                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             } else {
-                if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < meal.date + after && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
-                    horizon = Date(timeInterval: -10.m, since: low.first!.date)
-                    let ratio = (horizon - meal.date) / after
-                    units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
-                    carbs = meal.carbs * ratio
-                    bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
-                } else {
-                    units = Double(meal.bolus)
-                    carbs = meal.carbs
-                    bgAfter = interpolator.interpolateValue(at: CGFloat((meal.date + after).timeIntervalSince1970))
-                }
+                units = Double(meal.bolus)
+                carbs = meal.carbs
+                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             }
             let bgAtMeal = interpolator.interpolateValue(at: CGFloat(meal.date.timeIntervalSince1970))
             guard !bgAfter.isNaN && !bgAtMeal.isNaN else {
@@ -546,196 +547,5 @@ extension RecordViewController {
 //        log("* \(iter): ri = \(ratei), rc = \(ratec), ci = \(ci), cost=\(Int(lastCost))")
         return (ratei,ratec,ci, lastCost)
     }
-//    static func estimateParams() {
-//        guard !isEstimating else {
-//            return
-//        }
-//        isEstimating = true
-//        let effects = getEffects()
-//
-//        var ratec = defaults[.carbRate]
-//        var ratei = defaults[.insulinRate]
-//        var umax = defaults[.maxInternalUnit]
-//        var k = defaults[.internalUnits]
-//        if defaults[.haveParameters] == nil {
-//            ratec = Double.random(in: 5 ... 20)
-//            ratei = Double.random(in: 20 ... 40)
-//            umax = Double.random(in: 1 ..< 10)
-//            k = Double.random(in: 0.1 ..< 2)
-//        }
-//        let eta = 1e-5
-//        let stop = 0.001
-//        var iter = 0
-//        var lastCost:Double = -1
-//
-//        while true {
-//            iter += 1
-//            var drc:Double = 0
-//            var dri:Double = 0
-//            var dumax:Double = 0
-//            var dk:Double = 0
-//            var cost:Double = 0
-//            effects.forEach {
-//                let f = $0.carbs * ratec - ($0.units + min(umax, k * $0.carbs)) * ratei - $0.change
-//                cost += f*f
-//                drc += 2 * f * $0.carbs
-//                dri += 2 * f * ($0.units + min(umax, k * $0.carbs))
-//                dumax += (k * $0.carbs < umax ? 0 : -ratei) * 2 * f
-//                dk += 2 * f * (k * $0.carbs > umax ? 0 : -$0.carbs * ratei)
-//            }
-//            if cost > lastCost && lastCost > 0 {
-//                break
-//            }
-//            let delta = (c: drc * eta, i: dri * eta, k: dk * eta, u: dumax * eta)
-//            if abs(delta.c / ratec) < stop && abs(delta.i / ratei) < stop && abs(delta.k / k) < stop && abs(delta.u / umax) < stop && abs(cost - lastCost) / cost < stop {
-//                break
-//            }
-//            lastCost = cost
-//            ratec = max(ratec - delta.c, ratec / 2)
-//            ratei = max(ratei - delta.i, ratei / 2)
-//            umax = max(umax - delta.u, 0)
-//            k = max(k - delta.k, 0)
-////            if iter % 100 == 0 {
-////                log("\(iter): ri = \(ratei), rc = \(ratec), k = \(k), umax=\(umax), f=\(Int(cost))")
-////            }
-//            if iter > 9000 {
-//                break
-//            }
-//        }
-//        log("\(iter): ri = \(ratei), rc = \(ratec), k = \(k), umax=\(umax), cost=\(Int(lastCost))")
-//        isEstimating = false
-//    }
 
-//    class Solution {
-//        let ratei: Double
-//        let ratec: Double
-//        let k: Double
-//        let umax: Double
-//        var cost: Double?
-//
-//        init(ratei: Double, ratec: Double, k: Double, umax: Double, cost: Double? = nil) {
-//            self.ratei = ratei
-//            self.ratec = ratec
-//            self.k = k
-//            self.umax = umax
-//            self.cost = cost
-//        }
-//    }
-//
-//    static func geneticOptim() {
-//        var pop = initialPopulation()
-//        let effects = getEffects()
-//        var lastMin = Double.greatestFiniteMagnitude
-//        for iteration in 0 ..< 50 {
-//            let range = evaluate(population: pop, effects: effects)
-////            log("-- Generation \(iteration): min cost: \(Int(range.min))")
-//
-////            if abs(range.min - lastMin) / range.min < 0.01 {
-////                lastMin = range.min
-////                break
-////            }
-//            lastMin = range.min
-//            pop = selection(population: pop, range: range)
-//            pop = mate(population: pop)
-//        }
-//        let ms = pop.first(where: { $0.cost == lastMin })!
-//        log("ri = \(ms.ratei), rc = \(ms.ratec), k = \(ms.k), umax=\(ms.umax), f=\(Int(lastMin))")
-//    }
-//
-//    static private var npop = 100
-//
-//    static func initialPopulation() -> [Solution] {
-//        var population = [Solution]()
-//        for _ in 0 ..< npop {
-//            population.append(Solution(ratei: Double.random(in: 1 ..< 60), ratec: Double.random(in: 0 ..< 40), k: Double.random(in: 0 ..< 5), umax: Double.random(in: 0 ..< 15), cost: nil))
-//        }
-//        return population
-//    }
-//
-//    private static func evaluate(population: [Solution], effects: [MealEffect]) -> (min: Double, max: Double) {
-//        var low = Double.greatestFiniteMagnitude
-//        var high = Double.zero
-//        for i in 0 ..< population.count {
-//            if let cost = population[i].cost {
-//                if cost < low {
-//                    low = cost
-//                } else if cost > high {
-//                    high = cost
-//                }
-//            } else {
-//                var cost:Double = 0
-//                effects.forEach {
-//                    let f = $0.carbs * population[i].ratec - ($0.units + min(population[i].umax, population[i].k * $0.carbs)) * population[i].ratei - $0.change  + population[i].umax
-//                    cost += f*f
-//                }
-//                population[i].cost = cost
-//                if cost < low {
-//                    low = cost
-//                } else if cost > high {
-//                    high = cost
-//                }
-//            }
-//        }
-//        return (min: low, max: high)
-//    }
-//
-//    static func selection(population: [Solution], range: (min: Double, max: Double)) -> [Solution] {
-//        var out = population
-//        var totalCost = out.compactMap { $0.cost }.sum() - range.min * Double(population.count)
-//        while out.count > npop / 2 {
-//            var rollOfTheDice = Double.random(in: 0 ..< totalCost)
-//            for (idx,poorBastard) in out.enumerated() {
-//                guard let cost = poorBastard.cost else {
-//                    continue
-//                }
-//                if rollOfTheDice < cost - range.min {
-//                    totalCost -= cost - range.min
-//                    out.remove(at: idx)
-//                    break
-//                }
-//                rollOfTheDice -= cost - range.min
-//            }
-//        }
-//        return out
-//    }
-//
-//    static func mate(population: [Solution]) -> [Solution] {
-//        var out = population
-//        while out.count < npop {
-//            var idx1 = 0
-//            var idx2 = 0
-//            while idx1 == idx2 {
-//                idx1 = Int.random(in: 0 ..< population.count)
-//                idx2 = Int.random(in: 0 ..< population.count)
-//            }
-//            let father = population[idx1]
-//            let mother = population[idx2]
-//            let crossover0 = Double.random(in: 0.01 ... 0.99)
-//            let crossover1 = Double.random(in: 0.01 ... 0.99)
-//            let crossover2 = Double.random(in: 0.01 ... 0.99)
-//            let crossover3 = Double.random(in: 0.01 ... 0.99)
-//            out.append(Solution(ratei: father.ratei * crossover0 + mother.ratei * (1 - crossover0),
-//                                ratec: father.ratec * crossover1 + mother.ratec * (1 - crossover1),
-//                                k: father.k * crossover2 + mother.k * (1 - crossover2),
-//                                umax: father.umax * crossover3 + mother.umax * (1 - crossover3)))
-//            if Double.random(in: 0 ..< 1) < 0.01 {
-//                let member = out.removeLast()
-//                switch Int.random(in: 0 ..< 4) {
-//                case 0:
-//                    out.append(Solution(ratei: Double.random(in: 0 ..< 60), ratec: member.ratec, k: member.k, umax: member.umax, cost: nil))
-//
-//                case 1:
-//                    out.append(Solution(ratei: member.ratei, ratec: Double.random(in: 0 ..< 40), k: member.k, umax: member.umax, cost: nil))
-//
-//                case 2:
-//                    out.append(Solution(ratei: member.ratei, ratec: member.ratec, k: Double.random(in: 0 ..< 5), umax: member.umax, cost: nil))
-//
-//                default:
-//                    out.append(Solution(ratei: member.ratei, ratec: member.ratec, k: member.k, umax: Double.random(in: 0 ..< 15), cost: nil))
-//
-//                }
-//            }
-//        }
-//        return out
-//    }
 }

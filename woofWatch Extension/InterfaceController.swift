@@ -43,6 +43,15 @@ class InterfaceController: WKInterfaceController {
     }
 
     func updateTime() {
+        defer {
+            if !cancelUpdate && !triggered {
+                triggered = true
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+                    self.triggered = false
+                    self.updateTime()
+                }
+            }
+        }
         if isDimmed || triggered {
             return
         }
@@ -66,11 +75,7 @@ class InterfaceController: WKInterfaceController {
         } else {
             self.agoLabel.setText("--")
         }
-        triggered = true
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-            self.triggered = false
-            self.updateTime()
-        }
+
     }
 
     func update() {
