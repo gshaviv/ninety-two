@@ -329,6 +329,7 @@ public class GlucoseGraph: UIView {
         }
         let historyPoints = self.historyPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let trendPoints = self.trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let calibrationPoints = self.historyPoints.filter( { $0.isCalibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let all = historyPoints + trendPoints
         let plotter = Plot(points: all)
         do1: do {
@@ -401,6 +402,13 @@ public class GlucoseGraph: UIView {
             fill.lineWidth = 0
             fill.fill()
         }
+
+        UIColor.black.set()
+        ctx?.setLineWidth(0.5)
+        for point in calibrationPoints {
+            ctx?.addEllipse(in: CGRect(center: point, size: CGSize(width: 14, height: 14)))
+        }
+        ctx?.strokePath()
 
         if !pointsToDelete.isEmpty {
             let selected = UIBezierPath()

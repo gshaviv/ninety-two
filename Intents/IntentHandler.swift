@@ -101,10 +101,15 @@ class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
         }
         if bobPhrase == "0" {
             let minLeft = rint((horizon - Date()) / 1.m)
-            if minLeft > 0 {
-                completion(CheckBOBIntentResponse.little(end: "\(Int(minLeft)) minutes"))
-            } else {
+            switch minLeft {
+            case 0:
                 completion(CheckBOBIntentResponse.little(end: "less than a minutes"))
+
+            case 1:
+                completion(CheckBOBIntentResponse.little(end: "1 minute"))
+
+            default:
+                completion(CheckBOBIntentResponse.little(end: "\(Int(minLeft)) minutes"))
             }
         } else {
             if horizon - Date() < 30.m {

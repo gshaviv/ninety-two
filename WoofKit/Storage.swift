@@ -61,10 +61,10 @@ public class Storage: NSObject {
         let when = date + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
         let iob = insulinOnBoard(at: date - 1.s)
         let current: Double
+        let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date + 1.h && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
         if let level = currentLevel {
             current = level
         } else {
-            let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date + 1.h && GlucosePoint.date > record.date - 1.h).orderBy(GlucosePoint.date)) ?? []
             if readings.isEmpty {
                 current = 0
             } else if let last = readings.last, last.date < record.date {
@@ -75,11 +75,20 @@ public class Storage: NSObject {
                 current = Double(interp.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)))
             }
         }
-
-
-        let predictedValue = current + max(0,record.carbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
-        let highest = current + max(0,record.carbs * 1.1 - defaults[.carbThreshold]) * defaults[.carbRate] * 1.05 - defaults[.insulinRate] * (bolus + iob)
-        let lowest = current + max(0,record.carbs * 0.9 - defaults[.carbThreshold] * 1.05) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
+        let bgHistory = readings.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)})
+        let interpolator = AkimaInterpolator(points: bgHistory)
+        var sum = CGFloat(0)
+        for duration in [10.m, 20.m, 30.m, 40.m] {
+            sum += interpolator.interpolateValue(at: CGFloat((record.date - duration).timeIntervalSince1970)) - interpolator.interpolateValue(at: CGFloat((record.date - duration - 15.m).timeIntervalSince1970))
+        }
+        let slope = Double(sum) / 15.m / 4
+        var expectedBgChange = Double(slope * 1.h)
+        if current + expectedBgChange < 60 {
+            expectedBgChange = 60 - current
+        }
+        let predictedValue = current + expectedBgChange + max(0,record.carbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
+        let highest = current + expectedBgChange + max(0,record.carbs * 1.1 - defaults[.carbThreshold]) * defaults[.carbRate] * 1.05 - defaults[.insulinRate] * (bolus + iob)
+        let lowest = current + expectedBgChange + max(0,record.carbs * 0.9 - defaults[.carbThreshold] * 1.05) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
         if predictedValue < 50 || lowest < 40 {
             return nil
         }

@@ -426,7 +426,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>You have a negligable amount of bolus left for ${end}</string>
+						<string>You have less than 0.05 units that will last ${end}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>LgHXuL</string>
 						<key>INIntentResponseCodeName</key>

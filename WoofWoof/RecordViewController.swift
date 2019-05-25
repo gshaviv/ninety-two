@@ -423,9 +423,10 @@ extension RecordViewController {
         let carbs: Double
         let units: Double
         let slope: Double
+        let length: TimeInterval
     }
     static func getEffects() -> [MealEffect] {
-        let meals = Storage.default.allMeals.filter { $0.mealId != nil || $0.isMeal == false }
+        let meals = Array(Storage.default.allEntries.filter { $0.mealId != nil  }.reversed())
         let after = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
         var effects = [MealEffect]()
         guard let bgHistory = Storage.default.db.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date))?.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)}) else {
@@ -460,7 +461,14 @@ extension RecordViewController {
                 sum += interpolator.interpolateValue(at: CGFloat((meal.date - duration).timeIntervalSince1970)) - interpolator.interpolateValue(at: CGFloat((meal.date - duration - 15.m).timeIntervalSince1970))
             }
             let slope = Double(sum) / 15.m / 4
-            effects.append(MealEffect(change: Double(bgAfter - bgAtMeal), carbs: carbs, units: units, slope: slope))
+            var expectedBgChange = CGFloat(slope * min(Double(horizon - meal.date), 1.h))
+            if bgAtMeal + expectedBgChange < 60 {
+                expectedBgChange = 60 - bgAtMeal
+            }
+            effects.append(MealEffect(change: Double(bgAfter - bgAtMeal - expectedBgChange), carbs: carbs, units: units, slope: slope, length: horizon - meal.date))
+            if effects.count > 24 {
+                break
+            }
         }
         return effects
     }
@@ -470,8 +478,8 @@ extension RecordViewController {
         guard !isEstimating else {
             return
         }
-        defaults[.parameterCalcDate] = nil
-        if let lastTime = defaults[.parameterCalcDate], lastTime < Date() - 1.d {
+//        defaults[.parameterCalcDate] = nil
+        if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
             return
         }
         isEstimating = true
@@ -487,6 +495,9 @@ extension RecordViewController {
         var cost = Double.greatestFiniteMagnitude
         for _ in 0 ..< 50 {
             let found = estimate2(effects: effects)
+            if found.ri < 5 || found.rc > 80 {
+                continue
+            }
             log("found: ri=\(found.ri.formatted(with: "%.1lf")) rc=\(found.rc.formatted(with: "%.1lf")) ci=\(found.ci.formatted(with: "%.1lf")) cost=\(Int(found.cost))")
             if found.cost < cost {
                 s = (found.ri, found.rc, found.ci)
