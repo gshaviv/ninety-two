@@ -115,8 +115,8 @@ class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
             if horizon - Date() < 30.m {
                 let minLeft = "another \(Int(rint((horizon - Date()) / 1.m))) minutes"
                 completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: minLeft))
-            } else if horizon - Date() < 1.h + 15.m {
-                let whenPhrase = "until \(horizon.hour):\(horizon.minute)"
+            } else if horizon - Date() < 2.h {
+                let whenPhrase = "until \(horizon.hour > 12 ? horizon.hour - 12 : horizon.hour):\(horizon.minute)"
                 completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: whenPhrase))
             } else {
                 completion(CheckBOBIntentResponse.success(bob: bobPhrase))

@@ -537,12 +537,12 @@ class ViewController: UIViewController {
                 }
             }
             if !hasBob {
-                ctr.addRow(title: "Find my BOB", subtitle: "How much bolus on board?", configure: {
+                ctr.addRow(title: "Find my BOB", subtitle: "Any bolus on board?", configure: {
                     $0.imageView?.image = UIImage(named: "AppIcon")
                     $0.accessoryView = UIImageView(image: UIImage(named: "plus"))
                 }) {
                     let intent = CheckBOBIntent()
-                    intent.suggestedInvocationPhrase = "How much bolus on board"
+                    intent.suggestedInvocationPhrase = "Any bolus on board?"
                     if let shortcut = INShortcut(intent: intent) {
                         let viewController = INUIAddVoiceShortcutViewController(shortcut: shortcut)
                         viewController.delegate = self
