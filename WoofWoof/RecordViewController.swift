@@ -370,7 +370,7 @@ extension RecordViewController {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
 
-            predictionLabel.text = "Current \(current) IOB \(selectedRecord.insulinOnBoardAtStart)\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
+            predictionLabel.text = "Current \(current.formatted(with: "%.0lf")), BOB \(selectedRecord.insulinOnBoardAtStart)\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
