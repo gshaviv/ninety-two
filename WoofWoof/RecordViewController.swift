@@ -370,7 +370,7 @@ extension RecordViewController {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
 
-            predictionLabel.text = "Current \(current.formatted(with: "%.0lf")), BOB \(selectedRecord.insulinOnBoardAtStart)\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
+            predictionLabel.text = "Current \(current.formatted(with: "%.0lf")), BOB \(selectedRecord.insulinOnBoardAtStart.formatted(with: "%.1lf"))\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
@@ -386,7 +386,7 @@ extension RecordViewController {
     @objc func predict() {
         if picker.selectedRow(inComponent: Component.meal.rawValue) == 0 {
             let date = selectedDate
-            if Storage.default.allMeals.first(where: { $0.date > date - 3.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
+            if Storage.default.allMeals.first(where: { $0.date > date - 1.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
                 let low = v + s * (Double(picker.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
                 setPrediction("Estimated @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
                 self.prediction = Storage.default.prediction(for: selectedRecord)
@@ -482,7 +482,7 @@ extension RecordViewController {
         guard !isEstimating else {
             return
         }
-        defaults[.parameterCalcDate] = nil
+//        defaults[.parameterCalcDate] = nil
         if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
             return
         }
