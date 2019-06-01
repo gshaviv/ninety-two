@@ -220,10 +220,10 @@ public class GlucoseGraph: UIView {
         } while xDate < xRange.max
         ctx?.strokePath()
         drawPrediction: if let prediction = prediction {
-            guard Storage.default.allEntries.filter({ $0.date > prediction.mealTime && $0.date < prediction.highDate }).isEmpty else {
-                self.prediction = nil
-                break drawPrediction
-            }
+//            guard Storage.default.allEntries.filter({ $0.date > prediction.mealTime && $0.date < prediction.highDate }).isEmpty else {
+//                self.prediction = nil
+//                break drawPrediction
+//            }
             let duration = prediction.mealCount == 0 ? 20.m : 30.m
             ctx?.saveGState()
             ctx?.setLineWidth(3)
