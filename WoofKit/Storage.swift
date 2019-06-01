@@ -90,9 +90,24 @@ public class Storage: NSObject {
         if current + expectedBgChange < 60 {
             expectedBgChange = 60 - current
         }
-        let predictedValue = current  + max(0,record.carbs - defaults[.carbThreshold]) * defaults[.carbRate] - defaults[.insulinRate] * (bolus + iob)
-        let highest = current + max(0,record.carbs * 1.1 - defaults[.carbThreshold]) * defaults[.carbRate] * 1.05 - defaults[.insulinRate] * (bolus + iob)
-        let lowest = current + max(0,record.carbs * 0.9 - defaults[.carbThreshold] * 1.05) * defaults[.carbRate] * 0.95 - 1.05 * defaults[.insulinRate] * (bolus + iob)
+
+        let ri = defaults[.insulinRate] ?? []
+        guard ri.count > 0 else {
+            return nil
+        }
+        let rc = defaults[.carbRate] ?? []
+        let ci = defaults[.carbThreshold] ?? []
+        var p = [Double]()
+        for i in 0 ..< ri.count {
+            p.append(current + max(0,record.carbs - ci[i]) * rc[i] - ri[i] * (bolus + iob))
+//            p.append(current + max(0,record.carbs * 0.9 - ci[i]) * rc[i] - ri[i] * (bolus + iob))
+//            p.append(current + max(0,record.carbs * 1.1 - ci[i]) * rc[i] - ri[i] * (bolus + iob))
+        }
+        p = p.sorted()
+        let predictedValue = p.median()
+        let highest = p.percentile(0.75)
+        let lowest = p.percentile(0.25)
+
         if predictedValue < 50 || lowest < 40 {
             return nil
         }

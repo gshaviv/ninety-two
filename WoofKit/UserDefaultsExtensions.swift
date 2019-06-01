@@ -37,6 +37,9 @@ extension UserDefaults {
         case diaMinutes
         case peakMinutes
         case delayMinutes
+    }
+
+    public enum DoubleArrayKey: String {
         case carbRate
         case insulinRate
         case carbThreshold
@@ -146,6 +149,16 @@ extension UserDefaults {
         }
     }
 
+    public subscript(key: DoubleArrayKey) -> [Double]? {
+        get {
+            return object(forKey: key.rawValue) as? [Double]
+        }
+        set {
+            set(newValue, forKey: key.rawValue)
+            NotificationCenter.default.post(name: UserDefaults.notificationForChange(key), object: self)
+        }
+    }
+
     public subscript(key: IntKey) -> Int {
         get {
             return integer(forKey: key.rawValue)
@@ -167,41 +180,52 @@ extension UserDefaults {
     }
 }
 
-extension UserDefaults.StringKey {
+extension RawRepresentable where RawValue == String {
     fileprivate var key: String {
         return rawValue
     }
 }
-
-extension UserDefaults.ColorKey {
-    fileprivate var key: String {
-        return rawValue
-    }
-}
-
-extension UserDefaults.DateKey {
-    fileprivate var key: String {
-        return rawValue
-    }
-}
-
-extension UserDefaults.DoubleKey {
-    fileprivate var key: String {
-        return rawValue
-    }
-}
-
-extension UserDefaults.IntKey {
-    fileprivate var key: String {
-        return rawValue
-    }
-}
-
-extension UserDefaults.BoolKey {
-    fileprivate var key: String {
-        return rawValue
-    }
-}
+//extension UserDefaults.StringKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.ColorKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.DateKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.DoubleKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.DoubleArrayKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.IntKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
+//
+//extension UserDefaults.BoolKey {
+//    fileprivate var key: String {
+//        return rawValue
+//    }
+//}
 
 
 extension UserDefaults {

@@ -364,7 +364,7 @@ extension RecordViewController {
         if let str = str {
             predictionLabel.text = str
             predictionLabel.alpha = 1
-        } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, meal.totalCarbs > defaults[.carbThreshold], let calculated = Storage.default.calculatedLevel(for: selectedRecord, currentLevel: current) {
+        } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, let calculated = Storage.default.calculatedLevel(for: selectedRecord, currentLevel: current) {
             let when = calculated.highDate
             let formatter = DateFormatter()
             formatter.dateStyle = .none
@@ -482,7 +482,7 @@ extension RecordViewController {
         guard !isEstimating else {
             return
         }
-//        defaults[.parameterCalcDate] = nil
+        defaults[.parameterCalcDate] = nil
         if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
             return
         }
@@ -506,9 +506,9 @@ extension RecordViewController {
         }
         let f = s.sorted(by: { $0.cost < $1.cost })[0]
 
-        defaults[.insulinRate] = f.ri
-        defaults[.carbRate] = f.rc
-        defaults[.carbThreshold] = f.ci
+        defaults[.insulinRate] = s.map { $0.ri }
+        defaults[.carbRate] = s.map { $0.rc }
+        defaults[.carbThreshold] = s.map { $0.ci }
         defaults[.parameterCalcDate] = Date()
 
         log("ri=\(f.ri.formatted(with: "%.1lf")) rc=\(f.rc.formatted(with: "%.1lf")) ci=\(f.ci.formatted(with: "%.1lf"))")
