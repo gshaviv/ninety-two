@@ -449,7 +449,7 @@ public class GlucoseGraph: UIView {
                     let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
                     let frame = CGRect(center: center, size: syringeSize + CGSize(width: 4, height: 4))
                     let iob = r.insulinAction(at: Date()).iob
-                    let text = "\(units) \(iob > 0 ? "(\(iob.formatted(with: "%.1lf")))" : "")".styled.systemFont(size: 14).color(.darkGray)
+                    let text = "\(units) \(iob > 0 ? "(\(iob % ".1lf"))" : "")".styled.systemFont(size: 14).color(.darkGray)
                     let textFrame = CGRect(origin: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2), size: text.size())
                     if (plotter.intersects(frame) || plotter.intersects(textFrame)) && !isLast {
                         continue
@@ -475,7 +475,7 @@ public class GlucoseGraph: UIView {
                     }
                     y += above ? mealSize.height + 4 : -mealSize.height - 4
                     let note = r.note ?? ""
-                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs.formatted(with: "%.0lf"))" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs % ".0lf")" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
                     let size = text.size()
                     let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
                     let check = r1.insetBy(dx: -6, dy: -6)
@@ -534,7 +534,7 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: coor.x, y: rect.height))
             ctx?.strokePath()
             if IOB > 0 {
-                let text = "BOB=\(IOB.formatted(with: "%.1lf"))".styled.font(UIFont.systemFont(ofSize: 15))
+                let text = "BOB=\(IOB % ".1lf")".styled.font(UIFont.systemFont(ofSize: 15))
                 let size = text.size()
                 var rect = CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size)
                 if rect.maxX > contentView.bounds.maxX {

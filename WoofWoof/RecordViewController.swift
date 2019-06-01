@@ -323,7 +323,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
 
 extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        mealHeader.text = "Carbs: \(meal.totalCarbs.formatted(with: "%.0lf"))g"
+        mealHeader.text = "Carbs: \(meal.totalCarbs % ".0lf")g"
         return meal.servingCount
     }
 
@@ -332,7 +332,7 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
         let serving = meal[indexPath.row]
         cell.textLabel?.text = serving.food.name.capitalized
         cell.textLabel?.numberOfLines = 2
-        cell.detailTextLabel?.text = "\(serving.carbs.formatted(with: "%.0lf"))g: \(serving.amount.asFraction()) \(serving.food.householdName.lowercased())"
+        cell.detailTextLabel?.text = "\(serving.carbs % ".0lf")g: \(serving.amount.asFraction()) \(serving.food.householdName.lowercased())"
         return cell
     }
 
@@ -370,13 +370,13 @@ extension RecordViewController {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
 
-            predictionLabel.text = "Current \(current.formatted(with: "%.0lf")), BOB \(selectedRecord.insulinOnBoardAtStart.formatted(with: "%.1lf"))\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
+            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
-            predictionLabel.text = "Current BG: \(MiaoMiao.currentGlucose?.value.formatted(with: "%.0lf") ?? "unknown")\nBOB=\(iob.formatted(with: "%.1lf"))\n"
+            predictionLabel.text = "Current BG: \((MiaoMiao.currentGlucose?.value ?? 0) % ".0lf")\nBOB=\(iob % ".1lf")\n"
             if iob > 0 {
-                predictionLabel.text = "BOB = \(iob.formatted(with: "%.1lf"))U\n\n"
+                predictionLabel.text = "BOB = \(iob % ".1lf")U\n\n"
             }
             predictionLabel.alpha = 0.5
             self.prediction = nil
@@ -501,7 +501,7 @@ extension RecordViewController {
             if found.ri < 5 || found.rc > 80 {
                 continue
             }
-            log("found: ri=\(found.ri.formatted(with: "%.1lf")) rc=\(found.rc.formatted(with: "%.1lf")) ci=\(found.ci.formatted(with: "%.1lf")) cost=\(Int(found.cost))")
+            log("found: ri=\(found.ri % ".1lf") rc=\(found.rc % ".1lf") ci=\(found.ci % ".1lf") cost=\(Int(found.cost))")
             s.append(found)
         }
         let f = s.sorted(by: { $0.cost < $1.cost })[0]
@@ -511,7 +511,7 @@ extension RecordViewController {
         defaults[.carbThreshold] = s.map { $0.ci }
         defaults[.parameterCalcDate] = Date()
 
-        log("ri=\(f.ri.formatted(with: "%.1lf")) rc=\(f.rc.formatted(with: "%.1lf")) ci=\(f.ci.formatted(with: "%.1lf"))")
+        log("ri=\(f.ri % ".1lf") rc=\(f.rc % ".1lf") ci=\(f.ci % ".1lf")")
     }
 
     static func estimate2(effects: [MealEffect]) -> (ri: Double, rc: Double, ci: Double, cost: Double) {

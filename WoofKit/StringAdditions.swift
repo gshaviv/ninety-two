@@ -182,23 +182,19 @@ extension String {
     }
 }
 
-extension Double {
-    public func formatted(with format: String) -> String {
-        return String(format: format, self)
-    }
+public func % (lhs: Double, rhs: String) -> String {
+    return String(format: "%\(rhs)", lhs)
 }
 
-extension CGFloat {
-    public func formatted(with format: String) -> String {
-        return String(format: format, self)
-    }
+public func % (lhs: Int, rhs: String) -> String {
+    return String(format: "%\(rhs)", lhs)
 }
 
-extension Int {
-    public func formatted(with format: String) -> String {
-        return String(format: format, self)
-    }
+public func % (lhs: CGFloat, rhs: String) -> String {
+    return String(format: "%\(rhs)", lhs)
 }
+
+
 
 public extension String {
     /// Trimming string whitespace

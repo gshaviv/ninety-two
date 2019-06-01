@@ -163,7 +163,7 @@ class ViewController: UIViewController {
         }
         let trend = trendValue()
         if let current = MiaoMiao.currentGlucose {
-            let levelStr = current.value > 70 ? current.value.formatted(with: "%.0lf") : current.value.formatted(with: "%.1lf")
+            let levelStr = current.value > 70 ? current.value % ".0lf" : current.value % ".1lf"
             currentGlucoseLabel.text = "\(levelStr)\(trendSymbol(for: trend))"
             updateTimeAgo()
         } else {
@@ -196,7 +196,7 @@ class ViewController: UIViewController {
         }
         let iob = Storage.default.insulinOnBoard(at: Date())
         if iob > 0 && UIScreen.main.bounds.width > 350.0 {
-            iobLabel.text = "BOB\n\(iob.formatted(with: "%.1lf"))"
+            iobLabel.text = "BOB\n\(iob % ".1lf")"
             iobLabel.isHidden = false
         } else {
             iobLabel.isHidden = true
@@ -352,21 +352,21 @@ class ViewController: UIViewController {
 
         ctr.addGroup("Insulin (Bolus) Profile")
         ctr.addValue(title: "DIA (m)", get: { () -> String in
-            return defaults[.diaMinutes].formatted(with: "%.0lf")
+            return defaults[.diaMinutes] % ".0lf"
         }) {
             if $0 >= 2 * defaults[.peakMinutes] {
             defaults[.diaMinutes] = $0
             }
         }
         ctr.addValue(title: "Peak (m)", get: { () -> String in
-            return defaults[.peakMinutes].formatted(with: "%.0lf")
+            return defaults[.peakMinutes] % ".0lf"
         }) {
             if $0 < defaults[.diaMinutes] / 2 {
             defaults[.peakMinutes] = $0
             }
         }
         ctr.addValue(title: "Delay (m)", get: { () -> String in
-            return defaults[.delayMinutes].formatted(with: "%.0lf")
+            return defaults[.delayMinutes] % ".0lf"
         }) {
             defaults[.delayMinutes] = $0
         }
@@ -391,7 +391,7 @@ class ViewController: UIViewController {
             defaults[.color5] = $0
         }
         ctr.addValue(title: "Value", get: { () -> String in
-            defaults[.level4].formatted(with: "%lg")
+            defaults[.level4] % "lg"
         }) {
             defaults[.level4] = $0
         }
@@ -401,7 +401,7 @@ class ViewController: UIViewController {
             defaults[.color4] = $0
         }
         ctr.addValue(title: "Value", get: { () -> String in
-            defaults[.level3].formatted(with: "%lg")
+            defaults[.level3] % "lg"
         }) {
             defaults[.level3] = $0
         }
@@ -411,7 +411,7 @@ class ViewController: UIViewController {
             defaults[.color3] = $0
         }
         ctr.addValue(title: "Value", get: { () -> String in
-            defaults[.level2].formatted(with: "%lg")
+            defaults[.level2] % "lg"
         }) {
             defaults[.level2] = $0
         }
@@ -421,7 +421,7 @@ class ViewController: UIViewController {
             defaults[.color2] = $0
         }
         ctr.addValue(title: "Value", get: { () -> String in
-            defaults[.level1].formatted(with: "%lg")
+            defaults[.level1] % "lg"
         }) {
             defaults[.level1] = $0
         }
@@ -431,7 +431,7 @@ class ViewController: UIViewController {
             defaults[.color1] = $0
         }
         ctr.addValue(title: "Value", get: { () -> String in
-            defaults[.level0].formatted(with: "%lg")
+            defaults[.level0] % "lg"
         }) {
             defaults[.level0] = $0
         }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WoofKit
 
 class SettingsViewController: UITableViewController {
     private enum Setting {
@@ -241,11 +242,11 @@ class TimeCell: UITableViewCell {
     @IBOutlet var timeLabel: UILabel!
 
     func setTime(_ mh: Int) {
-        timeLabel.text = "{}:{}".format(mh / 60, (mh % 60).formatted(with:"%02ld"))
+        timeLabel.text = "{}:{}".format(mh / 60, (mh % 60) % "02ld")
     }
 
     func setTime(_ h: Int, _ m:Int) {
-        timeLabel.text = "{}:{}".format(h, m.formatted(with:"%02ld"))
+        timeLabel.text = "{}:{}".format(h, m % "02ld")
     }
 }
 

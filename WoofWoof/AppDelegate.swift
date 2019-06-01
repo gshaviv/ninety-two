@@ -392,11 +392,11 @@ extension AppDelegate: MiaoMiaoDelegate {
                 switch current.value {
                 case ...defaults[.lowAlertLevel] where !defaults[.didAlertEvent] && trend < -0.25:
                     defaults[.didAlertEvent] = true
-                    showAlert(title: "Low Glucose", body: "Current level is \(current.value.formatted(with: "%.0lf"))", sound: UNNotificationSound.lowGlucose)
+                    showAlert(title: "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
 
                 case defaults[.highAlertLevel]... where !defaults[.didAlertEvent] && trend > 0.25:
                     defaults[.didAlertEvent] = true
-                    showAlert(title: "High Glucose", body: "Current level is \(current.value.formatted(with: "%.0lf"))", sound: UNNotificationSound.highGlucose)
+                    showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
 
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     defaults[.didAlertEvent] = false

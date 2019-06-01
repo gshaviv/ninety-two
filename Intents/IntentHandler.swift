@@ -95,7 +95,7 @@ class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
             completion(CheckBOBIntentResponse(code: .none, userActivity: nil))
             return
         }
-        var bobPhrase = bob.formatted(with: "%.1lf")
+        var bobPhrase = bob % ".1lf"
         if bobPhrase.hasSuffix(".0") {
             bobPhrase = bobPhrase[0 ..< (bobPhrase.count - 2)]
         }

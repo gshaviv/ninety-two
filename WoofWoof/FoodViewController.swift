@@ -26,7 +26,7 @@ class FoodViewController: UIViewController {
         manufacturerLabel.text = food.manufacturer?.capitalized
         ingredientsView.text = food.ingredients?.listCase().replacingOccurrences(of: ".", with: "\n")
         servingLabel.text = "\(food.householdSize.asFraction()) \(food.householdName)"
-        carbsLabel.text = "\((food.carbs*food.serving/100).formatted(with: "%.0lf"))g per serving"
+        carbsLabel.text = "\((food.carbs*food.serving/100) % ".0lf")g per serving"
 
         preferredContentSize = mainStack.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width - 40, height: 0), withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.fittingSizeLevel)
 

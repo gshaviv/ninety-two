@@ -142,8 +142,8 @@ class SummaryViewController: UIViewController {
                         let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
                         self.lowCountLabel.text = "\(lowCount)"
                         self.medianLowLabel.text = medianTime
-                        self.maxLabel.text = "\(maxG.formatted(with: "%.0lf")) / \(minG.formatted(with: "%.0lf"))"
-                        self.minLabel.text = averageBolus.formatted(with: "%.1lfu")
+                        self.maxLabel.text = "\(maxG % ".0lf") / \(minG % ".0lf")"
+                        self.minLabel.text = averageBolus % ".1lfu"
                         self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
                         let percentIn = (1000 - round(timeBelow / totalT * 1000) - round(timeAbove / totalT * 1000))/10
                         self.percentInRangeLabel.text = String(format: "%.1lf%%", percentIn)
