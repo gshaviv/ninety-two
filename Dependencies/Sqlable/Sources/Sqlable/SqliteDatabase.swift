@@ -73,19 +73,21 @@ public class SqliteDatabase {
 	///	- Parameters:
 	///		- filePath: The path of the database file
 	/// - Throws: SqlError if the database couldn't be created
-	public init(filepath : String) throws {
+    public init(filepath : String, readOnly: Bool = false) throws {
 		self.filepath = filepath
 		
 		do {
-			db = try SqliteDatabase.openDatabase(filepath)
+			db = try SqliteDatabase.openDatabase(filepath, readOnly: readOnly)
 		} catch let error {
 			db = nil
 			throw error
 		}
-		
+
+        if !readOnly {
 		try execute("pragma foreign_keys = on")
 		try execute("pragma journal_mode = WAL")
 		try execute("pragma busy_timeout = 1000000")
+        }
 		
 		sqlite3_update_hook(db, onUpdate, unsafeBitCast(self, to: UnsafeMutableRawPointer.self))
 	}
@@ -128,10 +130,10 @@ public class SqliteDatabase {
 		eventHandlers.removeValue(forKey: id)
 	}
 	
-	static func openDatabase(_ filepath : String) throws -> OpaquePointer {
+    static func openDatabase(_ filepath : String, readOnly: Bool = false) throws -> OpaquePointer {
 		var db : OpaquePointer? = nil
 		
-		let result = sqlite3_open(filepath, &db)
+        let result = sqlite3_open_v2(filepath, &db, readOnly ? SQLITE_OPEN_READONLY : SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil)
 		if result != SQLITE_OK {
 			throw sqlErrorForCode(Int(result))
 		}
