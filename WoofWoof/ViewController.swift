@@ -18,6 +18,7 @@ import UserNotifications
 import Zip
 
 class ViewController: UIViewController {
+    private var lastTouchedRecord: Record?
     @IBOutlet var connectingLabel: UILabel!
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var currentGlucoseLabel: UILabel!
@@ -767,7 +768,16 @@ extension ViewController: GlucoseGraphDelegate {
         }
 
         DispatchQueue.global().async {
-            let prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
+            let prediction: Prediction?
+            if let last = self.lastTouchedRecord, last.id == record.id {
+                prediction =  Storage.default.calculatedLevel(for: record)
+            } else {
+                prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
+            }
+            self.lastTouchedRecord = record
+            DispatchQueue.main.after(withDelay: 3, closure: {
+                self.lastTouchedRecord = nil
+            })
             DispatchQueue.main.async {
                 self.graphView.prediction = prediction
             }
