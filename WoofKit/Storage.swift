@@ -53,10 +53,10 @@ public class Storage: NSObject {
     }
 
     public func calculatedLevel(for record: Record, currentLevel: Double? = nil) -> Prediction? {
-        guard defaults[.parameterCalcDate] != nil, record.carbs > 0 else {
+        guard defaults[.parameterCalcDate] != nil && (record.isBolus || record.carbs > 0) else {
             return nil
         }
-        let bolus = Double(record.bolus) + record.insulinOnBoardAtStart
+        let bolus = Double(record.bolus) 
         let date = record.date
         let when = date + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
         let bob = record.insulinOnBoardAtStart
@@ -107,10 +107,7 @@ public class Storage: NSObject {
         let highest = p.percentile(0.75)
         let lowest = p.percentile(0.25)
 
-        if predictedValue < 50 || lowest < 40 {
-            return nil
-        }
-        return Prediction(count: 0, mealTime: record.date, highDate: when, h10: max(40,CGFloat(lowest)), h50: max(40,CGFloat(predictedValue)), h90: max(40,CGFloat(highest)), low50: 0, low: 0)
+        return Prediction(count: 0, mealTime: record.date, highDate: when, h10: max(30,CGFloat(lowest)), h50: max(30,CGFloat(predictedValue)), h90: max(40,CGFloat(highest)), low50: 0, low: 0)
     }
 
     public func estimateInsulinReaction() -> Double? {

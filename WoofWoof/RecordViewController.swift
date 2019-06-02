@@ -370,7 +370,7 @@ extension RecordViewController {
             formatter.dateStyle = .none
             formatter.timeStyle = .short
 
-            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(Int(calculated.h50)) @ \(formatter.string(from: when))\n\(Int(calculated.h10)) - \(Int(calculated.h90))"
+            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(calculated.h50 < 40 ? "Low" : "\(Int(calculated.h50))") @ \(formatter.string(from: when))\n\(calculated.h10 < 40 ? "Low" : "\(Int(calculated.h10))") - \(Int(calculated.h90))"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
@@ -427,7 +427,7 @@ extension RecordViewController {
         }
         let interpolator = AkimaInterpolator(points: bgHistory)
         for meal in meals {
-            var horizon = meal.date + after
+            let horizon = meal.date + after
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
@@ -435,11 +435,7 @@ extension RecordViewController {
                 continue
             }
             if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < horizon && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
-                horizon = Date(timeInterval: -10.m, since: low.first!.date)
-                let ratio = (horizon - meal.date) / after
-                units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
-                carbs = meal.carbs * ratio
-                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
+                continue
             } else {
                 units = Double(meal.bolus)
                 carbs = meal.carbs
