@@ -11,6 +11,7 @@ import Sqlable
 import WoofKit
 
 class HistoryViewController: UIViewController {
+    private var lastTouchedRecord: Record?
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var backButton: UIButton!
     @IBOutlet var forwardButton: UIButton!
@@ -134,7 +135,7 @@ class HistoryViewController: UIViewController {
 
 extension HistoryViewController: GlucoseGraphDelegate {
     func didDoubleTap(record: Record) {
-        performSegue(withIdentifier: "addRecord", sender: record)
+        self.performSegue(withIdentifier: "addRecord", sender: record)
     }
 
     func didTouch(record: Record) {
@@ -143,16 +144,22 @@ extension HistoryViewController: GlucoseGraphDelegate {
         }
 
         DispatchQueue.global().async {
-            guard let prediction = Storage.default.prediction(for: record) else {
-                return
+            let prediction: Prediction?
+            if let last = self.lastTouchedRecord, last.id == record.id {
+                prediction =  Storage.default.calculatedLevel(for: record)
+            } else {
+                prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
             }
+            self.lastTouchedRecord = record
+            DispatchQueue.main.after(withDelay: 3, closure: {
+                self.lastTouchedRecord = nil
+            })
             DispatchQueue.main.async {
                 self.graphView.prediction = prediction
             }
         }
     }
 }
-
 
 class DatePickerViewController: ActionSheetController {
     @IBOutlet var titleLabel: UILabel!
