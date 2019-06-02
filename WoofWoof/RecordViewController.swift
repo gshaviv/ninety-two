@@ -50,7 +50,7 @@ class RecordViewController: UIViewController {
         return Storage.default.estimateInsulinReaction()
     }
     private lazy var mealNotes: [NSAttributedString] = {
-        let fromMeals = Storage.default.allMeals.compactMap { $0.note }.unique().sorted()
+        let fromMeals = Storage.default.allMeals.filter { $0.mealId == nil }.compactMap { $0.note }.unique().sorted()
         let setFromMeals = Set(fromMeals)
         let additionalWords = words.filter { !setFromMeals.contains($0) }.sorted()
         return fromMeals.map { $0.styled.traits(.traitBold) } + additionalWords.map { $0.styled }
