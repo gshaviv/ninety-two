@@ -49,7 +49,6 @@ class ViewController: UIViewController {
                     }
                     c.onCancel = {
                         self.graphView.prediction = nil
-                        self.graphView.records = Storage.default.lastDay.entries
                     }
                 } else {
                     c.onSelect = { (record, prediction) in

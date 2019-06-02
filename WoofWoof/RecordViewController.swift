@@ -88,7 +88,6 @@ class RecordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setPrediction(nil)
         noteField.text = meal.name
         var now = Date()
         if now.minute > 58 {
@@ -127,6 +126,7 @@ class RecordViewController: UIViewController {
         DispatchQueue.global().async {
             RecordViewController.estimate3()
         }
+        setPrediction(nil)
     }
 
     @IBAction func handleCancel(_ sender: Any) {
@@ -385,7 +385,7 @@ extension RecordViewController {
 
     @objc func predict() {
         if picker.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-                setPrediction(nil)
+            setPrediction(nil)
             return
         }
         let record = selectedRecord
