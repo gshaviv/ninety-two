@@ -59,7 +59,8 @@ public class Storage: NSObject {
         let bolus = Double(record.bolus) + record.insulinOnBoardAtStart
         let date = record.date
         let when = date + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
-        let iob = record.insulinOnBoardAtStart
+        let bob = record.insulinOnBoardAtStart
+        let cob = Storage.default.allMeals.filter { $0.date < record.date && $0.date > record.date - 5.h }.map { $0.carbs * ($0.date - record.date + 5.h) / 5.h }.sum()
         let current: Double
         let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date + 1.h && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
         if let level = currentLevel {
@@ -99,9 +100,7 @@ public class Storage: NSObject {
         let ci = defaults[.carbThreshold] ?? []
         var p = [Double]()
         for i in 0 ..< ri.count {
-            p.append(current + max(0,record.carbs - ci[i]) * rc[i] - ri[i] * (bolus + iob))
-//            p.append(current + max(0,record.carbs * 0.9 - ci[i]) * rc[i] - ri[i] * (bolus + iob))
-//            p.append(current + max(0,record.carbs * 1.1 - ci[i]) * rc[i] - ri[i] * (bolus + iob))
+            p.append(current + (max(0,record.carbs - ci[i]) + cob) * rc[i] - ri[i] * (bolus + bob))
         }
         p = p.sorted()
         let predictedValue = p.median()
