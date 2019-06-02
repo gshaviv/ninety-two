@@ -385,14 +385,7 @@ extension RecordViewController {
 
     @objc func predict() {
         if picker.selectedRow(inComponent: Component.meal.rawValue) == 0 {
-            let date = selectedDate
-            if Storage.default.allMeals.first(where: { $0.date > date - 1.h && $0.date < date }) == nil, let s = sensitivity.value, let v = MiaoMiao.currentGlucose?.value  {
-                let low = v + s * (Double(picker.selectedRow(inComponent: Component.units.rawValue)) + Storage.default.insulinOnBoard(at: Date()))
-                setPrediction("Estimated @ \(Int(round(s))) [1/u] = \(max(0,Int(low)))\n\n")
-                self.prediction = Storage.default.prediction(for: selectedRecord)
-            } else {
                 setPrediction(nil)
-            }
             return
         }
         let record = selectedRecord
