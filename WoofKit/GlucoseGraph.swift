@@ -270,19 +270,15 @@ public class GlucoseGraph: UIView {
             ctx?.saveGState()
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.6).set()
-            ctx?.setLineDash(phase: 0, lengths: [4,6])
+            ctx?.setLineDash(phase: 0, lengths: [4,3])
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h50)))
             ctx?.strokePath()
             ctx?.restoreGState()
             ctx?.saveGState()
             ctx?.beginPath()
-            UIColor.blue.withAlphaComponent(0.3).set()
-            if prediction.mealCount == 0 {
-                ctx?.setLineDash(phase: 0, lengths: [3,7])
-            } else {
-                ctx?.setLineDash(phase: 0, lengths: [6,4])
-            }
+            UIColor.blue.withAlphaComponent(0.4).set()
+            ctx?.setLineDash(phase: 0, lengths: prediction.mealCount == 0 ? [3,3] : [6,4])
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + duration), y: yCoor(prediction.h90)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10)))
