@@ -762,10 +762,6 @@ extension ViewController: GlucoseGraphDelegate {
     }
 
     func didTouch(record: Record) {
-        guard record.isMeal else {
-            return
-        }
-
         DispatchQueue.global().async {
             let prediction: Prediction?
             if let last = self.lastTouchedRecord, last.id == record.id {

@@ -427,7 +427,7 @@ extension RecordViewController {
         }
         let interpolator = AkimaInterpolator(points: bgHistory)
         for meal in meals {
-            let horizon = meal.date + after
+            var horizon = meal.date + after
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
@@ -435,7 +435,11 @@ extension RecordViewController {
                 continue
             }
             if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < horizon && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
-                continue
+                horizon = Date(timeInterval: -10.m, since: low.first!.date)
+                let ratio = (horizon - meal.date) / after
+                units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
+                carbs = meal.carbs * ratio
+                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             } else {
                 units = Double(meal.bolus)
                 carbs = meal.carbs
@@ -454,10 +458,10 @@ extension RecordViewController {
                 }
             }
             let slope = count > 0 ? Double(sum) / Double(count) : 0
-            var expectedBgChange = CGFloat(slope * min(Double(horizon - meal.date), 1.h))
-            if bgAtMeal + expectedBgChange < 60 {
-                expectedBgChange = 60 - bgAtMeal
-            }
+//            var expectedBgChange = CGFloat(slope * min(Double(horizon - meal.date), 1.h))
+//            if bgAtMeal + expectedBgChange < 60 {
+//                expectedBgChange = 60 - bgAtMeal
+//            }
             effects.append(MealEffect(change: Double(bgAfter - bgAtMeal), carbs: carbs, units: units, slope: slope, length: horizon - meal.date))
             if effects.count > 64 {
                 break
@@ -485,7 +489,7 @@ extension RecordViewController {
         }
 
         var s = [(ri:Double, rc: Double, ci: Double, cost:Double)]()
-        for _ in 0 ..< 51 {
+        for _ in 0 ..< 100 {
             let found = estimate2(effects: effects)
             if found.ri < 5 || found.rc > 80 {
                 continue
@@ -493,14 +497,49 @@ extension RecordViewController {
             log("found: ri=\(found.ri % ".1lf") rc=\(found.rc % ".1lf") ci=\(found.ci % ".1lf") cost=\(Int(found.cost))")
             s.append(found)
         }
-        let f = s.sorted(by: { $0.cost < $1.cost })[0]
+        var outliers = Set<Int>()
+        let values = s.map { $0.cost }.sorted()
+        let q3 = values.percentile(0.25)
+        s.enumerated().forEach {
+            if $0.element.cost > q3 {
+                outliers.insert($0.offset)
+            }
+        }
+//        values = s.map { $0.ri }.sorted()
+//        var q1 = values.percentile(0.25)
+//        q3 = values.percentile(0.75)
+//        var fence = (q3 - q1) * 2.2
+//        s.enumerated().forEach {
+//            if $0.element.ri < q1 - fence || $0.element.ri > q3 + fence {
+//                outliers.insert($0.offset)
+//            }
+//        }
+//        values = s.map { $0.rc }.sorted()
+//        q1 = values.percentile(0.25)
+//        q3 = values.percentile(0.75)
+//        fence = (q3 - q1) * 2.2
+//        s.enumerated().forEach {
+//            if $0.element.rc < q1 - fence || $0.element.rc > q3 + fence {
+//                outliers.insert($0.offset)
+//            }
+//        }
+//        values = s.map { $0.ci }.sorted()
+//        q1 = values.percentile(0.25)
+//        q3 = values.percentile(0.75)
+//        fence = (q3 - q1) * 2.2
+//        s.enumerated().forEach {
+//            if $0.element.ci < q1 - fence || $0.element.ci > q3 + fence {
+//                outliers.insert($0.offset)
+//            }
+//        }
+        for idx in Array(outliers).sorted(by: { $0 > $1 }) {
+            s.remove(at: idx)
+        }
 
         defaults[.insulinRate] = s.map { $0.ri }
         defaults[.carbRate] = s.map { $0.rc }
         defaults[.carbThreshold] = s.map { $0.ci }
         defaults[.parameterCalcDate] = Date()
-
-        log("ri=\(f.ri % ".1lf") rc=\(f.rc % ".1lf") ci=\(f.ci % ".1lf")")
     }
 
     static func estimate2(effects: [MealEffect]) -> (ri: Double, rc: Double, ci: Double, cost: Double) {

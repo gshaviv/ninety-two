@@ -76,21 +76,21 @@ public class Storage: NSObject {
                 current = Double(interp.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)))
             }
         }
-        let bgHistory = readings.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)})
-        let interpolator = AkimaInterpolator(points: bgHistory)
-        var sum = CGFloat(0)
-        var count = 0
-        for duration in [15.m, 30.m, 45.m, 1.h] {
-            if Storage.default.insulinOnBoard(at: record.date - duration) == 0 {
-                sum += (interpolator.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)) - interpolator.interpolateValue(at: CGFloat((record.date - duration).timeIntervalSince1970))) / CGFloat(duration)
-                count += 1
-            }
-        }
-        let slope = count > 0 ? Double(sum) / Double(count) : 0
-        var expectedBgChange = Double(slope * 1.h)
-        if current + expectedBgChange < 60 {
-            expectedBgChange = 60 - current
-        }
+//        let bgHistory = readings.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)})
+//        let interpolator = AkimaInterpolator(points: bgHistory)
+//        var sum = CGFloat(0)
+//        var count = 0
+//        for duration in [15.m, 30.m, 45.m, 1.h] {
+//            if Storage.default.insulinOnBoard(at: record.date - duration) == 0 {
+//                sum += (interpolator.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)) - interpolator.interpolateValue(at: CGFloat((record.date - duration).timeIntervalSince1970))) / CGFloat(duration)
+//                count += 1
+//            }
+//        }
+//        let slope = count > 0 ? Double(sum) / Double(count) : 0
+//        var expectedBgChange = Double(slope * 1.h)
+//        if current + expectedBgChange < 60 {
+//            expectedBgChange = 60 - current
+//        }
 
         let ri = defaults[.insulinRate] ?? []
         guard ri.count > 0 else {
@@ -102,7 +102,7 @@ public class Storage: NSObject {
         for i in 0 ..< ri.count {
             p.append(current + (max(0,record.carbs - ci[i]) + cob) * rc[i] - ri[i] * (bolus + bob))
         }
-        p = p.sorted()
+        p.sort()
         let predictedValue = p.median()
         let highest = p.percentile(0.75)
         let lowest = p.percentile(0.25)
@@ -250,8 +250,8 @@ public class Storage: NSObject {
             let predictedLow50 = CGFloat(round(filteredL.median() + current.value))
             let predictedTime = record.date + timeToHigh.sorted().median()
             return Prediction(count: filtered.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
-        } else if let s = estimateInsulinReaction() {
-            return Prediction(count: 0, mealTime: record.date, highDate: record.date, h10: 0, h50: 0, h90: 0, low50: CGFloat(current.value - s * Double(record.bolus)), low: CGFloat(current.value - s * Double(record.bolus)))
+//        } else if let s = estimateInsulinReaction() {
+//            return Prediction(count: 0, mealTime: record.date, highDate: record.date, h10: 0, h50: 0, h90: 0, low50: CGFloat(current.value - s * Double(record.bolus)), low: CGFloat(current.value - s * Double(record.bolus)))
         } else {
             return nil
         }
