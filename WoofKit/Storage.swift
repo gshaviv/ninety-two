@@ -53,14 +53,17 @@ public class Storage: NSObject {
     }
 
     public func calculatedLevel(for record: Record, currentLevel: Double? = nil) -> Prediction? {
-        guard defaults[.parameterCalcDate] != nil && (record.isBolus || record.carbs > 0) else {
+        guard record.isBolus || record.carbs > 0 else {
             return nil
         }
-        let bolus = Double(record.bolus) 
+        let bolus = Double(record.bolus)
+        let bob = record.insulinOnBoardAtStart
+        let duration = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        let cob = Storage.default.allMeals.filter { $0.date < record.date && $0.date > record.date - duration }.map { $0.carbs * ($0.date - record.date + duration) / duration }.sum()
+
+
         let date = record.date
         let when = date + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
-        let bob = record.insulinOnBoardAtStart
-        let cob = Storage.default.allMeals.filter { $0.date < record.date && $0.date > record.date - 5.h }.map { $0.carbs * ($0.date - record.date + 5.h) / 5.h }.sum()
         let current: Double
         let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date + 1.h && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
         if let level = currentLevel {
@@ -76,21 +79,22 @@ public class Storage: NSObject {
                 current = Double(interp.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)))
             }
         }
-//        let bgHistory = readings.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)})
-//        let interpolator = AkimaInterpolator(points: bgHistory)
-//        var sum = CGFloat(0)
-//        var count = 0
-//        for duration in [15.m, 30.m, 45.m, 1.h] {
-//            if Storage.default.insulinOnBoard(at: record.date - duration) == 0 {
-//                sum += (interpolator.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)) - interpolator.interpolateValue(at: CGFloat((record.date - duration).timeIntervalSince1970))) / CGFloat(duration)
-//                count += 1
-//            }
-//        }
-//        let slope = count > 0 ? Double(sum) / Double(count) : 0
-//        var expectedBgChange = Double(slope * 1.h)
-//        if current + expectedBgChange < 60 {
-//            expectedBgChange = 60 - current
-//        }
+        if let (ri,rc,ci) = ParamsPerTimeOfDay.params(for: record.date), ri.count > 0 {
+            var p = [Double]()
+            for i in 0 ..< ri.count {
+                p.append(current + (max(0,record.carbs - ci[i]) + cob) * rc[i] - ri[i] * (bolus + bob))
+            }
+            p.sort()
+            let predictedValue = p.median()
+            let highest = p.percentile(0.75)
+            let lowest = p.percentile(0.25)
+
+            return Prediction(count: 0, mealTime: record.date, highDate: when, h10: max(30,CGFloat(lowest)), h50: max(30,CGFloat(predictedValue)), h90: max(40,CGFloat(highest)), low50: 0, low: 0)
+        }
+
+        guard defaults[.parameterCalcDate] != nil else {
+            return nil
+        }
 
         let ri = defaults[.insulinRate] ?? []
         guard ri.count > 0 else {
@@ -302,3 +306,32 @@ public class Today {
     }()
 }
 
+
+public class ParamsPerTimeOfDay {
+    private static var tod: Date?
+    private static var rc: [Double] = []
+    private static var ri: [Double] = []
+    private static var ci: [Double] = []
+
+    public class func reset() {
+        tod = nil
+    }
+
+    public class func set(ri: [Double], rc: [Double], ci: [Double], for date: Date) {
+        tod = nil
+        ParamsPerTimeOfDay.rc = rc
+        ParamsPerTimeOfDay.ri = ri
+        ParamsPerTimeOfDay.ci = ci
+        tod = date
+    }
+
+    public class func params(for stamp: Date) -> (ri: [Double], rc: [Double], ci: [Double])? {
+        guard let tod = tod else {
+            return nil
+        }
+        if stamp.dailyDifference(to: tod) > 3.h {
+            return nil
+        }
+        return (ri,rc,ci)
+    }
+}

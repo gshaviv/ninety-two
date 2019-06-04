@@ -231,6 +231,16 @@ extension Date {
     public var second: Int {
         return components.second ?? 0
     }
+    public func dailyDifference(to other: Date) -> TimeInterval {
+        let stamp = hour * 60 + minute
+        let otherStamp = other.hour * 60 + other.minute
+        let diff = abs(otherStamp - stamp)
+        if diff > 1220 {
+            return 1440.m - diff.m
+        } else {
+            return diff.m
+        }
+    }
 }
 
 extension UIImage {

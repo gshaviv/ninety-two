@@ -124,6 +124,16 @@ class RecordViewController: UIViewController {
             picker.selectRow(units, inComponent: Component.units.rawValue, animated: false)
         }
         DispatchQueue.global().async {
+            if let edit = self.editRecord {
+                RecordViewController.estimatePerTime(for: edit.date)
+            } else {
+                RecordViewController.estimatePerTime(for: Date())
+            }
+            DispatchQueue.main.async {
+                if self.prediction == nil {
+                    self.setPrediction(nil)
+                }
+            }
             RecordViewController.estimate3()
         }
         setPrediction(nil)
@@ -418,7 +428,7 @@ extension RecordViewController {
         let slope: Double
         let length: TimeInterval
     }
-    static func getEffects() -> [MealEffect] {
+    static func getEffects(around stamp: Date? = nil) -> [MealEffect] {
         let meals = Array(Storage.default.allEntries.filter { $0.mealId != nil || $0.isBolus }.reversed())
         let after = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
         var effects = [MealEffect]()
@@ -431,6 +441,9 @@ extension RecordViewController {
             let carbs: Double
             let units: Double
             let bgAfter: CGFloat
+            if let stamp = stamp, stamp.dailyDifference(to:meal.date) > 3.h {
+                continue
+            }
             if let _ = Storage.default.allEntries.filter({ $0.date < horizon && $0.date > meal.date - after && $0.id! != meal.id!  }).first {
                 continue
             }
@@ -471,23 +484,20 @@ extension RecordViewController {
     }
     static var isEstimating = false
 
-    static func estimate3() {
-        guard !isEstimating else {
-            return
-        }
-//        defaults[.parameterCalcDate] = nil
-        if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
-            return
-        }
-        isEstimating = true
-        defer {
-            isEstimating = false
-        }
-        let effects = getEffects()
-        guard effects.count > 9 else {
+    static func estimatePerTime(for stamp: Date?) {
+        let timeStamp = stamp ?? Date()
+        let effects = getEffects(around: timeStamp)
+        guard effects.count > 5 else {
             return
         }
 
+        let s = estimatedParameters(for: effects)
+        ParamsPerTimeOfDay.set(ri: s.map { $0.ri }, rc: s.map { $0.rc }, ci: s.map { $0.ci }, for: timeStamp)
+    }
+
+
+
+    static func estimatedParameters(for effects: [MealEffect]) -> [(ri:Double, rc: Double, ci: Double, cost:Double)] {
         var s = [(ri:Double, rc: Double, ci: Double, cost:Double)]()
         for _ in 0 ..< 100 {
             let found = estimate2(effects: effects)
@@ -505,36 +515,33 @@ extension RecordViewController {
                 outliers.insert($0.offset)
             }
         }
-//        values = s.map { $0.ri }.sorted()
-//        var q1 = values.percentile(0.25)
-//        q3 = values.percentile(0.75)
-//        var fence = (q3 - q1) * 2.2
-//        s.enumerated().forEach {
-//            if $0.element.ri < q1 - fence || $0.element.ri > q3 + fence {
-//                outliers.insert($0.offset)
-//            }
-//        }
-//        values = s.map { $0.rc }.sorted()
-//        q1 = values.percentile(0.25)
-//        q3 = values.percentile(0.75)
-//        fence = (q3 - q1) * 2.2
-//        s.enumerated().forEach {
-//            if $0.element.rc < q1 - fence || $0.element.rc > q3 + fence {
-//                outliers.insert($0.offset)
-//            }
-//        }
-//        values = s.map { $0.ci }.sorted()
-//        q1 = values.percentile(0.25)
-//        q3 = values.percentile(0.75)
-//        fence = (q3 - q1) * 2.2
-//        s.enumerated().forEach {
-//            if $0.element.ci < q1 - fence || $0.element.ci > q3 + fence {
-//                outliers.insert($0.offset)
-//            }
-//        }
+
         for idx in Array(outliers).sorted(by: { $0 > $1 }) {
             s.remove(at: idx)
         }
+
+        return s
+    }
+
+    static func estimate3() {
+        guard !isEstimating else {
+            return
+        }
+        isEstimating = true
+        defer {
+            isEstimating = false
+        }
+//        defaults[.parameterCalcDate] = nil
+        if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
+            return
+        }
+
+        let effects = getEffects()
+        guard effects.count > 9 else {
+            return
+        }
+
+        let s = estimatedParameters(for: effects)
 
         defaults[.insulinRate] = s.map { $0.ri }
         defaults[.carbRate] = s.map { $0.rc }

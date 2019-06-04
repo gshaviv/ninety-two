@@ -766,6 +766,12 @@ extension ViewController: GlucoseGraphDelegate {
             let prediction: Prediction?
             if let last = self.lastTouchedRecord, last.id == record.id {
                 prediction =  Storage.default.calculatedLevel(for: record)
+                if ParamsPerTimeOfDay.params(for: record.date) == nil {
+                    RecordViewController.estimatePerTime(for: record.date)
+                    DispatchQueue.main.async {
+                        self.graphView.prediction = Storage.default.calculatedLevel(for: record)
+                    }
+                }
             } else {
                 prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
             }
