@@ -51,10 +51,10 @@ class SummaryViewController: UIViewController {
                     var bands = [UserDefaults.ColorKey: TimeInterval]()
                     var maxG:Double = 0
                     var minG:Double = 9999
-                    var timeBelow = Double(0)
                     var timeAbove = Double(0)
                     var totalT = Double(0)
                     var sumG = Double(0)
+                    var countLow = false
                     readings.forEach { gp in
                         defer {
                             previousPoint = gp
@@ -67,17 +67,8 @@ class SummaryViewController: UIViewController {
                             sumG += gp.value * duration
                             totalT += duration
                             switch (previous.value, gp.value) {
-                            case (..<defaults[.minRange], ..<defaults[.minRange]):
-                                timeBelow += duration
-
                             case (defaults[.maxRange]..., defaults[.maxRange]...):
                                 timeAbove += duration
-
-                            case (_, ..<defaults[.minRange]):
-                                timeBelow += duration * (defaults[.minRange] - gp.value) / (previous.value - gp.value)
-
-                            case (..<defaults[.minRange],_):
-                                timeBelow += duration * (defaults[.minRange] - previous.value) / (gp.value - previous.value)
 
                             case (_, defaults[.maxRange]...):
                                 timeAbove += duration * (gp.value - defaults[.maxRange]) / (gp.value - previous.value)
@@ -116,13 +107,14 @@ class SummaryViewController: UIViewController {
 
                             if gp.value < defaults[.minRange] {
                                 if !inLow {
-                                    lowCount += 1
-                                    let d = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
-                                    lowStart = d
+                                    lowStart = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
+                                    countLow = gp.value < defaults[.minRange] - 3
                                 }
                                 inLow = true
+                                countLow = countLow || gp.value < defaults[.minRange] - 3
                             } else {
-                                if inLow, let lowStart = lowStart {
+                                if inLow, let lowStart = lowStart, countLow {
+                                    lowCount += 1
                                     let d = previous.date + (defaults[.minRange] - previous.value) / (gp.value - previous.value) * (gp.date - previous.date)
                                     lowTime.append(d - lowStart)
                                 }
@@ -138,6 +130,7 @@ class SummaryViewController: UIViewController {
                     let aveG = sumG / totalT
                     let a1c = (aveG / 18.05 + 2.52) / 1.583
                     let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
+                    let timeBelow = lowTime.sum()
                     DispatchQueue.main.async {
                         let medianTime =  medianLowTime < 60 ?  String(format: "%ldm", medianLowTime) : String(format: "%ld:%02ld",medianLowTime / 60, medianLowTime % 60)
                         self.lowCountLabel.text = "\(lowCount)"
