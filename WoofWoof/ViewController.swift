@@ -764,24 +764,26 @@ extension ViewController: GlucoseGraphDelegate {
     func didTouch(record: Record) {
         DispatchQueue.global().async {
             let prediction: Prediction?
+            var showBasedOnMeals = true
             if let last = self.lastTouchedRecord, last.id == record.id {
-                prediction =  Storage.default.calculatedLevel(for: record)
-                if ParamsPerTimeOfDay.params(for: record.date) == nil {
-                    RecordViewController.estimatePerTime(for: record.date)
-                    DispatchQueue.main.async {
-                        self.graphView.prediction = Storage.default.calculatedLevel(for: record)
-                    }
-                }
-            } else {
-                prediction = Storage.default.prediction(for: record) ?? Storage.default.calculatedLevel(for: record)
+                showBasedOnMeals = false
             }
-            self.lastTouchedRecord = record
-            DispatchQueue.main.after(withDelay: 3, closure: {
-                self.lastTouchedRecord = nil
-            })
+
+            let basedOnMeals = Storage.default.prediction(for: record)
+            prediction =  showBasedOnMeals ? basedOnMeals ?? Storage.default.calculatedLevel(for: record) : Storage.default.calculatedLevel(for: record)
             DispatchQueue.main.async {
                 self.graphView.prediction = prediction
             }
+            if ParamsPerTimeOfDay.params(for: record.date) == nil && (!showBasedOnMeals || basedOnMeals == nil) {
+                RecordViewController.estimatePerTime(for: record.date)
+                DispatchQueue.main.async {
+                    self.graphView.prediction = Storage.default.calculatedLevel(for: record)
+                }
+            }
         }
+        self.lastTouchedRecord = record
+        DispatchQueue.main.after(withDelay: 3, closure: {
+            self.lastTouchedRecord = nil
+        })
     }
 }
