@@ -76,6 +76,12 @@ public class GlucoseGraph: UIView {
             }
         }
     }
+    @IBInspectable public var showAverage: Bool = false {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    private var averageValue: CGFloat = 0
 
     public var points: [GlucoseReading]! {
         get {
@@ -115,6 +121,9 @@ public class GlucoseGraph: UIView {
             contentWidthConstraint?.isActive = false
             contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
             setNeedsLayout()
+            if showAverage {
+                averageValue = CGFloat(zip(points[0 ..< points.count - 1], points[1 ..< points.count]).map { ($0.1.date - $0.0.date) * ($0.0.value + $0.1.value) }.sum() / (points.last!.date - points.first!.date) / 2.0)
+            }
             DispatchQueue.main.async {
                 if !self.contentHolder.isDragging && !self.contentHolder.isDecelerating {
                     self.contentHolder.contentOffset = CGPoint(x: self.contentHolder.contentSize.width - self.contentHolder.width, y: 0)
@@ -219,6 +228,7 @@ public class GlucoseGraph: UIView {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
+
         drawPrediction: if let prediction = prediction {
 //            guard Storage.default.allEntries.filter({ $0.date > prediction.mealTime && $0.date < prediction.highDate }).isEmpty else {
 //                self.prediction = nil
@@ -328,6 +338,23 @@ public class GlucoseGraph: UIView {
         let calibrationPoints = self.historyPoints.filter( { $0.isCalibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let all = historyPoints + trendPoints
         let plotter = Plot(points: all)
+        if showAverage {
+            ctx?.saveGState()
+            ctx?.setLineDash(phase: 0, lengths: [2,2,2,8])
+            ctx?.move(to: CGPoint(x: 0, y: yCoor(averageValue)))
+            ctx?.addLine(to: CGPoint(x: rect.width, y: yCoor(averageValue)))
+            UIColor.darkGray.set()
+            ctx?.setAlpha(0.75)
+            ctx?.strokePath()
+            let text = "\(averageValue % ".0lf")".styled.color(.darkGray).systemFont(.semibold, size: 17)
+            let size = text.size()
+            var frame = CGRect(x: rect.width - self.width / 2 - size.width / 2, y: yCoor(averageValue) - 1 - size.height, width: size.width, height: size.height)
+            while plotter.intersects(frame) {
+                frame.origin.x -= 8
+            }
+            text.draw(in: frame)
+            ctx?.restoreGState()
+        }
         do1: do {
             let p = historyPoints
             if p.isEmpty {
