@@ -219,7 +219,7 @@
 				TargetAttributes = {
 					FF94F2D31BDE2633009AD0C9 = {
 						CreatedOnToolsVersion = 7.1;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1100;
 					};
 					FF94F2DD1BDE2634009AD0C9 = {
 						CreatedOnToolsVersion = 7.1;
@@ -232,6 +232,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = FF94F2CA1BDE2633009AD0C9;
