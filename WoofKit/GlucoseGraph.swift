@@ -348,7 +348,7 @@ public class GlucoseGraph: UIView {
             ctx?.strokePath()
             let text = "\(averageValue % ".0lf")".styled.color(.darkGray).systemFont(.semibold, size: 17)
             let size = text.size()
-            var frame = CGRect(x: rect.width - self.width / 2 - size.width / 2, y: yCoor(averageValue) - 1 - size.height, width: size.width, height: size.height)
+            var frame = CGRect(x: rect.width - size.width - 8, y: yCoor(averageValue) - 1 - size.height, width: size.width, height: size.height)
             while plotter.intersects(frame) {
                 frame.origin.x -= 8
             }
