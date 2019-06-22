@@ -32,7 +32,7 @@ class PieChart: UIView {
 
     override func draw(_ rect: CGRect) {
         let ctx = UIGraphicsGetCurrentContext()
-        UIColor.white.set()
+        (backgroundColor ?? UIColor.clear).set()
         ctx?.fill(rect)
         let radius = min(rect.width, rect.height) / 2
         let center = CGPoint(x: rect.midX, y: rect.midY)

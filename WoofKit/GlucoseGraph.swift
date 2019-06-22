@@ -576,7 +576,7 @@ public class GlucoseGraph: UIView {
         let ctx = UIGraphicsGetCurrentContext()
         backgroundColor?.set()
         ctx?.fill(rect)
-        UIColor.black.set()
+        UIColor.label.set()
         ctx?.setLineWidth(1)
         ctx?.beginPath()
         ctx?.move(to: CGPoint(x: 0, y: 0))
@@ -587,8 +587,8 @@ public class GlucoseGraph: UIView {
 
         var touchLabelFrame: CGRect?
         if let touchPoint = touchPoint {
-            let c =  UIColor.blue.darker(by: 70)
-            let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
+            let c = UIColor.label
+            let str = String(format: "%02ld:%02ld", touchPoint.date.hour, touchPoint.date.minute).styled.systemFont(.bold, size: 14).color(c)
             let size = str.size()
             var p = CGPoint(x: xCoor(touchPoint.date) - size.width / 2, y: 3)
             if p.x + size.width > rect.width {
@@ -616,7 +616,7 @@ public class GlucoseGraph: UIView {
             step = 3.h
         }
         repeat {
-            UIColor.black.set()
+            UIColor.secondaryLabel.set()
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
             ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: 5))
@@ -624,7 +624,7 @@ public class GlucoseGraph: UIView {
             ctx?.move(to: CGPoint(x: tick, y: 0))
             ctx?.addLine(to: CGPoint(x: tick, y: 3))
             ctx?.strokePath()
-            let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14)
+            let str = String(format: "%02ld:%02ld", xDate.hour, xDate.minute).styled.systemFont(size: 14).color(.label)
             let size = str.size()
             let p = CGPoint(x: xCoor(xDate) - size.width / 2, y: 6)
             let stringRect = CGRect(origin: p, size: size)
@@ -644,7 +644,7 @@ public class GlucoseGraph: UIView {
         backgroundColor?.set()
         ctx?.fill(rect)
 
-        UIColor.black.set()
+        UIColor.label.set()
         ctx?.beginPath()
         ctx?.move(to: CGPoint(x: 0, y: 0))
         ctx?.addLine(to: CGPoint(x: 0, y: size.height))
@@ -653,8 +653,8 @@ public class GlucoseGraph: UIView {
         let touchLabelFrame: CGRect?
         if let touchPoint = touchPoint {
             let v = Int(round(touchPoint.value))
-            let c =  UIColor.blue.darker(by: 70)
-            let str = "\(v)".styled.systemFont(.bold, size: 14).color(c.darker(by: 50))
+            let c =  UIColor.label
+            let str = "\(v)".styled.systemFont(.bold, size: 14).color(c)
             let size = str.size()
             touchLabelFrame = CGRect(origin: CGPoint(x: 3, y: yCoor(v) - size.height / 2), size: size)
             str.draw(in: touchLabelFrame!)
@@ -662,6 +662,7 @@ public class GlucoseGraph: UIView {
             touchLabelFrame = nil
         }
 
+        UIColor.secondaryLabel.set()
         for y in yReference {
             if CGFloat(y) < self.yRange.min || CGFloat(y) > self.yRange.max {
                 continue
@@ -670,7 +671,7 @@ public class GlucoseGraph: UIView {
             ctx?.move(to: CGPoint(x: 0, y: yCoor(y)))
             ctx?.addLine(to: CGPoint(x: 5, y: yCoor(y)))
             ctx?.strokePath()
-            let label = "\(y)".styled.systemFont(size: 14)
+            let label = "\(y)".styled.systemFont(size: 14).color(.label)
             let size = label.size()
             let labelFrame = CGRect(origin: CGPoint(x: 6, y: yCoor(y) - size.height / 2), size: size)
             if rect.contains(labelFrame) && (touchLabelFrame == nil || !touchLabelFrame!.intersects(labelFrame)) {
