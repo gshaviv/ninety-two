@@ -260,7 +260,7 @@ public class Storage: NSObject {
             let predictedLow50 = CGFloat(round(averageLow - 2.2 * lowStdDev + current.value))
             let predictedTime = record.date + timeToHigh.sum() / Double(timeToHigh.count)
             
-            return Prediction(count: filtered.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
+            return Prediction(count: highs.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
 //        } else if let s = estimateInsulinReaction() {
 //            return Prediction(count: 0, mealTime: record.date, highDate: record.date, h10: 0, h50: 0, h90: 0, low50: CGFloat(current.value - s * Double(record.bolus)), low: CGFloat(current.value - s * Double(record.bolus)))
         } else {
