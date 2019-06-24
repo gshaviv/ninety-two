@@ -197,6 +197,7 @@ public class Storage: NSObject {
         }
         return meals
     }
+
     public func prediction(for record: Record, current level: Double? = nil) -> Prediction? {
         let current: GlucosePoint
         let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
@@ -237,22 +238,28 @@ public class Storage: NSObject {
             guard !highs.isEmpty else {
                 return nil
             }
-            let sortedH = highs.sorted()
-            let hq1 = sortedH.percentile(0.25)
-            let hq3 = sortedH.percentile(0.75)
-            var fence = 3 * (hq3 - hq1)
-            let filtered = sortedH.count < 4 ? sortedH : sortedH.filter { $0 > hq1 - fence && $0 < hq3 + fence }
-            let sortedL = lows.sorted()
-            let lq1 = sortedL.percentile(0.25)
-            let lq3 = sortedL.percentile(0.75)
-            fence = 2.2 * (lq3 - lq1)
-            let filteredL = sortedL.count < 4 ? sortedL : sortedL.filter { $0 > lq1 - fence && $0 < lq3 + fence }
-            let predictedHigh = CGFloat(round(filtered.median() + current.value))
-            let predictedHigh25 = CGFloat(round(filtered.percentile(0.1) + current.value))
-            let predictedHigh75 = CGFloat(round(filtered.percentile(0.9) + current.value))
-            let predictedLow = CGFloat(round(filteredL.percentile(0.1) + current.value))
-            let predictedLow50 = CGFloat(round(filteredL.median() + current.value))
-            let predictedTime = record.date + timeToHigh.sorted().median()
+//            let sortedH = highs.sorted()
+//            let hq1 = sortedH.percentile(0.25)
+//            let hq3 = sortedH.percentile(0.75)
+//            var fence = 3 * (hq3 - hq1)
+//            let filtered = sortedH.count < 4 ? sortedH : sortedH.filter { $0 > hq1 - fence && $0 < hq3 + fence }
+            let average = highs.sum() / Double(highs.count)
+            let stdDev = sqrt(highs.map { ($0 - average) ** 2 }.sum() / Double(highs.count))
+            let averageLow = lows.sum() / Double(lows.count)
+            let lowStdDev = sqrt(lows.map { ($0 - averageLow) ** 2}.sum() / Double(lows.count) )
+
+//            let sortedL = lows.sorted()
+//            let lq1 = sortedL.percentile(0.25)
+//            let lq3 = sortedL.percentile(0.75)
+//            fence = 2.2 * (lq3 - lq1)
+//            let filteredL = sortedL.count < 4 ? sortedL : sortedL.filter { $0 > lq1 - fence && $0 < lq3 + fence }
+            let predictedHigh = CGFloat(round(average + current.value))
+            let predictedHigh25 = CGFloat(round(average - 2.2 * stdDev + current.value))
+            let predictedHigh75 = CGFloat(round(average + 2.2 * stdDev + current.value))
+            let predictedLow = CGFloat(round(averageLow + current.value))
+            let predictedLow50 = CGFloat(round(averageLow - 2.2 * lowStdDev + current.value))
+            let predictedTime = record.date + timeToHigh.sum() / Double(timeToHigh.count)
+            
             return Prediction(count: filtered.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
 //        } else if let s = estimateInsulinReaction() {
 //            return Prediction(count: 0, mealTime: record.date, highDate: record.date, h10: 0, h50: 0, h90: 0, low50: CGFloat(current.value - s * Double(record.bolus)), low: CGFloat(current.value - s * Double(record.bolus)))
