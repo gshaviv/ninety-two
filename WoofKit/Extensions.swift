@@ -303,6 +303,10 @@ extension Array where Element == Double {
         return percentile(0.5)
     }
 
+    public func average() -> Double {
+        return sum() / Double(count)
+    }
+
     public func percentile(_ p:Double) -> Double {
         guard count > 1 else {
             return self[0]

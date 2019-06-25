@@ -243,10 +243,10 @@ public class Storage: NSObject {
 //            let hq3 = sortedH.percentile(0.75)
 //            var fence = 3 * (hq3 - hq1)
 //            let filtered = sortedH.count < 4 ? sortedH : sortedH.filter { $0 > hq1 - fence && $0 < hq3 + fence }
-            let average = highs.sum() / Double(highs.count)
-            let stdDev = sqrt(highs.map { ($0 - average) ** 2 }.sum() / Double(highs.count))
-            let averageLow = lows.sum() / Double(lows.count)
-            let lowStdDev = sqrt(lows.map { ($0 - averageLow) ** 2}.sum() / Double(lows.count) )
+            let average = highs.average()
+            let stdDev = sqrt(highs.map { ($0 - average) ** 2 }.average())
+            let averageLow = lows.average()
+            let lowStdDev = sqrt(lows.map { ($0 - averageLow) ** 2 }.average())
 
 //            let sortedL = lows.sorted()
 //            let lq1 = sortedL.percentile(0.25)
