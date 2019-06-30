@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14810.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
-    <device id="retina4_7" orientation="portrait" appearance="dark"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14766.15"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -397,7 +399,7 @@
                                                 <rect key="frame" x="57.5" y="4" width="260" height="60"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eyI-1G-BJB">
-                                                        <rect key="frame" x="0.0" y="0.0" width="30" height="60"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
                                                         <color key="tintColor" xcode11CocoaTouchSystemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <state key="normal" image="back"/>
                                                         <connections>
@@ -405,7 +407,7 @@
                                                         </connections>
                                                     </button>
                                                     <label opaque="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="Date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="FIm-WP-qsv">
-                                                        <rect key="frame" x="38" y="0.0" width="184" height="60"/>
+                                                        <rect key="frame" x="68" y="0.0" width="124" height="60"/>
                                                         <gestureRecognizers/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
@@ -415,7 +417,7 @@
                                                         </connections>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xjd-DV-IUK">
-                                                        <rect key="frame" x="230" y="0.0" width="30" height="60"/>
+                                                        <rect key="frame" x="200" y="0.0" width="60" height="60"/>
                                                         <color key="tintColor" xcode11CocoaTouchSystemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <state key="normal" image="forward"/>
                                                         <connections>
@@ -633,7 +635,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="% Low" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qgP-yW-g5v">
                                                         <rect key="frame" x="0.0" y="0.0" width="88.5" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -646,7 +648,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ave" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R6i-aO-GgI">
                                                         <rect key="frame" x="0.0" y="36" width="88.5" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -659,7 +661,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A1C" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IZO-D2-dEj">
                                                         <rect key="frame" x="0.0" y="72" width="88.5" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -677,7 +679,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="In Range" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cs2-kI-1gx">
                                                         <rect key="frame" x="0.0" y="0.0" width="89" height="125.5"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -691,7 +693,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Max / Min" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mzs-Jp-q2a">
                                                         <rect key="frame" x="0.0" y="143.5" width="89" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -705,7 +707,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="# Lows" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w9F-pN-dbS">
                                                         <rect key="frame" x="0.0" y="179.5" width="89" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -724,7 +726,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="% High" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="euD-7z-mMI">
                                                         <rect key="frame" x="0.0" y="0.0" width="88.5" height="125.5"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -738,7 +740,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ave TDD" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mU6-Ag-2dv">
                                                         <rect key="frame" x="0.0" y="143.5" width="88.5" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -752,7 +754,7 @@
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Med Low" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VkB-DJ-zcC">
                                                         <rect key="frame" x="0.0" y="179.5" width="88.5" height="18"/>
-                                                        <color key="backgroundColor" cocoaTouchSystemColor="tertiarySystemBackgroundColor"/>
+                                                        <color key="backgroundColor" name="Title Background"/>
                                                         <color key="tintColor" white="0.67713102309999995" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
@@ -1215,6 +1217,9 @@
         <image name="forward" width="30" height="30"/>
         <image name="more" width="27" height="23"/>
         <image name="plus" width="20" height="20"/>
+        <namedColor name="Title Background">
+            <color red="0.64999997615814209" green="0.64999997615814209" blue="0.7720000147819519" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="VGA-WN-tPe"/>
