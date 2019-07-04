@@ -47,7 +47,7 @@ class PieChart: UIView {
             ctx?.fillPath()
             angle = endAngle
         }
-        UIColor.lightGray.set()
+        UIColor.secondaryLabel.set()
         UIBezierPath(ovalIn: CGRect(origin: center - CGPoint(x: radius, y: radius), size: CGSize(width: 2 * radius, height: 2 * radius))).stroke()
     }
 }

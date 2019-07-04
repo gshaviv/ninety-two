@@ -171,6 +171,16 @@ class ViewController: UIViewController {
             agoLabel.text = ""
         }
         batteryLevelImage.image = batteryLevelIcon(for: MiaoMiao.batteryLevel)
+        switch MiaoMiao.batteryLevel {
+        case 80...:
+            batteryLevelImage.tintColor = .label
+
+        case 25 ..< 80:
+            batteryLevelImage.tintColor = .secondaryLabel
+            
+        default:
+            batteryLevelImage.tintColor = .tertiaryLabel
+        }
         batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
 
         updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
@@ -184,9 +194,9 @@ class ViewController: UIViewController {
         }
         switch MiaoMiao.sensorState {
         case .expired:
-            sensorAgeLabel.textColor = .red
+            sensorAgeLabel.textColor = .systemRed
         default:
-            sensorAgeLabel.textColor = .black
+            sensorAgeLabel.textColor = .secondaryLabel
         }
         if let trend = trend {
             trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "", trend)

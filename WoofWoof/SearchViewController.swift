@@ -26,10 +26,16 @@ class SearchViewController: UITableViewController {
         search.scopeButtonTitles = ["Any","Breakfast","Lunch","Dinner","Other"]
         search.showsScopeBar = true
         search.searchBarStyle = .minimal
-        search.scopeBarBackgroundImage = UIImage.imageWithColor(.white)
         search.delegate = self
-        view.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
-        search.barTintColor = view.tintColor
+        if #available(iOS 13.0, *) {
+            search.backgroundColor = UIColor.systemBackground
+            search.scopeBarBackgroundImage = UIImage.imageWithColor(UIColor.secondarySystemBackground)
+        } else {
+            search.scopeBarBackgroundImage = UIImage.imageWithColor(.white)
+            // Fallback on earlier versions
+        }
+//        view.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
+//        search.barTintColor = view.tintColor
         tableView.tableHeaderView = search
     }
 

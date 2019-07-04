@@ -39,6 +39,8 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Read MiaoMiao sensor</string>
 	<key>NSHealthClinicalHealthRecordsShareUsageDescription</key>
 	<string>Store Blood Glucose data from Ninety Two in HealthKit</string>
 	<key>NSHealthShareUsageDescription</key>
