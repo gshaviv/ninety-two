@@ -254,10 +254,10 @@ public class Storage: NSObject {
 //            fence = 2.2 * (lq3 - lq1)
 //            let filteredL = sortedL.count < 4 ? sortedL : sortedL.filter { $0 > lq1 - fence && $0 < lq3 + fence }
             let predictedHigh = CGFloat(round(average + current.value))
-            let predictedHigh25 = CGFloat(round(average - 2.2 * stdDev + current.value))
-            let predictedHigh75 = CGFloat(round(average + 2.2 * stdDev + current.value))
-            let predictedLow = CGFloat(round(averageLow + current.value))
-            let predictedLow50 = CGFloat(round(averageLow - 2.2 * lowStdDev + current.value))
+            let predictedHigh25 = CGFloat(round(average - 1.5 * stdDev + current.value))
+            let predictedHigh75 = CGFloat(round(average + 1.5 * stdDev + current.value))
+            let predictedLow = CGFloat(round(averageLow + current.value - 1.5 * lowStdDev))
+            let predictedLow50 = CGFloat(round(averageLow + current.value))
             let predictedTime = record.date + timeToHigh.sum() / Double(timeToHigh.count)
             
             return Prediction(count: highs.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
