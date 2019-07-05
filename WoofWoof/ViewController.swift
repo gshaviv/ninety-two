@@ -772,13 +772,12 @@ extension ViewController: GlucoseGraphDelegate {
     }
 
     func didTouch(record: Record) {
+        var showBasedOnMeals = true
+        if let last = lastTouchedRecord, last.id == record.id {
+            showBasedOnMeals = false
+        }
         DispatchQueue.global().async {
             let prediction: Prediction?
-            var showBasedOnMeals = true
-            if let last = self.lastTouchedRecord, last.id == record.id {
-                showBasedOnMeals = false
-            }
-
             let basedOnMeals = Storage.default.prediction(for: record)
             prediction =  showBasedOnMeals ? basedOnMeals ?? Storage.default.calculatedLevel(for: record) : Storage.default.calculatedLevel(for: record)
             DispatchQueue.main.async {
