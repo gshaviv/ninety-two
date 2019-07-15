@@ -53,7 +53,7 @@ class RecordViewController: UIViewController {
         let fromMeals = Storage.default.allMeals.filter { $0.mealId == nil }.compactMap { $0.note }.unique().sorted()
         let setFromMeals = Set(fromMeals)
         let additionalWords = words.filter { !setFromMeals.contains($0) }.sorted()
-        return fromMeals.map { $0.styled.traits(.traitBold) } + additionalWords.map { $0.styled }
+        return fromMeals.map { $0.styled.traits(.traitBold).color(.label) } + additionalWords.map { $0.styled.color(.label) }
     }()
     private lazy var words: [String] = {
         let all = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: Bundle(for: Storage.self).path(forResource: "words", ofType: "json")!)), options: []) as! [String: Any]
@@ -326,6 +326,9 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
         }
         meal.append(serving)
         mealTable.reloadData()
+        if picker.selectedRow(inComponent: Component.meal.rawValue) == .none {
+            picker.selectRow(Record.MealType.other.rawValue + 1, inComponent: Component.meal.rawValue, animated: true)
+        }
         predict()
     }
 
