@@ -82,27 +82,25 @@ class SummaryViewController: UIViewController {
 
                             maxG = max(maxG, gp.value)
                             minG = min(minG, gp.value)
-                            if gp.value >= defaults[.minRange] && gp.value < defaults[.maxRange] {
-                                let key: UserDefaults.ColorKey
-                                switch gp.value {
-                                case ...defaults[.level0]:
-                                    key = .color0
-                                case ...defaults[.level1]:
-                                    key = .color1
-                                case ...defaults[.level2]:
-                                    key = .color2
-                                case ...defaults[.level3]:
-                                    key = .color3
-                                case ...defaults[.level4]:
-                                    key = .color4
-                                default:
-                                    key = .color5
-                                }
-                                if let time = bands[key] {
-                                    bands[key] = time + duration
-                                } else {
-                                    bands[key] = duration
-                                }
+                            let key: UserDefaults.ColorKey
+                            switch gp.value {
+                            case ...defaults[.level0]:
+                                key = .color0
+                            case ...defaults[.level1]:
+                                key = .color1
+                            case ...defaults[.level2]:
+                                key = .color2
+                            case ...defaults[.level3]:
+                                key = .color3
+                            case ...defaults[.level4]:
+                                key = .color4
+                            default:
+                                key = .color5
+                            }
+                            if let time = bands[key] {
+                                bands[key] = time + duration
+                            } else {
+                                bands[key] = duration
                             }
 
                             if gp.value < defaults[.minRange] {
@@ -143,18 +141,19 @@ class SummaryViewController: UIViewController {
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
                         self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        var slices = [UserDefaults.ColorKey.color0,
+                        let slices = [UserDefaults.ColorKey.color0,
                                       UserDefaults.ColorKey.color1,
                                       UserDefaults.ColorKey.color2,
                                       UserDefaults.ColorKey.color3,
-                                      UserDefaults.ColorKey.color4].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
+                                      UserDefaults.ColorKey.color4,
+                                      UserDefaults.ColorKey.color5].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
                                         if let v = bands[key] {
                                             return PieChart.Slice(value: CGFloat(v), color: defaults[key])
                                         } else {
                                             return nil
                                         }
                         }
-                        slices += [PieChart.Slice(value: CGFloat(timeAbove), color: .yellow), PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
+//                        slices += [PieChart.Slice(value: CGFloat(timeAbove), color: .yellow), PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
                         self.pieChart.slices = slices
                     }
                 }
