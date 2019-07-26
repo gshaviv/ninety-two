@@ -141,12 +141,12 @@ class SummaryViewController: UIViewController {
                         self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
                         self.a1cLabel.text = String(format: "%.1lf%%", a1c)
-                        let slices = [UserDefaults.ColorKey.color0,
-                                      UserDefaults.ColorKey.color1,
-                                      UserDefaults.ColorKey.color2,
+                        let slices = [UserDefaults.ColorKey.color2,
                                       UserDefaults.ColorKey.color3,
                                       UserDefaults.ColorKey.color4,
-                                      UserDefaults.ColorKey.color5].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
+                                      UserDefaults.ColorKey.color5,
+                                      UserDefaults.ColorKey.color1,
+                                      UserDefaults.ColorKey.color0].compactMap { (key: UserDefaults.ColorKey) -> PieChart.Slice? in
                                         if let v = bands[key] {
                                             return PieChart.Slice(value: CGFloat(v), color: defaults[key])
                                         } else {
