@@ -28,44 +28,54 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationWillEnterForeground() {
-        refresh(blank: true)
+        refresh(blank: .dim)
         NotificationCenter.default.post(name: WKExtension.willEnterForegroundNotification, object: nil)
     }
 
     func applicationDidEnterBackground() {
         NotificationCenter.default.post(name: WKExtension.didEnterBackgroundNotification, object: nil)
     }
+    
+    func applicationDidBecomeActive() {
+        refresh(blank: .little)
+    }
 
-
-    func refresh(blank: Bool = false) {
-        guard Date() - lastRefreshDate > 15.s else {
+    private var isSending = false
+    func refresh(blank: InterfaceController.DimState = .none) {
+        guard Date() - lastRefreshDate > 15.s && !isSending else {
             return
         }
-        if blank, let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.isDimmed = true
+        
+        isSending = true
+        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
         }
         WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
+            self.isSending = false
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double else {
                 return
             }
-            self.iob = iob
-            self.lastRefreshDate = Date()
-            self.trendValue = t
-            self.trendSymbol = s
-            self.readings = m.compactMap {
-                guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                    return nil
+            DispatchQueue.main.async {
+                log("iob=\(iob)")
+                self.iob = iob
+                self.lastRefreshDate = Date()
+                self.trendValue = t
+                self.trendSymbol = s
+                self.readings = m.compactMap {
+                    guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                        return nil
+                    }
+                    return GlucosePoint(date: d, value: v)
                 }
-                return GlucosePoint(date: d, value: v)
-            }
-            if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                DispatchQueue.main.async {
-                    controller.update()
+                if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
+                    DispatchQueue.main.async {
+                        controller.update()
+                    }
                 }
-            }
-            if let symbol = info["c"] as? String, let last = self.readings.last?.date, symbol != self.data.string {
-                self.data = DisplayValue(date: last, string: symbol)
-                self.reloadComplication()
+                if let symbol = info["c"] as? String, let last = self.readings.last?.date, symbol != self.data.string {
+                    self.data = DisplayValue(date: last, string: symbol)
+                    self.reloadComplication()
+                }
             }
         }) { (_) in
             if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
@@ -86,7 +96,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                    ctr.isDimmed = true
+                    ctr.isDimmed = .dim
                 }
                 
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
@@ -120,7 +130,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if session.activationState == .activated {
             DispatchQueue.main.async {
-                self.refresh(blank: true)
+                self.refresh(blank: .dim)
             }
         }
     }

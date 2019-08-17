@@ -299,12 +299,14 @@ extension Array where Element: Numeric, Element: Comparable {
 }
 
 extension Array where Element == Double {
+    
     public func median() -> Double {
         return percentile(0.5)
     }
 
     public func average() -> Double {
-        return sum() / Double(count)
+        let notnan = filter { $0.isNaN == false }
+        return notnan.sum() / Double(notnan.count)
     }
 
     public func percentile(_ p:Double) -> Double {

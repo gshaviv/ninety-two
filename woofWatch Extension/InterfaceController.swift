@@ -14,14 +14,35 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var trendLabel: WKInterfaceLabel!
     @IBOutlet var agoLabel: WKInterfaceLabel!
     @IBOutlet var imageView: WKInterfaceImage!
-    var isDimmed = false {
+    enum DimState: Int8 {
+        case none
+        case little
+        case dim
+    }
+    var isDimmed = DimState.none {
         didSet {
-            glucoseLabel.setAlpha(isDimmed ? 0.3 : 1)
-            trendLabel.setAlpha(isDimmed ? 0.3 : 1)
-            agoLabel.setAlpha(isDimmed ? 0.3 : 1)
-            imageView.setAlpha(isDimmed ? 0.65 : 1)
-            if !isDimmed {
+            switch isDimmed {
+            case .none:
+                glucoseLabel.setAlpha(1)
+                trendLabel.setAlpha(1)
+                agoLabel.setAlpha(1)
+                imageView.setAlpha(1)
+                if oldValue != .little {
                 updateTime()
+                }
+
+            case .little:
+                glucoseLabel.setAlpha(0.65)
+                trendLabel.setAlpha(0.3)
+                agoLabel.setAlpha(0.3)
+                imageView.setAlpha(1)
+                updateTime()
+                
+            case .dim:
+                glucoseLabel.setAlpha(0.3)
+                trendLabel.setAlpha(0.3)
+                agoLabel.setAlpha(0.3)
+                imageView.setAlpha(0.65)
             }
         }
     }
@@ -52,17 +73,20 @@ class InterfaceController: WKInterfaceController {
                 }
             }
         }
-        if isDimmed || triggered {
+        if isDimmed == .dim || triggered {
             return
         }
         if cancelUpdate {
             cancelUpdate = false
             return
         }
-        if WKExtension.shared().applicationState == .background || isDimmed {
+        if WKExtension.shared().applicationState == .background || isDimmed != .none {
             return
         }
         if let last = WKExtension.extensionDelegate.readings.last {
+            if Date() - last.date > 1.m && WKExtension.shared().applicationState == .active {
+                WKExtension.extensionDelegate.refresh(blank: .none)
+            }
             let minutes = Int(Date().timeIntervalSince(last.date))
             let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
             let attr: NSAttributedString
@@ -82,7 +106,7 @@ class InterfaceController: WKInterfaceController {
         guard let last = WKExtension.extensionDelegate.readings.last else {
             return
         }
-        isDimmed = false
+        isDimmed = .none
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
 
         glucoseLabel.setText("\(levelStr)\(WKExtension.extensionDelegate.trendSymbol)")
@@ -106,7 +130,7 @@ class InterfaceController: WKInterfaceController {
     }
 
     func showError() {
-        isDimmed = false
+        isDimmed = .none
         cancelUpdate = true
         glucoseLabel.setText("?")
         trendLabel.setText("")

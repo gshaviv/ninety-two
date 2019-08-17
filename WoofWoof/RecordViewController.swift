@@ -108,16 +108,23 @@ class RecordViewController: UIViewController {
         if let kind = editRecord?.type {
             picker.selectRow(kind.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
         } else {
+            var candidateType : Record.MealType? = nil
             switch now.hour {
             case 5...10:
-                picker.selectRow(Record.MealType.breakfast.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
+                candidateType = Record.MealType.breakfast
             case 11...14:
-                picker.selectRow(Record.MealType.lunch.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
+                candidateType = Record.MealType.lunch
             case 18...21:
-                picker.selectRow(Record.MealType.dinner.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
+                candidateType = Record.MealType.dinner
             default:
                 picker.selectRow(0, inComponent: Component.meal.rawValue, animated: false)
                 picker.selectRow(1, inComponent: Component.units.rawValue, animated: false)
+            }
+            if candidateType != nil {
+                if Storage.default.allMeals.first(where: { $0.date > Date().startOfDay && $0.type == candidateType }) != nil {
+                    candidateType = Record.MealType.other
+                }
+                picker.selectRow(candidateType!.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
             }
         }
         if let units = editRecord?.bolus {

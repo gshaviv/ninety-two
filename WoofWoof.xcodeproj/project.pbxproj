@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
+		E401514E22FA02FC00ACCF84 /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; };
 		E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
@@ -1244,6 +1245,7 @@
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
 				E42E2AAB21DF28C7004FD560 /* InterfaceController.swift in Sources */,
 				E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */,
+				E401514E22FA02FC00ACCF84 /* log.swift in Sources */,
 				E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
