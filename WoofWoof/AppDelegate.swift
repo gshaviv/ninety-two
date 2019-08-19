@@ -305,6 +305,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        if activationState == .activated {
+            updateDefaults()
+        }
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {
@@ -328,6 +331,7 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        updateDefaults()
         guard let op = message["op"] as? String else {
             return
         }
@@ -474,6 +478,20 @@ extension AppDelegate: NSFilePresenter {
 
     var presentedItemOperationQueue: OperationQueue {
         return sharedOperationQueue
+    }
+}
+
+extension AppDelegate {
+    func updateDefaults() {
+        if defaults[.needsUpdateDefaults] {
+            WCSession.default.sendMessage(["defaults": defaults.dictionaryRepresentation()], replyHandler: { (response) in
+                if let stat = response["ok"] as? Bool, stat {
+                    defaults[.needsUpdateDefaults] = false
+                }
+            }) { (_) in
+                
+            }
+        }
     }
 }
 

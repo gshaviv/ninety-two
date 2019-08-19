@@ -140,13 +140,15 @@ class InterfaceController: WKInterfaceController {
 
 
     func createImage() -> UIImage? {
-        let colors = [0 ... 55: UIColor.red,
-                      55 ... 70: UIColor.red.lighter(),
-                      70 ... 110: UIColor.green,
-                      110 ... 140: UIColor.green.lighter(by: 40),
-                      140 ... 180: UIColor.green.lighter(by: 70),
-                      180 ... 999: UIColor.yellow]
-        let yReference = [35, 40, 50, 60, 70, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+//        var colors = [(Double,Double,UIColor)]()
+//        colors.append((0, defaults[.level0] , defaults[.color0] ))
+        let colors = [0 ... defaults[.level0]: defaults[.color0] ,
+                      defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
+                      defaults[.level1] ... defaults[.level2]: defaults[.color2] ,
+                      defaults[.level2] ... defaults[.level3]: defaults[.color3] ,
+                      defaults[.level3] ... defaults[.level4]: defaults[.color4] ,
+                      defaults[.level4] ... 999: defaults[.color5] ]
+        let yReference = [35, 40, 50, 60, 70, 80, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
         let lineWidth:CGFloat = 3
         let dotRadius:CGFloat = 4
 

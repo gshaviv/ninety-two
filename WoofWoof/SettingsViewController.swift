@@ -23,6 +23,11 @@ class SettingsViewController: UITableViewController {
     }
     private var settings: [Setting] = []
     private var grouped: [(title: String?, items: [Setting])] = []
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        defaults[.needsUpdateDefaults] = true
+    }
 
     public func addRow(title: String, subtitle: String? = nil, configure: ((UITableViewCell) -> Void)? = nil, didSelect: @escaping () -> Void) {
         settings.append(Setting.row(title, subtitle, configure, didSelect))

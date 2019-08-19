@@ -21,6 +21,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var readings =  [GlucosePoint]()
     private(set) public var iob: Double = 0
     private var lastRefreshDate = Date.distantPast
+    
+    override init() {
+        defaults.register()
+    }
 
     func applicationDidFinishLaunching() {
         WCSession.default.delegate = self
@@ -42,8 +46,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     private var isSending = false
     func refresh(blank: InterfaceController.DimState = .none) {
-        guard Date() - lastRefreshDate > 15.s && !isSending else {
+        guard Date() - lastRefreshDate > 20.s && !isSending else {
             return
+        }
+        if let last = readings.last {
+            if last.value >= 70 && Date() - last.date < 3.m {
+                return
+            } else if last.value < 70 && Date() - last.date < 1.m {
+                return
+            }
         }
         
         isSending = true
@@ -78,6 +89,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 }
             }
         }) { (_) in
+            self.isSending = false
             if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
                 DispatchQueue.main.async {
                     controller.showError()
@@ -139,6 +151,7 @@ extension ExtensionDelegate: WCSessionDelegate {
         if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? String {
             data = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
             reloadComplication()
+            self.isSending = false
         }
     }
 
@@ -148,6 +161,7 @@ extension ExtensionDelegate: WCSessionDelegate {
         }
         trendValue = t
         trendSymbol = s
+        isSending = false
         readings = m.compactMap {
             guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
                 return nil
@@ -160,6 +174,25 @@ extension ExtensionDelegate: WCSessionDelegate {
             }
         }
     }
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        if let dflt = message["defaults"] as? [String: Any] {
+            dflt.forEach {
+                switch $0.value {
+                case let v as Double:
+                    defaults.set(v, forKey: $0.key)
+                    
+                case let v as String:
+                    defaults.set(v, forKey: $0.key)
+                    
+                default:
+                    return
+                }
+            }
+        }
+        replyHandler(["ok": true])
+    }
+    
 }
 
 extension WKExtension {
