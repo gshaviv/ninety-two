@@ -23,23 +23,37 @@ class SummaryViewController: UIViewController {
     @IBOutlet var maxLabel: UILabel!
     @IBOutlet var minLabel: UILabel!
     @IBOutlet var medianLowLabel: UILabel!
+    var listen: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         preferredContentSize = stackView.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width, height: 0), withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.fittingSizeLevel)
         updateSummary()
-        NotificationCenter.default.addObserver(self, selector: #selector(updateSummary), name: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil)
+        listen = NotificationCenter.default.addObserver(forName: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil, queue: OperationQueue.main) { (_) in
+            self.updateSummary(show: true)
+        }
     }
     
 
-    @objc public func updateSummary() {
+    @objc public func updateSummary(show: Bool = false) {
         do {
             defaults[.lastStatisticsCalculation] = Date()
             let child = try Storage.default.db.createChild()
             var lowCount = 0
             var inLow = false
             summaryPeriodLabel.text = "Last \(defaults.summaryPeriod == 1 ? 24 : defaults.summaryPeriod) \(defaults.summaryPeriod > 1 ? "Days" : "Hours")"
+            if show {
+                lowCountLabel.text = "?"
+                medianLowLabel.text = "?"
+                maxLabel.text = "?"
+                minLabel.text = "?"
+                percentLowLabel.text = "?"
+                percentInRangeLabel.text = "?"
+                percentHighLabel.text = "?"
+                aveGlucoseLabel.text = "?"
+                a1cLabel.text = "?"
+            }
             DispatchQueue.global().async {
                 var lowStart: Date?
                 var lowTime = [TimeInterval]()
@@ -153,7 +167,6 @@ class SummaryViewController: UIViewController {
                                             return nil
                                         }
                         }
-//                        slices += [PieChart.Slice(value: CGFloat(timeAbove), color: .yellow), PieChart.Slice(value: CGFloat(timeBelow), color: .red)]
                         self.pieChart.slices = slices
                     }
                 }
