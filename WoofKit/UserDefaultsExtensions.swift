@@ -122,6 +122,7 @@ extension UserDefaults {
                                        BoolKey.includeDailyReport.key: true,
                                        BoolKey.includePatternReport.key: true,
                                        BoolKey.alertVibrate.key: true,
+                                       BoolKey.needsUpdateDefaults.key: true
                                        ]
 
         register(defaults: defaults)

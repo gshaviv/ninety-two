@@ -61,7 +61,11 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
             ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
         }
-        WCSession.default.sendMessage(["op":"state"], replyHandler: { (info) in
+        var ops = ["state"]
+        if defaults[.needsUpdateDefaults] {
+            ops.append("defaults")
+        }
+        WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
             self.isSending = false
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double else {
                 return
@@ -190,6 +194,7 @@ extension ExtensionDelegate: WCSessionDelegate {
                 }
             }
         }
+        defaults[.needsUpdateDefaults] = false
         replyHandler(["ok": true])
     }
     

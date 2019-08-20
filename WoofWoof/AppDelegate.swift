@@ -332,15 +332,20 @@ extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         updateDefaults()
-        guard let op = message["op"] as? String else {
+        guard let ops = message["op"] as? [String] else {
             return
         }
-        switch op {
-        case "state":
-            replyHandler(appState())
-
-        default:
-            break
+        ops.forEach {
+            switch $0 {
+            case "state":
+                replyHandler(appState())
+                
+            case "defaults":
+                updateDefaults()
+                
+            default:
+                break
+            }
         }
     }
 }
