@@ -14,6 +14,8 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var trendLabel: WKInterfaceLabel!
     @IBOutlet var agoLabel: WKInterfaceLabel!
     @IBOutlet var imageView: WKInterfaceImage!
+    @IBOutlet var loadingImage: WKInterfaceImage!
+    private lazy var indicator: EMTLoadingIndicator = EMTLoadingIndicator(interfaceController: self, interfaceImage: loadingImage, width: 40, height: 40, style: .dot)
     enum DimState: Int8 {
         case none
         case little
@@ -30,19 +32,22 @@ class InterfaceController: WKInterfaceController {
                 if oldValue != .little {
                 updateTime()
                 }
-
+                indicator.hide()
+ 
             case .little:
                 glucoseLabel.setAlpha(0.65)
                 trendLabel.setAlpha(0.3)
                 agoLabel.setAlpha(0.3)
                 imageView.setAlpha(1)
                 updateTime()
-                
+                indicator.showWait()
+
             case .dim:
                 glucoseLabel.setAlpha(0.3)
                 trendLabel.setAlpha(0.3)
                 agoLabel.setAlpha(0.3)
                 imageView.setAlpha(0.65)
+                indicator.showWait()
             }
         }
     }
@@ -51,6 +56,7 @@ class InterfaceController: WKInterfaceController {
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        imageView.setAlpha(0)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
     }
 
