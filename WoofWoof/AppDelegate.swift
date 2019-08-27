@@ -245,9 +245,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "⇈"
         } else if trend > 1.0 {
             return "↑"
-        } else if trend > 0.4 {
+        } else if trend > 0.33 {
             return "↗︎"
-        } else if trend > -0.3 {
+        } else if trend > -0.33 {
             return "→"
         } else if trend > -1.0 {
             return "↘︎"
@@ -322,7 +322,12 @@ extension AppDelegate: WCSessionDelegate {
     func appState() -> [String:Any] {
         let now = Date()
         let relevant = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date, $0.value] }
-        let state:[String:Any] = ["v": relevant, "t": currentTrend ?? 0, "s": trendSymbol(), "c": defaults[.complicationState] ?? "--", "iob": Storage.default.insulinOnBoard(at: now)]
+        let state:[String:Any] = ["v": relevant,
+                                  "t": currentTrend ?? 0,
+                                  "s": trendSymbol(),
+                                  "c": defaults[.complicationState] ?? "--",
+                                  "iob": Storage.default.insulinOnBoard(at: now),
+                                  "ia": Storage.default.insulinAction(at: now)]
         return state
     }
 

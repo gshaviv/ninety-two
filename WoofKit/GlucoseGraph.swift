@@ -241,14 +241,16 @@ public class GlucoseGraph: UIView {
             ctx?.beginPath()
             UIColor.blue.withAlphaComponent(0.4).set()
             ctx?.setLineDash(phase: 0, lengths: [2,8])
+            if prediction.h90 > 0 {
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h90)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90)))
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h10)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10)))
+            }
             ctx?.move(to: CGPoint(x: xCoor(prediction.mealTime), y: yCoor(prediction.h50)))
             ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50)))
             ctx?.strokePath()
-            if prediction.mealCount > 0 {
+            if prediction.low > 30 && prediction.low50 > 30 {
                 ctx?.beginPath()
                 UIColor.blue.withAlphaComponent(0.6).set()
                 ctx?.setLineDash(phase: 0, lengths: [4,14])
@@ -265,7 +267,7 @@ public class GlucoseGraph: UIView {
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
             }
-            if prediction.h10 < prediction.h50 {
+            if prediction.h10 < prediction.h50 && prediction.h10 > 0 {
                 let prefix = prediction.mealCount > 2 ? "90% > " : ""
                 let text = "\(prefix)\(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()

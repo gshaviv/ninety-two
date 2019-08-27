@@ -14,7 +14,12 @@
                     <items>
                         <group width="1" alignment="left" id="guQ-eW-pCe">
                             <items>
-                                <label alignment="left" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
+                                <group alignment="left" verticalAlignment="center" layout="overlap" id="g5N-Tx-VoY">
+                                    <items>
+                                        <label alignment="center" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
+                                        <imageView width="16" height="16" alignment="center" verticalAlignment="center" id="C5j-xp-RM6"/>
+                                    </items>
+                                </group>
                                 <label alignment="center" verticalAlignment="center" text="95x" id="CJy-43-4iV">
                                     <color key="textColor" red="0.83216959239999999" green="0.98548370600000001" blue="0.47333085539999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <fontDescription key="font" style="UICTFontTextStyleTitle1"/>
@@ -22,12 +27,7 @@
                                 <label alignment="right" verticalAlignment="center" text="1m" id="8eL-2P-Wbi"/>
                             </items>
                         </group>
-                        <group width="1" alignment="left" layout="overlap" id="BJC-iM-M7F">
-                            <items>
-                                <imageView width="1" height="110" alignment="center" verticalAlignment="center" contentMode="scaleAspectFit" id="o4d-03-Fc5"/>
-                                <imageView width="40" height="40" alignment="center" verticalAlignment="center" id="C5j-xp-RM6"/>
-                            </items>
-                        </group>
+                        <imageView width="1" height="110" alignment="center" verticalAlignment="center" contentMode="scaleAspectFit" id="o4d-03-Fc5"/>
                     </items>
                     <connections>
                         <outlet property="agoLabel" destination="8eL-2P-Wbi" id="7iU-O3-LL7"/>

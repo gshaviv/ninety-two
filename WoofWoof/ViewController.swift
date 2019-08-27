@@ -32,7 +32,8 @@ class ViewController: UIViewController {
     @IBOutlet var iobLabel: UILabel!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
-
+    @IBOutlet weak var insulinActionLabel: UILabel!
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
         case let c as SummaryViewController:
@@ -76,6 +77,21 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func ShowInsulatinAction(_ sender: Any) {
+        insulinActionLabel.isHidden = false
+        insulinActionLabel.alpha = 0
+        UIView.animate(withDuration: 0.3) {
+            self.insulinActionLabel.alpha = 1
+            self.iobLabel.alpha = 0
+        }
+        UIView.animate(withDuration: 0.3, delay: 2, options: .curveLinear, animations: {
+            self.insulinActionLabel.alpha = 0
+            self.iobLabel.alpha = 1
+        }, completion: { _ in
+            self.insulinActionLabel.isHidden = true
+        })
+    }
+    
     private func batteryLevelIcon(for level: Int) -> UIImage {
         switch level {
         case 90...:
@@ -205,8 +221,10 @@ class ViewController: UIViewController {
         }
         let iob = Storage.default.insulinOnBoard(at: Date())
         if iob > 0 && UIScreen.main.bounds.width > 350.0 {
+            let action = Storage.default.insulinAction(at: Date())
             iobLabel.text = "BOB\n\(iob % ".1lf")"
             iobLabel.isHidden = false
+            insulinActionLabel.text = "\(action % ".2lf")"
         } else {
             iobLabel.isHidden = true
         }
@@ -594,6 +612,35 @@ class ViewController: UIViewController {
                 }
             }
         }
+        ctr.addButton("Training Data") {
+            DispatchQueue.global().async {
+                let all = Storage.default.mealData()
+                let clean = all.filter { $0.iob == 0 && $0.cob == 0 }
+                let write = { (data:[Storage.Datum], filename: String) in
+                    let content = data.reduce(into: "kind,start,carbs,high,low,end,bolus,iob,cob\n") {
+                        $0.append("\($1.kind),\($1.start.decimal(digits:1)),\($1.carbs.decimal(digits: 0)),\($1.high.decimal(digits:1)),\($1.low.decimal(digits:1)),\($1.end.decimal(digits:1)),\($1.bolus),\($1.iob.decimal(digits:2)),\($1.cob.decimal(digits:2))\n")
+                    }
+                    try? content.write(toFile: filename, atomically: true, encoding: .ascii)
+                }
+                let tmpDir = NSTemporaryDirectory()
+                let allFile = tmpDir.appending(pathComponent: "all.csv")
+                write(all, allFile)
+                let cFile = tmpDir.appending(pathComponent: "clear.csv")
+                write(clean, cFile)
+                let zipFile = tmpDir.appending(pathComponent: "csv.zip")
+                try? Zip.zipFiles(paths: [URL(fileURLWithPath:allFile), URL(fileURLWithPath:cFile)], zipFilePath: URL(fileURLWithPath:zipFile), password: nil, progress: nil)
+                DispatchQueue.main.async {
+                    let activityController = UIActivityViewController(activityItems: [URL(fileURLWithPath:zipFile)], applicationActivities: nil)
+                    activityController.excludedActivityTypes = [.postToTwitter, .postToFacebook, .message, .postToWeibo, .print, .copyToPasteboard, .assignToContact]
+                    activityController.completionWithItemsHandler = { _,_,_,_ in
+                        try? FileManager.default.removeItem(at: URL(fileURLWithPath: zipFile))
+                        try? FileManager.default.removeItem(at: URL(fileURLWithPath: allFile))
+                        try? FileManager.default.removeItem(at: URL(fileURLWithPath: cFile))
+                    }
+                    self.present(activityController, animated: true, completion: nil)
+                }
+            }
+        }
         if let old = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < Date() - 1.y).limit(1)), !old.isEmpty {
             ctr.addButton("Delete records older than 1y") {
                 do {
@@ -610,6 +657,7 @@ class ViewController: UIViewController {
             }
         }
         show(ctr, sender: nil)
+//        present(ctr, animated: true, completion: nil)
     }
 
     @objc private func deletedPoints() {
@@ -783,12 +831,12 @@ extension ViewController: GlucoseGraphDelegate {
             DispatchQueue.main.async {
                 self.graphView.prediction = prediction
             }
-            if ParamsPerTimeOfDay.params(for: record.date) == nil && (!showBasedOnMeals || basedOnMeals == nil) {
-                RecordViewController.estimatePerTime(for: record.date)
-                DispatchQueue.main.async {
-                    self.graphView.prediction = Storage.default.calculatedLevel(for: record)
-                }
-            }
+//            if ParamsPerTimeOfDay.params(for: record.date) == nil && (!showBasedOnMeals || basedOnMeals == nil) {
+//                RecordViewController.estimatePerTime(for: record.date)
+//                DispatchQueue.main.async {
+//                    self.graphView.prediction = Storage.default.calculatedLevel(for: record)
+//                }
+//            }
         }
         self.lastTouchedRecord = record
         DispatchQueue.main.after(withDelay: 3, closure: {

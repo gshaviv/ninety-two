@@ -53,64 +53,31 @@ public class Storage: NSObject {
     }
 
     public func calculatedLevel(for record: Record, currentLevel: Double? = nil) -> Prediction? {
-        guard record.isBolus || record.carbs > 0 else {
+        guard defaults[.parameterCalcDate] != nil && (record.isBolus || record.carbs > 0) else {
             return nil
         }
-        let bolus = Double(record.bolus)
-        let bob = record.insulinOnBoardAtStart
-        let duration = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 1.m
-        let cob = Storage.default.allMeals.filter { $0.date < record.date && $0.date > record.date - duration }.map { $0.carbs * (1 - ($0.date - record.date) / duration) }.sum()
-
-        let when = record.date + (defaults[.delayMinutes] + defaults[.diaMinutes]) * 1.m
+        let bolus = Double(record.bolus) + record.insulinOnBoardAtStart
+        let carbs = record.carbs + record.cobOnStart
         let current: Double
-        let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date + 1.h && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
         if let level = currentLevel {
             current = level
         } else {
-            if readings.isEmpty {
-                return nil
-            } else if let last = readings.last, last.date < record.date {
-                return nil
+            let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date  && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
+            if let last = readings.last {
+                current = last.value
             } else {
-                let points = readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) }
-                let interp = AkimaInterpolator(points: points)
-                current = Double(interp.interpolateValue(at: CGFloat(record.date.timeIntervalSince1970)))
+                return nil
             }
         }
-        if let (ri,rc,ci) = ParamsPerTimeOfDay.params(for: record.date), ri.count > 0 {
-            var p = [Double]()
-            for i in 0 ..< ri.count {
-                p.append(current + max(0,record.carbs + cob - ci[i]) * rc[i] - ri[i] * (bolus + bob))
-            }
-            p.sort()
-            let predictedValue = p.median()
-            let highest = p.percentile(0.75)
-            let lowest = p.percentile(0.25)
 
-            return Prediction(count: 0, mealTime: record.date, highDate: when, h10: max(30,CGFloat(lowest)), h50: max(30,CGFloat(predictedValue)), h90: max(40,CGFloat(highest)), low50: 0, low: 0)
-        }
+        let high = CGFloat(carbs * (defaults[.ch] + carbs * defaults[.ch2])  - bolus * (defaults[.ih] + bolus * defaults[.ih2]) + current)
+        let low = CGFloat(carbs * (defaults[.cl] + carbs * defaults[.cl2])  - bolus * (defaults[.il] + bolus * defaults[.il2])  + current)
+        let end = CGFloat(carbs * (defaults[.ce] + carbs * defaults[.ce2])  - bolus * (defaults[.ie] + bolus * defaults[.ie2])  + current)
 
-        guard defaults[.parameterCalcDate] != nil else {
-            return nil
-        }
-
-        let ri = defaults[.insulinRate] ?? []
-        guard ri.count > 0 else {
-            return nil
-        }
-        let rc = defaults[.carbRate] ?? []
-        let ci = defaults[.carbThreshold] ?? []
-        var p = [Double]()
-        for i in 0 ..< ri.count {
-            p.append(current + (max(0,record.carbs - ci[i]) + cob) * rc[i] - ri[i] * (bolus + bob))
-        }
-        p.sort()
-        let predictedValue = p.median()
-        let highest = p.percentile(0.75)
-        let lowest = p.percentile(0.25)
-
-        return Prediction(count: 0, mealTime: record.date, highDate: when, h10: max(30,CGFloat(lowest)), h50: max(30,CGFloat(predictedValue)), h90: max(40,CGFloat(highest)), low50: 0, low: 0)
+        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: 0, h50: high, h90: 0, low50: max(end,low), low: min(end,low))
     }
+    
+
 
     public func estimateInsulinReaction() -> Double? {
         let boluses = allEntries.enumerated().compactMap { (arg) -> (record:Record, time:TimeInterval)? in
@@ -147,6 +114,98 @@ public class Storage: NSObject {
         }
 
         return impact.sum() / Double(impact.count)
+    }
+    
+    public struct Datum {
+        public let start: Double
+        public let kind: String
+        public fileprivate(set) var high: Double
+        public fileprivate(set) var low: Double
+        public let end: Double
+        public let carbs: Double
+        public let bolus: Int
+        public let iob: Double
+        public let cob: Double
+    }
+    
+    public func mealData() -> [Datum] {
+        var datum = [Datum]()
+        let timeframe = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        var hadMeal = false
+        var skip = 0
+        for (idx,entry) in allEntries.enumerated() {
+            if skip > 0 {
+                skip -= 1
+                continue
+            }
+            guard !entry.isMeal || entry.carbs > 0 else {
+                continue
+            }
+            guard Date() - entry.date < 150.d else {
+                continue
+            }
+            var mealtime = timeframe
+            hadMeal = hadMeal || entry.isMeal
+            if !hadMeal {
+                continue
+            }
+            var totalCarbs = entry.carbs
+            var totalBolus = entry.bolus
+            while idx + skip < allEntries.count - 1 {
+                let nextEntry = allEntries[idx + skip + 1]
+                if nextEntry.date - entry.date < timeframe || !nextEntry.isMeal {
+                    totalBolus += nextEntry.bolus
+                    totalCarbs += nextEntry.carbs
+                    mealtime = nextEntry.date + timeframe - entry.date
+                    continue
+                } 
+                if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
+                    mealtime = 5.h
+                }
+            }
+            let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > entry.date - 15.m && GlucosePoint.date < entry.date + mealtime + 15.m).orderBy(GlucosePoint.date)) ?? []
+            guard !readings.isEmpty else {
+                continue
+            }
+            let points = readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) }
+            let interp = AkimaInterpolator(points: points)
+            
+            var entryData = Datum(start: readings[0].value,
+                                  kind: entry.type?.name ?? "bolus",
+                                  high: 0,
+                                  low: Double.greatestFiniteMagnitude,
+                                  end: Double(interp.interpolateValue(at: CGFloat(entry.date.timeIntervalSince1970) + CGFloat(timeframe))),
+                                  carbs: totalCarbs,
+                                  bolus: totalBolus,
+                                  iob: entry.insulinOnBoardAtStart,
+                                  cob: entry.cobOnStart)
+            var last = readings.first!.date
+            var isValid = true
+            for point in readings {
+                let time = point.date
+                if time - last > 30.m {
+                    isValid = false
+                    break
+                }
+                last = time
+                if time < entry.date {
+                    continue
+                }
+                let value = point.value
+                if value > entryData.high {
+                    entryData.high = value
+                }
+                if value < entryData.low {
+                    entryData.low = value
+                }
+            }
+            
+            guard isValid && entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
+                continue
+            }
+            datum.append(entryData)
+        }
+        return datum
     }
 
     public func relevantMeals(to record: Record) -> [(Record, Date)] {
@@ -236,21 +295,11 @@ public class Storage: NSObject {
             guard !highs.isEmpty else {
                 return nil
             }
-//            let sortedH = highs.sorted()
-//            let hq1 = sortedH.percentile(0.25)
-//            let hq3 = sortedH.percentile(0.75)
-//            var fence = 3 * (hq3 - hq1)
-//            let filtered = sortedH.count < 4 ? sortedH : sortedH.filter { $0 > hq1 - fence && $0 < hq3 + fence }
             let average = highs.average()
             let stdDev = sqrt(highs.map { ($0 - average) ** 2 }.average())
             let averageLow = lows.average()
             let lowStdDev = sqrt(lows.map { ($0 - averageLow) ** 2 }.average())
 
-//            let sortedL = lows.sorted()
-//            let lq1 = sortedL.percentile(0.25)
-//            let lq3 = sortedL.percentile(0.75)
-//            fence = 2.2 * (lq3 - lq1)
-//            let filteredL = sortedL.count < 4 ? sortedL : sortedL.filter { $0 > lq1 - fence && $0 < lq3 + fence }
             let predictedHigh = CGFloat(round(average + current.value))
             let predictedHigh25 = CGFloat(round(average - 1.5 * stdDev + current.value))
             let predictedHigh75 = CGFloat(round(average + 1.5 * stdDev + current.value))
@@ -259,8 +308,6 @@ public class Storage: NSObject {
             let predictedTime = record.date + timeToHigh.sum() / Double(timeToHigh.count)
             
             return Prediction(count: highs.count, mealTime: record.date, highDate: predictedTime, h10: predictedHigh25, h50: predictedHigh, h90: predictedHigh75, low50: predictedLow50, low: predictedLow)
-//        } else if let s = estimateInsulinReaction() {
-//            return Prediction(count: 0, mealTime: record.date, highDate: record.date, h10: 0, h50: 0, h90: 0, low50: CGFloat(current.value - s * Double(record.bolus)), low: CGFloat(current.value - s * Double(record.bolus)))
         } else {
             return nil
         }
@@ -285,6 +332,14 @@ public class Storage: NSObject {
             return 0
         }
         return records.reduce(0) { $0 + $1.insulinAction(at: date).iob }
+    }
+    public func insulinAction(at date: Date) -> Double {
+        let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        let records = allEntries.filter({ $0.isBolus && $0.date > date - dia })
+        if records.isEmpty {
+            return 0
+        }
+        return records.reduce(0) { $0 + $1.insulinAction(at: date).activity }
     }
     public func insulinHorizon() -> Date? {
         let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60

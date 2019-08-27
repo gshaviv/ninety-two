@@ -32,6 +32,10 @@ class RecordViewController: UIViewController {
         }
     }
     private lazy var iob: Double = editRecord?.insulinOnBoardAtStart ?? Storage.default.insulinOnBoard(at: Date())
+//    lazy var predictor = Predictor()
+    private lazy var observer = NotificationCenter.default.addObserver(forName: UserDefaults.notificationForChange(UserDefaults.DateKey.parameterCalcDate), object: nil, queue: OperationQueue.main) { (_) in
+        self.setPrediction(nil)
+    }
 
     private enum Component: Int {
         case hour
@@ -88,6 +92,7 @@ class RecordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        _ = observer
         noteField.text = meal.name
         var now = Date()
         if now.minute > 58 {
@@ -131,17 +136,19 @@ class RecordViewController: UIViewController {
             picker.selectRow(units, inComponent: Component.units.rawValue, animated: false)
         }
         DispatchQueue.global().async {
-            if let edit = self.editRecord {
-                RecordViewController.estimatePerTime(for: edit.date)
-            } else {
-                RecordViewController.estimatePerTime(for: Date())
-            }
+//            if let edit = self.editRecord {
+//                RecordViewController.estimatePerTime(for: edit.date)
+//            } else {
+//                RecordViewController.estimatePerTime(for: Date())
+//            }
             DispatchQueue.main.async {
                 if self.prediction == nil {
                     self.setPrediction(nil)
                 }
             }
-            RecordViewController.estimate3()
+            DispatchQueue.global().async {
+                RecordViewController.createmodel()
+            }
         }
         setPrediction(nil)
     }
@@ -377,20 +384,19 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
         }
         tableView.endUpdates()
     }
+    
 }
 
 extension RecordViewController {
     func setPrediction(_ str: String?) {
+        
         if let str = str {
             predictionLabel.text = str
             predictionLabel.alpha = 1
         } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, let calculated = Storage.default.calculatedLevel(for: selectedRecord, currentLevel: current) {
-            let when = calculated.highDate
-            let formatter = DateFormatter()
-            formatter.dateStyle = .none
-            formatter.timeStyle = .short
-
-            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(calculated.h50 < 40 ? "Low" : "\(Int(calculated.h50))") @ \(formatter.string(from: when))\n\(calculated.h10 < 40 ? "Low" : "\(Int(calculated.h10))") - \(Int(calculated.h90))"
+//        } else if let current = MiaoMiao.currentGlucose?.value, let calculated = try? predictor.predict(start: current, carbs: selectedRecord.carbs, bolus: selectedRecord.bolus, iob: selectedRecord.insulinOnBoardAtStart, cob: selectedRecord.cobOnStart) {
+            let showHigh = calculated.h50 < 400 && calculated.h50 > calculated.low50 && selectedRecord.isMeal
+            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(showHigh ? "high=\(calculated.h50 % ".0lf")" : "") low=\(calculated.low  % ".0lf") bob end=\(calculated.low50  % ".0lf")"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
@@ -494,127 +500,127 @@ extension RecordViewController {
     }
     static var isEstimating = false
 
-    static func estimatePerTime(for stamp: Date?) {
-        let timeStamp = stamp ?? Date()
-        let effects = getEffects(around: timeStamp)
-        guard effects.count > 5 else {
-            return
-        }
-
-        let s = estimatedParameters(for: effects)
-        ParamsPerTimeOfDay.set(ri: s.map { $0.ri }, rc: s.map { $0.rc }, ci: s.map { $0.ci }, for: timeStamp)
-    }
-
-
-
-    static func estimatedParameters(for effects: [MealEffect]) -> [(ri:Double, rc: Double, ci: Double, cost:Double)] {
-        var s = [(ri:Double, rc: Double, ci: Double, cost:Double)]()
-        for _ in 0 ..< 100 {
-            let found = estimate2(effects: effects)
-            if found.ri < 5 || found.rc > 80 {
-                continue
-            }
-            log("found: ri=\(found.ri % ".1lf") rc=\(found.rc % ".1lf") ci=\(found.ci % ".1lf") cost=\(Int(found.cost))")
-            s.append(found)
-        }
-        var outliers = Set<Int>()
-        let values = s.map { $0.cost }.sorted()
-        let q3 = values.percentile(0.25)
-        s.enumerated().forEach {
-            if $0.element.cost > q3 {
-                outliers.insert($0.offset)
-            }
-        }
-
-        for idx in Array(outliers).sorted(by: { $0 > $1 }) {
-            s.remove(at: idx)
-        }
-
-        return s
-    }
-
-    static func estimate3() {
-        guard !isEstimating else {
-            return
-        }
-        isEstimating = true
-        defer {
-            isEstimating = false
-        }
-//        defaults[.parameterCalcDate] = nil
-        if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
-            return
-        }
-
-        let effects = getEffects()
-        guard effects.count > 9 else {
-            return
-        }
-
-        let s = estimatedParameters(for: effects)
-
-        defaults[.insulinRate] = s.map { $0.ri }
-        defaults[.carbRate] = s.map { $0.rc }
-        defaults[.carbThreshold] = s.map { $0.ci }
-        defaults[.parameterCalcDate] = Date()
-    }
-
-    static func estimate2(effects: [MealEffect]) -> (ri: Double, rc: Double, ci: Double, cost: Double) {
-
-        var ratei = Double.random(in: 10 ... 60)
-        var ratec = Double.random(in: 5 ... 20)
-        var ci = Double.random(in: 0 ..< 20)
-        var previous = (ratei, ratec, ci, -1.0)
-
-        var eta = 1e-4
-        let stop = 0.001
-        var iter = 0
-        var lastCost:Double = -1
-
-        while iter < 9000 {
-            iter += 1
-
-            let points = effects.map { effect -> (cost: Double, dri: Double, drc: Double, dci: Double) in
-                let f:Double = max(0,effect.carbs - ci) * ratec - effect.units * ratei - effect.change
-                let cost:Double = f * f
-                let drc:Double = 2.0 * f * max(0.0,effect.carbs - ci)
-                let dri:Double = -2.0 * f * effect.units
-                let dci:Double = 2.0 * f * (effect.carbs - ci > 0 ? -ratec : 0)
-                return (cost: cost, dri: dri, drc: drc, dci: dci)
-                }
-
-            let costs = points.map { $0.cost }.sorted()
-            let q1 = costs.percentile(0.25)
-            let q3 = costs.percentile(0.75)
-            let fence = 2.2 * (q3 - q1)
-            let inliers = points.filter { $0.cost > q1 - fence && $0.cost < q3 + fence }
-            let sums = inliers.reduce((0.0,0.0,0.0,0.0)) { ($0.0 + $1.0, $0.1 + $1.1, $0.2 + $1.2, $0.3 + $1.3) }
-            let cost = sums.0 / Double(inliers.count)
-            let dri = sums.1 / Double(inliers.count)
-            let drc = sums.2 / Double(inliers.count)
-            let dci = sums.3 / Double(inliers.count)
+//    static func estimatePerTime(for stamp: Date?) {
+//        let timeStamp = stamp ?? Date()
+//        let effects = getEffects(around: timeStamp)
+//        guard effects.count > 5 else {
+//            return
+//        }
+//
+//        let s = estimatedParameters(for: effects)
+//        ParamsPerTimeOfDay.set(ri: s.map { $0.ri }, rc: s.map { $0.rc }, ci: s.map { $0.ci }, for: timeStamp)
+//    }
 
 
-            if cost > lastCost && lastCost > 0 {
-                eta /= 10
-                ratei = previous.0
-                ratec = previous.1
-                ci = previous.2
-                lastCost = previous.3
-                continue
-            }
-            let delta = (c: drc * eta, i: dri * eta, ci: dci * eta)
-            if abs(cost - lastCost) / cost < stop {
-                break
-            }
-            previous = (ratei,ratec,ci, lastCost)
-            lastCost = cost
-            ratec = max(ratec - delta.c, ratec / 2)
-            ratei = max(ratei - delta.i, ratei / 2)
-            ci = max(ci - delta.c, ci / 2)
-        }
-        return (ratei,ratec,ci, lastCost)
-    }
+
+//    static func estimatedParameters(for effects: [MealEffect]) -> [(ri:Double, rc: Double, ci: Double, cost:Double)] {
+//        var s = [(ri:Double, rc: Double, ci: Double, cost:Double)]()
+//        for _ in 0 ..< 100 {
+//            let found = estimate2(effects: effects)
+//            if found.ri < 5 || found.rc > 80 {
+//                continue
+//            }
+//            log("found: ri=\(found.ri % ".1lf") rc=\(found.rc % ".1lf") ci=\(found.ci % ".1lf") cost=\(Int(found.cost))")
+//            s.append(found)
+//        }
+//        var outliers = Set<Int>()
+//        let values = s.map { $0.cost }.sorted()
+//        let q3 = values.percentile(0.25)
+//        s.enumerated().forEach {
+//            if $0.element.cost > q3 {
+//                outliers.insert($0.offset)
+//            }
+//        }
+//
+//        for idx in Array(outliers).sorted(by: { $0 > $1 }) {
+//            s.remove(at: idx)
+//        }
+//
+//        return s
+//    }
+
+//    static func estimate3() {
+//        guard !isEstimating else {
+//            return
+//        }
+//        isEstimating = true
+//        defer {
+//            isEstimating = false
+//        }
+////        defaults[.parameterCalcDate] = nil
+//        if let lastTime = defaults[.parameterCalcDate], lastTime > Date() - 1.d {
+//            return
+//        }
+//
+//        let effects = getEffects()
+//        guard effects.count > 9 else {
+//            return
+//        }
+//
+//        let s = estimatedParameters(for: effects)
+//
+//        defaults[.insulinRate] = s.map { $0.ri }
+//        defaults[.carbRate] = s.map { $0.rc }
+//        defaults[.carbThreshold] = s.map { $0.ci }
+//        defaults[.parameterCalcDate] = Date()
+//    }
+
+//    static func estimate2(effects: [MealEffect]) -> (ri: Double, rc: Double, ci: Double, cost: Double) {
+//
+//        var ratei = Double.random(in: 10 ... 60)
+//        var ratec = Double.random(in: 5 ... 20)
+//        var ci = Double.random(in: 0 ..< 20)
+//        var previous = (ratei, ratec, ci, -1.0)
+//
+//        var eta = 1e-4
+//        let stop = 0.001
+//        var iter = 0
+//        var lastCost:Double = -1
+//
+//        while iter < 9000 {
+//            iter += 1
+//
+//            let points = effects.map { effect -> (cost: Double, dri: Double, drc: Double, dci: Double) in
+//                let f:Double = max(0,effect.carbs - ci) * ratec - effect.units * ratei - effect.change
+//                let cost:Double = f * f
+//                let drc:Double = 2.0 * f * max(0.0,effect.carbs - ci)
+//                let dri:Double = -2.0 * f * effect.units
+//                let dci:Double = 2.0 * f * (effect.carbs - ci > 0 ? -ratec : 0)
+//                return (cost: cost, dri: dri, drc: drc, dci: dci)
+//                }
+//
+//            let costs = points.map { $0.cost }.sorted()
+//            let q1 = costs.percentile(0.25)
+//            let q3 = costs.percentile(0.75)
+//            let fence = 2.2 * (q3 - q1)
+//            let inliers = points.filter { $0.cost > q1 - fence && $0.cost < q3 + fence }
+//            let sums = inliers.reduce((0.0,0.0,0.0,0.0)) { ($0.0 + $1.0, $0.1 + $1.1, $0.2 + $1.2, $0.3 + $1.3) }
+//            let cost = sums.0 / Double(inliers.count)
+//            let dri = sums.1 / Double(inliers.count)
+//            let drc = sums.2 / Double(inliers.count)
+//            let dci = sums.3 / Double(inliers.count)
+//
+//
+//            if cost > lastCost && lastCost > 0 {
+//                eta /= 10
+//                ratei = previous.0
+//                ratec = previous.1
+//                ci = previous.2
+//                lastCost = previous.3
+//                continue
+//            }
+//            let delta = (c: drc * eta, i: dri * eta, ci: dci * eta)
+//            if abs(cost - lastCost) / cost < stop {
+//                break
+//            }
+//            previous = (ratei,ratec,ci, lastCost)
+//            lastCost = cost
+//            ratec = max(ratec - delta.c, ratec / 2)
+//            ratei = max(ratei - delta.i, ratei / 2)
+//            ci = max(ci - delta.c, ci / 2)
+//        }
+//        return (ratei,ratec,ci, lastCost)
+//    }
 
 
     class Solution {
@@ -742,5 +748,169 @@ extension RecordViewController {
             }
         }
         return out
+    }
+    
+
+}
+
+
+extension RecordViewController {
+    static private func createmodel() {
+        if let last =  defaults[.parameterCalcDate], Date() - last < 48.h {
+            return
+        }
+        let allData = Storage.default.mealData()
+        struct Params {
+            var c: Double
+            var c2: Double
+            var i: Double
+            var i2: Double
+            var cost: Double
+        }
+        
+        var endP = Params(c: Double.random(in: 5 ... 20), c2: Double.random(in: -1 ... 1), i: Double.random(in: 10 ... 60), i2: Double.random(in: -1 ... 1), cost: Double.greatestFiniteMagnitude)
+        var lowP = Params(c: Double.random(in: 5 ... 20), c2: Double.random(in: -1 ... 1), i: Double.random(in: 10 ... 60), i2: Double.random(in: -1 ... 1), cost: Double.greatestFiniteMagnitude)
+        var highP = Params(c: Double.random(in: 10 ... 20), c2: Double.random(in: -1 ... 1), i: Double.random(in: 0 ... 30), i2: Double.random(in: -1 ... 1), cost: Double.greatestFiniteMagnitude)
+        
+        endP.c2 = 0
+        endP.i2 = 0
+        highP.c2 = 0
+        highP.i2 = 0
+        lowP.c2 = 0
+        lowP.i2 = 0
+        
+        var previousEnd = endP
+        var previousHigh = highP
+        var previousLow = lowP
+         
+        var etaE = 1.0
+        var etaL = 1.0
+        var etaH = 1.0
+        let stop = 0.001
+        var iter = 0
+        
+        var calcEnd = true
+        var calcLow = true
+        var calcHigh = true
+        
+        while iter < 9000 && (calcEnd || calcLow || calcHigh) {
+            iter += 1
+            
+            let sum = allData.reduce((low:Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0),
+                                      high: Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0),
+                                      end: Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0)))
+            { (sum,datum) in
+                let carbs = datum.carbs + datum.cob
+                let insulin = Double(datum.bolus) + datum.iob
+                let deltaEnd: Params = {
+                    if calcEnd {
+                        let f = carbs * (endP.c + carbs * endP.c2) - insulin * (endP.i + insulin * endP.i2) + datum.start - datum.end
+                        return Params(c: f * carbs, c2: f * carbs * carbs, i: -f * insulin, i2: f * insulin * insulin, cost: f ** 2)
+                    }
+                    return Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0)
+                }()
+                let deltaLow: Params = {
+                    if calcLow {
+                        let f = carbs * (lowP.c + carbs * lowP.c2)  - insulin * (lowP.i + insulin * lowP.i2)  + datum.start - datum.low
+                        return Params(c: f * carbs, c2: f * carbs * carbs, i: -f * insulin, i2: -f * insulin * insulin, cost: f ** 2)
+                    }
+                    return Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0)
+                }()
+                let deltaHigh: Params = {
+                    if calcHigh {
+                        let f = carbs * (highP.c + carbs * highP.c2)  - insulin * (highP.i + insulin * highP.i2)  + datum.start - datum.high
+                        return Params(c: f * carbs, c2: f * carbs * carbs, i: -f * insulin, i2: -f * insulin * insulin, cost: f ** 2)
+                    }
+                    return Params(c: 0, c2: 0, i: 0, i2: 0, cost: 0)
+                }()
+                
+                return (low: Params(c: sum.low.c + deltaLow.c, c2: sum.low.c2 + deltaLow.c2, i: sum.low.i + deltaLow.i, i2: sum.low.i2 + deltaLow.i2, cost: sum.low.cost + deltaLow.cost),
+                        high: Params(c: sum.high.c + deltaHigh.c, c2: sum.high.c2 + deltaHigh.c2, i: sum.high.i + deltaHigh.i, i2: sum.high.i2 + deltaHigh.i2, cost: sum.high.cost + deltaHigh.cost),
+                        end: Params(c: sum.end.c + deltaEnd.c, c2: sum.end.c2 + deltaEnd.c2, i: sum.end.i + deltaEnd.i, i2: sum.end.i2 + deltaHigh.i2, cost: sum.end.cost + deltaEnd.cost))
+            }
+            
+            let count = Double(allData.count)
+            
+            if calcLow {
+                if sum.low.cost / count > lowP.cost {
+                    etaL /= 10
+                    lowP = previousLow
+                } else {
+                    let unit = sqrt(sum.low.c ** 2 /*+ sum.low.c2 ** 2*/ + sum.low.i ** 2 /*+ sum.low.i2 ** 2*/)
+                    let delta = Params(c: sum.low.c * etaL / unit, c2: sum.low.c2 * etaL / unit, i: sum.low.i * etaL / unit, i2: sum.low.i2 * etaL / unit, cost: sum.low.cost / count)
+                    if abs(delta.cost - lowP.cost) / lowP.cost < stop {
+                        calcLow = false
+                    }
+                    previousLow = lowP
+                    lowP.c = max(0, lowP.c - delta.c)
+                    lowP.i = max(0, lowP.i - delta.i)
+                    lowP.c2 = lowP.c2 - delta.c2
+                    lowP.i2 = lowP.i2 - delta.i2
+                    lowP.cost = sum.low.cost / count
+                }
+            }
+            if calcHigh {
+                if sum.high.cost / count > highP.cost {
+                    etaH /= 10
+                    highP = previousHigh
+                } else {
+                    let unit = sqrt(sum.high.c ** 2 /*+ sum.high.c2 ** 2*/ + sum.high.i ** 2 /*+ sum.high.i2 ** 2*/)
+                    let delta = Params(c: sum.high.c * etaH / unit, c2: sum.high.c2 * etaH / unit, i: sum.high.i * etaH / unit, i2: sum.high.i2 * etaH / unit, cost: sum.high.cost / count)
+                    if abs(delta.cost - highP.cost) / highP.cost < stop {
+                        calcHigh = false
+                    }
+                    previousHigh = highP
+                    highP.c = max(0, highP.c - delta.c)
+                    highP.i = max(0, highP.i - delta.i)
+                    highP.c2 = highP.c2 - delta.c2
+                    highP.i2 = highP.i2 - delta.i2
+                    highP.cost = sum.high.cost / count
+                    
+                }
+            }
+            if calcEnd {
+                if sum.end.cost / count > endP.cost {
+                    etaE /= 10
+                    endP = previousEnd
+                } else {
+                    let unit = sqrt(sum.end.c ** 2 /*+ sum.end.c2 ** 2*/ + sum.end.i ** 2 /*+ sum.end.i2 ** 2*/)
+                    let delta = Params(c: sum.end.c * etaE / unit, c2: sum.end.c2 * etaE / unit, i: sum.end.i * etaE / unit, i2: sum.end.i2 * etaE / unit, cost: sum.end.cost / count)
+                    if abs(delta.cost - endP.cost) / endP.cost < stop {
+                        calcEnd = false
+                    }
+                    previousEnd = endP
+                    endP.c = max(0, endP.c - delta.c)
+                    endP.i = max(0, endP.i - delta.i)
+                    endP.c2 = endP.c2 - delta.c2
+                    endP.i2 = endP.i2 - delta.i2
+                    endP.cost = sum.end.cost / count
+                }
+            }
+            
+            endP.c2 = 0
+            endP.i2 = 0
+            highP.c2 = 0
+            highP.i2 = 0
+            lowP.c2 = 0
+            lowP.i2 = 0
+            
+            if iter % 10 == 0 {
+                log("\(iter) --\nEnd:\(endP)\nLow:\(lowP)\nHigh:\(highP)")
+            }
+         }
+        log("\(iter) --\nEnd:\(endP)\nLow:\(lowP)\nHigh:\(highP)")
+        defaults[.ce] = endP.c
+        defaults[.ch] = highP.c
+        defaults[.cl] = lowP.c
+        defaults[.ie] = endP.i
+        defaults[.ih] = highP.i
+        defaults[.il] = lowP.i
+        defaults[.ce2] = endP.c2
+        defaults[.ch2] = highP.c2
+        defaults[.cl2] = lowP.c2
+        defaults[.ie2] = endP.i2
+        defaults[.ih2] = highP.i2
+        defaults[.il2] = lowP.i2
+        defaults[.parameterCalcDate] = Date()
     }
 }

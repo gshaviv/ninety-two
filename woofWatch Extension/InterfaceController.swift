@@ -15,7 +15,7 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var agoLabel: WKInterfaceLabel!
     @IBOutlet var imageView: WKInterfaceImage!
     @IBOutlet var loadingImage: WKInterfaceImage!
-    private lazy var indicator: EMTLoadingIndicator = EMTLoadingIndicator(interfaceController: self, interfaceImage: loadingImage, width: 40, height: 40, style: .dot)
+    private lazy var indicator: EMTLoadingIndicator = EMTLoadingIndicator(interfaceController: self, interfaceImage: loadingImage, width: 16, height: 16, style: .dot)
     enum DimState: Int8 {
         case none
         case little
@@ -25,28 +25,31 @@ class InterfaceController: WKInterfaceController {
         didSet {
             switch isDimmed {
             case .none:
-                glucoseLabel.setAlpha(1)
-                trendLabel.setAlpha(1)
-                agoLabel.setAlpha(1)
-                imageView.setAlpha(1)
+                animate(withDuration: 0.3) {
+                    self.glucoseLabel.setAlpha(1)
+                    self.trendLabel.setAlpha(1)
+                    self.imageView.setAlpha(1)
+                }
                 if oldValue != .little {
-                updateTime()
+                    updateTime()
                 }
                 indicator.hide()
  
             case .little:
-                glucoseLabel.setAlpha(0.65)
-                trendLabel.setAlpha(0.3)
-                agoLabel.setAlpha(0.3)
-                imageView.setAlpha(1)
+                animate(withDuration: 0.3) {
+                    self.glucoseLabel.setAlpha(0.65)
+                    self.trendLabel.setAlpha(0.0)
+                    self.imageView.setAlpha(1)
+                }
                 updateTime()
                 indicator.showWait()
 
             case .dim:
-                glucoseLabel.setAlpha(0.3)
-                trendLabel.setAlpha(0.3)
-                agoLabel.setAlpha(0.3)
-                imageView.setAlpha(0.65)
+                animate(withDuration: 0.3) {
+                    self.glucoseLabel.setAlpha(0.4)
+                    self.trendLabel.setAlpha(0.0)
+                    self.imageView.setAlpha(1)
+                }
                 indicator.showWait()
             }
         }
@@ -57,6 +60,7 @@ class InterfaceController: WKInterfaceController {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         imageView.setAlpha(0)
+        loadingImage.setAlpha(0)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
     }
 
@@ -69,9 +73,9 @@ class InterfaceController: WKInterfaceController {
         updateTime()
     }
 
-    func updateTime() {
+    func updateTime(startTimer: Bool = true) {
         defer {
-            if !cancelUpdate && !triggered {
+            if !cancelUpdate && !triggered && startTimer {
                 triggered = true
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
                     self.triggered = false
@@ -79,14 +83,8 @@ class InterfaceController: WKInterfaceController {
                 }
             }
         }
-        if isDimmed == .dim || triggered {
-            return
-        }
-        if cancelUpdate {
+        if startTimer && (cancelUpdate || triggered || WKExtension.shared().applicationState == .background) {
             cancelUpdate = false
-            return
-        }
-        if WKExtension.shared().applicationState == .background || isDimmed != .none {
             return
         }
         if let last = WKExtension.extensionDelegate.readings.last {
@@ -122,6 +120,7 @@ class InterfaceController: WKInterfaceController {
         } else {
             trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
         }
+        updateTime(startTimer: false)
         DispatchQueue.global().async {
             if let image = self.createImage() {
                 DispatchQueue.main.async {
@@ -222,8 +221,12 @@ class InterfaceController: WKInterfaceController {
         let iob = WKExtension.extensionDelegate.iob
         if iob > 0 {
             let scale = WKInterfaceDevice.current().screenScale
-            let text = "BOB \(String(format: "%.1lf", iob))"
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * scale, weight: .bold), NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7)]
+            let text = String(format: "BOB %.1lf\n%.2lf", iob, WKExtension.extensionDelegate.insulinAction)
+            let pStyle = NSMutableParagraphStyle()
+            pStyle.alignment = .center
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * scale, weight: .bold),
+                          NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7),
+                          NSAttributedString.Key.paragraphStyle: pStyle]
             let styled = NSAttributedString(string: text, attributes: attrib)
             let tsize = styled.size()
             let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2 * scale, width: tsize.width, height: tsize.height),

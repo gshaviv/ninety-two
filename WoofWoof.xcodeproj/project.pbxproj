@@ -10,6 +10,9 @@
 		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
 		E401514E22FA02FC00ACCF84 /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
+		E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */; };
+		E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */; };
+		E40F112023103BA900346D0C /* EndPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F111F23103BA900346D0C /* EndPredictionLR.mlmodel */; };
 		E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; };
 		E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
@@ -131,8 +134,11 @@
 		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
 		E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */; };
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
+		E4D8A91B2310073E00895767 /* Predictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D8A91A2310073E00895767 /* Predictor.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
+		E4DFFD8923106027004E746E /* EMTLoadingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DFFD8623106026004E746E /* EMTLoadingIndicator.swift */; };
+		E4DFFD8A23106027004E746E /* EMTTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DFFD8823106027004E746E /* EMTTimer.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
 		E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6521C3F8D300336CE8 /* ViewController.swift */; };
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
@@ -299,6 +305,9 @@
 		BD0D33B35E2751EE0C452F5F /* Pods_WoofWoof.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WoofWoof.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E40021B821D7BA6C001AB34D /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
 		E40021BD21D89DAA001AB34D /* PieChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChart.swift; sourceTree = "<group>"; };
+		E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = HighPredictionLR.mlmodel; sourceTree = "<group>"; };
+		E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = LowPredictionLR.mlmodel; sourceTree = "<group>"; };
+		E40F111F23103BA900346D0C /* EndPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = EndPredictionLR.mlmodel; sourceTree = "<group>"; };
 		E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
@@ -416,8 +425,11 @@
 		E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareMealViewController.swift; sourceTree = "<group>"; };
 		E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodViewController.swift; sourceTree = "<group>"; };
 		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
+		E4D8A91A2310073E00895767 /* Predictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predictor.swift; sourceTree = "<group>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
+		E4DFFD8623106026004E746E /* EMTLoadingIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EMTLoadingIndicator.swift; sourceTree = "<group>"; };
+		E4DFFD8823106027004E746E /* EMTTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EMTTimer.swift; sourceTree = "<group>"; };
 		E4E35A6021C3F8D300336CE8 /* Ninety Two.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ninety Two.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -616,6 +628,8 @@
 		E42E2AA921DF28C7004FD560 /* woofWatch Extension */ = {
 			isa = PBXGroup;
 			children = (
+				E4DFFD8623106026004E746E /* EMTLoadingIndicator.swift */,
+				E4DFFD8823106027004E746E /* EMTTimer.swift */,
 				E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */,
 				E42E2AAA21DF28C7004FD560 /* InterfaceController.swift */,
 				E42E2AAC21DF28C7004FD560 /* ExtensionDelegate.swift */,
@@ -656,6 +670,17 @@
 				E44EEC7A21E9C52600F966A8 /* Info.plist */,
 			);
 			path = SiriIntentUI;
+			sourceTree = "<group>";
+		};
+		E493B746230FCE0000E91C66 /* models */ = {
+			isa = PBXGroup;
+			children = (
+				E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */,
+				E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */,
+				E40F111F23103BA900346D0C /* EndPredictionLR.mlmodel */,
+				E4D8A91A2310073E00895767 /* Predictor.swift */,
+			);
+			path = models;
 			sourceTree = "<group>";
 		};
 		E4CCA17880CC032C40CE3564 /* Pods */ = {
@@ -704,6 +729,7 @@
 		E4E35A6221C3F8D300336CE8 /* WoofWoof */ = {
 			isa = PBXGroup;
 			children = (
+				E493B746230FCE0000E91C66 /* models */,
 				E44CFFBE2239965F0022835A /* sr.db */,
 				E44CFFF4223B93590022835A /* foo.db */,
 				E43F24A22208AA75005B0247 /* HealthKitManager.swift */,
@@ -1239,6 +1265,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E44F98DD22455E5900C51411 /* AkimaInterpolator.swift in Sources */,
+				E4DFFD8A23106027004E746E /* EMTTimer.swift in Sources */,
+				E4DFFD8923106027004E746E /* EMTLoadingIndicator.swift in Sources */,
 				E42E2AAF21DF28C7004FD560 /* NotificationController.swift in Sources */,
 				E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */,
 				E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */,
@@ -1273,6 +1301,7 @@
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E44CFFFE223C20CB0022835A /* Meal.swift in Sources */,
 				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
+				E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */,
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
@@ -1295,12 +1324,15 @@
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
 				E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */,
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
+				E40F112023103BA900346D0C /* EndPredictionLR.mlmodel in Sources */,
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
+				E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */,
 				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
+				E4D8A91B2310073E00895767 /* Predictor.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
 				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,

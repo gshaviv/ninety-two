@@ -61,11 +61,9 @@ final public class EMTLoadingIndicator: NSObject {
     
     private func prepareImagesForWaitStyleDot() {
         if EMTLoadingIndicator.dotWaitImage == nil {
-            let bundle = Bundle(for: EMTLoadingIndicator.self)
             let cursors: [UIImage] = (0...29).map {
                 let index = $0
                 return UIImage(named: "waitIndicatorGraphic-\(index)")!
-//                return UIImage(contentsOfFile: (bundle.path(forResource: "waitIndicatorGraphic-\(index)@2x", ofType: "png"))!)!
             }
             EMTLoadingIndicator.dotWaitImage = UIImage.animatedImage(with: cursors, duration: 1)
         }

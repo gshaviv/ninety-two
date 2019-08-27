@@ -109,6 +109,13 @@ extension Collection where Element: SignedNumeric {
 }
 
 extension Double {
+    public func decimal(digits n:Int) -> Decimal {
+        var rounded = Decimal()
+        var initial = Decimal(self)
+        NSDecimalRound(&rounded, &initial, n, .plain)
+        return rounded
+    }
+    
     public func maxDigits(_ n: Int) -> String {
         let str = String(format:"%.\(n)lf",self)
         guard str.contains(".") else {

@@ -20,6 +20,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) public var trendSymbol: String = ""
     private(set) public var readings =  [GlucosePoint]()
     private(set) public var iob: Double = 0
+    private(set) public var insulinAction: Double = 0
     private var lastRefreshDate = Date.distantPast
     
     override init() {
@@ -41,6 +42,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
+        isSending = false
         refresh(blank: .little)
     }
 
@@ -67,12 +69,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
             self.isSending = false
-            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double else {
+            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double else {
                 return
             }
             DispatchQueue.main.async {
                 log("iob=\(iob)")
                 self.iob = iob
+                self.insulinAction = act
                 self.lastRefreshDate = Date()
                 self.trendValue = t
                 self.trendSymbol = s

@@ -265,6 +265,12 @@ extension Record {
     public var insulinOnBoardAtStart: Double {
         return iobCalc!.value
     }
+    
+    public var cobOnStart: Double {
+        let timeframe = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        let fromDate = self.date - timeframe
+        return Storage.default.allEntries.filter { $0.date > fromDate && $0.date < self.date }.reduce(0.0) { $0 + $1.carbs * (self.date - $1.date) / timeframe }
+    }
 }
 
 extension DiaryIntent {
