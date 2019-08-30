@@ -260,14 +260,14 @@ public class GlucoseGraph: UIView {
                 ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low50)))
                 ctx?.strokePath()
                 do {
-                    let postfix = prediction.mealCount == 0 ? " ±\(defaults[.lsigma] % ".0lf")" : ""
+                    let postfix = prediction.mealCount == 0 ? "1σ = " : ""
                     let text = "\(Int(prediction.low))\(postfix)".styled.systemFont(size: 14).color(.blue)
                     let size = text.size()
                     text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low) - size.height, width: size.width, height: size.height))
                 }
                 do {
-                    let postfix = prediction.mealCount == 0 ? " ±\(defaults[.esigma] % ".0lf")" : ""
-                    let text = "\(Int(prediction.low50))\(postfix)".styled.systemFont(size: 14).color(.blue)
+                    let prefix = prediction.mealCount == 0 ? "Ave " : "50% = "
+                    let text = "\(prefix)\(Int(prediction.low50))".styled.systemFont(size: 14).color(.blue)
                     let size = text.size()
                     text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low50) - size.height, width: size.width, height: size.height))
                 }

@@ -72,9 +72,9 @@ public class Storage: NSObject {
 
         let high = CGFloat(carbs * defaults[.ch] - bolus * defaults[.ih] + current)
         let low = CGFloat(carbs * defaults[.cl] - bolus * defaults[.il] + current)
-        let end = CGFloat(carbs * defaults[.ce] - bolus * defaults[.ie] + current)
+//        let end = CGFloat(carbs * defaults[.ce] - bolus * defaults[.ie] + current)
 
-        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults[.hsigma] * 1.2), h50: high, h90: high + CGFloat(defaults[.hsigma] * 1.2), low50: max(end,low), low: min(end,low))
+        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults[.hsigma] * 1.2), h50: high, h90: high + CGFloat(defaults[.hsigma] * 1.2), low50: low, low: low - CGFloat(defaults[.lsigma]))
     }
     
 

@@ -396,7 +396,7 @@ extension RecordViewController {
         } else if defaults[.parameterCalcDate] != nil, let current = MiaoMiao.currentGlucose?.value, let calculated = Storage.default.calculatedLevel(for: selectedRecord, currentLevel: current) {
 //        } else if let current = MiaoMiao.currentGlucose?.value, let calculated = try? predictor.predict(start: current, carbs: selectedRecord.carbs, bolus: selectedRecord.bolus, iob: selectedRecord.insulinOnBoardAtStart, cob: selectedRecord.cobOnStart) {
             let showHigh = calculated.h50 < 400 && calculated.h50 > calculated.low50 && selectedRecord.isMeal
-            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(showHigh ? "high=\(calculated.h50 % ".0lf")±\(defaults[.hsigma]*1.6 % ".0lf")" : "") low=\(calculated.low  % ".0lf")±\(defaults[.lsigma] % ".0lf") bob end=\(calculated.low50  % ".0lf")"
+            predictionLabel.text = "Current \(current % ".0lf"), BOB \(selectedRecord.insulinOnBoardAtStart % ".1lf")\nEstimate \(showHigh ? "high=\(calculated.h50 % ".0lf")±\(defaults[.hsigma]*1.6 % ".0lf")" : "") low=\(calculated.low50 % ".0lf") 1σ =\(calculated.low  % ".0lf")"
             predictionLabel.alpha = 1
             self.prediction = calculated
         } else {
