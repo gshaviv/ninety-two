@@ -70,11 +70,11 @@ public class Storage: NSObject {
             }
         }
 
-        let high = CGFloat(carbs * (defaults[.ch] + carbs * defaults[.ch2])  - bolus * (defaults[.ih] + bolus * defaults[.ih2]) + current)
-        let low = CGFloat(carbs * (defaults[.cl] + carbs * defaults[.cl2])  - bolus * (defaults[.il] + bolus * defaults[.il2])  + current)
-        let end = CGFloat(carbs * (defaults[.ce] + carbs * defaults[.ce2])  - bolus * (defaults[.ie] + bolus * defaults[.ie2])  + current)
+        let high = CGFloat(carbs * defaults[.ch] - bolus * defaults[.ih] + current)
+        let low = CGFloat(carbs * defaults[.cl] - bolus * defaults[.il] + current)
+        let end = CGFloat(carbs * defaults[.ce] - bolus * defaults[.ie] + current)
 
-        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: 0, h50: high, h90: 0, low50: max(end,low), low: min(end,low))
+        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults[.hsigma] * 1.2), h50: high, h90: high + CGFloat(defaults[.hsigma] * 1.2), low50: max(end,low), low: min(end,low))
     }
     
 
@@ -128,43 +128,55 @@ public class Storage: NSObject {
         public let cob: Double
     }
     
-    public func mealData() -> [Datum] {
+    public func mealData(onlyBolus: Bool = false) -> [Datum] {
         var datum = [Datum]()
-        let timeframe = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
-        var hadMeal = false
-        var skip = 0
+        let timeframe =  (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
+        
         for (idx,entry) in allEntries.enumerated() {
-            if skip > 0 {
-                skip -= 1
-                continue
+//            guard !entry.isMeal || entry.carbs > 0 else {
+//                continue
+//            }
+//            if onlyBolus && entry.isMeal {
+//                continue
+//            }
+            if onlyBolus {
+                if entry.isMeal {
+                    continue
+                }
+            } else {
+                if entry.carbs == 0 {
+                    continue
+                }
             }
-            guard !entry.isMeal || entry.carbs > 0 else {
-                continue
-            }
-            guard Date() - entry.date < 150.d else {
+            guard Date() - entry.date < 180.d else {
                 continue
             }
             var mealtime = timeframe
-            hadMeal = hadMeal || entry.isMeal
-            if !hadMeal {
-                continue
-            }
-            var totalCarbs = entry.carbs
-            var totalBolus = entry.bolus
-            while idx + skip < allEntries.count - 1 {
-                let nextEntry = allEntries[idx + skip + 1]
-                if nextEntry.date - entry.date < timeframe || !nextEntry.isMeal {
-                    totalBolus += nextEntry.bolus
-                    totalCarbs += nextEntry.carbs
-                    mealtime = nextEntry.date + timeframe - entry.date
-                    continue
-                } 
+//            hadMeal = hadMeal || entry.isMeal
+//            if !hadMeal {
+//                continue
+//            }
+           
+            let totalCarbs = entry.carbs
+            let totalBolus = entry.bolus
+            if idx < allEntries.count - 2 {
+                let nextEntry = allEntries[idx + 1]
                 if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
                     mealtime = 5.h
+                } else if nextEntry.date < entry.date + mealtime {
+                    continue
+                }
+            } else {
+                mealtime = 5.h
+            }
+            if idx > 1 {
+                let previousEntry = allEntries[idx - 1]
+                if entry.date - previousEntry.date < timeframe {
+                    continue
                 }
             }
             let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > entry.date - 15.m && GlucosePoint.date < entry.date + mealtime + 15.m).orderBy(GlucosePoint.date)) ?? []
-            guard !readings.isEmpty else {
+            guard !readings.isEmpty, readings.last!.date - readings.first!.date > mealtime else {
                 continue
             }
             let points = readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) }
@@ -181,6 +193,8 @@ public class Storage: NSObject {
                                   cob: entry.cobOnStart)
             var last = readings.first!.date
             var isValid = true
+            var wentUp = false
+            var lastValue = Double.greatestFiniteMagnitude
             for point in readings {
                 let time = point.date
                 if time - last > 30.m {
@@ -198,6 +212,14 @@ public class Storage: NSObject {
                 if value < entryData.low {
                     entryData.low = value
                 }
+                if value < defaults[.lowAlertLevel] && wentUp {
+                    isValid = false
+                    break
+                }
+                if value > lastValue {
+                    wentUp = true
+                }
+                lastValue = value
             }
             
             guard isValid && entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
@@ -334,12 +356,7 @@ public class Storage: NSObject {
         return records.reduce(0) { $0 + $1.insulinAction(at: date).iob }
     }
     public func insulinAction(at date: Date) -> Double {
-        let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
-        let records = allEntries.filter({ $0.isBolus && $0.date > date - dia })
-        if records.isEmpty {
-            return 0
-        }
-        return records.reduce(0) { $0 + $1.insulinAction(at: date).activity }
+        insulinOnBoard(at: date) - insulinOnBoard(at: date + 10.m)
     }
     public func insulinHorizon() -> Date? {
         let dia = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60

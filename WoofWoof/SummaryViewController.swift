@@ -149,12 +149,12 @@ class SummaryViewController: UIViewController {
                         self.medianLowLabel.text = medianTime
                         self.maxLabel.text = "\(maxG % ".0lf") / \(minG % ".0lf")"
                         self.minLabel.text = averageBolus % ".1lfu"
-                        self.percentLowLabel.text = String(format: "%.1lf%%", timeBelow / totalT * 100)
+                        self.percentLowLabel.text =  timeBelow / totalT * 100 % ".1lf%%"
                         let percentIn = (1000 - round(timeBelow / totalT * 1000) - round(timeAbove / totalT * 1000))/10
-                        self.percentInRangeLabel.text = String(format: "%.1lf%%", percentIn)
-                        self.percentHighLabel.text = String(format: "%.1lf%%", timeAbove / totalT * 100)
+                        self.percentInRangeLabel.text = percentIn % ".1lf%%"
+                        self.percentHighLabel.text =  timeAbove / totalT * 100 % ".1lf%%"
                         self.aveGlucoseLabel.text = "\(Int(round(aveG)))"
-                        self.a1cLabel.text = String(format: "%.1lf%%", a1c)
+                        self.a1cLabel.text = a1c % ".1lf%%"
                         let slices = [UserDefaults.ColorKey.color2,
                                       UserDefaults.ColorKey.color3,
                                       UserDefaults.ColorKey.color4,

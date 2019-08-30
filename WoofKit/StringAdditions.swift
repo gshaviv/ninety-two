@@ -183,15 +183,15 @@ extension String {
 }
 
 public func % (lhs: Double, rhs: String) -> String {
-    return String(format: "%\(rhs)", lhs)
+    return String(format: rhs.hasPrefix("%") ? rhs : "%\(rhs)", lhs)
 }
 
 public func % (lhs: Int, rhs: String) -> String {
-    return String(format: "%\(rhs)", lhs)
+    return String(format: rhs.hasPrefix("%") ? rhs : "%\(rhs)", lhs)
 }
 
 public func % (lhs: CGFloat, rhs: String) -> String {
-    return String(format: "%\(rhs)", lhs)
+    return String(format: rhs.hasPrefix("%") ? rhs : "%\(rhs)", lhs)
 }
 
 

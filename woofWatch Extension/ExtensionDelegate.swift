@@ -65,7 +65,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         var ops = ["state"]
         if defaults[.needsUpdateDefaults] {
-            ops.append("defaults")
+            ops.insert("defaults", at: 0)
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
             self.isSending = false

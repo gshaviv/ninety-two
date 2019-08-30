@@ -259,16 +259,28 @@ public class GlucoseGraph: UIView {
                 ctx?.move(to: CGPoint(x: xCoor(prediction.highDate), y: yCoor(prediction.low50)))
                 ctx?.addLine(to: CGPoint(x: xCoor(prediction.highDate + 5.h), y: yCoor(prediction.low50)))
                 ctx?.strokePath()
+                do {
+                    let postfix = prediction.mealCount == 0 ? " ±\(defaults[.lsigma] % ".0lf")" : ""
+                    let text = "\(Int(prediction.low))\(postfix)".styled.systemFont(size: 14).color(.blue)
+                    let size = text.size()
+                    text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low) - size.height, width: size.width, height: size.height))
+                }
+                do {
+                    let postfix = prediction.mealCount == 0 ? " ±\(defaults[.esigma] % ".0lf")" : ""
+                    let text = "\(Int(prediction.low50))\(postfix)".styled.systemFont(size: 14).color(.blue)
+                    let size = text.size()
+                    text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low50) - size.height, width: size.width, height: size.height))
+                }
             }
             ctx?.restoreGState()
             if prediction.h90 > prediction.h50 {
-                let prefix = prediction.mealCount > 2 ? "90% < " : ""
+                let prefix = prediction.mealCount == 0 ? "80% < " : "90% < "
                 let text = "\(prefix)\(Int(prediction.h90))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
             }
             if prediction.h10 < prediction.h50 && prediction.h10 > 0 {
-                let prefix = prediction.mealCount > 2 ? "90% > " : ""
+                let prefix = prediction.mealCount == 0 ? "80% < " : "90% > "
                 let text = "\(prefix)\(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10) - size.height, width: size.width, height: size.height))

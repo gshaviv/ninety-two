@@ -61,13 +61,11 @@ extension UserDefaults {
         case diaMinutes
         case peakMinutes
         case delayMinutes
-        case ce,cl,ch,ie,il,ih,ce2,cl2,ch2,ie2,il2,ih2
+        case ce,cl,ch,ie,il,ih
+        case esigma, hsigma, lsigma
     }
 
     public enum DoubleArrayKey: String {
-//        case carbRate
-//        case insulinRate
-//        case carbThreshold
         case unused
     }
 
