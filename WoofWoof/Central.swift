@@ -9,6 +9,7 @@
 import Foundation
 import CoreBluetooth
 import UIKit
+import WoofKit
 
 typealias Byte = UInt8
 

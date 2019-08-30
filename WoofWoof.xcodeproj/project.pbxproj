@@ -120,6 +120,7 @@
 		E4922A2C22020536004CABB8 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022C21D6160C00E18DDD /* Calculation.swift */; };
 		E4922A2D2202059E004CABB8 /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
 		E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */; };
+		E4971D7A23198EFD00FAFF0B /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */; };
 		E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4C4E0BF21FC41880046D28F /* Settings.storyboard */; };
 		E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */; };
@@ -136,7 +137,6 @@
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4D8A91B2310073E00895767 /* Predictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D8A91A2310073E00895767 /* Predictor.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
-		E4DBF59421C408A4006AF3CF /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4DFFD8923106027004E746E /* EMTLoadingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DFFD8623106026004E746E /* EMTLoadingIndicator.swift */; };
 		E4DFFD8A23106027004E746E /* EMTTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DFFD8823106027004E746E /* EMTTimer.swift */; };
 		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
@@ -1244,6 +1244,7 @@
 				E48873FE21F232AE00694F6C /* Storage.swift in Sources */,
 				E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */,
 				E4C4E0C421FC4DC10046D28F /* Scan.swift in Sources */,
+				E4971D7A23198EFD00FAFF0B /* log.swift in Sources */,
 				E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */,
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
@@ -1304,7 +1305,6 @@
 				E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */,
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
-				E4DBF59421C408A4006AF3CF /* log.swift in Sources */,
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
 				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
