@@ -117,6 +117,7 @@ public class Storage: NSObject {
     }
     
     public struct Datum {
+        public let date: Date
         public let start: Double
         public let kind: String
         public fileprivate(set) var high: Double
@@ -182,7 +183,8 @@ public class Storage: NSObject {
             let points = readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) }
             let interp = AkimaInterpolator(points: points)
             
-            var entryData = Datum(start: readings[0].value,
+            var entryData = Datum(date: entry.date,
+                                  start: readings[0].value,
                                   kind: entry.type?.name ?? "bolus",
                                   high: 0,
                                   low: Double.greatestFiniteMagnitude,
