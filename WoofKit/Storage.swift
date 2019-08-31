@@ -70,11 +70,11 @@ public class Storage: NSObject {
             }
         }
 
-        let high = CGFloat(carbs * defaults[.ch] - bolus * defaults[.ih] + current)
-        let low = CGFloat(carbs * defaults[.cl] - bolus * defaults[.il] + current)
+        let high = CGFloat(carbs * defaults.param(.ch, at: record.date) - bolus * defaults.param(.ih, at: record.date) + current)
+        let low = CGFloat(carbs * defaults.param(.cl,at: record.date) - bolus * defaults.param(.il, at: record.date) + current)
 //        let end = CGFloat(carbs * defaults[.ce] - bolus * defaults[.ie] + current)
 
-        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults[.hsigma] * 1.2), h50: high, h90: high + CGFloat(defaults[.hsigma] * 1.2), low50: low, low: low - CGFloat(defaults[.lsigma]))
+        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), h50: high, h90: high + CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), low50: low, low: low - CGFloat(defaults.param(.lsigma, at: record.date)))
     }
     
 
@@ -116,7 +116,7 @@ public class Storage: NSObject {
         return impact.sum() / Double(impact.count)
     }
     
-    public struct Datum {
+    public struct Datum : CustomStringConvertible {
         public let date: Date
         public let start: Double
         public let kind: String
@@ -127,25 +127,29 @@ public class Storage: NSObject {
         public let bolus: Int
         public let iob: Double
         public let cob: Double
+        
+        public var description: String {
+            let formater = DateFormatter()
+            formater.dateStyle = .short
+            formater.timeStyle = .short
+            formater.locale = Locale(identifier: "he_IL")
+            formater.timeZone = TimeZone.current
+            return "<Datum: carbs=\(carbs % "2.0lf") cob=\(cob) bolus=\(bolus) iob=\(iob) rise=\((high - start) % "2.0lf") drop=\((start - low) % "2.0lf") kind=\(kind) date=\(formater.string(from: date))>"
+        }
     }
     
-    public func mealData(onlyBolus: Bool = false) -> [Datum] {
+    public func mealData(includeBolus: Bool, includeMeal: Bool) -> [Datum] {
         var datum = [Datum]()
         let timeframe =  (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
         
         for (idx,entry) in allEntries.enumerated() {
-//            guard !entry.isMeal || entry.carbs > 0 else {
-//                continue
-//            }
-//            if onlyBolus && entry.isMeal {
-//                continue
-//            }
-            if onlyBolus {
-                if entry.isMeal {
+            if !includeMeal {
+                if entry.isMeal || entry.carbs > 0 {
                     continue
                 }
-            } else {
-                if entry.carbs == 0 {
+            }
+            if !includeBolus {
+                if !entry.isMeal || entry.carbs == 0 {
                     continue
                 }
             }
@@ -153,13 +157,9 @@ public class Storage: NSObject {
                 continue
             }
             var mealtime = timeframe
-//            hadMeal = hadMeal || entry.isMeal
-//            if !hadMeal {
-//                continue
-//            }
            
-            let totalCarbs = entry.carbs
-            let totalBolus = entry.bolus
+//            let totalCarbs = entry.carbs
+//            let totalBolus = entry.bolus
             if idx < allEntries.count - 2 {
                 let nextEntry = allEntries[idx + 1]
                 if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
@@ -184,13 +184,13 @@ public class Storage: NSObject {
             let interp = AkimaInterpolator(points: points)
             
             var entryData = Datum(date: entry.date,
-                                  start: readings[0].value,
+                                  start: Double(interp.interpolateValue(at: CGFloat(entry.date.timeIntervalSince1970))),
                                   kind: entry.type?.name ?? "bolus",
                                   high: 0,
                                   low: Double.greatestFiniteMagnitude,
                                   end: Double(interp.interpolateValue(at: CGFloat(entry.date.timeIntervalSince1970) + CGFloat(timeframe))),
-                                  carbs: totalCarbs,
-                                  bolus: totalBolus,
+                                  carbs: entry.carbs,
+                                  bolus: entry.bolus,
                                   iob: entry.insulinOnBoardAtStart,
                                   cob: entry.cobOnStart)
             var last = readings.first!.date
@@ -386,31 +386,73 @@ public class Today {
 }
 
 
-public class ParamsPerTimeOfDay {
-    private static var tod: Date?
-    private static var rc: [Double] = []
-    private static var ri: [Double] = []
-    private static var ci: [Double] = []
 
-    public class func reset() {
-        tod = nil
-    }
-
-    public class func set(ri: [Double], rc: [Double], ci: [Double], for date: Date) {
-        tod = nil
-        ParamsPerTimeOfDay.rc = rc
-        ParamsPerTimeOfDay.ri = ri
-        ParamsPerTimeOfDay.ci = ci
-        tod = date
-    }
-
-    public class func params(for stamp: Date) -> (ri: [Double], rc: [Double], ci: [Double])? {
-        guard let tod = tod else {
-            return nil
+public struct StoredParames {
+    fileprivate var paramValues: [String:Double]
+    
+    public subscript(key: UserDefaults.DoubleKey) -> Double {
+        get {
+            return paramValues[key.rawValue] ?? defaults[key] 
         }
-        if stamp.dailyDifference(to: tod) > 3.h {
-            return nil
+        set {
+            paramValues[key.rawValue] = newValue
         }
-        return (ri,rc,ci)
+    }
+    
+    public static func empty() -> StoredParames {
+        return StoredParames([:])
+    }
+    
+    fileprivate init(_ values: [String:Double]) {
+        paramValues = values
     }
 }
+
+public enum PartOfDay: String, CaseIterable {
+    case night
+    case morning
+    case afternoon
+    case evening
+}
+
+public extension Date {
+    var partOfDay: PartOfDay {
+        switch hour {
+        case 4 ..< 11:
+            return .morning
+            
+        case 11 ..< 17:
+            return .afternoon
+            
+        case 17 ..< 23:
+            return .evening
+            
+        default:
+            return .night
+        }
+    }
+}
+
+public extension UserDefaults {
+    subscript(when: PartOfDay) -> StoredParames? {
+        get {
+            if let values = defaults.value(forKey: when.rawValue) as? [String: Double] {
+                return StoredParames(values)
+            }
+            return nil
+        }
+        set {
+            defaults.set(newValue?.paramValues, forKey: when.rawValue)
+        }
+    }
+    func param(_ key: UserDefaults.DoubleKey, at part: PartOfDay) -> Double {
+        if let p = defaults[part] {
+            return p[key]
+        }
+        return defaults[key]
+    }
+    func param(_ key: UserDefaults.DoubleKey, at date: Date) -> Double {
+        return param(key, at: date.partOfDay)
+    }
+}
+

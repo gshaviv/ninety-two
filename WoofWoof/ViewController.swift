@@ -614,7 +614,7 @@ class ViewController: UIViewController {
         }
         ctr.addButton("Training Data") {
             DispatchQueue.global().async {
-                let all = Storage.default.mealData()
+                let all = Storage.default.mealData(includeBolus: true, includeMeal: true)
                 let clean = all.filter { $0.iob == 0 && $0.cob == 0 }
                 let write = { (data:[Storage.Datum], filename: String) in
                     let content = data.reduce(into: "kind,start,carbs,high,low,end,bolus,iob,cob\n") {

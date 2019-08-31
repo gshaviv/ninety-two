@@ -763,10 +763,17 @@ extension RecordViewController {
         var c: Double
         var i: Double
         var cost: Double
+        
+        static let zero = Params(c: 0, i: 0, cost: 0)
+        
+        static func + (lhs: Params, rhs: Params) -> Params {
+            return Params(c: lhs.c + rhs.c, i: lhs.i + rhs.i, cost: lhs.cost + rhs.cost)
+        }
     }
     
     enum CalcError: Error {
         case noData
+        case badData
     }
     
     static private func createmodel() {
@@ -775,140 +782,211 @@ extension RecordViewController {
         }
         
         do {
-            let ins = try calcParams(insulinReaction: nil)
-            let (bestHighP, bestLowP, bestEndP) = try calcParams(insulinReaction: (ins.low.i, ins.end.i))
+            let ins = try calcParams(for: nil, insulinReaction: nil)
+            let (allHighP, allLowP, allEndP) = try calcParams(for: nil, insulinReaction: (ins.low.i, ins.end.i))
             
-            defaults[.ce] = bestEndP.c
-            defaults[.ch] = bestHighP.c
-            defaults[.cl] = bestLowP.c
-            defaults[.ie] = bestEndP.i
-            defaults[.ih] = bestHighP.i
-            defaults[.il] = bestLowP.i
+            defaults[.ce] = allEndP.c
+            defaults[.ch] = allHighP.c
+            defaults[.cl] = allLowP.c
+            defaults[.ie] = allEndP.i
+            defaults[.ih] = allHighP.i
+            defaults[.il] = allLowP.i
+            defaults[.esigma] = sqrt(allEndP.cost)
+            defaults[.lsigma] = sqrt(allLowP.cost)
+            defaults[.hsigma] = sqrt(allHighP.cost)
             
-            defaults[.esigma] = sqrt(bestEndP.cost)
-            defaults[.lsigma] = sqrt(bestLowP.cost)
-            defaults[.hsigma] = sqrt(bestHighP.cost)
+            for part in PartOfDay.allCases {
+                do {
+                    let (bestHighP, bestLowP, bestEndP) = try calcParams(for: part, insulinReaction: (ins.low.i, ins.end.i))
+                    var params = StoredParames.empty()
+                    var tookOne = false
+                    if bestEndP.cost < allEndP.cost {
+                        params[.ce] = bestEndP.c
+                        params[.ie] = bestEndP.i
+                        params[.esigma] = sqrt(bestEndP.cost)
+                        tookOne = true
+                    }
+                    if bestLowP.cost < allLowP.cost {
+                        params[.cl] = bestLowP.c
+                        params[.il] = bestLowP.i
+                        params[.lsigma] = sqrt(bestLowP.cost)
+                        tookOne = true
+                    }
+                    if bestHighP.cost < allHighP.cost {
+                        params[.ch] = bestHighP.c
+                        params[.ih] = bestHighP.i
+                        params[.hsigma] = sqrt(bestHighP.cost)
+                        tookOne = true
+                    }
+                    if tookOne {
+                        defaults[part] = params
+                    } else {
+                        defaults[part] = nil
+                    }
+                } catch {
+                    defaults[part] = nil
+                }
+            }
+            
             defaults[.parameterCalcDate] = Date()
         } catch {}
     }
     
-    static private func calcParams(insulinReaction: (Double,Double)?) throws -> (high: Params, low: Params, end: Params) {
-        let allData = Storage.default.mealData(onlyBolus: insulinReaction == nil)
-        let count = Double(allData.count)
-        if count == 0 {
+    private static func calcCost(data allData: [Storage.Datum], low lowP: Params, high highP: Params, end endP: Params) -> (low: Params, high: Params, end: Params) {
+        let points = allData.map { (datum) -> (Params,Params,Params) in
+            let carbs = datum.carbs + datum.cob
+            let insulin = Double(datum.bolus) + datum.iob
+            let deltaEnd: Params = {
+                let f = carbs * endP.c  - insulin * endP.i + datum.start - datum.end
+                return Params(c: f * carbs,  i: -f * insulin, cost: f ** 2)
+            }()
+            let deltaLow: Params = {
+                let f = carbs * lowP.c  - insulin * lowP.i   + datum.start - datum.low
+                return Params(c: f * carbs,  i: -f * insulin,  cost: f ** 2)
+            }()
+            let deltaHigh: Params = {
+                let f = carbs * highP.c  - insulin * highP.i  + datum.start - datum.high
+                return Params(c: f * carbs, i: -f * insulin,  cost: f ** 2)
+            }()
+            return (deltaLow, deltaHigh, deltaEnd)
+        }
+        let removeOutliers: (([Params]) -> (Params)) = { (params) in
+            let costs = params.map { $0.cost }.sorted()
+            let q1 = costs.percentile(0.25)
+            let q3 = costs.percentile(0.75)
+            let fence = 2.2 * (q3 - q1)
+            var count = 0
+            let sum = params.reduce(Params.zero) {
+                if $1.cost > q1 - fence && $1.cost < q3 + fence {
+                    count += 1
+                    return $0 + $1
+                } else {
+                    return $0
+                }
+            }
+            return Params(c: sum.c, i: sum.i, cost: sum.cost / Double(count))
+        }
+        let low: Params = {
+            let isolated = points.map { $0.0 }
+            return removeOutliers(isolated)
+        }()
+        let high: Params = {
+            let isolated = points.map { $0.1 }
+            return removeOutliers(isolated)
+        }()
+        let end: Params = {
+            let isolated = points.map { $0.2 }
+            return removeOutliers(isolated)
+        }()
+        return (low,high,end)
+    }
+    
+    static private func calcParams(for partOfDay: PartOfDay? ,insulinReaction: (Double,Double)?) throws -> (high: Params, low: Params, end: Params) {
+        let allData = Storage.default.mealData(includeBolus: partOfDay != nil || insulinReaction == nil, includeMeal: partOfDay != nil || insulinReaction != nil).filter {
+            if let partOfDay = partOfDay {
+                return $0.date.partOfDay == partOfDay
+            } else {
+                return true
+            }
+        }
+        let doingInsulin = insulinReaction == nil || partOfDay != nil
+        let doingCarbs = insulinReaction != nil || partOfDay != nil
+
+        if allData.count < 2 {
             throw CalcError.noData
         }
-        
-        let doingInsulin = insulinReaction == nil
+        if doingCarbs {
+            let mealCount = allData.filter { $0.carbs + $0.cob > 0 }.count
+            if mealCount < 2 {
+                throw CalcError.noData
+            }
+        }
         
         var bestEndP = Params(c: 0,  i: 0,  cost: Double.greatestFiniteMagnitude)
         var bestLowP = Params(c: 0, i: 0,  cost: Double.greatestFiniteMagnitude)
         var bestHighP = Params(c: 0,  i: 0,  cost: Double.greatestFiniteMagnitude)
         
-        for _ in 0 ..< 50 {
-            var endP = Params(c: Double.random(in: 5 ... 20),  i: insulinReaction?.1 ?? Double.random(in: 10 ... 60),  cost: Double.greatestFiniteMagnitude)
-            var lowP = Params(c: Double.random(in: 5 ... 20),  i: insulinReaction?.0 ?? Double.random(in: 10 ... 60),  cost: Double.greatestFiniteMagnitude)
-            var highP = Params(c: Double.random(in: 10 ... 20),  i: Double.random(in: 0 ... 30), cost: Double.greatestFiniteMagnitude)
+        for _ in 0 ..< 10 {
+            var endP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.1 ?? Double.random(in: 10 ... 50),  cost: Double.greatestFiniteMagnitude)
+            var lowP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.0 ?? Double.random(in: 10 ... 50),  cost: Double.greatestFiniteMagnitude)
+            var highP = Params(c: doingCarbs ? Double.random(in: 10 ... 20) : 0,  i: Double.random(in: 0 ... 30), cost: Double.greatestFiniteMagnitude)
             var previousEnd = endP
             var previousHigh = highP
             var previousLow = lowP
-            var etaE = 1.0e-4
-            var etaL = 1.0e-4
-            var etaH = doingInsulin ? 1.0e-4 : 1
-            let stop = 0.001
+            var etaE =  0.5
+            var etaL =  0.5
+            var etaH = 0.05
+            let stop = 0.0001
             var iter = 0
             var calcEnd = true
             var calcLow = true
-            var calcHigh = !doingInsulin
-            while iter < 9000 && (calcEnd || calcLow || calcHigh) {
+            var calcHigh = !doingInsulin || doingCarbs
+                        
+            while iter < 6000 && (calcEnd || calcLow || calcHigh) {
                 iter += 1
                 
-                let sum = allData.reduce((low:Params(c: 0,  i: 0, cost: 0),
-                                          high: Params(c: 0, i: 0, cost: 0),
-                                          end: Params(c: 0, i: 0, cost: 0)))
-                { (sum,datum) in
-                    let carbs = datum.carbs + datum.cob
-                    let insulin = Double(datum.bolus) + datum.iob
-                    let deltaEnd: Params = {
-                        if calcEnd {
-                            let f = carbs * endP.c  - insulin * endP.i + datum.start - datum.end
-                            return Params(c: f * carbs,  i: -f * insulin, cost: f ** 2)
-                        }
-                        return Params(c: 0,  i: 0,  cost: 0)
-                    }()
-                    let deltaLow: Params = {
-                        if calcLow {
-                            let f = carbs * lowP.c  - insulin * lowP.i   + datum.start - datum.low
-                            return Params(c: f * carbs,  i: -f * insulin,  cost: f ** 2)
-                        }
-                        return Params(c: 0,  i: 0,  cost: 0)
-                    }()
-                    let deltaHigh: Params = {
-                        if calcHigh {
-                            let f = carbs * highP.c  - insulin * highP.i  + datum.start - datum.high
-                            return Params(c: f * carbs, i: -f * insulin,  cost: f ** 2)
-                        }
-                        return Params(c: 0,  i: 0,  cost: 0)
-                    }()
-                    
-                    return (low: Params(c: sum.low.c + deltaLow.c,  i: sum.low.i + deltaLow.i,  cost: sum.low.cost + deltaLow.cost),
-                            high: Params(c: sum.high.c + deltaHigh.c,  i: sum.high.i + deltaHigh.i,  cost: sum.high.cost + deltaHigh.cost),
-                            end: Params(c: sum.end.c + deltaEnd.c,  i: sum.end.i + deltaEnd.i,  cost: sum.end.cost + deltaEnd.cost))
-                }
-                
-                
+                let sum = calcCost(data: allData, low: lowP, high: highP, end: endP)
+
                 if calcLow {
-                    if sum.low.cost / count > lowP.cost {
+                    if sum.low.cost  > lowP.cost {
                         etaL /= 10
                         lowP = previousLow
                     } else {
-                        let delta = Params(c: doingInsulin ? 0 : sum.low.c * etaL,  i:  doingInsulin ? sum.low.i * etaL : 0,  cost: sum.low.cost / count)
+                        let unit = sqrt(sum.low.c ** 2  + sum.low.i ** 2 )
+                        let delta: Params
+                        if doingCarbs && doingInsulin {
+                            delta = Params(c: sum.low.c * etaL / unit,  i: sum.low.i * etaL / unit,  cost: sum.low.cost)
+                        } else {
+                            delta = Params(c: doingInsulin ? 0 : sum.low.c / abs(sum.low.c) * etaL,  i:  doingInsulin ? sum.low.i / abs(sum.low.i) * etaL : 0,  cost: sum.low.cost)
+                        }
                         if abs(delta.cost - lowP.cost) / lowP.cost < stop {
                             calcLow = false
                         }
                         previousLow = lowP
-                        lowP.c = max(0, lowP.c - delta.c)
-                        lowP.i = max(0, lowP.i - delta.i)
-                        lowP.cost = sum.low.cost / count
+                        lowP.c = doingCarbs ? max(0, lowP.c - delta.c) : 0
+                        lowP.i = doingInsulin ? max(0, lowP.i - delta.i) : insulinReaction!.0
+                        lowP.cost = delta.cost
                     }
                 }
                 if calcHigh {
-                    if sum.high.cost / count > highP.cost {
+                    if sum.high.cost > highP.cost {
                         etaH /= 10
                         highP = previousHigh
                     } else {
                         let unit = sqrt(sum.high.c ** 2  + sum.high.i ** 2 )
-                        let delta = Params(c: sum.high.c * etaH / unit,  i: sum.high.i * etaH / unit,  cost: sum.high.cost / count)
+                        let delta = Params(c: sum.high.c * etaH / unit,  i: sum.high.i * etaH / unit,  cost: sum.high.cost)
                         if abs(delta.cost - highP.cost) / highP.cost < stop {
                             calcHigh = false
                         }
                         previousHigh = highP
-                        highP.c = max(0, highP.c - delta.c)
-                        highP.i = max(0, highP.i - delta.i)
-                        highP.cost = sum.high.cost / count
+                        highP.c =  max(0, highP.c - delta.c)
+                        highP.i =  max(0, highP.i - delta.i)
+                        highP.cost = delta.cost
                     }
                 }
                 if calcEnd {
-                    if sum.end.cost / count > endP.cost {
+                    if sum.end.cost > endP.cost {
                         etaE /= 10
                         endP = previousEnd
                     } else {
-                        let delta = Params(c: doingInsulin ? 0 : sum.end.c * etaE, i: doingInsulin ? sum.end.i * etaE : 0,  cost: sum.end.cost / count)
+                        let unit = sqrt(sum.end.c ** 2  + sum.end.i ** 2 )
+                        let delta: Params
+                        if doingCarbs && doingInsulin {
+                            delta = Params(c: sum.end.c * etaL / unit,  i: sum.end.i * etaL / unit,  cost: sum.end.cost)
+                        } else {
+                            delta = Params(c: doingInsulin ? 0 : sum.end.c / abs(sum.end.c) * etaE, i: doingInsulin ? sum.end.i / abs(sum.end.i) * etaE : 0,  cost: sum.end.cost)
+                        }
                         if abs(delta.cost - endP.cost) / endP.cost < stop {
                             calcEnd = false
                         }
                         previousEnd = endP
-                        endP.c = max(0, endP.c - delta.c)
-                        endP.i = max(0, endP.i - delta.i)
-                        endP.cost = sum.end.cost / count
+                        endP.c = doingCarbs ? max(0, endP.c - delta.c) : 0
+                        endP.i = doingInsulin ? max(0, endP.i - delta.i) : insulinReaction!.1
+                        endP.cost = delta.cost
                     }
                 }
             }
-            if doingInsulin {
-                log("\(iter): i=\(endP.i) diff=\(sqrt(endP.cost))")
-            } else {
-                log("\(iter) --\nEnd:\(endP)\nLow:\(lowP)\nHigh:\(highP)")
-            }
+
             if endP.cost < bestEndP.cost {
                 bestEndP = endP
             }
@@ -918,11 +996,25 @@ extension RecordViewController {
             if lowP.cost < bestLowP.cost {
                 bestLowP = lowP
             }
+            if iter == 1 {
+                let zeroSum = calcCost(data: allData, low: .zero, high: .zero, end: .zero)
+                if lowP.cost > zeroSum.low.cost || endP.cost > zeroSum.end.cost || highP.cost > zeroSum.high.cost {
+                    throw CalcError.badData
+                }
+            }
         }
-        if doingInsulin {
-            log("Best: i=\(bestLowP.i) diff=\(sqrt(bestLowP.cost))")
+        
+        if doingCarbs && (bestEndP.c == 0 || bestLowP.c == 0 || bestHighP.c == 0) {
+            throw CalcError.badData
+        }
+        if doingInsulin && (bestLowP.i == 0 || bestEndP.i == 0) {
+            throw CalcError.badData
+        }
+        
+        if doingInsulin && !doingCarbs {
+            log("Best\(partOfDay == nil ? "" : " in \(partOfDay!.rawValue)"): i=\(bestLowP.i) diff=\(sqrt(bestLowP.cost))")
         } else {
-            log("Best Total Reaction --\nEnd:\(bestEndP)\nLow:\(bestLowP)\nHigh:\(bestHighP)")
+            log("Best Total Reaction\(partOfDay == nil ? "" : " in \(partOfDay!.rawValue)") --\nEnd:\(bestEndP)\nLow:\(bestLowP)\nHigh:\(bestHighP)")
         }
         return (bestHighP, bestLowP, bestEndP)
     }
