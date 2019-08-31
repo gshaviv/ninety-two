@@ -295,6 +295,9 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="xvG-NU-63n">
+                                                <rect key="frame" x="319" y="0.0" width="0.0" height="40"/>
+                                            </activityIndicatorView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wke-Kd-AyZ">
                                                 <rect key="frame" x="319" y="0.0" width="40" height="40"/>
                                                 <constraints>
@@ -352,6 +355,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityIndiator" destination="xvG-NU-63n" id="Ezr-cU-ukN"/>
                         <outlet property="deleteButton" destination="waU-Pu-8Be" id="ond-VD-zvc"/>
                         <outlet property="mealHeader" destination="9iP-Ft-soO" id="Y5h-F5-Wby"/>
                         <outlet property="mealTable" destination="Dn4-8h-JcS" id="8vy-hd-6dZ"/>

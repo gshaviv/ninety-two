@@ -18,6 +18,7 @@ class RecordViewController: UIViewController {
     @IBOutlet var mealTable: UITableView!
     @IBOutlet var mealHeader: UILabel!
     @IBOutlet var deleteButton: UIBarButtonItem!
+    @IBOutlet weak var activityIndiator: UIActivityIndicatorView!
     private var prediction: Prediction?
     var onSelect: ((Record, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
@@ -135,22 +136,19 @@ class RecordViewController: UIViewController {
         if let units = editRecord?.bolus {
             picker.selectRow(units, inComponent: Component.units.rawValue, animated: false)
         }
+        setPrediction(nil)
+        
+        if let last =  defaults[.parameterCalcDate], Date() - last < 72.h {
+            return
+        }
+        activityIndiator.isHidden = false
+        activityIndiator.startAnimating()
         DispatchQueue.global().async {
-//            if let edit = self.editRecord {
-//                RecordViewController.estimatePerTime(for: edit.date)
-//            } else {
-//                RecordViewController.estimatePerTime(for: Date())
-//            }
+            RecordViewController.createmodel()
             DispatchQueue.main.async {
-                if self.prediction == nil {
-                    self.setPrediction(nil)
-                }
-            }
-            DispatchQueue.global().async {
-                RecordViewController.createmodel()
+                self.activityIndiator.stopAnimating()
             }
         }
-        setPrediction(nil)
     }
 
     @IBAction func handleCancel(_ sender: Any) {
@@ -777,10 +775,6 @@ extension RecordViewController {
     }
     
     static private func createmodel() {
-        if let last =  defaults[.parameterCalcDate], Date() - last < 72.h {
-            return
-        }
-        
         do {
             let ins = try calcParams(for: nil, insulinReaction: nil)
             let (allHighP, allLowP, allEndP) = try calcParams(for: nil, insulinReaction: (ins.low.i, ins.end.i))
@@ -892,7 +886,7 @@ extension RecordViewController {
         let doingInsulin = insulinReaction == nil || partOfDay != nil
         let doingCarbs = insulinReaction != nil || partOfDay != nil
 
-        if allData.count < 2 {
+        if allData.count < 4 {
             throw CalcError.noData
         }
         if doingCarbs {
@@ -922,7 +916,7 @@ extension RecordViewController {
             var calcLow = true
             var calcHigh = !doingInsulin || doingCarbs
                         
-            while iter < 6000 && (calcEnd || calcLow || calcHigh) {
+            while iter < 4000 && (calcEnd || calcLow || calcHigh) {
                 iter += 1
                 
                 let sum = calcCost(data: allData, low: lowP, high: highP, end: endP)
