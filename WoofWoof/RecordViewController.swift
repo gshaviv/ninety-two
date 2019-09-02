@@ -777,7 +777,7 @@ extension RecordViewController {
     static private func createmodel() {
         do {
             let ins = try calcParams(for: nil, insulinReaction: nil)
-            let (allHighP, allLowP, allEndP) = try calcParams(for: nil, insulinReaction: (ins.low.i, ins.end.i))
+            let (allHighP, allLowP, allEndP, _) = try calcParams(for: nil, insulinReaction: (ins.low.i, ins.end.i))
             
             defaults[.ce] = allEndP.c
             defaults[.ch] = allHighP.c
@@ -791,22 +791,23 @@ extension RecordViewController {
             
             for part in PartOfDay.allCases {
                 do {
-                    let (bestHighP, bestLowP, bestEndP) = try calcParams(for: part, insulinReaction: (ins.low.i, ins.end.i))
+                    let (bestHighP, bestLowP, bestEndP, data) = try calcParams(for: part, insulinReaction: (ins.low.i, ins.end.i))
                     var params = StoredParames.empty()
                     var tookOne = false
-                    if bestEndP.cost < allEndP.cost {
+                    let global = calcCost(data: data, low: allLowP, high: allHighP, end: allEndP)
+                    if bestEndP.cost < global.end.cost {
                         params[.ce] = bestEndP.c
                         params[.ie] = bestEndP.i
                         params[.esigma] = sqrt(bestEndP.cost)
                         tookOne = true
                     }
-                    if bestLowP.cost < allLowP.cost {
+                    if bestLowP.cost < global.low.cost {
                         params[.cl] = bestLowP.c
                         params[.il] = bestLowP.i
                         params[.lsigma] = sqrt(bestLowP.cost)
                         tookOne = true
                     }
-                    if bestHighP.cost < allHighP.cost {
+                    if bestHighP.cost < global.high.cost {
                         params[.ch] = bestHighP.c
                         params[.ih] = bestHighP.i
                         params[.hsigma] = sqrt(bestHighP.cost)
@@ -875,7 +876,7 @@ extension RecordViewController {
         return (low,high,end)
     }
     
-    static private func calcParams(for partOfDay: PartOfDay? ,insulinReaction: (Double,Double)?) throws -> (high: Params, low: Params, end: Params) {
+    static private func calcParams(for partOfDay: PartOfDay? ,insulinReaction: (Double,Double)?) throws -> (high: Params, low: Params, end: Params, data: [Storage.Datum]) {
         let allData = Storage.default.mealData(includeBolus: partOfDay != nil || insulinReaction == nil, includeMeal: partOfDay != nil || insulinReaction != nil).filter {
             if let partOfDay = partOfDay {
                 return $0.date.partOfDay == partOfDay
@@ -1010,6 +1011,6 @@ extension RecordViewController {
         } else {
             log("Best Total Reaction\(partOfDay == nil ? "" : " in \(partOfDay!.rawValue)") --\nEnd:\(bestEndP)\nLow:\(bestLowP)\nHigh:\(bestHighP)")
         }
-        return (bestHighP, bestLowP, bestEndP)
+        return (bestHighP, bestLowP, bestEndP, allData)
     }
 }
