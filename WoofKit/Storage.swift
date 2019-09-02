@@ -195,8 +195,7 @@ public class Storage: NSObject {
                                   cob: entry.cobOnStart)
             var last = readings.first!.date
             var isValid = true
-            var wentUp = false
-            var lastValue = Double.greatestFiniteMagnitude
+            var inRange = false
             for point in readings {
                 let time = point.date
                 if time - last > 30.m {
@@ -214,14 +213,13 @@ public class Storage: NSObject {
                 if value < entryData.low {
                     entryData.low = value
                 }
-                if value < defaults[.lowAlertLevel] && wentUp {
+                if value < defaults[.lowAlertLevel] && inRange {
                     isValid = false
                     break
                 }
-                if value > lastValue {
-                    wentUp = true
+                if value > defaults[.minRange] {
+                    inRange = true
                 }
-                lastValue = value
             }
             
             guard isValid && entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
