@@ -123,10 +123,11 @@ public class Storage: NSObject {
         public fileprivate(set) var high: Double
         public fileprivate(set) var low: Double
         public let end: Double
-        public let carbs: Double
+        public fileprivate(set) var carbs: Double
         public let bolus: Int
         public let iob: Double
         public let cob: Double
+        public fileprivate(set) var isComplete: Bool
         
         public var description: String {
             let formater = DateFormatter()
@@ -165,7 +166,7 @@ public class Storage: NSObject {
                 if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
                     mealtime = 5.h
                 } else if nextEntry.date < entry.date + mealtime {
-                    continue
+                    mealtime = nextEntry.date - entry.date
                 }
             } else {
                 mealtime = 5.h
@@ -192,7 +193,8 @@ public class Storage: NSObject {
                                   carbs: entry.carbs,
                                   bolus: entry.bolus,
                                   iob: entry.insulinOnBoardAtStart,
-                                  cob: entry.cobOnStart)
+                                  cob: entry.cobOnStart,
+                                  isComplete: mealtime >= timeframe)
             var last = readings.first!.date
             var isValid = true
             var inRange = false
@@ -222,8 +224,14 @@ public class Storage: NSObject {
                 }
             }
             
-            guard isValid && entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
+            guard entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
                 continue
+            }
+            if !isValid {
+                entryData.isComplete = false
+            }
+            if !entryData.isComplete {
+                entryData.carbs *= mealtime / timeframe
             }
             datum.append(entryData)
         }

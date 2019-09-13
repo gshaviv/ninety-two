@@ -866,11 +866,11 @@ extension RecordViewController {
             return removeOutliers(isolated)
         }()
         let high: Params = {
-            let isolated = points.map { $0.1 }
+            let isolated = points.enumerated().filter { allData[$0.offset].isComplete }.map { $0.1.1 }
             return removeOutliers(isolated)
         }()
         let end: Params = {
-            let isolated = points.map { $0.2 }
+            let isolated = points.enumerated().filter { allData[$0.offset].isComplete }.map { $0.1.2 }
             return removeOutliers(isolated)
         }()
         return (low,high,end)
