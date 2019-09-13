@@ -8,6 +8,7 @@
 
 import WatchKit
 import Foundation
+import Combine
 
 class InterfaceController: WKInterfaceController {
     @IBOutlet var glucoseLabel: WKInterfaceLabel!
@@ -15,6 +16,7 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var agoLabel: WKInterfaceLabel!
     @IBOutlet var imageView: WKInterfaceImage!
     @IBOutlet var loadingImage: WKInterfaceImage!
+    private var observe: AnyCancellable?
     private lazy var indicator: EMTLoadingIndicator = EMTLoadingIndicator(interfaceController: self, interfaceImage: loadingImage, width: 16, height: 16, style: .dot)
     enum DimState: Int8 {
         case none
@@ -56,12 +58,42 @@ class InterfaceController: WKInterfaceController {
     }
     var cancelUpdate = false
     var triggered = false
+    var lastPoint: GlucosePoint = GlucosePoint(date: Date.distantPast, value: 0)
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         imageView.setAlpha(0)
         loadingImage.setAlpha(0)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
+        observe = WKExtension.extensionDelegate.state.sink(receiveValue: {
+            let (state, data) = $0
+            if let last = data.readings.last {
+                self.lastPoint = last
+            }
+            switch state {
+            case .ready:
+                self.isDimmed = .none
+                self.update(data: data)
+                DispatchQueue.global().async {
+                    if let image = self.createImage(data: data) {
+                        DispatchQueue.main.async {
+                            self.imageView.setImage(image)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.imageView.setImage(nil)
+                        }
+                    }
+                }
+                
+            case .sending:
+                self.isDimmed = .little
+                
+            case .error:
+                self.isDimmed = .none
+                self.showError()
+            }
+        })
     }
 
     @objc private func didEnterForeground() {
@@ -87,14 +119,14 @@ class InterfaceController: WKInterfaceController {
             cancelUpdate = false
             return
         }
-        if let last = WKExtension.extensionDelegate.readings.last {
-            if Date() - last.date > 1.m && WKExtension.shared().applicationState == .active {
+        if lastPoint.value > 0 {
+            if Date() - lastPoint.date > 1.m && WKExtension.shared().applicationState == .active {
                 WKExtension.extensionDelegate.refresh(blank: .none)
             }
-            let minutes = Int(Date().timeIntervalSince(last.date))
+            let minutes = Int(Date().timeIntervalSince(lastPoint.date))
             let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
             let attr: NSAttributedString
-            if last.value < 70 {
+            if lastPoint.value < 70 {
                 attr = (minutes < 90 ? String(format: "%02ld", minutes) : String(format: "%ld:%02ld", minutes / 60, minutes % 60)).styled.color(.white).font(f)
             } else {
                 attr = String(format: "%ld:%02ld", minutes / 60, minutes % 60).styled.color(.white).font(f)
@@ -106,32 +138,21 @@ class InterfaceController: WKInterfaceController {
 
     }
 
-    func update() {
-        guard let last = WKExtension.extensionDelegate.readings.last else {
+    func update(data: State) {
+        guard let last = data.readings.last else {
             return
         }
         isDimmed = .none
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
 
-        glucoseLabel.setText("\(levelStr)\(WKExtension.extensionDelegate.trendSymbol)")
+        glucoseLabel.setText("\(levelStr)\(data.trendSymbol)")
         if last.value < 70 {
-            let tvalue = String(format: "%.1lf",WKExtension.extensionDelegate.trendValue).trimmingCharacters(in: CharacterSet(charactersIn: "0"))
-            trendLabel.setText(String(format: "%@%@", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", tvalue))
+            let tvalue = String(format: "%.1lf",data.trendValue).trimmingCharacters(in: CharacterSet(charactersIn: "0"))
+            trendLabel.setText(String(format: "%@%@", data.trendValue > 0 ? "+" : "", tvalue))
         } else {
-            trendLabel.setText(String(format: "%@%.1lf", WKExtension.extensionDelegate.trendValue > 0 ? "+" : "", WKExtension.extensionDelegate.trendValue))
+            trendLabel.setText(String(format: "%@%.1lf", data.trendValue > 0 ? "+" : "", data.trendValue))
         }
         updateTime(startTimer: false)
-        DispatchQueue.global().async {
-            if let image = self.createImage() {
-                DispatchQueue.main.async {
-                    self.imageView.setImage(image)
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.imageView.setImage(nil)
-                }
-            }
-        }
     }
 
     func showError() {
@@ -144,9 +165,7 @@ class InterfaceController: WKInterfaceController {
 
 
 
-    func createImage() -> UIImage? {
-//        var colors = [(Double,Double,UIColor)]()
-//        colors.append((0, defaults[.level0] , defaults[.color0] ))
+    func createImage(data: State) -> UIImage? {
         let colors = [0 ... defaults[.level0]: defaults[.color0] ,
                       defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
                       defaults[.level1] ... defaults[.level2]: defaults[.color2] ,
@@ -158,7 +177,7 @@ class InterfaceController: WKInterfaceController {
         let dotRadius:CGFloat = 4
 
         let width = WKInterfaceDevice.current().screenBounds.size.width * WKInterfaceDevice.current().screenScale
-        let points = WKExtension.extensionDelegate.readings
+        let points = data.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
         var yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
         if yRange.max - yRange.min < 40 {
@@ -202,8 +221,6 @@ class InterfaceController: WKInterfaceController {
         let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !p.isEmpty {
             let curve = UIBezierPath()
-//                curve.move(to: p[0])
-//                curve.addCurveThrough(points: p[1...], contractionFactor: 0.65)
             curve.interpolate(points: p)
             UIColor.darkGray.set()
             curve.lineWidth = lineWidth
@@ -218,10 +235,10 @@ class InterfaceController: WKInterfaceController {
             fill.lineWidth = 0
             fill.fill()
         }
-        let iob = WKExtension.extensionDelegate.iob
+        let iob = data.iob
         if iob > 0 {
             let scale = WKInterfaceDevice.current().screenScale
-            let text = String(format: "BOB %.1lf\n%.2lf", iob, WKExtension.extensionDelegate.insulinAction)
+            let text = String(format: "BOB %.1lf\n%.2lf", iob, data.insulinAction)
             let pStyle = NSMutableParagraphStyle()
             pStyle.alignment = .center
             let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16 * scale, weight: .bold),

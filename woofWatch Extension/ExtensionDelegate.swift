@@ -8,19 +8,39 @@
 
 import WatchKit
 import WatchConnectivity
+import Combine
+
 
 extension WKExtension {
     static public let willEnterForegroundNotification = Notification.Name("willEnterForeground")
     static public let didEnterBackgroundNotification = Notification.Name("didEnterBackground")
 }
 
+struct State {
+    private(set) var trendValue: Double
+    private(set) var trendSymbol: String
+    private(set) var readings:  [GlucosePoint]
+    private(set) var iob: Double
+    private(set) var insulinAction: Double
+}
+
+enum Status {
+    case ready
+    case sending
+    case error
+}
+
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
-    private(set) public var data = DisplayValue(date: Date(), string: "-")
-    private(set) public var trendValue: Double = 0
-    private(set) public var trendSymbol: String = ""
-    private(set) public var readings =  [GlucosePoint]()
-    private(set) public var iob: Double = 0
-    private(set) public var insulinAction: Double = 0
+    private(set) var complicationState = DisplayValue(date: Date(), string: "-")
+    private(set) var data = State(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
+        didSet {
+            self.appState = .ready
+        }
+    }
+    @Published private var appState: Status = .error
+    private(set) lazy var state = $appState.map { ($0, self.data) }.eraseToAnyPublisher()
+    
+
     private var lastRefreshDate = Date.distantPast
     
     override init() {
@@ -42,16 +62,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
-        isSending = false
+        appState = .ready
         refresh(blank: .little)
     }
 
-    private var isSending = false
     func refresh(blank: InterfaceController.DimState = .none) {
-        guard Date() - lastRefreshDate > 20.s && !isSending else {
+        guard Date() - lastRefreshDate > 20.s && appState != .sending else {
             return
         }
-        if let last = readings.last {
+        if let last = data.readings.last {
             if last.value >= 70 && Date() - last.date < 3.m {
                 return
             } else if last.value < 70 && Date() - last.date < 1.m {
@@ -59,49 +78,34 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         
-        isSending = true
-        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
-        }
+        appState = .sending
+//        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+//            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
+//        }
         var ops = ["state"]
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
-            self.isSending = false
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double else {
                 return
             }
+            let readings = m.compactMap { value -> GlucosePoint? in
+                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                    return nil
+                }
+                return GlucosePoint(date: d, value: v)
+            }
+            self.data = State(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+                
             DispatchQueue.main.async {
-                log("iob=\(iob)")
-                self.iob = iob
-                self.insulinAction = act
-                self.lastRefreshDate = Date()
-                self.trendValue = t
-                self.trendSymbol = s
-                self.readings = m.compactMap {
-                    guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                        return nil
-                    }
-                    return GlucosePoint(date: d, value: v)
-                }
-                if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                    DispatchQueue.main.async {
-                        controller.update()
-                    }
-                }
-                if let symbol = info["c"] as? String, let last = self.readings.last?.date, symbol != self.data.string {
-                    self.data = DisplayValue(date: last, string: symbol)
+                if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
+                    self.complicationState = DisplayValue(date: last, string: symbol)
                     self.reloadComplication()
                 }
             }
         }) { (_) in
-            self.isSending = false
-            if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                DispatchQueue.main.async {
-                    controller.showError()
-                }
-            }
+            self.appState = .error
         }
     }
 
@@ -114,9 +118,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
-                if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-                    ctr.isDimmed = .dim
-                }
+//                if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
+//                    ctr.isDimmed = .dim
+//                }
                 
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
@@ -156,30 +160,23 @@ extension ExtensionDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
         if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? String {
-            data = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
+            complicationState = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
             reloadComplication()
-            self.isSending = false
+//            self.appState = .ready
         }
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any] else {
+        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any], let act = applicationContext["ia"] as? Double, let iob = applicationContext["iob"] as? Double else {
             return
         }
-        trendValue = t
-        trendSymbol = s
-        isSending = false
-        readings = m.compactMap {
-            guard let a = $0 as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+        let readings = m.compactMap { value -> GlucosePoint? in
+            guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
                 return nil
             }
             return GlucosePoint(date: d, value: v)
         }
-        if let controller = WKExtension.shared().rootInterfaceController as? InterfaceController {
-            DispatchQueue.main.async {
-                controller.update()
-            }
-        }
+        self.data = State(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {

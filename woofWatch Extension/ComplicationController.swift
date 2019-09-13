@@ -33,7 +33,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
         // Call the handler with the current timeline entry
-        let current = WKExtension.extensionDelegate.data
+        let current = WKExtension.extensionDelegate.complicationState
 
         if let template = getTemplates(family: complication.family, data: current) {
             let entry = CLKComplicationTimelineEntry(date: current.date, complicationTemplate: template)
