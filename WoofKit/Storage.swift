@@ -198,6 +198,7 @@ public class Storage: NSObject {
             var last = readings.first!.date
             var isValid = true
             var inRange = false
+            var timeOfLow = last
             for point in readings {
                 let time = point.date
                 if time - last > 30.m {
@@ -214,6 +215,7 @@ public class Storage: NSObject {
                 }
                 if value < entryData.low {
                     entryData.low = value
+                    timeOfLow = time
                 }
                 if value < defaults[.lowAlertLevel] && inRange {
                     isValid = false
@@ -224,14 +226,19 @@ public class Storage: NSObject {
                 }
             }
             
-            guard entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65 else {
+            guard entryData.start > 30 && entryData.end > 30 && entryData.high > 30 && entryData.low > 65  else {
                 continue
             }
             if !isValid {
-                entryData.isComplete = false
+                if timeOfLow <= last {
+                    entryData.isComplete = false
+                } else {
+                    continue
+                }
             }
             if !entryData.isComplete {
                 entryData.carbs *= mealtime / timeframe
+                continue // don't use incomplete meals
             }
             datum.append(entryData)
         }
