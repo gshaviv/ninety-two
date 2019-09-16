@@ -17,6 +17,7 @@ class InterfaceController: WKInterfaceController {
     @IBOutlet var imageView: WKInterfaceImage!
     @IBOutlet var loadingImage: WKInterfaceImage!
     private var observe: AnyCancellable?
+    
     private lazy var indicator: EMTLoadingIndicator = EMTLoadingIndicator(interfaceController: self, interfaceImage: loadingImage, width: 16, height: 16, style: .dot)
     enum DimState: Int8 {
         case none
@@ -67,23 +68,13 @@ class InterfaceController: WKInterfaceController {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
         observe = WKExtension.extensionDelegate.state.sink(receiveValue: {
             let (state, data) = $0
-            if let last = data.readings.last {
-                self.lastPoint = last
-            }
             switch state {
             case .ready:
                 self.isDimmed = .none
-                self.update(data: data)
-                DispatchQueue.global().async {
-                    if let image = self.createImage(data: data) {
-                        DispatchQueue.main.async {
-                            self.imageView.setImage(image)
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self.imageView.setImage(nil)
-                        }
-                    }
+                if let last = data.readings.last, last.date != self.lastPoint.date {
+                    self.lastPoint = last
+                    self.update(data: data)
+                    _ = Just(data).receive(on: DispatchQueue.global()).compactMap { self.createImage(data: $0) }.receive(on: DispatchQueue.main).sink { self.imageView.setImage($0) }
                 }
                 
             case .sending:

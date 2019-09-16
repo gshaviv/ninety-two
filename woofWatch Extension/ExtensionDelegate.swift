@@ -31,7 +31,13 @@ enum Status {
 }
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
-    private(set) var complicationState = DisplayValue(date: Date(), string: "-")
+    private(set) var complicationState = DisplayValue(date: Date(), string: "-") {
+        didSet {
+            DispatchQueue.main.async {
+                self.reloadComplication()
+            }
+        }
+    }
     private(set) var data = State(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
         didSet {
             self.appState = .ready
@@ -44,6 +50,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private var lastRefreshDate = Date.distantPast
     
     override init() {
+        super.init()
         defaults.register()
     }
 
@@ -62,7 +69,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
-        appState = .ready
+        if appState == .sending {
+            appState = .error
+        }
         refresh(blank: .little)
     }
 
@@ -101,7 +110,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             DispatchQueue.main.async {
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
                     self.complicationState = DisplayValue(date: last, string: symbol)
-                    self.reloadComplication()
                 }
             }
         }) { (_) in
@@ -161,8 +169,6 @@ extension ExtensionDelegate: WCSessionDelegate {
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
         if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? String {
             complicationState = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
-            reloadComplication()
-//            self.appState = .ready
         }
     }
 
