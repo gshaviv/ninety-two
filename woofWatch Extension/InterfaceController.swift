@@ -66,9 +66,9 @@ class InterfaceController: WKInterfaceController {
         imageView.setAlpha(0)
         loadingImage.setAlpha(0)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
-        observe = WKExtension.extensionDelegate.state.sink(receiveValue: {
-            let (state, data) = $0
-            switch state {
+        observe = appState.$state.sink(receiveValue: {
+            let data = appState.data
+            switch $0 {
             case .ready:
                 self.isDimmed = .none
                 if let last = data.readings.last, last.date != self.lastPoint.date {
@@ -138,7 +138,7 @@ class InterfaceController: WKInterfaceController {
 
     }
 
-    func update(data: State) {
+    func update(data: StateData) {
         guard let last = data.readings.last else {
             return
         }
@@ -165,7 +165,7 @@ class InterfaceController: WKInterfaceController {
 
 
 
-    func createImage(data: State) -> UIImage? {
+    func createImage(data: StateData) -> UIImage? {
         let colors = [0 ... defaults[.level0]: defaults[.color0] ,
                       defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
                       defaults[.level1] ... defaults[.level2]: defaults[.color2] ,

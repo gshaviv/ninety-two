@@ -16,7 +16,7 @@ extension WKExtension {
     static public let didEnterBackgroundNotification = Notification.Name("didEnterBackground")
 }
 
-struct State {
+struct StateData {
     private(set) var trendValue: Double
     private(set) var trendSymbol: String
     private(set) var readings:  [GlucosePoint]
@@ -24,12 +24,23 @@ struct State {
     private(set) var insulinAction: Double
 }
 
-enum Status {
+enum State {
     case ready
     case sending
     case error
     case connectionError
 }
+
+class AppState: ObservableObject {
+    @Published var state: State = .error
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
+        didSet {
+            self.state = .ready
+        }
+    }
+}
+
+var appState = AppState()
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) var complicationState = DisplayValue(date: Date(), string: "-") {
@@ -39,15 +50,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
     }
-    private(set) var data = State(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
-        didSet {
-            self.appState = .ready
-        }
-    }
-    @Published private var appState: Status = .error
-    private(set) lazy var state = $appState.map { ($0, self.data) }.eraseToAnyPublisher()
-    
-
     private var lastRefreshDate = Date.distantPast
     
     override init() {
@@ -70,17 +72,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
-        if appState == .sending {
-            appState = .connectionError
+        if appState.state == .sending {
+            appState.state = .connectionError
         }
         refresh(blank: .little)
     }
 
     func refresh(blank: InterfaceController.DimState = .none) {
-        guard Date() - lastRefreshDate > 20.s && appState != .sending else {
+        guard Date() - lastRefreshDate > 20.s && appState.state != .sending else {
             return
         }
-        if let last = data.readings.last {
+        if let last = appState.data.readings.last {
             if last.value >= 70 && Date() - last.date < 3.m {
                 return
             } else if last.value < 70 && Date() - last.date < 1.m {
@@ -88,7 +90,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         
-        appState = .sending
+        appState.state = .sending
 //        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
 //            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
 //        }
@@ -106,7 +108,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 }
                 return GlucosePoint(date: d, value: v)
             }
-            self.data = State(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+            appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
                 
             DispatchQueue.main.async {
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
@@ -114,7 +116,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 }
             }
         }) { (_) in
-            self.appState = .error
+            appState.state = .error
         }
     }
 
@@ -183,7 +185,7 @@ extension ExtensionDelegate: WCSessionDelegate {
             }
             return GlucosePoint(date: d, value: v)
         }
-        self.data = State(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+        appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
