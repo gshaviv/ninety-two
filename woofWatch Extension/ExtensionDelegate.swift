@@ -28,6 +28,7 @@ enum Status {
     case ready
     case sending
     case error
+    case connectionError
 }
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
@@ -70,7 +71,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     func applicationDidBecomeActive() {
         if appState == .sending {
-            appState = .error
+            appState = .connectionError
         }
         refresh(blank: .little)
     }

@@ -83,6 +83,9 @@ class InterfaceController: WKInterfaceController {
             case .error:
                 self.isDimmed = .none
                 self.showError()
+                
+            default:
+                break
             }
         })
     }
