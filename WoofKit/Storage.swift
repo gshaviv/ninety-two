@@ -124,7 +124,7 @@ public class Storage: NSObject {
         public fileprivate(set) var low: Double
         public let end: Double
         public fileprivate(set) var carbs: Double
-        public let bolus: Int
+        public fileprivate(set) var bolus: Double
         public let iob: Double
         public let cob: Double
         public fileprivate(set) var isComplete: Bool
@@ -191,7 +191,7 @@ public class Storage: NSObject {
                                   low: Double.greatestFiniteMagnitude,
                                   end: Double(interp.interpolateValue(at: CGFloat(entry.date.timeIntervalSince1970) + CGFloat(timeframe))),
                                   carbs: entry.carbs,
-                                  bolus: entry.bolus,
+                                  bolus: Double(entry.bolus),
                                   iob: entry.insulinOnBoardAtStart,
                                   cob: entry.cobOnStart,
                                   isComplete: mealtime >= timeframe)
@@ -238,7 +238,8 @@ public class Storage: NSObject {
             }
             if !entryData.isComplete {
                 entryData.carbs *= mealtime / timeframe
-                continue // don't use incomplete meals
+                entryData.bolus -= entry.insulinAction(at: entry.date + mealtime).iob
+//                continue // don't use incomplete meals
             }
             datum.append(entryData)
         }
