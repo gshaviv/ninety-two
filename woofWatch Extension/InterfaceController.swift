@@ -74,7 +74,13 @@ class InterfaceController: WKInterfaceController {
                 if let last = data.readings.last, last.date != self.lastPoint.date {
                     self.lastPoint = last
                     self.update(data: data)
-                    _ = Just(data).receive(on: DispatchQueue.global()).compactMap { self.createImage(data: $0) }.receive(on: DispatchQueue.main).sink { self.imageView.setImage($0) }
+                    DispatchQueue.global().async {
+                        if let image = self.createImage(data: data) {
+                            DispatchQueue.main.async {
+                                self.imageView.setImage(image)
+                            }
+                        }
+                    }
                 }
                 
             case .sending:
