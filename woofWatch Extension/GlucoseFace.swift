@@ -53,7 +53,7 @@ struct GlucoseFace: View {
                         Spacer(minLength: 0)
                         Text("\(levelStr)\(state.data.trendSymbol)")
                             .font(.title)
-                            .foregroundColor(state.state == .error ? .purple : .yellow)
+                            .foregroundColor(state.state == .error ? .pink : .yellow)
                             .lineLimit(1)
                             .layoutPriority(2)
                         Spacer(minLength: 0)

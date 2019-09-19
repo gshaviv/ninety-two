@@ -6,45 +6,12 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14643"/>
     </dependencies>
     <scenes>
-        <!--Interface Controller-->
-        <scene sceneID="aou-V4-d1y">
-            <objects>
-                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="woofWatch" customModuleProvider="target">
-                    <items>
-                        <group width="1" alignment="left" id="guQ-eW-pCe">
-                            <items>
-                                <group alignment="left" verticalAlignment="center" layout="overlap" id="g5N-Tx-VoY">
-                                    <items>
-                                        <label alignment="center" verticalAlignment="center" text="2.0" id="LeA-KA-RyD"/>
-                                        <imageView width="16" height="16" alignment="center" verticalAlignment="center" id="C5j-xp-RM6"/>
-                                    </items>
-                                </group>
-                                <label alignment="center" verticalAlignment="center" text="95x" id="CJy-43-4iV">
-                                    <color key="textColor" red="0.83216959239999999" green="0.98548370600000001" blue="0.47333085539999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <fontDescription key="font" style="UICTFontTextStyleTitle1"/>
-                                </label>
-                                <label alignment="right" verticalAlignment="center" text="1m" id="8eL-2P-Wbi"/>
-                            </items>
-                        </group>
-                        <imageView width="1" height="110" alignment="center" verticalAlignment="center" contentMode="scaleAspectFit" id="o4d-03-Fc5"/>
-                    </items>
-                    <connections>
-                        <outlet property="agoLabel" destination="8eL-2P-Wbi" id="7iU-O3-LL7"/>
-                        <outlet property="glucoseLabel" destination="CJy-43-4iV" id="y26-F5-hqC"/>
-                        <outlet property="imageView" destination="o4d-03-Fc5" id="vuh-oA-KOj"/>
-                        <outlet property="loadingImage" destination="C5j-xp-RM6" id="73J-UW-6GM"/>
-                        <outlet property="trendLabel" destination="LeA-KA-RyD" id="hHp-NI-9f3"/>
-                    </connections>
-                </controller>
-            </objects>
-            <point key="canvasLocation" x="-63" y="2"/>
-        </scene>
         <!--Glucose Face Controller-->
         <scene sceneID="smA-Ns-Y7V">
             <objects>
                 <controller id="C5u-kJ-FeA" customClass="GlucoseFaceController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="-199" y="337"/>
+            <point key="canvasLocation" x="166" y="345"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
