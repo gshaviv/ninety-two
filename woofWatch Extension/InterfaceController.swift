@@ -120,9 +120,6 @@ class InterfaceController: WKInterfaceController {
             return
         }
         if lastPoint.value > 0 {
-            if Date() - lastPoint.date > 1.m && WKExtension.shared().applicationState == .active {
-                WKExtension.extensionDelegate.refresh(blank: .none)
-            }
             let minutes = Int(Date().timeIntervalSince(lastPoint.date))
             let f = UIFont.monospacedDigitSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .medium)
             let attr: NSAttributedString
@@ -210,7 +207,7 @@ class InterfaceController: WKInterfaceController {
         var components = xRange.min.components
         components.second = 0
         components.minute = 0
-        var xDate = components.date
+        var xDate = components.getDate
         let step = 1.h
         repeat {
             ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))

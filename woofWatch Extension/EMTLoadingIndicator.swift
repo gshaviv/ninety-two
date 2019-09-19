@@ -12,7 +12,7 @@ import WatchKit
 final public class EMTLoadingIndicator: NSObject {
 
     private weak var controller: WKInterfaceController?
-    private weak var image: WKInterfaceImage?
+    public weak var image: WKInterfaceImage?
     private var imageSize: CGSize
     
     private static var dotWaitImage: UIImage?

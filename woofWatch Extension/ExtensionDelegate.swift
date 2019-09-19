@@ -24,18 +24,17 @@ struct StateData {
     private(set) var insulinAction: Double
 }
 
-enum State {
+enum Status {
     case ready
     case sending
     case error
-    case connectionError
 }
 
 class AppState: ObservableObject {
-    @Published var state: State = .error
+    @Published var state: Status = .error
     var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
         didSet {
-            self.state = .ready
+                self.state = .ready
         }
     }
 }
@@ -63,7 +62,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationWillEnterForeground() {
-        refresh(blank: .dim)
+        refresh()
         NotificationCenter.default.post(name: WKExtension.willEnterForegroundNotification, object: nil)
     }
 
@@ -72,14 +71,11 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
-        if appState.state == .sending {
-            appState.state = .connectionError
-        }
-        refresh(blank: .little)
+        refresh(force: true)
     }
 
-    func refresh(blank: InterfaceController.DimState = .none) {
-        guard Date() - lastRefreshDate > 20.s && appState.state != .sending else {
+    func refresh(force: Bool = false) {
+        guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force) else {
             return
         }
         if let last = appState.data.readings.last {
@@ -89,7 +85,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 return
             }
         }
-        
         appState.state = .sending
 //        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
 //            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
@@ -108,15 +103,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 }
                 return GlucosePoint(date: d, value: v)
             }
-            appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
-                
+
             DispatchQueue.main.async {
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
                     self.complicationState = DisplayValue(date: last, string: symbol)
                 }
             }
         }) { (_) in
+            DispatchQueue.main.async {
             appState.state = .error
+            }
         }
     }
 
@@ -164,7 +161,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if session.activationState == .activated {
             DispatchQueue.main.async {
-                self.refresh(blank: .dim)
+                self.refresh(force: true)
             }
         }
     }
@@ -185,7 +182,9 @@ extension ExtensionDelegate: WCSessionDelegate {
             }
             return GlucosePoint(date: d, value: v)
         }
-        appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+        DispatchQueue.main.async {
+            appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+        }
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {

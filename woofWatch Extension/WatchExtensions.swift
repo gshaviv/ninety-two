@@ -11,7 +11,7 @@ import CoreGraphics
 import WatchKit
 
 extension DateComponents {
-    var date: Date {
+    public var getDate: Date {
         return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
     }
 }
