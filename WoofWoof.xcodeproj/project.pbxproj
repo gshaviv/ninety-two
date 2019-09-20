@@ -120,7 +120,6 @@
 		E4922A2D2202059E004CABB8 /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
 		E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */; };
 		E4971D7A23198EFD00FAFF0B /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
-		E4A14D772333C5E800383814 /* ImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D762333C5E800383814 /* ImageGenerator.swift */; };
 		E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D792333C68900383814 /* GraphImage.swift */; };
 		E4A14D7C2333C70700383814 /* CircularActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */; };
 		E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */; };
@@ -408,7 +407,6 @@
 		E48F42C321C6DA5E001AF4CD /* LibreSensor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibreSensor.swift; sourceTree = "<group>"; };
 		E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DateFromToPickerController.xib; sourceTree = "<group>"; };
 		E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
-		E4A14D762333C5E800383814 /* ImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenerator.swift; sourceTree = "<group>"; };
 		E4A14D792333C68900383814 /* GraphImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphImage.swift; sourceTree = "<group>"; };
 		E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularActivityIndicator.swift; sourceTree = "<group>"; };
 		E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseFaceController.swift; sourceTree = "<group>"; };
@@ -648,7 +646,6 @@
 				E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */,
 				E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */,
 				E4A14D792333C68900383814 /* GraphImage.swift */,
-				E4A14D762333C5E800383814 /* ImageGenerator.swift */,
 				E4B164442334E094006A0BF9 /* TimeLabel.swift */,
 			);
 			path = "woofWatch Extension";
@@ -1288,7 +1285,6 @@
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
-				E4A14D772333C5E800383814 /* ImageGenerator.swift in Sources */,
 				E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */,
 				E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */,
 				E4BEE5D82330C693007B4896 /* GlucoseFace.swift in Sources */,
