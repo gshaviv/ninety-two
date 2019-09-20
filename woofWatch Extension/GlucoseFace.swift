@@ -15,7 +15,11 @@ struct GlucoseFace: View {
     
     var body: some View {
         guard let last = state.data.readings.last else {
-            return Text("Connecting...").font(.headline).asAnyView
+            return VStack {
+                CircularActivityIndicator(size: 40)
+                Text("Connecting...").font(.headline)
+            }
+            .asAnyView
         }
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
         let tvalue: String
