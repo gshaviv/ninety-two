@@ -12,15 +12,20 @@ import Combine
 
 struct GraphImage: View {
     @State private var image: UIImage? = nil
+    @State private var imageGenerator = ImageGenerator()
     private var cancel: AnyCancellable?
-    @ObservedObject var imageGenerator: ImageGenerator
+    private var state: AppState
+    private var size: CGSize
     
     var body: some View {
-        Image(uiImage: imageGenerator.image)
+        self.imageGenerator.size = size
+        self.imageGenerator.observe(state: state)
+        return Image(uiImage: imageGenerator.image)
             .cornerRadius(6)
     }
     
     init(state: AppState, size: CGSize) {
-        self.imageGenerator = ImageGenerator(size: size, state: state)
+        self.state = state
+        self.size = size
     }
 }

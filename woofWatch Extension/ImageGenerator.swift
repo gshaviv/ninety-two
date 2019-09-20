@@ -14,10 +14,18 @@ class ImageGenerator: ObservableObject {
     @Published var image = UIImage(systemName: "waveform.path.ecg")!
     private var observe: AnyCancellable?
     var lastPoint: GlucosePoint = GlucosePoint(date: Date.distantPast, value: 0)
-    private var size: CGSize
+    var size: CGSize = .zero
     
-    init(size: CGSize, state: AppState) {
-        self.size = size
+    init() {
+//        #if DEBUG
+//        self.image = ImageGenerator.createImage(data: state.data, size: size)!
+//        #endif
+    }
+    
+    func observe(state: AppState) {
+        guard observe == nil else {
+            return
+        }
         observe = state.$state.sink {
             let data = appState.data
             switch $0 {
@@ -25,7 +33,7 @@ class ImageGenerator: ObservableObject {
                 if let last = data.readings.last, last.date != self.lastPoint.date {
                     self.lastPoint = last
                     DispatchQueue.global().async {
-                        if let image = ImageGenerator.createImage(data: data, size: size) {
+                        if let image = ImageGenerator.createImage(data: data, size: self.size) {
                             DispatchQueue.main.async {
                                 self.image = image
                             }
@@ -37,9 +45,6 @@ class ImageGenerator: ObservableObject {
                 break
             }
         }
-        #if DEBUG
-        self.image = ImageGenerator.createImage(data: state.data, size: size)!
-        #endif
     }
     
     static func createImage(data: StateData, size: CGSize) -> UIImage? {
