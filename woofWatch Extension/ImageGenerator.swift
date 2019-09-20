@@ -17,9 +17,9 @@ class ImageGenerator: ObservableObject {
     var size: CGSize = .zero
     
     init() {
-//        #if DEBUG
-//        self.image = ImageGenerator.createImage(data: state.data, size: size)!
-//        #endif
+        #if DEBUG
+        self.image = ImageGenerator.createImage(data: state.data, size: size)!
+        #endif
     }
     
     func observe(state: AppState) {
