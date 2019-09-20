@@ -70,25 +70,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MiaoMiao.addDelegate(self)
 
         #if targetEnvironment(simulator)
-            var lastHistoryDate = Date() - 20.m
-            MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: 70 + Double(arc4random_uniform(40))))
-            updater = Repeater.every(60, perform: { (_) in
-                let newValue = 70 + Double(arc4random_uniform(40))
-                let gp = GlucosePoint(date: Date(), value: newValue)
-                MiaoMiao.trend = [gp,
-                                  GlucosePoint(date: Date() - 1.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
-                                  GlucosePoint(date: Date() - 2.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
-                                  GlucosePoint(date: Date() - 3.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1),
-                                  GlucosePoint(date: Date() - 4.m, value: newValue + Double(arc4random_uniform(100)) / 50 - 1)]
-
-                DispatchQueue.main.async {
-                    MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
-                }
-                if Date() - lastHistoryDate > 5.m {
-                    MiaoMiao.last24hReadings.append(gp)
-                    lastHistoryDate = Date()
-                }
-            })
+        var lastHistoryDate = Date() - 15.m
+        var currentValue = Double.random(in: 80...160)
+        MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: currentValue))
+        var trend = Bool.random() ? -1.0 : 1.0
+        
+        updater = Repeater.every(60, perform: { (_) in
+            currentValue += trend * Double.random(in: 0..<3)
+            if Double.random(in: 0..<1) < 0.2 {
+                trend *= -1
+            }
+            if currentValue < 60 {
+                trend = 1
+            } else if currentValue > 200 {
+                trend = -1
+            }
+            let gp = GlucosePoint(date: Date(), value: currentValue)
+            MiaoMiao.trend = [gp,
+                              GlucosePoint(date: Date() - 1.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
+                              GlucosePoint(date: Date() - 2.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
+                              GlucosePoint(date: Date() - 3.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
+                              GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)]
+            MiaoMiao.last24hReadings.append(gp)
+            lastHistoryDate = Date()
+            DispatchQueue.main.async {
+                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+            }
+        })
         #endif
 
         return true
