@@ -19,7 +19,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     var started = false
     var repeater: Repeater?
     override var body: AnyView {
-        GlucoseFace(state: appState).environmentObject(currentTime).anyView
+        GlucoseFace(state: appState).environmentObject(currentTime).asAnyView
     }
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)

@@ -15,7 +15,9 @@ struct TimeLabel: View {
     var body: some View {
         let seconds = Int(currentTime.value.timeIntervalSince(last.date))
         let timeStr: String
-        if last.value < 70 {
+        if seconds < 0 {
+            timeStr = "   "
+        } else if last.value < 70 {
             timeStr = (seconds < 90 ? String(format: "%02ld", seconds) : String(format: "%ld:%02ld", seconds / 60, seconds % 60))
         } else {
             timeStr = String(format: "%ld:%02ld", seconds / 60, seconds % 60)

@@ -15,7 +15,7 @@ struct GlucoseFace: View {
     
     var body: some View {
         guard let last = state.data.readings.last else {
-            return Text("Connecting...").font(.headline).anyView
+            return Text("Connecting...").font(.headline).asAnyView
         }
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
         let tvalue: String
@@ -45,7 +45,7 @@ struct GlucoseFace: View {
                         .layoutPriority(2)
                     Spacer(minLength: 0)
                     if state.state == .snapshot {
-                        Text("      ")
+                        Text("    ")
                     } else {
                         TimeLabel(last: last)
                             .layoutPriority(1)
@@ -56,13 +56,13 @@ struct GlucoseFace: View {
                 }
             }
             .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
-            .anyView
+            .asAnyView
     }
 }
 
 extension View {
     /// Returns a type-erased version of the view.
-    public var anyView: AnyView { AnyView(self) }
+    public var asAnyView: AnyView { AnyView(self) }
 }
 
 
