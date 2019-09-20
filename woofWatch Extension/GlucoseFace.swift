@@ -73,7 +73,17 @@ func GenerateReadings() -> [GlucosePoint] {
     var value = Double.random(in: 70 ... 180)
     var when = Date() - 1.m - 30.s
     var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
-    for _ in 0 ..< 15 {
+    for _ in 0 ..< 5 {
+        readings.insert(GlucosePoint(date: when, value: value), at: 0)
+        when -= 3.m
+        if value > 180.0 {
+            trend = -1.0
+        } else if value < 75.0 {
+            trend = 1.0
+        }
+        value += trend * Double.random(in: 0 ... 2)
+    }
+    for _ in 0 ..< 12 {
         readings.insert(GlucosePoint(date: when, value: value), at: 0)
         when -= 15.m
         if value > 180.0 {

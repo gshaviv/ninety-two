@@ -54,8 +54,9 @@ class ImageGenerator: ObservableObject {
                       defaults[.level3] ... defaults[.level4]: defaults[.color4] ,
                       defaults[.level4] ... 999: defaults[.color5] ]
         let yReference = [35, 40, 50, 60, 70, 80, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
-        let lineWidth:CGFloat = 1
-        let dotRadius:CGFloat = 2
+        let lineWidth:CGFloat = 1.5
+        let dotRadius:CGFloat = 3
+        let trendRadius:CGFloat = 1.5
         
         let points = data.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
@@ -78,7 +79,7 @@ class ImageGenerator: ObservableObject {
             color.set()
             ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
         }
-        UIColor(white: 0.25, alpha: 0.75).set()
+        UIColor(white: 0.25, alpha: 0.5).set()
         ctx?.beginPath()
         for y in yReference {
             let yc = yCoor(CGFloat(y))
@@ -96,19 +97,19 @@ class ImageGenerator: ObservableObject {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
-        let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
-        if !p.isEmpty {
+        let p = zip(points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }, points.map { $0.date })
+        if !points.isEmpty {
             let curve = UIBezierPath()
-            curve.interpolate(points: p)
-            UIColor.darkGray.set()
+            curve.interpolate(points: p.map { $0.0 })
+            UIColor.black.set()
             curve.lineWidth = lineWidth
             curve.stroke()
             
             UIColor.black.set()
             let fill = UIBezierPath()
-            let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
-            for point in p {
-                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+            for (point,date) in p {
+                let r = latest - date < 15.m ? trendRadius : dotRadius
+                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
             }
             fill.lineWidth = 0
             fill.fill()
@@ -133,7 +134,7 @@ class ImageGenerator: ObservableObject {
             
             let trect = options.first {
                 let toCheck = $0.insetBy(dx: -5, dy: -5)
-                for point in p {
+                for (point,_) in p {
                     if toCheck.contains(point) {
                         return false
                     }
