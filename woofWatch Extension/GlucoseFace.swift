@@ -10,8 +10,6 @@ import WatchKit
 import SwiftUI
 import Combine
 
-
-
 struct GlucoseFace: View {
     @ObservedObject var state: AppState
     @ObservedObject var currentTime: CurrentTime

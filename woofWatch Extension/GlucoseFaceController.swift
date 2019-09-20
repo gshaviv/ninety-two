@@ -28,15 +28,14 @@ class GlucoseFaceController: WKHostingController<GlucoseFace> {
     }
     
     func makeRepeater() {
-        if repeater == nil {
+        guard repeater == nil else { return }
         self.currentTime.value = Date()
-        }
-        repeater?.cancel()
-        repeater = Repeater.every(1.0, leeway: 0.001, queue: DispatchQueue.main, perform: { sender in
+        repeater = Repeater.every(1.0, leeway: 0.001, queue: DispatchQueue.main, perform: { [weak self] sender in
             if WKExtension.shared().applicationState != .background {
-                self.currentTime.value = Date()
+                self?.currentTime.value = Date()
             } else {
                 sender.cancel()
+                self?.repeater = nil
             }
         })
     }
