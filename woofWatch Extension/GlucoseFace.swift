@@ -18,7 +18,7 @@ struct GlucoseFace: View {
     
     var body: some View {
         guard let last = state.data.readings.last else {
-            return AnyView(Text("No Data"))
+            return AnyView(Text("Connecting...").font(.headline))
         }
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
         let tvalue: String
@@ -32,7 +32,9 @@ struct GlucoseFace: View {
         
         let seconds = Int(currentTime.value.timeIntervalSince(last.date))
         let timeStr: String
-        if last.value < 70 {
+        if state.state == .snapshot {
+            timeStr = "      "
+        } else if last.value < 70 {
             timeStr = (seconds < 90 ? String(format: "%02ld", seconds) : String(format: "%ld:%02ld", seconds / 60, seconds % 60))
         } else {
             timeStr = String(format: "%ld:%02ld", seconds / 60, seconds % 60)
@@ -108,6 +110,15 @@ let sendingState: AppState = {
     return state
 }()
 
+let snapshotState: AppState = {
+    let state = AppState()
+    state.data = testState.data
+    state.state = .snapshot
+    return state
+}()
+
+let initialState = AppState()
+
 let time = CurrentTime()
 
 struct GlucoseFace_Previews: PreviewProvider {
@@ -116,6 +127,8 @@ struct GlucoseFace_Previews: PreviewProvider {
             GlucoseFace(state: testState, currentTime: time)
             GlucoseFace(state: errorState, currentTime: time)
             GlucoseFace(state: sendingState, currentTime: time)
+            GlucoseFace(state: snapshotState, currentTime: time)
+            GlucoseFace(state: initialState, currentTime: time)
         }
     }
 }

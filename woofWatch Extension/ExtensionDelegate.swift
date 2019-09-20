@@ -28,13 +28,14 @@ enum Status {
     case ready
     case sending
     case error
+    case snapshot
 }
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
     var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
         didSet {
-                self.state = .ready
+            self.state = .ready
         }
     }
 }
@@ -71,6 +72,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
+        if appState.state == .snapshot {
+            appState.state = .ready
+        }
         refresh(force: true)
     }
 
@@ -126,10 +130,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
-//                if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-//                    ctr.isDimmed = .dim
-//                }
-                
+                appState.state = .snapshot
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
                 connectivityTask.setTaskCompletedWithSnapshot(false)
