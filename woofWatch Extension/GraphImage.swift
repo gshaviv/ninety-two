@@ -76,7 +76,7 @@ struct GraphImage: View {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
-        let p = zip(points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }, points.map { $0.date })
+        let p = points.map { (CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))), $0.date) }
         if !points.isEmpty {
             let curve = UIBezierPath()
             curve.interpolate(points: p.map { $0.0 })
@@ -87,7 +87,7 @@ struct GraphImage: View {
             UIColor.black.set()
             let fill = UIBezierPath()
             for (point,date) in p {
-                let r = latest - date < 15.m ? trendRadius : dotRadius
+                let r = latest - date > 15.m + 10.s ? dotRadius : trendRadius
                 fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
             }
             fill.lineWidth = 0
