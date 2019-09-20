@@ -13,20 +13,24 @@ import Combine
 class CurrentTime: ObservableObject {
     @Published var value = Date()
     var repeater: Repeater?
+    
     func makeRepeater() {
         guard repeater == nil else { return }
         value = Date()
         repeater = Repeater.every(1.0, leeway: 0.001, queue: DispatchQueue.main, perform: { [weak self] sender in
-            if WKExtension.shared().applicationState != .background {
-                self?.value = Date()
-            } else {
+            if WKExtension.shared().applicationState == .background {
                 sender.cancel()
                 self?.repeater = nil
+            } else {
+                self?.value = Date()
             }
         })
     }
+    
     init() {
-        makeRepeater()
+        DispatchQueue.main.async {
+            self.makeRepeater()
+        }
     }
 }
 
@@ -39,6 +43,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
+        currentTime.makeRepeater()
     }
     
     @objc private func didEnterForeground() {
