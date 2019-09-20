@@ -20,8 +20,13 @@ struct GraphImage: View {
     var body: some View {
         self.imageGenerator.size = size
         self.imageGenerator.observe(state: state)
+        #if DEBUG
+        return Image(uiImage: ImageGenerator.createImage(data: state.data, size: size)!)
+            .cornerRadius(6)
+        #else
         return Image(uiImage: imageGenerator.image)
             .cornerRadius(6)
+        #endif
     }
     
     init(state: AppState, size: CGSize) {

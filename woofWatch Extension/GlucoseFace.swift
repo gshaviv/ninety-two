@@ -75,13 +75,12 @@ struct GlucoseFace: View {
 
 
 #if DEBUG
-let testState: AppState = {
-    let state = AppState()
+func GenerateReadings() -> [GlucosePoint] {
     var readings = [GlucosePoint]()
     var value = Double.random(in: 70 ... 180)
     var when = Date() - 1.m - 30.s
     var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
-    for _ in 0 ..< 10 {
+    for _ in 0 ..< 15 {
         readings.insert(GlucosePoint(date: when, value: value), at: 0)
         when -= 15.m
         if value > 180.0 {
@@ -91,28 +90,32 @@ let testState: AppState = {
         }
         value += trend * Double.random(in: 1 ... 10)
     }
-    
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: readings, iob: 0, insulinAction: 0)
+    return readings
+}
+
+let testState: AppState = {
+    let state = AppState()
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0)
     return state
 }()
 
 let errorState: AppState = {
     let state = AppState()
-    state.data = testState.data
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0)
     state.state = .error
     return state
 }()
 
 let sendingState: AppState = {
     let state = AppState()
-    state.data = testState.data
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0)
     state.state = .sending
     return state
 }()
 
 let snapshotState: AppState = {
     let state = AppState()
-    state.data = testState.data
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0)
     state.state = .snapshot
     return state
 }()

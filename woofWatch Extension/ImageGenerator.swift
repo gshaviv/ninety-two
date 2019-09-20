@@ -16,12 +16,6 @@ class ImageGenerator: ObservableObject {
     var lastPoint: GlucosePoint = GlucosePoint(date: Date.distantPast, value: 0)
     var size: CGSize = .zero
     
-    init() {
-        #if DEBUG
-        self.image = ImageGenerator.createImage(data: state.data, size: size)!
-        #endif
-    }
-    
     func observe(state: AppState) {
         guard observe == nil else {
             return
