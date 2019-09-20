@@ -16,24 +16,29 @@ class ImageGenerator: ObservableObject {
     var lastPoint: GlucosePoint = GlucosePoint(date: Date.distantPast, value: 0)
     var size: CGSize = .zero
     
+    fileprivate func draw(_ data: StateData) {
+        if let last = data.readings.last, last.date != self.lastPoint.date {
+            self.lastPoint = last
+            DispatchQueue.global().async {
+                if let image = ImageGenerator.createImage(data: data, size: self.size) {
+                    DispatchQueue.main.async {
+                        self.image = image
+                    }
+                }
+            }
+        }
+    }
+    
     func observe(state: AppState) {
         guard observe == nil else {
             return
         }
+        draw(appState.data)
         observe = state.$state.sink {
             let data = appState.data
             switch $0 {
             case .ready:
-                if let last = data.readings.last, last.date != self.lastPoint.date {
-                    self.lastPoint = last
-                    DispatchQueue.global().async {
-                        if let image = ImageGenerator.createImage(data: data, size: self.size) {
-                            DispatchQueue.main.async {
-                                self.image = image
-                            }
-                        }
-                    }
-                }
+                self.draw(data)
                 
             default:
                 break
