@@ -1,0 +1,13 @@
+//
+//  Version.xcconfig
+//  WoofWoof
+//
+//  Created by Guy on 20/09/2019.
+//  Copyright © 2019 TivStudio. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+VERSION = 1.3
+BUILD = 4

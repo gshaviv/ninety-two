@@ -411,6 +411,7 @@
 		E4A14D792333C68900383814 /* GraphImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphImage.swift; sourceTree = "<group>"; };
 		E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularActivityIndicator.swift; sourceTree = "<group>"; };
 		E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseFaceController.swift; sourceTree = "<group>"; };
+		E4B164392334B0B8006A0BF9 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		E4B5022C21D6160C00E18DDD /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		E4B5022F21D6167200E18DDD /* KVO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVO.swift; sourceTree = "<group>"; };
 		E4B5023121D61A1900E18DDD /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
@@ -701,6 +702,7 @@
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
+				E4B164392334B0B8006A0BF9 /* Version.xcconfig */,
 				E4230F9921EA472C00A297A5 /* SiriIntents.entitlements */,
 				E425663E21CE61D600469232 /* Dependencies */,
 				E4E35A6221C3F8D300336CE8 /* WoofWoof */,
@@ -1562,6 +1564,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "BUILD}";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = woofWidget/Info.plist;
@@ -1571,6 +1574,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.woofWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1584,6 +1588,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = woofWidget/woofWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "BUILD}";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = woofWidget/Info.plist;
@@ -1593,6 +1598,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.woofWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1667,12 +1673,12 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				IBSC_MODULE = woofWatch_Extension;
 				INFOPLIST_FILE = woofWatch/Info.plist;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1689,12 +1695,12 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				IBSC_MODULE = woofWatch_Extension;
 				INFOPLIST_FILE = woofWatch/Info.plist;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1711,7 +1717,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = "woofWatch Extension/woofWatch Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = "woofWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1719,7 +1725,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -1736,7 +1742,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = "woofWatch Extension/woofWatch Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = "woofWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1744,7 +1750,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -1797,6 +1803,7 @@
 		};
 		E4E35A7021C3F8DA00336CE8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E4B164392334B0B8006A0BF9 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1859,6 +1866,7 @@
 		};
 		E4E35A7121C3F8DA00336CE8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E4B164392334B0B8006A0BF9 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1921,7 +1929,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = WoofWoof/WoofWoof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = WoofWoof/Info.plist;
@@ -1930,7 +1938,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
 				PRODUCT_NAME = "Ninety Two";
@@ -1947,7 +1955,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = WoofWoof/WoofWoof.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = "${BUILD}";
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = WoofWoof/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1955,7 +1963,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = "${VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
 				PRODUCT_NAME = "Ninety Two";
