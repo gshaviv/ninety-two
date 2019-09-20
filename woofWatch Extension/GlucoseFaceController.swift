@@ -14,12 +14,12 @@ class CurrentTime: ObservableObject {
     @Published var value = Date()
 }
 
-class GlucoseFaceController: WKHostingController<GlucoseFace> {
+class GlucoseFaceController: WKHostingController<AnyView> {
     let currentTime = CurrentTime()
     var started = false
     var repeater: Repeater?
-    override var body: GlucoseFace {
-        return GlucoseFace(state: appState, currentTime: currentTime)
+    override var body: AnyView {
+        GlucoseFace(state: appState).environmentObject(currentTime).anyView
     }
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)

@@ -12,11 +12,10 @@ import Combine
 
 struct GlucoseFace: View {
     @ObservedObject var state: AppState
-    @ObservedObject var currentTime: CurrentTime
     
     var body: some View {
         guard let last = state.data.readings.last else {
-            return AnyView(Text("Connecting...").font(.headline))
+            return Text("Connecting...").font(.headline).anyView
         }
         let levelStr = last.value > 70 ? String(format: "%.0lf", last.value) : String(format: "%.1lf", last.value)
         let tvalue: String
@@ -28,46 +27,42 @@ struct GlucoseFace: View {
             tvalue = String(format: "%@%.1lf", state.data.trendValue > 0 ? "+" : "", state.data.trendValue)
         }
         
-        let seconds = Int(currentTime.value.timeIntervalSince(last.date))
-        let timeStr: String
-        if state.state == .snapshot {
-            timeStr = "      "
-        } else if last.value < 70 {
-            timeStr = (seconds < 90 ? String(format: "%02ld", seconds) : String(format: "%ld:%02ld", seconds / 60, seconds % 60))
-        } else {
-            timeStr = String(format: "%ld:%02ld", seconds / 60, seconds % 60)
-        }
-        
         return
-            AnyView(
-                VStack(alignment: HorizontalAlignment.center, spacing: 2) {
-                    HStack(alignment: .center, spacing: 0) {
-                        if state.state == .sending {
-                            CircularActivityIndicator(size: 14).padding(.leading, 2)
-                        } else {
-                            Text(tvalue)
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(1)
-                                .layoutPriority(0)
-                        }
-                        Spacer(minLength: 0)
-                        Text("\(levelStr)\(state.data.trendSymbol)")
-                            .font(.title)
-                            .foregroundColor(state.state == .error ? .pink : .yellow)
+            VStack(alignment: HorizontalAlignment.center, spacing: 2) {
+                HStack(alignment: .center, spacing: 0) {
+                    if state.state == .sending {
+                        CircularActivityIndicator(size: 14).padding(.leading, 2)
+                    } else {
+                        Text(tvalue)
                             .lineLimit(1)
-                            .layoutPriority(2)
-                        Spacer(minLength: 0)
-                        Text(timeStr)
-                            .font(Font.body.monospacedDigit().bold())
-                            .lineLimit(1)
+                            .layoutPriority(0)
+                    }
+                    Spacer(minLength: 0)
+                    Text("\(levelStr)\(state.data.trendSymbol)")
+                        .font(.title)
+                        .foregroundColor(state.state == .error ? .pink : .yellow)
+                        .lineLimit(1)
+                        .layoutPriority(2)
+                    Spacer(minLength: 0)
+                    if state.state == .snapshot {
+                        Text("      ")
+                    } else {
+                        TimeLabel(last: last)
                             .layoutPriority(1)
                     }
-                    GeometryReader { geometry in
-                        GraphImage(state: self.state, size: geometry.size)
-                    }
-                }.edgesIgnoringSafeArea([.bottom, .leading, .trailing])
-        )
+                }
+                GeometryReader { geometry in
+                    GraphImage(state: self.state, size: geometry.size)
+                }
+            }
+            .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
+            .anyView
     }
+}
+
+extension View {
+    /// Returns a type-erased version of the view.
+    public var anyView: AnyView { AnyView(self) }
 }
 
 
@@ -125,12 +120,12 @@ let time = CurrentTime()
 struct GlucoseFace_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            GlucoseFace(state: testState, currentTime: time)
-            GlucoseFace(state: errorState, currentTime: time)
-            GlucoseFace(state: sendingState, currentTime: time)
-            GlucoseFace(state: snapshotState, currentTime: time)
-            GlucoseFace(state: initialState, currentTime: time)
-        }
+            GlucoseFace(state: testState)
+            GlucoseFace(state: errorState)
+            GlucoseFace(state: sendingState)
+            GlucoseFace(state: snapshotState)
+            GlucoseFace(state: initialState)
+        }.environmentObject(time)
     }
 }
 
