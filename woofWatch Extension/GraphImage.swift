@@ -12,7 +12,7 @@ import Combine
 
 struct GraphImage: View {
     private var cancel: AnyCancellable?
-    private var state: AppState
+    @ObservedObject private var state: AppState
     private var size: CGSize
     
     var body: some View {
