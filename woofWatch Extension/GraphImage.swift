@@ -11,12 +11,19 @@ import SwiftUI
 import Combine
 
 struct GraphImage: View {
-    private var cancel: AnyCancellable?
+    @State private var image: UIImage = UIImage(systemName: "waveform.path.ecg")!
     @ObservedObject private var state: AppState
     private var size: CGSize
+    @State private var lastTime = Date.distantPast
     
     var body: some View {
-        return Image(uiImage: GraphImage.createImage(data: state.data, size: size) ?? UIImage(systemName: "waveform.path.ecg")!)
+        if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(data: state.data, size: size) {
+            DispatchQueue.main.async {
+                self.lastTime = last
+                self.image = newImage
+            }
+        }
+        return Image(uiImage: image )
             .cornerRadius(6)
     }
     
@@ -46,7 +53,11 @@ struct GraphImage: View {
         }
         let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
         let maxDate = Date() - latest < 5.m ? latest : Date()
+        #if targetEnvironment(simulator)
+        let xRange = (min: maxDate - 1.h, max: maxDate)
+        #else
         let xRange = (min: maxDate - 2.h - 45.m, max: maxDate)
+        #endif
         
         UIGraphicsBeginImageContextWithOptions(size, true, WKInterfaceDevice.current().screenScale)
         let ctx = UIGraphicsGetCurrentContext()
