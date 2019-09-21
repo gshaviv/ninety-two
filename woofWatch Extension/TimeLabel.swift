@@ -17,6 +17,8 @@ struct TimeLabel: View {
         let timeStr: String
         if seconds < 0 {
             timeStr = "   "
+        } else if seconds > 60 * 60 {
+            timeStr = ">1h"
         } else if last.value < 70 {
             timeStr = (seconds < 90 ? String(format: "%02ld", seconds) : String(format: "%ld:%02ld", seconds / 60, seconds % 60))
         } else {
