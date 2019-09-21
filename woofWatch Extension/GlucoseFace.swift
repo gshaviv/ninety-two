@@ -48,12 +48,8 @@ struct GlucoseFace: View {
                         .lineLimit(1)
                         .layoutPriority(2)
                     Spacer(minLength: 0)
-                    if state.state == .snapshot {
-                        Text("    ")
-                    } else {
-                        TimeLabel(last: last)
-                            .layoutPriority(1)
-                    }
+                    TimeLabel(last: last)
+                        .layoutPriority(1)
                 }
                 GeometryReader { geometry in
                     GraphImage(state: self.state, size: geometry.size)
@@ -120,13 +116,6 @@ let sendingState: AppState = {
     return state
 }()
 
-let snapshotState: AppState = {
-    let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0)
-    state.state = .snapshot
-    return state
-}()
-
 let initialState = AppState()
 
 let time = CurrentTime()
@@ -137,7 +126,6 @@ struct GlucoseFace_Previews: PreviewProvider {
             GlucoseFace(state: testState)
             GlucoseFace(state: errorState)
             GlucoseFace(state: sendingState)
-            GlucoseFace(state: snapshotState)
             GlucoseFace(state: initialState)
         }.environmentObject(time)
     }
