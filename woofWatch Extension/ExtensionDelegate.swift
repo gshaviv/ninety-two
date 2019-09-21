@@ -101,17 +101,20 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double else {
                 return
             }
-            let readings = m.compactMap { value -> GlucosePoint? in
-                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                    return nil
+            DispatchQueue.global().async {
+                let readings = m.compactMap { value -> GlucosePoint? in
+                    guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                        return nil
+                    }
+                    return GlucosePoint(date: d, value: v)
                 }
-                return GlucosePoint(date: d, value: v)
-            }
-
-            DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
-                if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
-                    self.complicationState = DisplayValue(date: last, string: symbol)
+                self.processDefaults(from: info)
+                
+                DispatchQueue.main.async {
+                    appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+                    if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
+                        self.complicationState = DisplayValue(date: last, string: symbol)
+                    }
                 }
             }
         }) { (_) in
@@ -177,18 +180,20 @@ extension ExtensionDelegate: WCSessionDelegate {
         guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any], let act = applicationContext["ia"] as? Double, let iob = applicationContext["iob"] as? Double else {
             return
         }
-        let readings = m.compactMap { value -> GlucosePoint? in
-            guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                return nil
+        DispatchQueue.global().async {
+            let readings = m.compactMap { value -> GlucosePoint? in
+                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                    return nil
+                }
+                return GlucosePoint(date: d, value: v)
             }
-            return GlucosePoint(date: d, value: v)
-        }
-        DispatchQueue.main.async {
-            appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+            DispatchQueue.main.async {
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+            }
         }
     }
     
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+    private func processDefaults(from message: [String:Any]) {
         if let dflt = message["defaults"] as? [String: Any] {
             dflt.forEach {
                 switch $0.value {
@@ -204,6 +209,10 @@ extension ExtensionDelegate: WCSessionDelegate {
             }
         }
         defaults[.needsUpdateDefaults] = false
+    }
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        processDefaults(from: message)
         replyHandler(["ok": true])
     }
     
