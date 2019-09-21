@@ -13,6 +13,7 @@ import Sqlable
 import WoofKit
 import Zip
 import AudioToolbox
+import BackgroundTasks
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -98,6 +99,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         })
         #endif
+        
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.tivstudio.92.estimate", using: DispatchQueue.global()) { (task) in
+            RecordViewController.createmodel()
+            task.setTaskCompleted(success: true)
+        }
 
         return true
     }

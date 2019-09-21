@@ -441,6 +441,32 @@ class MiaoMiao {
     public static var currentGlucose: GlucosePoint? {
         return trend?.first
     }
+    
+    public static func flushToDatabase() {
+        if pendingReadings.count > 3 {
+            Storage.default.db.async {
+                do {
+                    try Storage.default.db.transaction { db in
+                        var lastDate = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 8.h).orderBy(GlucosePoint.date))?.last?.date
+                        try pendingReadings.forEach {
+                            if let lastDate = lastDate {
+                                if $0.date - 3.m > lastDate {
+                                    try db.perform($0.insert())
+                                }
+                            } else {
+                                try db.perform($0.insert())
+                            }
+                            lastDate = $0.date
+                        }
+                        
+                        pendingReadings = []
+                    }
+                } catch let error {
+                    logError("\(error)")
+                }
+            }
+        }
+    }
 
     private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         DispatchQueue.global().async {
@@ -463,29 +489,8 @@ class MiaoMiao {
                     }
                 }
             }
-            if pendingReadings.count > 3 {
-                Storage.default.db.async {
-                    do {
-                        try Storage.default.db.transaction { db in
-                            var lastDate = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 8.h).orderBy(GlucosePoint.date))?.last?.date
-                            try pendingReadings.forEach {
-                                if let lastDate = lastDate {
-                                    if $0.date - 3.m > lastDate {
-                                        try db.perform($0.insert())
-                                    }
-                                } else {
-                                    try db.perform($0.insert())
-                                }
-                                lastDate = $0.date
-                            }
-
-                            pendingReadings = []
-                        }
-                    } catch let error {
-                        logError("\(error)")
-                    }
-                }
-            }
+            flushToDatabase()
+            
             if let idx = last24hReadings.firstIndex(where: { $0.date > Date() - 24.h - 30.m }), idx > 0 {
                 _last24 = Array(last24hReadings[idx...])
             }
