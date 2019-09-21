@@ -28,6 +28,7 @@ enum Status {
     case ready
     case sending
     case error
+    case snapshot
 }
 
 class AppState: ObservableObject {
@@ -71,6 +72,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
     
     func applicationDidBecomeActive() {
+        if appState.state == .snapshot {
+            appState.state = .ready
+        }
         refresh(force: true)
     }
 
@@ -129,6 +133,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                  backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
+                appState.state = .snapshot
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date() + 1.h, userInfo: nil)
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
                 connectivityTask.setTaskCompletedWithSnapshot(false)
