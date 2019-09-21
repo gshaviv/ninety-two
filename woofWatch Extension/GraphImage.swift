@@ -17,6 +17,10 @@ struct GraphImage: View {
     @State private var lastTime = Date.distantPast
     
     var body: some View {
+        #if targetEnvironment(simulator)
+        return Image(uiImage: GraphImage.createImage(data: state.data, size: size) ?? image)
+            .cornerRadius(6)
+        #else
         if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(data: state.data, size: size) {
             DispatchQueue.main.async {
                 self.lastTime = last
@@ -25,6 +29,7 @@ struct GraphImage: View {
         }
         return Image(uiImage: image )
             .cornerRadius(6)
+        #endif
     }
     
     init(state: AppState, size: CGSize) {
