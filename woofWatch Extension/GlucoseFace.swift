@@ -16,7 +16,7 @@ struct GlucoseFace: View {
     var body: some View {
         guard let last = state.data.readings.last else {
             return VStack {
-                ActivityIndicator(size: 40)
+                CircularActivityIndicator(size: 40)
                 Text("Connecting...").font(.headline)
             }
             .asAnyView
@@ -35,7 +35,7 @@ struct GlucoseFace: View {
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
                     if state.state == .sending {
-                        ActivityIndicator(size: 14).padding(.leading, 2)
+                        CircularActivityIndicator(size: 14).padding(.leading, 2)
                     } else {
                         Text(tvalue)
                             .lineLimit(1)
@@ -74,7 +74,7 @@ func GenerateReadings() -> [GlucosePoint] {
     var when = Date() - 1.m - 30.s
     var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
     for _ in 0 ..< 5 {
-        readings.insert(GlucosePoint(date: when, value: value, isTrend: true), at: 0)
+        readings.insert(GlucosePoint(date: when, value: value), at: 0)
         when -= 3.m
         if value > 180.0 {
             trend = -1.0
