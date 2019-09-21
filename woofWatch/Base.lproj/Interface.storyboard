@@ -6,10 +6,10 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14643"/>
     </dependencies>
     <scenes>
-        <!--Glucose Face Controller-->
+        <!--Ninety two-->
         <scene sceneID="smA-Ns-Y7V">
             <objects>
-                <controller id="C5u-kJ-FeA" customClass="GlucoseFaceController" customModule="woofWatch_Extension"/>
+                <controller title="Ninety two" id="C5u-kJ-FeA" customClass="GlucoseFaceController" customModule="woofWatch_Extension"/>
             </objects>
             <point key="canvasLocation" x="166" y="345"/>
         </scene>
