@@ -121,7 +121,7 @@
 		E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */; };
 		E4971D7A23198EFD00FAFF0B /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D792333C68900383814 /* GraphImage.swift */; };
-		E4A14D7C2333C70700383814 /* CircularActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */; };
+		E4A14D7C2333C70700383814 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* ActivityIndicator.swift */; };
 		E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */; };
 		E4B164452334E094006A0BF9 /* TimeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B164442334E094006A0BF9 /* TimeLabel.swift */; };
 		E4BEE5D82330C693007B4896 /* GlucoseFace.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4BEE5D72330C693007B4896 /* GlucoseFace.swift */; };
@@ -408,7 +408,7 @@
 		E49023F621EF5B8700846FC4 /* DateFromToPickerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DateFromToPickerController.xib; sourceTree = "<group>"; };
 		E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
 		E4A14D792333C68900383814 /* GraphImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphImage.swift; sourceTree = "<group>"; };
-		E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularActivityIndicator.swift; sourceTree = "<group>"; };
+		E4A14D7B2333C70700383814 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseFaceController.swift; sourceTree = "<group>"; };
 		E4B164392334B0B8006A0BF9 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		E4B164442334E094006A0BF9 /* TimeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeLabel.swift; sourceTree = "<group>"; };
@@ -644,7 +644,7 @@
 				E42E2AD221DFB568004FD560 /* WatchExtensions.swift */,
 				E4BEE5D72330C693007B4896 /* GlucoseFace.swift */,
 				E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */,
-				E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */,
+				E4A14D7B2333C70700383814 /* ActivityIndicator.swift */,
 				E4A14D792333C68900383814 /* GraphImage.swift */,
 				E4B164442334E094006A0BF9 /* TimeLabel.swift */,
 			);
@@ -1276,7 +1276,7 @@
 				E44F98DD22455E5900C51411 /* AkimaInterpolator.swift in Sources */,
 				E42E2AAF21DF28C7004FD560 /* NotificationController.swift in Sources */,
 				E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */,
-				E4A14D7C2333C70700383814 /* CircularActivityIndicator.swift in Sources */,
+				E4A14D7C2333C70700383814 /* ActivityIndicator.swift in Sources */,
 				E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */,
 				E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,

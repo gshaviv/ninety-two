@@ -99,10 +99,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
             DispatchQueue.global().async {
                 let readings = m.compactMap { value -> GlucosePoint? in
-                    guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                    guard let a = value as? [Any], let d = a.first as? Date, let v = a[1] as? Double, let trend = a.last as? Bool else {
                         return nil
                     }
-                    return GlucosePoint(date: d, value: v)
+                    return GlucosePoint(date: d, value: v, isTrend: trend)
                 }
                 self.processDefaults(from: info)
                 

@@ -329,7 +329,7 @@ extension AppDelegate: WCSessionDelegate {
 
     func appState() -> [String:Any] {
         let now = Date()
-        let relevant = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date, $0.value] }
+        let relevant = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.compactMap { $0 as? GlucosePoint }.map { [$0.date, $0.value, $0.isTrend] }
         let state:[String:Any] = ["v": relevant,
                                   "t": currentTrend ?? 0,
                                   "s": trendSymbol(),
