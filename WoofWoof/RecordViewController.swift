@@ -139,25 +139,25 @@ class RecordViewController: UIViewController {
         }
         setPrediction(nil)
         
-//        if let last =  defaults[.parameterCalcDate], Date() - last < 72.h {
-//            return
-//        }
-//        activityIndiator.isHidden = false
-//        activityIndiator.startAnimating()
-//        DispatchQueue.global().async {
-//            RecordViewController.createmodel()
-//            DispatchQueue.main.async {
-//                self.activityIndiator.stopAnimating()
-//            }
-//        }
-        let request = BGProcessingTaskRequest(identifier: "com.tivstudio.92.estimate")
-        request.requiresExternalPower = true
-        request.requiresNetworkConnectivity = false
-        request.earliestBeginDate = Date() + 5.h
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch  {
-            logError("Error scheduling update: \(error)")
+        if let last = defaults[.parameterCalcDate], Date() - last < 72.h {
+            let request = BGProcessingTaskRequest(identifier: "com.tivstudio.92.estimate")
+            request.requiresExternalPower = true
+            request.requiresNetworkConnectivity = false
+            request.earliestBeginDate = Date() + 5.h
+            do {
+                try BGTaskScheduler.shared.submit(request)
+            } catch  {
+                logError("Error scheduling update: \(error)")
+            }
+        } else {
+            activityIndiator.isHidden = false
+            activityIndiator.startAnimating()
+            DispatchQueue.global().async {
+                RecordViewController.createmodel()
+                DispatchQueue.main.async {
+                    self.activityIndiator.stopAnimating()
+                }
+            }
         }
     }
 
