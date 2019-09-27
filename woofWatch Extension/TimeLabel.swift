@@ -10,13 +10,16 @@ import SwiftUI
 
 struct TimeLabel: View {
     @EnvironmentObject var currentTime: CurrentTime
+    @EnvironmentObject var state: AppState
     var last: GlucosePoint
     
     var body: some View {
         let seconds = Int(currentTime.value.timeIntervalSince(last.date))
         let timeStr: String
-        if seconds < 0 {
-            timeStr = "   "
+        if state.state == .snapshot {
+            timeStr = "? ??"
+        } else if seconds < 0 {
+            timeStr = " - "
         } else if seconds > 86400 {
             timeStr = ">day"
         } else if seconds > 60 * 60 {

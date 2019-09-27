@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 struct GlucoseFace: View {
-    @ObservedObject var state: AppState
+    @EnvironmentObject var state: AppState
     
     var body: some View {
         guard let last = state.data.readings.last else {
@@ -48,12 +48,8 @@ struct GlucoseFace: View {
                         .lineLimit(1)
                         .layoutPriority(2)
                     Spacer(minLength: 0)
-                    if state.state == .snapshot {
-                        Text("    ")
-                    } else {
-                        TimeLabel(last: last)
+                    TimeLabel(last: last)
                             .layoutPriority(1)
-                    }
                 }
                 GeometryReader { geometry in
                     GraphImage(state: self.state, size: geometry.size)
@@ -134,11 +130,11 @@ let time = CurrentTime()
 struct GlucoseFace_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            GlucoseFace(state: testState)
-            GlucoseFace(state: errorState)
-            GlucoseFace(state: sendingState)
-            GlucoseFace(state: snapshotState)
-            GlucoseFace(state: initialState)
+            GlucoseFace().previewDisplayName("Normal").environmentObject(testState)
+            GlucoseFace().previewDisplayName("Error").environmentObject(errorState)
+            GlucoseFace().previewDisplayName("Sending").environmentObject(sendingState)
+            GlucoseFace().previewDisplayName("Snapshot").environmentObject(snapshotState)
+            GlucoseFace().previewDisplayName("Initial").environmentObject(initialState)
         }.environmentObject(time)
     }
 }
