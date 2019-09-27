@@ -22,6 +22,7 @@ struct StateData {
     private(set) var readings:  [GlucosePoint]
     private(set) var iob: Double
     private(set) var insulinAction: Double
+    private(set) var sensorAge: TimeInterval
 }
 
 enum Status {
@@ -33,7 +34,7 @@ enum Status {
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0, sensorAge: 0) {
         didSet {
             self.state = .ready
         }
@@ -98,7 +99,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             ops.insert("defaults", at: 0)
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
-            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double else {
+            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval else {
                 return
             }
             DispatchQueue.global().async {
@@ -111,7 +112,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 self.processDefaults(from: info)
                 
                 DispatchQueue.main.async {
-                    appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+                    appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age)
                     if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
                         self.complicationState = DisplayValue(date: last, string: symbol)
                     }
@@ -177,7 +178,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any], let act = applicationContext["ia"] as? Double, let iob = applicationContext["iob"] as? Double else {
+        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any], let act = applicationContext["ia"] as? Double, let iob = applicationContext["iob"] as? Double, let age = applicationContext["age"] as? TimeInterval else {
             return
         }
         DispatchQueue.global().async {
@@ -188,7 +189,7 @@ extension ExtensionDelegate: WCSessionDelegate {
                 return GlucosePoint(date: d, value: v)
             }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act)
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age)
             }
         }
     }

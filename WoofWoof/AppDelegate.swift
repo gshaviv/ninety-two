@@ -339,6 +339,7 @@ extension AppDelegate: WCSessionDelegate {
         let state:[String:Any] = ["v": relevant,
                                   "t": currentTrend ?? 0,
                                   "s": trendSymbol(),
+                                  "age": MiaoMiao.sensorAge ?? 0,
                                   "c": defaults[.complicationState] ?? "--",
                                   "iob": Storage.default.insulinOnBoard(at: now),
                                   "ia": Storage.default.insulinAction(at: now)]

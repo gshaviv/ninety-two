@@ -18,10 +18,10 @@ struct GraphImage: View {
     
     var body: some View {
         #if targetEnvironment(simulator)
-        return Image(uiImage: GraphImage.createImage(data: state.data, size: size) ?? image)
+        return Image(uiImage: GraphImage.createImage(state: state, size: size) ?? image)
             .cornerRadius(6)
         #else
-        if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(data: state.data, size: size) {
+        if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(state: state, size: size) {
             DispatchQueue.main.async {
                 self.lastTime = last
                 self.image = newImage
@@ -37,7 +37,8 @@ struct GraphImage: View {
         self.size = size
     }
     
-    static func createImage(data: StateData, size: CGSize) -> UIImage? {
+    static func createImage(state: AppState, size: CGSize) -> UIImage? {
+        let data = state.data
         let colors = [0 ... defaults[.level0]: defaults[.color0] ,
                       defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
                       defaults[.level1] ... defaults[.level2]: defaults[.color2] ,
@@ -109,9 +110,15 @@ struct GraphImage: View {
             fill.lineWidth = 0
             fill.fill()
         }
-        let iob = data.iob
-        if iob > 0 {
-            let text = String(format: "BOB %.1lf\n%.2lf", iob, data.insulinAction)
+        let text: String?
+        if data.iob > 0 {
+            text = String(format: "BOB %.1lf\n%.2lf", data.iob, data.insulinAction)
+        } else if data.sensorAge > 13.d && state.state != .snapshot {
+            text = "\(Int(data.sensorAge / 1.d))d:\(Int(data.sensorAge / 1.h) % 24)h"
+        } else {
+            text = nil
+        }
+        if let text = text {
             let pStyle = NSMutableParagraphStyle()
             pStyle.alignment = .center
             let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .bold),
