@@ -72,9 +72,9 @@ public class Storage: NSObject {
 
         let high = CGFloat(carbs * defaults.param(.ch, at: record.date) - bolus * defaults.param(.ih, at: record.date) + current)
         let low = CGFloat(carbs * defaults.param(.cl,at: record.date) - bolus * defaults.param(.il, at: record.date) + current)
-//        let end = CGFloat(carbs * defaults[.ce] - bolus * defaults[.ie] + current)
+        let end = CGFloat(carbs * defaults.param(.ce,at: record.date) - bolus * defaults.param(.ie, at: record.date) + current)
 
-        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), h50: high, h90: high + CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), low50: low, low: low - CGFloat(defaults.param(.lsigma, at: record.date)))
+        return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), h50: high, h90: high + CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), low50: min(low,end), low: min(low - CGFloat(defaults.param(.lsigma, at: record.date)), end - CGFloat(defaults.param(.esigma, at: record.date))))
     }
     
 
@@ -157,26 +157,39 @@ public class Storage: NSObject {
             guard Date() - entry.date < 180.d else {
                 continue
             }
-            var mealtime = timeframe
-           
-//            let totalCarbs = entry.carbs
-//            let totalBolus = entry.bolus
-            if idx < allEntries.count - 2 {
-                let nextEntry = allEntries[idx + 1]
-                if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
-                    mealtime = 5.h
-                } else if nextEntry.date < entry.date + mealtime {
-                    mealtime = nextEntry.date - entry.date
-                }
-            } else {
-                mealtime = 5.h
-            }
             if idx > 1 {
                 let previousEntry = allEntries[idx - 1]
                 if entry.date - previousEntry.date < timeframe {
                     continue
                 }
             }
+            
+            var mealtime = timeframe
+            var totalBolus = Double(entry.bolus)
+            var skip = 0
+            while true {
+                if idx + skip + 1 < allEntries.count {
+                    let nextEntry = allEntries[idx + skip + 1]
+                    if nextEntry.date - entry.date > 5.h && mealtime < 5.h {
+                        mealtime = 5.h
+                        break
+                    } else if nextEntry.date < entry.date + mealtime {
+                        if nextEntry.isMeal {
+                            mealtime = nextEntry.date - entry.date
+                            totalBolus = Double(entry.bolus) - entry.insulinAction(at: nextEntry.date).iob
+                            break
+                        } else {
+                            mealtime = nextEntry.date + mealtime - entry.date
+                            totalBolus += Double(nextEntry.bolus)
+                        }
+                    }
+                } else {
+                    mealtime = 5.h
+                    break
+                }
+                skip += 1
+            }
+           
             let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > entry.date - 15.m && GlucosePoint.date < entry.date + mealtime + 15.m).orderBy(GlucosePoint.date)) ?? []
             guard !readings.isEmpty, readings.last!.date - readings.first!.date > mealtime else {
                 continue
@@ -190,8 +203,8 @@ public class Storage: NSObject {
                                   high: 0,
                                   low: Double.greatestFiniteMagnitude,
                                   end: Double(interp.interpolateValue(at: CGFloat(entry.date.timeIntervalSince1970) + CGFloat(timeframe))),
-                                  carbs: entry.carbs,
-                                  bolus: Double(entry.bolus),
+                                  carbs: Double(entry.carbs),
+                                  bolus: totalBolus,
                                   iob: entry.insulinOnBoardAtStart,
                                   cob: entry.cobOnStart,
                                   isComplete: mealtime >= timeframe)
