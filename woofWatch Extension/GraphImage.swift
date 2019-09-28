@@ -111,10 +111,9 @@ struct GraphImage: View {
             fill.fill()
         }
         let text: String?
-        if data.iob > 0 {
-            text = String(format: "BOB %.1lf\n%.2lf", data.iob, data.insulinAction)
-        } else if data.sensorAge > 13.d && state.state != .snapshot {
-            text = "\(Int(data.sensorAge / 1.d))d:\(Int(data.sensorAge / 1.h) % 24)h"
+        if state.state != .snapshot {
+            let ageInHours = Int(data.sensorAge / 1.h)
+            text = ageInHours < 24 ? "\(ageInHours)h" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d" : "\(ageInHours / 24)d:\(ageInHours % 24)h"
         } else {
             text = nil
         }

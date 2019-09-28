@@ -10,48 +10,49 @@ import Foundation
 import SwiftUI
 import Combine
 
-class CurrentTime: ObservableObject {
-    @Published var value = Date()
+
+class GlucoseFaceController: WKHostingController<AnyView> {
+    var observer: AnyCancellable?
+    var started = false
     var repeater: Repeater?
+
+    override var body: AnyView {
+        GlucoseFace().environmentObject(appState).asAnyView
+    }
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
+        observer = appState.$state.sink(receiveValue: {
+            if $0 == .snapshot {
+                self.setTitle("Ninety two")
+            }
+        })
+        makeTimer()
+    }
     
-    func makeRepeater() {
-        guard repeater == nil else { return }
-        value = Date()
+    private func makeTimer() {
         repeater = Repeater.every(1.0, leeway: 0.001, queue: DispatchQueue.main, perform: { [weak self] sender in
-            if WKExtension.shared().applicationState == .background {
-                sender.cancel()
-                self?.repeater = nil
-            } else {
-                self?.value = Date()
+            if WKExtension.shared().applicationState != .background, let last = appState.data.readings.last {
+                let diff = Int(Date().timeIntervalSince(last.date))
+                switch diff {
+                case ..<0:
+                    self?.setTitle("Ninety Two")
+                    
+                case 0 ..< 3600:
+                    self?.setTitle(String(format:"%ld:%02ld", diff / 60, diff % 60))
+                    
+                case 3600 ..< 86400:
+                    self?.setTitle(String(format:"%ld:%02ld:%02ld", diff / 3600, (diff / 60) % 60, diff % 60))
+                    
+                default:
+                    self?.setTitle(">1day")
+                }
+                
             }
         })
     }
     
-    init() {
-        DispatchQueue.main.async {
-            self.makeRepeater()
-        }
-    }
-}
-
-class GlucoseFaceController: WKHostingController<AnyView> {
-    let currentTime = CurrentTime()
-    var started = false
-    override var body: AnyView {
-        GlucoseFace().environmentObject(appState).environmentObject(currentTime).asAnyView
-    }
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: WKExtension.didEnterBackgroundNotification, object: nil)
-        currentTime.makeRepeater()
-    }
-    
-    @objc private func didEnterForeground() {
-        currentTime.makeRepeater()
-    }
-    
     override func willActivate() {
         super.willActivate()
-        currentTime.makeRepeater()
+        makeTimer()
     }
 }

@@ -123,7 +123,6 @@
 		E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D792333C68900383814 /* GraphImage.swift */; };
 		E4A14D7C2333C70700383814 /* CircularActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */; };
 		E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */; };
-		E4B164452334E094006A0BF9 /* TimeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B164442334E094006A0BF9 /* TimeLabel.swift */; };
 		E4BEE5D82330C693007B4896 /* GlucoseFace.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4BEE5D72330C693007B4896 /* GlucoseFace.swift */; };
 		E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0BC21FC3E0D0046D28F /* SettingsViewController.swift */; };
 		E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4C4E0BF21FC41880046D28F /* Settings.storyboard */; };
@@ -411,7 +410,6 @@
 		E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularActivityIndicator.swift; sourceTree = "<group>"; };
 		E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseFaceController.swift; sourceTree = "<group>"; };
 		E4B164392334B0B8006A0BF9 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
-		E4B164442334E094006A0BF9 /* TimeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeLabel.swift; sourceTree = "<group>"; };
 		E4B5022C21D6160C00E18DDD /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		E4B5022F21D6167200E18DDD /* KVO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KVO.swift; sourceTree = "<group>"; };
 		E4B5023121D61A1900E18DDD /* DrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingView.swift; sourceTree = "<group>"; };
@@ -646,7 +644,6 @@
 				E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */,
 				E4A14D7B2333C70700383814 /* CircularActivityIndicator.swift */,
 				E4A14D792333C68900383814 /* GraphImage.swift */,
-				E4B164442334E094006A0BF9 /* TimeLabel.swift */,
 			);
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
@@ -1280,7 +1277,6 @@
 				E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */,
 				E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
-				E4B164452334E094006A0BF9 /* TimeLabel.swift in Sources */,
 				E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */,
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,

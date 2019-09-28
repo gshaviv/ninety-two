@@ -42,14 +42,19 @@ struct GlucoseFace: View {
                             .layoutPriority(0)
                     }
                     Spacer(minLength: 0)
+                    if state.data.iob > 0 {
+                        Text(String(format:"%.1lf\n%.2lf",state.data.iob, state.data.insulinAction))
+                            .lineLimit(2)
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                    }
+                    Spacer(minLength: 0)
                     Text("\(levelStr)\(state.data.trendSymbol)")
                         .font(.title)
                         .foregroundColor(state.state == .error ? .pink : .yellow)
                         .lineLimit(1)
                         .layoutPriority(2)
-                    Spacer(minLength: 0)
-                    TimeLabel(last: last)
-                            .layoutPriority(1)
+                    
                 }
                 GeometryReader { geometry in
                     GraphImage(state: self.state, size: geometry.size)
@@ -98,13 +103,13 @@ func GenerateReadings() -> [GlucosePoint] {
 
 let testState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 0)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorAge: 7.d + 4.h)
     return state
 }()
 
 let errorState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 13.d + 2.h)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorAge: 13.d + 2.h)
     state.state = .error
     return state
 }()
@@ -125,7 +130,6 @@ let snapshotState: AppState = {
 
 let initialState = AppState()
 
-let time = CurrentTime()
 
 struct GlucoseFace_Previews: PreviewProvider {
     static var previews: some View {
@@ -135,7 +139,7 @@ struct GlucoseFace_Previews: PreviewProvider {
             GlucoseFace().previewDisplayName("Sending").environmentObject(sendingState)
             GlucoseFace().previewDisplayName("Snapshot").environmentObject(snapshotState)
             GlucoseFace().previewDisplayName("Initial").environmentObject(initialState)
-        }.environmentObject(time)
+        }
     }
 }
 
