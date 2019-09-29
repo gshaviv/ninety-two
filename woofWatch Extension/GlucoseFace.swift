@@ -16,7 +16,7 @@ struct GlucoseFace: View {
     var body: some View {
         guard let last = state.data.readings.last else {
             return VStack {
-                CircularActivityIndicator(size: 40)
+                ActivityIndicator(size: 40)
                 Text("Connecting...").font(.headline)
             }
             .asAnyView
@@ -35,7 +35,7 @@ struct GlucoseFace: View {
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
                     if state.state == .sending {
-                        CircularActivityIndicator(size: 14).padding(.leading, 2)
+                        ActivityIndicator(size: 14).padding(.leading, 2)
                     } else {
                         Text(tvalue)
                             .lineLimit(1)

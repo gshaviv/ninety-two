@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct CircularActivityIndicator: View {
+struct ActivityIndicator: View {
     @State var spinCircle = false
     private(set) var size: CGFloat
     
