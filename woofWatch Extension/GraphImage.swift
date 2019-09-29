@@ -113,7 +113,7 @@ struct GraphImage: View {
         let text: String?
         if state.state != .snapshot {
             let ageInHours = Int(data.sensorAge / 1.h)
-            text = ageInHours < 24 ? "\(ageInHours)h" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d" : "\(ageInHours / 24)d:\(ageInHours % 24)h"
+            text = ageInHours < 24 ? "\(ageInHours)h\n\(state.data.batteryLevel)%" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d\n\(state.data.batteryLevel)%" : "\(ageInHours / 24)d:\(ageInHours % 24)h\n\(state.data.batteryLevel)%"
         } else {
             text = nil
         }
@@ -142,7 +142,9 @@ struct GraphImage: View {
                 }
                 return true
             }
-            styled.draw(in: trect ?? options[0])
+            if let trect = trect {
+                styled.draw(in: trect)
+            }
         }
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()

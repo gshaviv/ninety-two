@@ -43,7 +43,7 @@ struct GlucoseFace: View {
                     }
                     Spacer(minLength: 0)
                     if state.data.iob > 0 {
-                        Text(String(format:"%.1lf\n%.2lf",state.data.iob, state.data.insulinAction))
+                        Text(String(format:"%.1lf\n%.2lf",state.data.iob, state.data.insulinAction).replacingOccurrences(of: "0.", with: "."))
                             .lineLimit(2)
                             .font(.headline)
                             .multilineTextAlignment(.center)
@@ -103,27 +103,27 @@ func GenerateReadings() -> [GlucosePoint] {
 
 let testState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorAge: 7.d + 4.h)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorAge: 7.d + 4.h, batteryLevel: 80)
     return state
 }()
 
 let errorState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorAge: 13.d + 2.h)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorAge: 13.d + 2.h, batteryLevel: 70)
     state.state = .error
     return state
 }()
 
 let sendingState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 60)
     state.state = .sending
     return state
 }()
 
 let snapshotState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 50)
     state.state = .snapshot
     return state
 }()

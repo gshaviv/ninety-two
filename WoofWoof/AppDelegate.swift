@@ -340,6 +340,7 @@ extension AppDelegate: WCSessionDelegate {
                                   "t": currentTrend ?? 0,
                                   "s": trendSymbol(),
                                   "age": MiaoMiao.sensorAge ?? 0,
+                                  "b": MiaoMiao.batteryLevel,
                                   "c": defaults[.complicationState] ?? "--",
                                   "iob": Storage.default.insulinOnBoard(at: now),
                                   "ia": Storage.default.insulinAction(at: now)]
