@@ -321,6 +321,7 @@ extension AppDelegate: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if activationState == .activated {
             updateDefaults()
+            updateSummary()
         }
     }
 
@@ -353,6 +354,7 @@ extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         updateDefaults()
+        updateSummary()
         guard let ops = message["op"] as? [String] else {
             return
         }
@@ -362,7 +364,12 @@ extension AppDelegate: WCSessionDelegate {
                 replyHandler(appState())
                 
             case "defaults":
+                defaults[.needsUpdateDefaults] = true
                 updateDefaults()
+                
+            case "summary":
+                defaults[.needUpdateSummary] = true
+                updateSummary()
                 
             default:
                 break
@@ -515,6 +522,25 @@ extension AppDelegate {
                     defaults[.needsUpdateDefaults] = false
                 }
             }) { (_) in
+                
+            }
+        }
+    }
+    func updateSummary() {
+        if defaults[.needUpdateSummary] {
+            do {
+                let data = try JSONEncoder().encode(SummaryViewController.summary.data)
+                guard let str = String(data: data, encoding: .utf8) else {
+                    return
+                }
+                WCSession.default.sendMessage(["summary": str], replyHandler: { (response) in
+                    if let stat = response["ok"] as? Bool, stat {
+                        defaults[.needsUpdateDefaults] = false
+                    }
+                }) { (_) in
+                    
+                }
+            } catch {
                 
             }
         }

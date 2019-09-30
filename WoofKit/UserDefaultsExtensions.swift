@@ -93,6 +93,7 @@ extension UserDefaults {
         case includeDailyReport
         case alertVibrate
         case needsUpdateDefaults
+        case needUpdateSummary
     }
 
     public func register() {
@@ -122,7 +123,8 @@ extension UserDefaults {
                                        BoolKey.includeDailyReport.key: true,
                                        BoolKey.includePatternReport.key: true,
                                        BoolKey.alertVibrate.key: true,
-                                       BoolKey.needsUpdateDefaults.key: true
+                                       BoolKey.needsUpdateDefaults.key: true,
+                                       BoolKey.needUpdateSummary.key: true
                                        ]
 
         register(defaults: defaults)

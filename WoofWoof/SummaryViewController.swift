@@ -18,13 +18,13 @@ class Actions {
 }
 
 class SummaryViewController: UIHostingController<SummaryView> {
-    private var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
+    static  var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1])) 
     private var listen: NSObjectProtocol?
     private var action = Action()
     private var actionListener: AnyCancellable?
 
     required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder, rootView: SummaryView(summary: summary, action: action))
+        super.init(coder: aDecoder, rootView: SummaryView(summary: SummaryViewController.summary, action: action))
     }
     
     override func viewDidLoad() {
@@ -155,7 +155,8 @@ class SummaryViewController: UIHostingController<SummaryView> {
                                             bands[UserDefaults.ColorKey.color4] ?? 0,
                                             bands[UserDefaults.ColorKey.color5] ?? 0,
                     ])
-                    self.summary.data = summary
+                    SummaryViewController.summary.data = summary
+                    defaults[.needUpdateSummary] = true
                 }
             }
         } catch {}
@@ -177,42 +178,3 @@ class SummaryViewController: UIHostingController<SummaryView> {
 
 }
 
-struct Summary {
-    let period: Int
-    struct TimeInRange {
-        let low: TimeInterval
-        let inRange: TimeInterval
-        let high: TimeInterval
-    }
-    let timeInRange: TimeInRange
-    var totalTime: TimeInterval {
-        timeInRange.low + timeInRange.inRange + timeInRange.high
-    }
-    var percentTimeIn: Decimal {
-        100 - percentTimeAbove - percentTimeBelow
-    }
-    var percentTimeBelow: Decimal {
-        (100 * timeInRange.low / max(totalTime,1)).decimal(digits: 1)
-    }
-    var percentTimeAbove: Decimal {
-        (100 * timeInRange.high / max(totalTime,1)).decimal(digits: 1)
-    }
-    let maxLevel: Double
-    let minLevel: Double
-    let average: Double
-    let a1c: Double
-    struct Low {
-        let count: Int
-        let median: Int
-    }
-    let low: Low
-    let atdd: Double
-    let timeInLevel: [TimeInterval]
-}
-
-class SummaryInfo: ObservableObject {
-    @Published var data: Summary
-    init(_ summary: Summary) {
-        data = summary
-    }
-}

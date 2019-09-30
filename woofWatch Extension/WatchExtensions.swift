@@ -61,6 +61,15 @@ extension Int {
     }
 }
 
+extension Double {
+    public func decimal(digits n:Int) -> Decimal {
+        var rounded = Decimal()
+        var initial = Decimal(self)
+        NSDecimalRound(&rounded, &initial, n, .plain)
+        return rounded
+    }
+}
+
 func - (lhs: Date, rhs: Date) -> TimeInterval {
     return lhs.timeIntervalSince1970 - rhs.timeIntervalSince1970
 }

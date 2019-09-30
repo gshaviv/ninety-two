@@ -8,11 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
-		E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021BD21D89DAA001AB34D /* PieChart.swift */; };
 		E401514E22FA02FC00ACCF84 /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */; };
 		E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */; };
 		E40F112023103BA900346D0C /* EndPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F111F23103BA900346D0C /* EndPredictionLR.mlmodel */; };
+		E412607023424B8800958601 /* WatchSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412606F23424B8800958601 /* WatchSummaryView.swift */; };
+		E412607323425D0100958601 /* SummaryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412607223425D0100958601 /* SummaryInfo.swift */; };
+		E412607423425D0100958601 /* SummaryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412607223425D0100958601 /* SummaryInfo.swift */; };
+		E4126075234262D900958601 /* PieChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C18FDB2340E46A00B1163E /* PieChartView.swift */; };
+		E4126076234269B300958601 /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */; };
+		E412607723426A5B00958601 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C321FC4DC00046D28F /* Scan.swift */; };
 		E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; };
 		E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
@@ -315,6 +320,8 @@
 		E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = HighPredictionLR.mlmodel; sourceTree = "<group>"; };
 		E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = LowPredictionLR.mlmodel; sourceTree = "<group>"; };
 		E40F111F23103BA900346D0C /* EndPredictionLR.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = EndPredictionLR.mlmodel; sourceTree = "<group>"; };
+		E412606F23424B8800958601 /* WatchSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSummaryView.swift; sourceTree = "<group>"; };
+		E412607223425D0100958601 /* SummaryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryInfo.swift; sourceTree = "<group>"; };
 		E417F4A921E8C95400C6BC9D /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
@@ -653,9 +660,11 @@
 				E42E2AC521DF5FC8004FD560 /* DisplayValue.swift */,
 				E42E2AD221DFB568004FD560 /* WatchExtensions.swift */,
 				E4BEE5D72330C693007B4896 /* GlucoseFace.swift */,
+				E412607223425D0100958601 /* SummaryInfo.swift */,
 				E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */,
 				E4A14D7B2333C70700383814 /* ActivityIndicator.swift */,
 				E4A14D792333C68900383814 /* GraphImage.swift */,
+				E412606F23424B8800958601 /* WatchSummaryView.swift */,
 			);
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
@@ -1301,15 +1310,20 @@
 				E417F4A621E88C2100C6BC9D /* GlucosePoint.swift in Sources */,
 				E4A14D7C2333C70700383814 /* ActivityIndicator.swift in Sources */,
 				E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */,
+				E412607723426A5B00958601 /* Scan.swift in Sources */,
 				E42E2AC621DF5FC8004FD560 /* DisplayValue.swift in Sources */,
+				E4126076234269B300958601 /* StringAdditions.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
 				E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */,
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,
+				E412607423425D0100958601 /* SummaryInfo.swift in Sources */,
+				E4126075234262D900958601 /* PieChartView.swift in Sources */,
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
 				E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */,
 				E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */,
 				E4BEE5D82330C693007B4896 /* GlucoseFace.swift in Sources */,
+				E412607023424B8800958601 /* WatchSummaryView.swift in Sources */,
 				E401514E22FA02FC00ACCF84 /* log.swift in Sources */,
 				E42E2AD321DFB568004FD560 /* WatchExtensions.swift in Sources */,
 			);
@@ -1331,6 +1345,7 @@
 				E4C18FD623409A6600B1163E /* SwiftUIExtensions.swift in Sources */,
 				E4C18FD1234090B800B1163E /* SummaryView.swift in Sources */,
 				E4230FC521EB04C600A297A5 /* GlucoseReport.swift in Sources */,
+				E412607323425D0100958601 /* SummaryInfo.swift in Sources */,
 				E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */,
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
@@ -1349,7 +1364,6 @@
 				E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
 				E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */,
-				E40021BE21D89DAA001AB34D /* PieChart.swift in Sources */,
 				E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E4C18FDC2340E46A00B1163E /* PieChartView.swift in Sources */,

@@ -60,9 +60,9 @@ struct GlucoseFace: View {
                 }
                 GeometryReader { geometry in
                     GraphImage(state: self.state, size: geometry.size)
-                }
+                }.padding([.bottom], 2)
             }
-            .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
+            .edgesIgnoringSafeArea([.leading, .trailing])
             .asAnyView
     }
     

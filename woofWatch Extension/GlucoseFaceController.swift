@@ -27,6 +27,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
             }
         })
         makeTimer()
+        addMenuItem(with: UIImage(systemName: "chart.pie.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Summary", action: #selector(showSummary))
     }
     
     private func makeTimer() {
@@ -54,5 +55,10 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     override func willActivate() {
         super.willActivate()
         makeTimer()
+    }
+    
+    
+    @objc func showSummary() {
+        presentController(withName: "summary", context: nil)
     }
 }

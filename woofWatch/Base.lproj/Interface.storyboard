@@ -11,7 +11,14 @@
             <objects>
                 <controller title="Ninety two" id="C5u-kJ-FeA" customClass="GlucoseFaceController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="166" y="345"/>
+            <point key="canvasLocation" x="-67" y="275"/>
+        </scene>
+        <!--Summary-->
+        <scene sceneID="5Ao-xT-4Pu">
+            <objects>
+                <hostingController identifier="summary" title="Summary" id="ftO-Bn-Zg9" customClass="WatchSummaryController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="234" y="278"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">

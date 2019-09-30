@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if canImport(WatchKit)
+import WatchKit
+#endif
 
 extension String {
     public subscript(index: Int) -> String {

@@ -43,6 +43,7 @@ class AppState: ObservableObject {
 }
 
 var appState = AppState()
+var summary = SummaryInfo(Summary(period: 0, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     private(set) var complicationState = DisplayValue(date: Date(), string: "-") {
@@ -99,6 +100,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
         }
+        if summary.data.period == 0 && defaults[.needUpdateSummary] {
+            ops.insert("summary", at: 0)
+            defaults[.needUpdateSummary] = false
+        }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval, let level = info["b"] as? Int else {
                 return
@@ -111,6 +116,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                     return GlucosePoint(date: d, value: v)
                 }
                 self.processDefaults(from: info)
+                self.processSummary(from: info)
                 
                 DispatchQueue.main.async {
                     appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
@@ -213,8 +219,20 @@ extension ExtensionDelegate: WCSessionDelegate {
         defaults[.needsUpdateDefaults] = false
     }
     
+    private func processSummary(from message: [String:Any]) {
+        if let sumStr = message["summary"] as? String, let data = sumStr.data(using: .utf8) {
+            do {
+                let sumData = try JSONDecoder().decode(Summary.self, from: data)
+                DispatchQueue.main.async {
+                    summary.data = sumData
+                }
+            } catch {}
+        }
+    }
+    
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         processDefaults(from: message)
+        processSummary(from: message)
         replyHandler(["ok": true])
     }
     
