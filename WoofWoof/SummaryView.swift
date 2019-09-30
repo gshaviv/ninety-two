@@ -18,11 +18,12 @@ extension Text {
             self
                 .font(.headline)
                 .frame(width: g.size.width)
-                .background(Color.headlineBackground)
+                .background(DynamicColor(light: Color(red: 0.85, green: 0.85, blue: 0.85),
+                                         dark: Color(red: 0.2, green: 0.2, blue: 0.2)))
         }
     }
     func value() -> some View {
-        return self
+        self
             .font(.body)
 //            .foregroundColor(Color.yellow)
     }
@@ -73,7 +74,7 @@ struct SummaryView: View {
                     Text("\(summary.data.atdd % ".1lf")").value()
                 }
             }
-        }
+        }.padding([.leading, .trailing], 4)
     }
 }
 
@@ -82,9 +83,9 @@ struct SummaryView_Previews: PreviewProvider {
     static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: 6.0, low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
     static var previews: some View {
         Group {
-            SummaryView(summary: summary, action: Action()).previewLayout(PreviewLayout.fixed(width: 375, height: 175))
-            SummaryView(summary: summary, action: Action()).previewLayout(PreviewLayout.fixed(width: 375, height: 175)).environment(\.colorScheme, .dark).background(Color.black)
-        }
+            SummaryView(summary: summary, action: Action())
+            SummaryView(summary: summary, action: Action()).environment(\.colorScheme, .dark).background(Color.black)
+        }.previewLayout(PreviewLayout.fixed(width: 375, height: 175))
     }
     static var platform: PreviewPlatform? = .iOS
 }

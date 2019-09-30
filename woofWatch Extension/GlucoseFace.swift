@@ -34,19 +34,21 @@ struct GlucoseFace: View {
         return
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
+                    if state.data.iob > 0 {
+                        Text(String(format:"BOB\n%.1lf",state.data.iob).replacingOccurrences(of: "0.", with: "."))
+                            .lineLimit(2)
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                    } else {
+                        Image(uiImage: batteryLevelIcon(for: state.data.batteryLevel))
+                    }
+                    Spacer(minLength: 0)
                     if state.state == .sending {
                         ActivityIndicator(size: 14).padding(.leading, 2)
                     } else {
                         Text(tvalue)
                             .lineLimit(1)
                             .layoutPriority(0)
-                    }
-                    Spacer(minLength: 0)
-                    if state.data.iob > 0 {
-                        Text(String(format:"%.1lf\n%.2lf",state.data.iob, state.data.insulinAction).replacingOccurrences(of: "0.", with: "."))
-                            .lineLimit(2)
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
                     }
                     Spacer(minLength: 0)
                     Text("\(levelStr)\(state.data.trendSymbol)")
@@ -62,6 +64,25 @@ struct GlucoseFace: View {
             }
             .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
             .asAnyView
+    }
+    
+    private func batteryLevelIcon(for level: Int) -> UIImage {
+        switch level {
+        case 90...:
+            return UIImage(named: "battery-5")!
+            
+        case 60..<90:
+            return UIImage(named: "battery-4")!
+            
+        case 30..<60:
+            return UIImage(named: "battery-3")!
+            
+        case 20..<30:
+            return UIImage(named: "battery-2")!
+            
+        default:
+            return UIImage(named: "battery-1")!
+        }
     }
 }
 
