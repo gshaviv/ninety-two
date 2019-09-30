@@ -950,6 +950,9 @@ extension GlucoseGraph: UIScrollViewDelegate {
 
 extension GlucoseGraph: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard historyPoints != nil else {
+            return false
+        }
         let yScale = contentView.bounds.size.height / (yRange.max - yRange.min)
         let yCoor = { (self.yRange.max - $0) * yScale }
         let xScale = contentView.bounds.size.width / CGFloat(xRange.max - xRange.min)
