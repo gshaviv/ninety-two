@@ -93,7 +93,7 @@ struct WatchSummaryView: View {
                         Text("\(summary.data.maxLevel % ".0lf")").value()
                     }
                     HStack {
-                        Text("Ave TDD:").headline()
+                        Text("TDD:").headline()
                         Spacer(minLength: 0)
                         Text("\(summary.data.atdd % ".1lf")").value()
                     }

@@ -70,7 +70,7 @@ struct SummaryView: View {
                     Text("\(summary.data.percentTimeAbove.description)%").value()
                     Text("Min / Max").headline()
                     Text("\(summary.data.minLevel % ".0lf") / \(summary.data.maxLevel % ".0lf")").value()
-                    Text("Ave TDD").headline()
+                    Text("TDD").headline()
                     Text("\(summary.data.atdd % ".1lf")").value()
                 }
             }
