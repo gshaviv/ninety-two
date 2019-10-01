@@ -108,7 +108,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
         WatchSummaryView(summary: summary).asAnyView
     }
     override func didAppear() {
-        setTitle("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
+        setTitle("< Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
     }
 }
 

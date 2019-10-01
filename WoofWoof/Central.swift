@@ -61,6 +61,9 @@ public class Central: NSObject {
     }
 
     public func restart() {
+        if bgTask == nil && UIApplication.shared.applicationState == .background {
+            bgTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+        }
         if let gcmDevice = gcmDevice  {
             centralManager.cancelPeripheralConnection(gcmDevice)
         }
@@ -78,10 +81,15 @@ public class Central: NSObject {
             case (_, .bluetoothOn):
                 gcmDevice = nil
                 centralManager.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+                if bgTask == nil && UIApplication.shared.applicationState == .background {
+                    bgTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+                }
 
             case (_, .found):
                 if let gcmDevice = gcmDevice {
-                    bgTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+                    if bgTask == nil {
+                        bgTask = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+                    }
                     centralManager.connect(gcmDevice, options: nil)
                 }
 
