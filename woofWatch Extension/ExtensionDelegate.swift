@@ -115,8 +115,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                     }
                     return GlucosePoint(date: d, value: v)
                 }
-                self.processDefaults(from: info)
-                self.processSummary(from: info)
                 
                 DispatchQueue.main.async {
                     appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
