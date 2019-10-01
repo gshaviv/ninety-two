@@ -28,6 +28,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         })
         makeTimer()
         addMenuItem(with: UIImage(systemName: "chart.pie.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Summary", action: #selector(showSummary))
+        addMenuItem(with: UIImage(systemName: "eyedropper", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Calibrate", action: #selector(calibrate))
     }
     
     private func makeTimer() {
@@ -60,5 +61,9 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     @objc func showSummary() {
         presentController(withName: "summary", context: nil)
+    }
+    
+    @objc func calibrate() {
+        presentController(withName: "calibrate", context: nil)
     }
 }

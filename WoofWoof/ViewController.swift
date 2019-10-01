@@ -712,25 +712,9 @@ class ViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
-            if let text = alert.textFields![0].text, let bg = Double(text), let current = MiaoMiao.currentGlucose {
-                do {
-                    let c = Calibration(date: Date(), value: bg)
-                    try Storage.default.db.perform(c.insert())
-                    let factor = bg / current.value
-                    defaults[.additionalSlope] *= factor
-                    if abs(factor - 1) > 0.1 {
-                        if let age = MiaoMiao.sensorAge, age < 1.d {
-                            defaults[.nextCalibration] = Date() + 6.h
-                        } else if defaults[.nextCalibration] == nil {
-                            defaults[.nextCalibration] = Date() + 3.h
-                        }
-                    }
-                    self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
-                    UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
-                    MiaoMiao.last24hReadings.append(c)
-                    defaults[.sensorSerial] = MiaoMiao.serial
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.calibrate])
-                } catch _ {}
+            if let text = alert.textFields![0].text, let bg = Double(text), bg > 65 && bg < 185 {
+                MiaoMiao.addCalibration(value: bg)
+                self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
             }
         }))
         present(alert, animated: true, completion: nil)

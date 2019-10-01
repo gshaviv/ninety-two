@@ -379,6 +379,14 @@ extension AppDelegate: WCSessionDelegate {
             case "reconnect":
                 Central.manager.restart()
                 
+            case "read":
+                MiaoMiao.Command.startReading()
+                
+            case "calibrate":
+                if let v = message["value"] as? Double {
+                    MiaoMiao.addCalibration(value: v)
+                }
+                
             default:
                 break
             }

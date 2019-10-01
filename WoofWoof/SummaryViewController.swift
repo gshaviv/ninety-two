@@ -12,10 +12,6 @@ import Sqlable
 import SwiftUI
 import Combine
 
-class Actions {
-    let present = PassthroughSubject<Void,Never>()
-    var presentListener: AnyCancellable?
-}
 
 class SummaryViewController: UIHostingController<SummaryView> {
     static  var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1])) 

@@ -442,6 +442,28 @@ class MiaoMiao {
         return trend?.first
     }
     
+    public static func addCalibration(value bg: Double) {
+        if let current = currentGlucose {
+            do {
+                let c = Calibration(date: Date(), value: bg)
+                try Storage.default.db.perform(c.insert())
+                let factor = bg / current.value
+                defaults[.additionalSlope] *= factor
+                if abs(factor - 1) > 0.1, let age = MiaoMiao.sensorAge, age < 1.d {
+                    if defaults[.nextCalibration] == nil {
+                        defaults[.nextCalibration] = Date() + 3.h
+                    } else {
+                        defaults[.nextCalibration] = Date() + 6.h
+                    }
+                }
+                UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
+                last24hReadings.append(c)
+                defaults[.sensorSerial] = serial
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.calibrate])
+            } catch _ {}
+        }
+    }
+    
     public static func flushToDatabase() {
         if pendingReadings.count > 3 {
             Storage.default.db.async {
