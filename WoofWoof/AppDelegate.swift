@@ -535,7 +535,7 @@ extension AppDelegate {
                 }
                 WCSession.default.sendMessage(["summary": str], replyHandler: { (response) in
                     if let stat = response["ok"] as? Bool, stat {
-                        defaults[.needsUpdateDefaults] = false
+                        defaults[.needUpdateSummary] = false
                     }
                 }) { (_) in
                     
