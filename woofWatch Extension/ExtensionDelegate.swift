@@ -223,6 +223,7 @@ extension ExtensionDelegate: WCSessionDelegate {
                 let sumData = try JSONDecoder().decode(Summary.self, from: data)
                 DispatchQueue.main.async {
                     summary.data = sumData
+                    defaults[.needUpdateSummary] = false
                 }
             } catch {}
         }
