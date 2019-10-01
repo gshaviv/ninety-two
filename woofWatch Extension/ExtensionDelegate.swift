@@ -80,6 +80,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         refresh(force: true)
     }
+    
+    func reconnectCmd() {
+        appState.state = .sending
+        WCSession.default.sendMessage(["op":["reconnect"]], replyHandler: { (_) in
+            appState.state = .ready
+        }) { (_) in
+            appState.state = .ready
+        }
+    }
 
     func refresh(force: Bool = false) {
         guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force) else {
@@ -105,6 +114,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             defaults[.needUpdateSummary] = false
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
+            DispatchQueue.global().async {
+                self.processSummary(from: info)
+                self.processDefaults(from: info)
+            }
             guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval, let level = info["b"] as? Int else {
                 return
             }

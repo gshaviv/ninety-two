@@ -28,6 +28,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         })
         makeTimer()
         addMenuItem(with: UIImage(systemName: "chart.pie.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Summary", action: #selector(showSummary))
+        addMenuItem(with: UIImage(systemName: "dot.radiowaves.left.and.right", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Reconnect MiaoMiao", action: #selector(reconnect))
     }
     
     private func makeTimer() {
@@ -60,5 +61,9 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     @objc func showSummary() {
         presentController(withName: "summary", context: nil)
+    }
+    
+    @objc func reconnect() {
+        WKExtension.extensionDelegate.reconnectCmd()
     }
 }

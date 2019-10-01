@@ -358,23 +358,32 @@ extension AppDelegate: WCSessionDelegate {
         guard let ops = message["op"] as? [String] else {
             return
         }
+        var reply = [String:Any]()
         ops.forEach {
             switch $0 {
             case "state":
-                replyHandler(appState())
+                reply.merge(appState()) { (val, _)  in
+                    val
+                }
                 
             case "defaults":
-                defaults[.needsUpdateDefaults] = true
-                updateDefaults()
-                
+                reply.merge(defaultsMessage()) { (v, _) in
+                    v
+                }
+ 
             case "summary":
-                defaults[.needUpdateSummary] = true
-                updateSummary()
+                reply.merge(summaryMessage()) { (v, _) in
+                    v
+                }
+
+            case "reconnect":
+                Central.manager.restart()
                 
             default:
                 break
             }
         }
+        replyHandler(reply)
     }
 }
 
@@ -515,33 +524,36 @@ extension AppDelegate: NSFilePresenter {
 }
 
 extension AppDelegate {
+    func defaultsMessage() -> [String:Any] {
+        defaults[.needsUpdateDefaults] = false
+        return ["defaults": defaults.dictionaryRepresentation()]
+    }
     func updateDefaults() {
         if defaults[.needsUpdateDefaults] {
-            WCSession.default.sendMessage(["defaults": defaults.dictionaryRepresentation()], replyHandler: { (response) in
-                if let stat = response["ok"] as? Bool, stat {
-                    defaults[.needsUpdateDefaults] = false
-                }
-            }) { (_) in
+            WCSession.default.sendMessage(defaultsMessage(), replyHandler: { (response) in
                 
+            }) { (_) in
+                defaults[.needsUpdateDefaults] = true
             }
+        }
+    }
+    func summaryMessage() -> [String:Any] {
+        do {
+            let data = try JSONEncoder().encode(SummaryViewController.summary.data)
+            guard let str = String(data: data, encoding: .utf8) else {
+                return [:]
+            }
+            defaults[.needUpdateSummary] = false
+            return ["summary": str]
+        } catch {
+            return [:]
         }
     }
     func updateSummary() {
         if defaults[.needUpdateSummary] {
-            do {
-                let data = try JSONEncoder().encode(SummaryViewController.summary.data)
-                guard let str = String(data: data, encoding: .utf8) else {
-                    return
-                }
-                WCSession.default.sendMessage(["summary": str], replyHandler: { (response) in
-                    if let stat = response["ok"] as? Bool, stat {
-                        defaults[.needUpdateSummary] = false
-                    }
-                }) { (_) in
-                    
-                }
-            } catch {
-                
+            WCSession.default.sendMessage(summaryMessage(), replyHandler: { (response) in
+            }) { (_) in
+                defaults[.needUpdateSummary] = true
             }
         }
     }
