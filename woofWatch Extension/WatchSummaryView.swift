@@ -46,7 +46,7 @@ struct WatchSummaryView: View {
                         ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
                     ]).aspectRatio(1, contentMode: .fit).padding(6)
                     HStack {
-                        Text("% Low:").headline()
+                        Text("Low:").headline()
                         Spacer(minLength: 0)
                         Text("\(summary.data.percentTimeBelow.description)%").value()
                     }
@@ -56,7 +56,7 @@ struct WatchSummaryView: View {
                         Text("\(summary.data.percentTimeIn.description)%").value()
                     }
                     HStack {
-                        Text("% High:").headline()
+                        Text("High:").headline()
                         Spacer(minLength: 0)
                         Text("\(summary.data.percentTimeAbove.description)%").value()
                     }

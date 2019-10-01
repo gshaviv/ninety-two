@@ -50,7 +50,7 @@ struct SummaryView: View {
                     ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
                 ])
                 VStack {
-                    Text("% Low").headline()
+                    Text("Low").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
                     Text("# Lows").headline()
                     Text("\(summary.data.low.count)").value()
@@ -66,7 +66,7 @@ struct SummaryView: View {
                     Text("\(summary.data.a1c % ".1lf")").value()
                 }
                 VStack {
-                    Text("% High").headline()
+                    Text("High").headline()
                     Text("\(summary.data.percentTimeAbove.description)%").value()
                     Text("Min / Max").headline()
                     Text("\(summary.data.minLevel % ".0lf") / \(summary.data.maxLevel % ".0lf")").value()
