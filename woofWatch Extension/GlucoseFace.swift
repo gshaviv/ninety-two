@@ -60,28 +60,31 @@ struct GlucoseFace: View {
                 }
                 GeometryReader { geometry in
                     GraphImage(state: self.state, size: geometry.size)
+                        .cornerRadius(8)
                 }.padding([.bottom], 2)
             }
-            .edgesIgnoringSafeArea([.leading, .trailing])
+            .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
             .asAnyView
     }
     
     private func batteryLevelIcon(for level: Int) -> UIImage {
+        let color = UIColor(white: 0.1 + 0.8 * CGFloat(level) / 100, alpha: 1)
+        
         switch level {
         case 90...:
-            return UIImage(named: "battery-5")!
+            return UIImage(named: "battery-5")!.tint(with: color)
             
         case 60..<90:
-            return UIImage(named: "battery-4")!
+            return UIImage(named: "battery-4")!.tint(with: color)
             
         case 30..<60:
-            return UIImage(named: "battery-3")!
+            return UIImage(named: "battery-3")!.tint(with: color)
             
         case 20..<30:
-            return UIImage(named: "battery-2")!
+            return UIImage(named: "battery-2")!.tint(with: color)
             
         default:
-            return UIImage(named: "battery-1")!
+            return UIImage(named: "battery-1")!.tint(with: color)
         }
     }
 }
@@ -144,7 +147,7 @@ let sendingState: AppState = {
 
 let snapshotState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 50)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 20)
     state.state = .snapshot
     return state
 }()

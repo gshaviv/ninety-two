@@ -37,14 +37,6 @@ struct WatchSummaryView: View {
         } else {
             return List {
                 Section(header: Text("Time In Range")) {
-                    PieChartView([
-                        ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
-                        ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
-                        ChartPiece(value: summary.data.timeInLevel[4], color: Color(defaults[.color4])),
-                        ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
-                        ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
-                        ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
-                    ]).aspectRatio(1, contentMode: .fit).padding(6)
                     HStack {
                         Text("Low:").headline()
                         Spacer(minLength: 0)
@@ -60,6 +52,14 @@ struct WatchSummaryView: View {
                         Spacer(minLength: 0)
                         Text("\(summary.data.percentTimeAbove.description)%").value()
                     }
+                    PieChartView([
+                        ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
+                        ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
+                        ChartPiece(value: summary.data.timeInLevel[4], color: Color(defaults[.color4])),
+                        ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
+                        ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
+                        ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
+                    ]).aspectRatio(1, contentMode: .fit).padding(6)
                 }
                 Section(header: Text("Statistics")) {
                     HStack {
@@ -107,8 +107,9 @@ class WatchSummaryController: WKHostingController<AnyView> {
     override var body: AnyView {
         WatchSummaryView(summary: summary).asAnyView
     }
-    override func didAppear() {
-        setTitle("< Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
+        setTitle("❮Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
     }
 }
 

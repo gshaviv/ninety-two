@@ -19,7 +19,6 @@ struct GraphImage: View {
     var body: some View {
         #if targetEnvironment(simulator)
         return Image(uiImage: GraphImage.createImage(state: state, size: size) ?? image)
-            .cornerRadius(6)
         #else
         if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(state: state, size: size) {
             DispatchQueue.main.async {
@@ -28,7 +27,6 @@ struct GraphImage: View {
             }
         }
         return Image(uiImage: image )
-            .cornerRadius(6)
         #endif
     }
     

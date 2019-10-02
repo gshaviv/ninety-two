@@ -111,3 +111,39 @@ extension UIColor {
 func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
     return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
 }
+
+extension UIImage {
+//    func tint(color: UIColor) -> UIImage {
+//        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+//        color.setFill()
+//        
+//        let context = UIGraphicsGetCurrentContext()
+//        context?.translateBy(x: 0, y: self.size.height)
+//        context?.scaleBy(x: 1.0, y: -1.0)
+//        context?.setBlendMode(CGBlendMode.normal)
+//        
+//        let rect = CGRect(origin: .zero, size: CGSize(width: self.size.width, height: self.size.height))
+//        context?.clip(to: rect, mask: self.cgImage!)
+//        context?.fill(rect)
+//        
+//        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//        
+//        return newImage!
+//    }
+    
+    func tint(with color: UIColor) -> UIImage {
+        let image = withRenderingMode(.alwaysTemplate)
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        color.set()
+        image.draw(in: CGRect(origin: .zero, size: size))
+        
+        guard let imageColored = UIGraphicsGetImageFromCurrentImageContext() else {
+            return UIImage()
+        }
+        
+        UIGraphicsEndImageContext()
+        return imageColored
+    }
+
+}
