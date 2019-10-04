@@ -35,7 +35,7 @@ struct WatchSummaryView: View {
             .asAnyView
         } else {
             return List {
-                Section(header: Text("Time In Range")) {
+                Section(header: Text("Time In Range").font(.headline).foregroundColor(Color(white: 0.5))) {
                     HStack {
                         Text("Low:").headline()
                         Spacer(minLength: 0)
@@ -61,16 +61,16 @@ struct WatchSummaryView: View {
                     ]).aspectRatio(1, contentMode: .fit)
                         .padding(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
                 }
-                Section(header: Text("Statistics")) {
+                Section(header: Text("Statistics").font(.headline).foregroundColor(Color(white: 0.5))) {
                     HStack {
                         Text("Ave:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.average % ".0lf")").value()
+                        Text("\(summary.data.average, specifier:"%.0lf")").value()
                     }
                     HStack {
                         Text("A1C:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.a1c % ".1lf")").value()
+                        Text("\(summary.data.a1c, specifier:"%.1lf")").value()
                     }
                     HStack {
                         Text("# Lows:").headline()
@@ -85,17 +85,17 @@ struct WatchSummaryView: View {
                     HStack {
                         Text("Min:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.minLevel % ".0lf")").value()
+                        Text("\(summary.data.minLevel, specifier:"%.0lf")").value()
                     }
                     HStack {
                         Text("Max:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.maxLevel % ".0lf")").value()
+                        Text("\(summary.data.maxLevel, specifier:"%.0lf")").value()
                     }
                     HStack {
                         Text("TDD:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.atdd % ".1lf")").value()
+                        Text("\(summary.data.atdd, specifier:"%.1lf")").value()
                     }
                 }
             }.asAnyView
@@ -109,7 +109,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
     }
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        setTitle("❮ Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
+        setTitle("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
     }
 }
 

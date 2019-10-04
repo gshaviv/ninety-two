@@ -372,10 +372,8 @@ extension AppDelegate: WCSessionDelegate {
                 }
  
             case "summary":
-                if let calcDate = summary.calcDate, Date() - calcDate < 1.h {
-                    reply.merge(summaryMessage()) { (v, _) in
-                        v
-                    }
+                reply.merge(summaryMessage()) { (v, _) in
+                    v
                 }
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
