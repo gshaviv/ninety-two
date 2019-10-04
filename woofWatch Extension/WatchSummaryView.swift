@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-
+import WatchConnectivity
 
 extension Text {
     func headline() -> some View {
@@ -26,9 +26,8 @@ struct WatchSummaryView: View {
     @ObservedObject var summary: SummaryInfo
 
     var body: some View {
+        WKExtension.extensionDelegate.refresh(summary: true)
         if summary.data.period == 0 {
-            defaults[.needUpdateSummary] = true
-            WKExtension.extensionDelegate.refresh(force: true)
             return VStack {
                 ActivityIndicator(size: 40)
                 Text("Fetching...").font(.headline)

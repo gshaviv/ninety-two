@@ -90,8 +90,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
 
-    func refresh(force: Bool = false) {
-        guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force) else {
+    func refresh(force: Bool = false, summary sendSummary: Bool = false) {
+        guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force || sendSummary) else {
             return
         }
         if let last = appState.data.readings.last {
@@ -109,7 +109,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
         }
-        if summary.data.period == 0 && defaults[.needUpdateSummary] {
+        if (summary.data.period == 0 && defaults[.needUpdateSummary]) || sendSummary {
             ops.insert("summary", at: 0)
             defaults[.needUpdateSummary] = false
         }

@@ -228,9 +228,7 @@ class ViewController: UIViewController {
         } else {
             iobLabel.isHidden = true
         }
-        if defaults[.lastStatisticsCalculation] == nil || Date() > defaults[.lastStatisticsCalculation]! + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) {
             summaryController?.updateSummary()
-        }
     }
 
     private func updateTimeAgo() {

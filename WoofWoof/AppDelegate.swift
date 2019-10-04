@@ -372,8 +372,17 @@ extension AppDelegate: WCSessionDelegate {
                 }
  
             case "summary":
-                reply.merge(summaryMessage()) { (v, _) in
-                    v
+                if let calcDate = SummaryViewController.summary.date, Date() - calcDate < 1.h {
+                    reply.merge(summaryMessage()) { (v, _) in
+                        v
+                    }
+                }
+                let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+                SummaryViewController.updateSummary(force: true) {
+                    if $0 {
+                        self.updateSummary()
+                    }
+                    UIApplication.shared.endBackgroundTask(bgt)
                 }
 
             case "reconnect":
