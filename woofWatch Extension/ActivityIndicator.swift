@@ -16,7 +16,7 @@ struct ActivityIndicator: View {
     var body: some View {
         ZStack {
             Circle()
-                .trim(from: 0.12, to: 1)
+                .trim(from: 0.2, to: 1)
                 .stroke(Color.red, lineWidth:3)
                 .frame(width:size, height:size)
                 .rotationEffect(.degrees(spinCircle ? 0 : -360), anchor: .center)
@@ -27,3 +27,11 @@ struct ActivityIndicator: View {
         }
     }
 }
+
+#if DEBUG
+struct ActivityIndicator_Preview: PreviewProvider {
+    static var previews: some View {
+        ActivityIndicator(size: 30)
+    }
+}
+#endif
