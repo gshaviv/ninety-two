@@ -60,7 +60,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     
     @objc func showSummary() {
-        presentController(withName: "summary", context: nil)
+        pushController(withName: "summary", context: nil)
     }
     
     @objc func calibrate() {

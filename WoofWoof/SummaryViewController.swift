@@ -12,15 +12,15 @@ import Sqlable
 import SwiftUI
 import Combine
 
+var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
 
 class SummaryViewController: UIHostingController<SummaryView> {
-    static  var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1])) 
     private var listen: NSObjectProtocol?
     private var action = Action()
     private var actionListener: AnyCancellable?
 
     required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder, rootView: SummaryView(summary: SummaryViewController.summary, action: action))
+        super.init(coder: aDecoder, rootView: SummaryView(summary: summary, action: action))
     }
     
     override func viewDidLoad() {
@@ -38,7 +38,7 @@ class SummaryViewController: UIHostingController<SummaryView> {
     }
     
     @objc public func updateSummary(completion: ((Bool)->Void)? = nil) {
-        SummaryViewController.summary.updateSummary {
+        summary.update {
             if $0 {
                 defaults[.needUpdateSummary] = true
             }

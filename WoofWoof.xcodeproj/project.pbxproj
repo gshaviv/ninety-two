@@ -450,7 +450,7 @@
 		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
 		E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareMealViewController.swift; sourceTree = "<group>"; };
 		E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodViewController.swift; sourceTree = "<group>"; };
-		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "/Users/guy/Git/WoofWoof/WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<absolute>"; };
+		E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIBezierPath+CurveThroughPoints.swift"; path = "../WoofWoof/UIBezierPath+CurveThroughPoints.swift"; sourceTree = "<group>"; };
 		E4D8A91A2310073E00895767 /* Predictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predictor.swift; sourceTree = "<group>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };

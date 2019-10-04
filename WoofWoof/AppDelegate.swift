@@ -372,13 +372,13 @@ extension AppDelegate: WCSessionDelegate {
                 }
  
             case "summary":
-                if let calcDate = SummaryViewController.summary.date, Date() - calcDate < 1.h {
+                if let calcDate = summary.calcDate, Date() - calcDate < 1.h {
                     reply.merge(summaryMessage()) { (v, _) in
                         v
                     }
                 }
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
-                SummaryViewController.updateSummary(force: true) {
+                summary.update(force: true) {
                     if $0 {
                         self.updateSummary()
                     }
@@ -556,7 +556,7 @@ extension AppDelegate {
     }
     func summaryMessage() -> [String:Any] {
         do {
-            let data = try JSONEncoder().encode(SummaryViewController.summary.data)
+            let data = try JSONEncoder().encode(summary.data)
             guard let str = String(data: data, encoding: .utf8) else {
                 return [:]
             }

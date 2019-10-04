@@ -9,6 +9,10 @@
 import Foundation
 import SwiftUI
 import Combine
+#if os(iOS)
+import WoofKit
+import Sqlable
+#endif
 
 struct Summary: Codable {
     let period: Int
@@ -52,12 +56,12 @@ class SummaryInfo: ObservableObject {
     #if os(iOS)
     private(set) public var calcDate: Date? = nil
     
-    public func updateSummary(force: Bool = false, completion: ((Bool)->Void)? = nil) {
-        guard force || data == nil || Date() > date! + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
+    public func update(force: Bool = false, completion: ((Bool)->Void)? = nil) {
+        guard force || calcDate == nil || Date() > calcDate! + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
             completion?(false)
             return
         }
-        if force && Date() < calcDate + 1.h {
+        if let calcDate = calcDate, force && Date() < calcDate + 1.h {
             completion?(false)
             return
         }
@@ -73,7 +77,7 @@ class SummaryInfo: ObservableObject {
                     completion?(false)
                     return
                 }
-                calcDate = Date()
+                self.calcDate = Date()
                 var previousPoint: GlucosePoint?
                 var bands = [UserDefaults.ColorKey: TimeInterval]()
                 var maxG:Double = 0

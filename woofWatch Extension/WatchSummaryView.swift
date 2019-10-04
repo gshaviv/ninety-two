@@ -58,7 +58,8 @@ struct WatchSummaryView: View {
                         ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
                         ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
                         ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
-                    ]).aspectRatio(1, contentMode: .fit).padding(6)
+                    ]).aspectRatio(1, contentMode: .fit)
+                        .padding(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
                 }
                 Section(header: Text("Statistics")) {
                     HStack {
@@ -108,7 +109,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
     }
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        setTitle("❮Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
+        setTitle("❮ Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
     }
 }
 
