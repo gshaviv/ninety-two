@@ -99,8 +99,8 @@ class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
         if bobPhrase.hasSuffix(".0") {
             bobPhrase = bobPhrase[0 ..< (bobPhrase.count - 2)]
         }
-        if bobPhrase == "0" {
-            let minLeft = rint((horizon - Date()) / 1.m)
+        let minLeft = rint((horizon - Date()) / 1.m)
+        if bobPhrase == "0" && minLeft < 5 {
             switch minLeft {
             case 0:
                 completion(CheckBOBIntentResponse.little(end: "less than a minutes"))
@@ -112,10 +112,10 @@ class CheckBOBHandler: NSObject, CheckBOBIntentHandling {
                 completion(CheckBOBIntentResponse.little(end: "\(Int(minLeft)) minutes"))
             }
         } else {
-            if horizon - Date() < 30.m {
+            if horizon - Date() < 15.m {
                 let minLeft = "another \(Int(rint((horizon - Date()) / 1.m))) minutes"
                 completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: minLeft))
-            } else if horizon - Date() < 2.h {
+            } else if horizon - Date() < 3.h {
                 let whenPhrase = "until \(horizon.hour > 12 ? horizon.hour - 12 : horizon.hour):\(horizon.minute % "02ld")"
                 completion(CheckBOBIntentResponse.bobTime(bob: bobPhrase, end: whenPhrase))
             } else {
