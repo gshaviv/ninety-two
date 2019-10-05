@@ -68,7 +68,7 @@ struct WatchSummaryView: View {
                     HStack {
                         Text("Ave:").headline()
                         Spacer(minLength: 0)
-                        Text("\(summary.data.average, specifier:"%.0lf")").value()
+                        Text("\(summary.data.average, specifier:"%.1lf")").value()
                     }
                     HStack {
                         Text("A1C:").headline()
