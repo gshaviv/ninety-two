@@ -14,7 +14,7 @@ extension Text {
     func headline() -> some View {
             self
                 .font(.headline)
-                .foregroundColor(Color.orange)
+                .foregroundColor(Color.white)
     }
     func value() -> some View {
         self
@@ -118,7 +118,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
         
         summaryObserver = summary.$data.sink(receiveValue: { [weak self] (data) in
             if data.period > 0 {
-                self?.setTitle("Last \(data.period == 1 ? 24 : data.period) \(data.period > 1 ? "Days" : "Hours")")
+                self?.setTitle("\(data.period == 1 ? 24 : data.period) \(data.period > 1 ? "Days" : "Hours")")
             }
         })
     }
