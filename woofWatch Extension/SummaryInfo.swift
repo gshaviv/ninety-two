@@ -48,20 +48,24 @@ struct Summary: Codable {
 }
 
 class SummaryInfo: ObservableObject {
-    @Published var data: Summary
+    private(set) public var calcDate: Date = Date.distantPast
+    @Published var data: Summary {
+        didSet {
+            calcDate = Date()
+        }
+    }
     public init(_ summary: Summary) {
         data = summary
     }
     
     #if os(iOS)
-    private(set) public var calcDate: Date? = nil
     
     public func update(force: Bool = false, completion: ((Bool)->Void)? = nil) {
-        guard force || calcDate == nil || Date() > calcDate! + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
+        guard force || Date() > calcDate + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
             completion?(false)
             return
         }
-        if let calcDate = calcDate, force && Date() < calcDate + 1.h {
+        if force && Date() < calcDate + 1.h {
             completion?(false)
             return
         }

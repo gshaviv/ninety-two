@@ -46,7 +46,7 @@ var appState = AppState()
 var summary = SummaryInfo(Summary(period: 0, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
-    private(set) var complicationState = DisplayValue(date: Date(), string: "-") {
+    fileprivate(set) var complicationState = DisplayValue(date: Date(), string: "-") {
         didSet {
             DispatchQueue.main.async {
                 self.reloadComplication()
@@ -114,28 +114,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             defaults[.needUpdateSummary] = false
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
-            DispatchQueue.global().async {
-                self.processSummary(from: info)
-                self.processDefaults(from: info)
-            }
-            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval, let level = info["b"] as? Int else {
-                return
-            }
-            DispatchQueue.global().async {
-                let readings = m.compactMap { value -> GlucosePoint? in
-                    guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                        return nil
-                    }
-                    return GlucosePoint(date: d, value: v)
-                }
-                
-                DispatchQueue.main.async {
-                    appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
-                    if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != self.complicationState.string {
-                        self.complicationState = DisplayValue(date: last, string: symbol)
-                    }
-                }
-            }
+            WCSession.replyHandler(info)
         }) { (_) in
             DispatchQueue.main.async {
             appState.state = .error
@@ -179,6 +158,61 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 }
 
+extension WCSession {
+    static public func replyHandler(_ info: [String:Any]) {
+        DispatchQueue.global().async {
+            self.processSummary(from: info)
+            self.processDefaults(from: info)
+            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval, let level = info["b"] as? Int else {
+                return
+            }
+            let readings = m.compactMap { value -> GlucosePoint? in
+                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                    return nil
+                }
+                return GlucosePoint(date: d, value: v)
+            }
+            
+            DispatchQueue.main.async {
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
+                if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != WKExtension.extensionDelegate.complicationState.string {
+                    WKExtension.extensionDelegate.complicationState = DisplayValue(date: last, string: symbol)
+                }
+            }
+        }
+    }
+    
+    fileprivate static func processDefaults(from message: [String:Any]) {
+        if let dflt = message["defaults"] as? [String: Any] {
+            dflt.forEach {
+                switch $0.value {
+                case let v as Double:
+                    defaults.set(v, forKey: $0.key)
+                    
+                case let v as String:
+                    defaults.set(v, forKey: $0.key)
+                    
+                default:
+                    return
+                }
+            }
+        }
+        defaults[.needsUpdateDefaults] = false
+    }
+    
+    fileprivate static func processSummary(from message: [String:Any]) {
+        if let sumStr = message["summary"] as? String, let data = sumStr.data(using: .utf8) {
+            do {
+                let sumData = try JSONDecoder().decode(Summary.self, from: data)
+                DispatchQueue.main.async {
+                    summary.data = sumData
+                    defaults[.needUpdateSummary] = false
+                }
+            } catch {}
+        }
+    }
+}
+
 extension ExtensionDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
@@ -212,39 +246,11 @@ extension ExtensionDelegate: WCSessionDelegate {
         }
     }
     
-    private func processDefaults(from message: [String:Any]) {
-        if let dflt = message["defaults"] as? [String: Any] {
-            dflt.forEach {
-                switch $0.value {
-                case let v as Double:
-                    defaults.set(v, forKey: $0.key)
-                    
-                case let v as String:
-                    defaults.set(v, forKey: $0.key)
-                    
-                default:
-                    return
-                }
-            }
-        }
-        defaults[.needsUpdateDefaults] = false
-    }
-    
-    private func processSummary(from message: [String:Any]) {
-        if let sumStr = message["summary"] as? String, let data = sumStr.data(using: .utf8) {
-            do {
-                let sumData = try JSONDecoder().decode(Summary.self, from: data)
-                DispatchQueue.main.async {
-                    summary.data = sumData
-                    defaults[.needUpdateSummary] = false
-                }
-            } catch {}
-        }
-    }
+
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        processDefaults(from: message)
-        processSummary(from: message)
+        WCSession.processDefaults(from: message)
+        WCSession.processSummary(from: message)
         replyHandler(["ok": true])
     }
     

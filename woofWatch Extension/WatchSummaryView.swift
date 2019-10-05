@@ -8,6 +8,7 @@
 
 import SwiftUI
 import WatchConnectivity
+import Combine
 
 extension Text {
     func headline() -> some View {
@@ -26,7 +27,9 @@ struct WatchSummaryView: View {
     @ObservedObject var summary: SummaryInfo
 
     var body: some View {
-        WKExtension.extensionDelegate.refresh(summary: true)
+        if summary.data.period == 0 || Date() - summary.calcDate > 2.h {
+            WCSession.default.sendMessage(["op":["summary"]], replyHandler: WCSession.replyHandler(_:), errorHandler: { _ in })
+        }
         if summary.data.period == 0 {
             return VStack {
                 ActivityIndicator(size: 40)
@@ -104,12 +107,20 @@ struct WatchSummaryView: View {
 }
 
 class WatchSummaryController: WKHostingController<AnyView> {
+    var summaryObserver: AnyCancellable?
+    
     override var body: AnyView {
         WatchSummaryView(summary: summary).asAnyView
     }
+    
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        setTitle("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")")
+        
+        summaryObserver = summary.$data.sink(receiveValue: { [weak self] (data) in
+            if data.period > 0 {
+                self?.setTitle("Last \(data.period == 1 ? 24 : data.period) \(data.period > 1 ? "Days" : "Hours")")
+            }
+        })
     }
 }
 
