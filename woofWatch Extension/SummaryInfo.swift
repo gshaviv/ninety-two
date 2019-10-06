@@ -157,7 +157,8 @@ class SummaryInfo: ObservableObject {
                 let averageBolus = Storage.default.allEntries.filter { $0.date > start  && $0.date < end }.reduce(0.0) { $0 + Double($1.bolus) } / (end - start) * 1.d
                 
                 let aveG = sumG / totalT
-                let a1c = (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
+                // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
+                let a1c = 3.31 + aveG * 0.02392 // (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
                 let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                 let timeBelow = lowTime.sum()
                 DispatchQueue.main.async {
