@@ -83,7 +83,7 @@ class SummaryInfo: ObservableObject {
                 }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
-                var bands = [UserDefaults.ColorKey: TimeInterval]()
+                var bands = [Int: TimeInterval]()
                 var maxG:Double = 0
                 var minG:Double = 9999
                 var timeAbove = Double(0)
@@ -117,26 +117,22 @@ class SummaryInfo: ObservableObject {
                         
                         maxG = max(maxG, gp.value)
                         minG = min(minG, gp.value)
-                        let key: UserDefaults.ColorKey
+                        let key: Int
                         switch gp.value {
                         case ...defaults[.level0]:
-                            key = .color0
+                            key = 0
                         case ...defaults[.level1]:
-                            key = .color1
+                            key = 1
                         case ...defaults[.level2]:
-                            key = .color2
+                            key = 2
                         case ...defaults[.level3]:
-                            key = .color3
+                            key = 3
                         case ...defaults[.level4]:
-                            key = .color4
+                            key = 4
                         default:
-                            key = .color5
+                            key = 5
                         }
-                        if let time = bands[key] {
-                            bands[key] = time + duration
-                        } else {
-                            bands[key] = duration
-                        }
+                        bands[key] = (bands[key] ?? 0) + duration
                         
                         if gp.value < defaults[.minRange] {
                             if !inLow {
@@ -176,12 +172,12 @@ class SummaryInfo: ObservableObject {
                                           low: lows,
                                           atdd: averageBolus,
                                           timeInLevel: [
-                                            bands[UserDefaults.ColorKey.color0] ?? 0,
-                                            bands[UserDefaults.ColorKey.color1] ?? 0,
-                                            bands[UserDefaults.ColorKey.color2] ?? 0,
-                                            bands[UserDefaults.ColorKey.color3] ?? 0,
-                                            bands[UserDefaults.ColorKey.color4] ?? 0,
-                                            bands[UserDefaults.ColorKey.color5] ?? 0,
+                                            bands[0] ?? 0,
+                                            bands[1] ?? 0,
+                                            bands[2] ?? 0,
+                                            bands[3] ?? 0,
+                                            bands[4] ?? 0,
+                                            bands[5] ?? 0,
                     ])
                     self.data = summary
                     completion?(true)
