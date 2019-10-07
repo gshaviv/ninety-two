@@ -40,18 +40,18 @@ struct WatchSummaryView: View {
             return List {
                 Section(header: Text("Time In Range").font(.headline).foregroundColor(Color(white: 0.5))) {
                     HStack {
-                        Text("Low:").headline()
-                        Spacer(minLength: 0)
+                        Text("Below:").headline()
+                        Spacer(minLength: 12)
                         Text("\(summary.data.percentTimeBelow.description)%").value()
                     }
                     HStack {
                         Text("In Range:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.percentTimeIn.description)%").value()
                     }
                     HStack {
-                        Text("High:").headline()
-                        Spacer(minLength: 0)
+                        Text("Above:").headline()
+                        Spacer(minLength: 12)
                         Text("\(summary.data.percentTimeAbove.description)%").value()
                     }
                     PieChartView([
@@ -67,37 +67,37 @@ struct WatchSummaryView: View {
                 Section(header: Text("Statistics").font(.headline).foregroundColor(Color(white: 0.5))) {
                     HStack {
                         Text("Ave:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.average, specifier:"%.1lf")").value()
                     }
                     HStack {
-                        Text("A1C:").headline()
-                        Spacer(minLength: 0)
-                        Text("\(summary.data.a1c, specifier:"%.1lf")").value()
+                        Text("eA1C:").headline()
+                        Spacer(minLength: 12)
+                        Text(summary.data.a1c.max - summary.data.a1c.min > 0.1 ? "\(summary.data.a1c.min, specifier:"%.1lf") ~ \(summary.data.a1c.max, specifier:"%.1lf")" : "\(summary.data.a1c.min, specifier:"%.1lf")").value()
                     }
                     HStack {
                         Text("# Lows:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.low.count)").value()
                     }
                     HStack {
-                        Text("Med Low:").headline()
-                        Spacer(minLength: 0)
+                        Text("Median Low:").headline()
+                        Spacer(minLength: 12)
                         Text(summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60)).value()
                     }
                     HStack {
                         Text("Min:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.minLevel, specifier:"%.0lf")").value()
                     }
                     HStack {
                         Text("Max:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.maxLevel, specifier:"%.0lf")").value()
                     }
                     HStack {
                         Text("TDD:").headline()
-                        Spacer(minLength: 0)
+                        Spacer(minLength: 12)
                         Text("\(summary.data.atdd, specifier:"%.1lf")").value()
                     }
                 }
@@ -127,7 +127,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
 #if DEBUG
 struct WatchSummaryView_Previews: PreviewProvider {
     static var platform: PreviewPlatform? = .watchOS
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: 6.0, low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
+    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(min:6.0,max:6.4), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
     static var previews: some View {
         WatchSummaryView(summary: summary)
     }

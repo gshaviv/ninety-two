@@ -37,7 +37,11 @@ struct Summary: Codable {
     let maxLevel: Double
     let minLevel: Double
     let average: Double
-    let a1c: Double
+    struct EA1C: Codable {
+        let min: Double
+        let max: Double
+    }
+    let a1c: EA1C
     struct Low: Codable {
         let count: Int
         let median: Int
@@ -159,6 +163,7 @@ class SummaryInfo: ObservableObject {
                 let aveG = sumG / totalT
                 // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
                 let a1c = 3.31 + aveG * 0.02392 // (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
+                let a1c2 = (aveG + 46.7) / 28.7
                 let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                 let timeBelow = lowTime.sum()
                 DispatchQueue.main.async {
@@ -169,7 +174,7 @@ class SummaryInfo: ObservableObject {
                                           maxLevel: maxG,
                                           minLevel: minG,
                                           average: aveG,
-                                          a1c: a1c,
+                                          a1c: Summary.EA1C(min: min(a1c,a1c2), max: max(a1c,a1c2)),
                                           low: lows,
                                           atdd: averageBolus,
                                           timeInLevel: [

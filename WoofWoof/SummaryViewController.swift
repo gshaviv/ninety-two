@@ -12,7 +12,7 @@ import Sqlable
 import SwiftUI
 import Combine
 
-var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: 6.0, low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
+var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: Summary.EA1C(min: 6.0, max: 6.4), low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
 
 class SummaryViewController: UIHostingController<SummaryView> {
     private var listen: NSObjectProtocol?
