@@ -40,6 +40,17 @@ struct Summary: Codable {
     struct EA1C: Codable {
         let value: Double
         let range: Double
+        let cgm: Double
+        let seven: Double
+        let tir: Double
+        
+        public init(value: Double, range: Double, cgm: Double? = nil, seven: Double? = nil, tir: Double? = nil) {
+            self.value = value
+            self.range = range
+            self.cgm = cgm ?? value + range
+            self.seven = seven ?? value
+            self.tir = seven ?? value - range
+        }
     }
     let a1c: EA1C
     struct Low: Codable {
@@ -65,11 +76,13 @@ class SummaryInfo: ObservableObject {
     #if os(iOS)
     
     public func update(force: Bool = false, completion: ((Bool)->Void)? = nil) {
-        guard force || Date() > calcDate + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
+        guard defaults.summaryPeriod != data.period || force || Date() > calcDate + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
+            logError("No update, too frequent")
             completion?(false)
             return
         }
-        if force && Date() < calcDate + 1.h {
+        if Date() < calcDate + 1.h {
+            logError("No update, less than 1h")
             completion?(false)
             return
         }
@@ -222,7 +235,7 @@ class SummaryInfo: ObservableObject {
                 // a1c relationhip to TIR from: https://academic.oup.com/jes/article/3/Supplement_1/SAT-126/5483093/
                 let a1c4 = (157 - tir) / 12.9
                 let aa1c = (a1c + a1c3 + a1c4) / 3
-                let ea1c = Summary.EA1C(value: aa1c, range: min(abs(a1c - aa1c),abs(a1c3 - aa1c),abs(a1c4 - aa1c)))
+                let ea1c = Summary.EA1C(value: aa1c, range: min(abs(a1c - aa1c),abs(a1c3 - aa1c),abs(a1c4 - aa1c)), cgm: a1c, seven: a1c3, tir: a1c4)
                 DispatchQueue.main.async {
                     let rangeTime = Summary.TimeInRange(low: timeBelow, inRange: totalT - timeBelow - timeAbove, high: timeAbove)
                     let lows = Summary.Low(count: lowCount, median: medianLowTime)

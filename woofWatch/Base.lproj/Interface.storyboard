@@ -25,7 +25,14 @@
             <objects>
                 <hostingController identifier="summary" title="Summary" id="ftO-Bn-Zg9" customClass="WatchSummaryController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="234" y="278"/>
+            <point key="canvasLocation" x="155" y="21"/>
+        </scene>
+        <!--A1C Estimates-->
+        <scene sceneID="eHV-1y-DcV">
+            <objects>
+                <hostingController identifier="ea1c" title="A1C Estimates" id="VIP-Y9-u73" customClass="EA1CController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="379" y="22"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
