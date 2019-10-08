@@ -358,6 +358,7 @@ extension AppDelegate: WCSessionDelegate {
         guard let ops = message["op"] as? [String] else {
             return
         }
+        log("Watch operations: \(ops)")
         var reply = [String:Any]()
         ops.forEach {
             switch $0 {
@@ -372,12 +373,14 @@ extension AppDelegate: WCSessionDelegate {
                 }
  
             case "summary":
+                log("Watch asked for summary")
                 reply.merge(summaryMessage()) { (v, _) in
                     v
                 }
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
                     if $0 {
+                        log("sending watch updated summary")
                         self.updateSummary()
                     }
                     UIApplication.shared.endBackgroundTask(bgt)
