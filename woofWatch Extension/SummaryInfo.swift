@@ -38,8 +38,8 @@ struct Summary: Codable {
     let minLevel: Double
     let average: Double
     struct EA1C: Codable {
-        let min: Double
-        let max: Double
+        let value: Double
+        let range: Double
     }
     let a1c: EA1C
     struct Low: Codable {
@@ -85,15 +85,20 @@ class SummaryInfo: ObservableObject {
                     completion?(false)
                     return
                 }
+                let meals = Storage.default.allMeals.filter { $0.date > Date() - defaults.summaryPeriod.d && $0.type != .other }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
                 var bands = [Int: TimeInterval]()
                 var maxG:Double = 0
                 var minG:Double = 9999
                 var timeAbove = Double(0)
+                var timeAbove180: Double = 0
+                var timeBelow70: Double = 0
                 var totalT = Double(0)
                 var sumG = Double(0)
                 var countLow = false
+                var profile7 = [Double]()
+                var found = false
                 readings.forEach { gp in
                     defer {
                         previousPoint = gp
@@ -102,6 +107,13 @@ class SummaryInfo: ObservableObject {
                         let duration = gp.date - previous.date
                         guard duration < 1.h else {
                             return
+                        }
+                        if gp.date.hour < 7 {
+                            found = false
+                        }
+                        if !found && gp.date.hour == 23 {
+                            found = true
+                            profile7.append(gp.value)
                         }
                         sumG += gp.value * duration
                         totalT += duration
@@ -114,6 +126,32 @@ class SummaryInfo: ObservableObject {
                             
                         case (defaults[.maxRange]..., _):
                             timeAbove += duration * (previous.value - defaults[.maxRange]) / (previous.value - gp.value)
+                            
+                        default:
+                            break
+                        }
+                        switch (previous.value, gp.value) {
+                        case (180..., 180...):
+                            timeAbove180 += duration
+                            
+                        case (_, 180...):
+                            timeAbove180 += duration * (gp.value - 180) / (gp.value - previous.value)
+                            
+                        case (180..., _):
+                            timeAbove180 += duration * (previous.value - 180) / (previous.value - gp.value)
+                            
+                        default:
+                            break
+                        }
+                        switch (previous.value, gp.value) {
+                        case (..<70, ..<70):
+                            timeBelow70 += duration
+                            
+                        case (_, ..<70):
+                            timeAbove180 += duration * (70 - gp.value) / (previous.value - gp.value)
+                            
+                        case (..<70, _):
+                            timeAbove180 += duration * (70 - previous.value) / (gp.value - previous.value)
                             
                         default:
                             break
@@ -155,6 +193,18 @@ class SummaryInfo: ObservableObject {
                         }
                     }
                 }
+                if !meals.isEmpty {
+                    let interp = AkimaInterpolator(points: readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) })
+                    meals.forEach {
+                        if $0.date < readings.last!.date {
+                            profile7.append(Double(interp.interpolateValue(at: CGFloat($0.date.timeIntervalSince1970))))
+                            let after = $0.date + 90.m
+                            if after < readings.last!.date {
+                                profile7.append(Double(interp.interpolateValue(at: CGFloat(after.timeIntervalSince1970))))
+                            }
+                        }
+                    }
+                }
                 
                 let start = (Date() - defaults.summaryPeriod.d).endOfDay
                 let end = defaults.summaryPeriod > 1 ? Date().startOfDay : Date()
@@ -163,9 +213,16 @@ class SummaryInfo: ObservableObject {
                 let aveG = sumG / totalT
                 // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
                 let a1c = 3.31 + aveG * 0.02392 // (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
-                let a1c2 = (aveG + 46.7) / 28.7
+                let ave7 = profile7.average()
+//                let a1c2 = (aveG + 46.7) / 28.7
+                let a1c3 = (ave7 + 46.7) / 28.7
                 let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                 let timeBelow = lowTime.sum()
+                let tir = (totalT - timeBelow70 - timeAbove180) / totalT * 100
+                // a1c relationhip to TIR from: https://academic.oup.com/jes/article/3/Supplement_1/SAT-126/5483093/
+                let a1c4 = (157 - tir) / 12.9
+                let aa1c = (a1c + a1c3 + a1c4) / 3
+                let ea1c = Summary.EA1C(value: aa1c, range: min(abs(a1c - aa1c),abs(a1c3 - aa1c),abs(a1c4 - aa1c)))
                 DispatchQueue.main.async {
                     let rangeTime = Summary.TimeInRange(low: timeBelow, inRange: totalT - timeBelow - timeAbove, high: timeAbove)
                     let lows = Summary.Low(count: lowCount, median: medianLowTime)
@@ -174,7 +231,7 @@ class SummaryInfo: ObservableObject {
                                           maxLevel: maxG,
                                           minLevel: minG,
                                           average: aveG,
-                                          a1c: Summary.EA1C(min: min(a1c,a1c2), max: max(a1c,a1c2)),
+                                          a1c: ea1c,
                                           low: lows,
                                           atdd: averageBolus,
                                           timeInLevel: [

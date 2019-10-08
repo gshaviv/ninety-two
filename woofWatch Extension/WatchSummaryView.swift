@@ -73,7 +73,7 @@ struct WatchSummaryView: View {
                     HStack {
                         Text("eA1C:").headline()
                         Spacer(minLength: 12)
-                        Text(summary.data.a1c.max - summary.data.a1c.min > 0.1 ? "\(summary.data.a1c.min, specifier:"%.1lf") ~ \(summary.data.a1c.max, specifier:"%.1lf")" : "\(summary.data.a1c.min, specifier:"%.1lf")").value()
+                        Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
                     }
                     HStack {
                         Text("# Lows:").headline()
@@ -127,7 +127,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
 #if DEBUG
 struct WatchSummaryView_Previews: PreviewProvider {
     static var platform: PreviewPlatform? = .watchOS
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(min:6.0,max:6.4), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
+    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
     static var previews: some View {
         WatchSummaryView(summary: summary)
     }

@@ -50,7 +50,7 @@ struct SummaryView: View {
                     ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
                 ])
                 VStack {
-                    Text("Low").headline()
+                    Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
                     Text("# Lows").headline()
                     Text("\(summary.data.low.count)").value()
@@ -61,12 +61,12 @@ struct SummaryView: View {
                     Text("In Range").headline()
                     Text("\(summary.data.percentTimeIn.description)%").value()
                     Text("Ave").headline()
-                    Text("\(summary.data.average % ".0lf")").value()
-                    Text("A1C").headline()
-                    Text(summary.data.a1c.max - summary.data.a1c.min > 0.1 ? "\(summary.data.a1c.min % ".1lf") ~ \(summary.data.a1c.max % ".1lf")" : "\(summary.data.a1c.min % ".1lf")").value()
+                    Text("\(summary.data.average % ".1lf")").value()
+                    Text("eA1C").headline()
+                    Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
                 }
                 VStack {
-                    Text("High").headline()
+                    Text("Above").headline()
                     Text("\(summary.data.percentTimeAbove.description)%").value()
                     Text("Min / Max").headline()
                     Text("\(summary.data.minLevel % ".0lf") / \(summary.data.maxLevel % ".0lf")").value()
@@ -80,7 +80,7 @@ struct SummaryView: View {
 
 #if DEBUG
 struct SummaryView_Previews: PreviewProvider {
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(min: 6.0, max: 6.4), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
+    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
     static var previews: some View {
         Group {
             SummaryView(summary: summary, action: Action())

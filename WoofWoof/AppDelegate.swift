@@ -504,6 +504,9 @@ extension AppDelegate: MiaoMiaoDelegate {
                             let level = Int(ceil(round(current.value) / 5) * 5)
                             show = "≤\(level)"
                         }
+                        if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
+                            showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
+                        }
                     }
                     let now = Date()
                     let nowTime = now.hour * 60 + now.minute

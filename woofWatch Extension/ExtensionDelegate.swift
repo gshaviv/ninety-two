@@ -43,7 +43,7 @@ class AppState: ObservableObject {
 }
 
 var appState = AppState()
-var summary = SummaryInfo(Summary(period: 0, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: Summary.EA1C(min: 6.0, max: 6.2), low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
+var summary = SummaryInfo(Summary(period: 0, timeInRange: Summary.TimeInRange(low: 1, inRange: 1, high: 1), maxLevel: 180, minLevel: 70, average: 92, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 0, median: 0), atdd: 0, timeInLevel: [1,1,1,1,1,1]))
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     fileprivate(set) var complicationState = DisplayValue(date: Date(), string: "-") {
