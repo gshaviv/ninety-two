@@ -68,7 +68,7 @@ struct GlucoseFace: View {
     }
     
     private func batteryLevelIcon(for level: Int) -> UIImage {
-        let color = UIColor(white: 0.1 + 0.8 * CGFloat(level) / 100, alpha: 1)
+        let color = UIColor(white: 0.2 + 0.7 * CGFloat(level) / 100, alpha: 1)
         
         switch level {
         case 90...:

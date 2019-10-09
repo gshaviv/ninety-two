@@ -28,9 +28,6 @@ struct WatchSummaryView: View {
     var showEa1c: Action
 
     var body: some View {
-        if summary.data.period == 0 || Date() - summary.calcDate > 2.h {
-            WCSession.default.sendMessage(["op":["summary"]], replyHandler: WCSession.replyHandler(_:), errorHandler: { _ in })
-        }
         if summary.data.period == 0 {
             return VStack {
                 ActivityIndicator(size: 40)
@@ -102,6 +99,9 @@ class WatchSummaryController: WKHostingController<AnyView> {
                 self?.setTitle("\(data.period == 1 ? 24 : data.period) \(data.period > 1 ? "Days" : "Hours")")
             }
         })
+        if summary.data.period == 0 || Date() - summary.calcDate > 90.m {
+            WCSession.default.sendMessage(["op":["summary"]], replyHandler: WCSession.replyHandler(_:), errorHandler: { _ in })
+        }
     }
     
     func showEa1c() {

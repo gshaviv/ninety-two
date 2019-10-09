@@ -81,7 +81,7 @@ class SummaryInfo: ObservableObject {
             completion?(false)
             return
         }
-        if Date() < calcDate + 1.h {
+        if Date() < calcDate + 1.h && defaults.summaryPeriod == data.period {
             logError("No update, less than 1h")
             completion?(false)
             return

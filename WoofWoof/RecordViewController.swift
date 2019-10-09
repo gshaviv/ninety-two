@@ -888,6 +888,7 @@ extension RecordViewController {
     }
     
     static private func calcParams(for partOfDay: PartOfDay? ,insulinReaction: (Double,Double)?) throws -> (high: Params, low: Params, end: Params, data: [Storage.Datum]) {
+        log("calc \(insulinReaction == nil ? "insulin" : "reaction") for \(partOfDay == nil ? "all day" : partOfDay!.rawValue)")
         let allData = Storage.default.mealData(includeBolus: partOfDay != nil || insulinReaction == nil, includeMeal: partOfDay != nil || insulinReaction != nil).filter {
             if let partOfDay = partOfDay {
                 return $0.date.partOfDay == partOfDay
@@ -899,11 +900,13 @@ extension RecordViewController {
         let doingCarbs = insulinReaction != nil || partOfDay != nil
 
         if allData.count < 4 {
+            logError("allData.count < 4")
             throw CalcError.noData
         }
         if doingCarbs {
             let mealCount = allData.filter { $0.carbs + $0.cob > 0 }.count
             if mealCount < 2 {
+                logError("mealCount < 2")
                 throw CalcError.noData
             }
         }
@@ -1005,15 +1008,18 @@ extension RecordViewController {
             if iter == 1 {
                 let zeroSum = calcCost(data: allData, low: .zero, high: .zero, end: .zero)
                 if lowP.cost > zeroSum.low.cost || endP.cost > zeroSum.end.cost || highP.cost > zeroSum.high.cost {
+                    logError("bad result")
                     throw CalcError.badData
                 }
             }
         }
         
         if doingCarbs && (bestEndP.c == 0 || bestLowP.c == 0 || bestHighP.c == 0) {
+            logError("bad carb result - zero")
             throw CalcError.badData
         }
         if doingInsulin && (bestLowP.i == 0 || bestEndP.i == 0) {
+            logError("bad insuling result - zero")
             throw CalcError.badData
         }
         

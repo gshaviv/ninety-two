@@ -399,7 +399,6 @@ class MiaoMiao {
         didSet {
             allReadingsCalculater.invalidate()
             if let current = currentGlucose {
-                log("currentGlucose=\(current.value % ".2lf")")
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
                 }

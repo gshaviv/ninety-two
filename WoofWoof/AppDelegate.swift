@@ -61,10 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         })
 
         try! Storage.default.db.createTable(FoodServing.self)
-//        try? Storage.default.db.execute("drop table table_meal")
         try! Storage.default.db.createTable(Meal.self)
-//        try? Storage.default.db.execute("alter table \(Record.tableName) add mealid integer")
-//        try? Storage.default.db.execute("alter table \(Record.tableName) add carbs real not null default 0")
         WCSession.default.delegate = self
         WCSession.default.activate()
 
@@ -320,8 +317,8 @@ extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if activationState == .activated {
-            updateDefaults()
-            updateSummary()
+            defaults[.needUpdateSummary] = true
+            defaults[.needsUpdateDefaults] = true
         }
     }
 
@@ -337,7 +334,7 @@ extension AppDelegate: WCSessionDelegate {
     func appState() -> [String:Any] {
         let now = Date()
         let relevant = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date, $0.value] }
-        let state:[String:Any] = ["v": relevant,
+        var state:[String:Any] = ["v": relevant,
                                   "t": currentTrend ?? 0,
                                   "s": trendSymbol(),
                                   "age": MiaoMiao.sensorAge ?? 0,
@@ -345,20 +342,36 @@ extension AppDelegate: WCSessionDelegate {
                                   "c": defaults[.complicationState] ?? "--",
                                   "iob": Storage.default.insulinOnBoard(at: now),
                                   "ia": Storage.default.insulinAction(at: now)]
+        if defaults[.needsUpdateDefaults] {
+            state.merge(defaultsMessage()) { (v, _) in
+                v
+            }
+            defaults[.needsUpdateDefaults] = true
+        }
+        if defaults[.needUpdateSummary] {
+            state.merge(summaryMessage()) { (v, _) in
+                v
+            }
+            defaults[.needUpdateSummary] = true
+        }
         return state
     }
 
     func sendAppState() {
-        try? WCSession.default.updateApplicationContext(appState())
+        do {
+            let state = appState()
+            try WCSession.default.updateApplicationContext(state)
+            log("Sent \(state.keys.sorted())")
+            defaults[.needsUpdateDefaults] = false
+            defaults[.needUpdateSummary] = false
+        } catch { }
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        updateDefaults()
-        updateSummary()
         guard let ops = message["op"] as? [String] else {
             return
         }
-        log("Watch operations: \(ops)")
+        log("Watch is asking: \(ops)")
         var reply = [String:Any]()
         ops.forEach {
             switch $0 {
@@ -373,7 +386,6 @@ extension AppDelegate: WCSessionDelegate {
                 }
  
             case "summary":
-                log("Watch asked for summary")
                 reply.merge(summaryMessage()) { (v, _) in
                     v
                 }
@@ -401,6 +413,7 @@ extension AppDelegate: WCSessionDelegate {
                 break
             }
         }
+        log("reply -> \(reply.keys.sorted())")
         replyHandler(reply)
     }
 }
@@ -436,6 +449,9 @@ extension AppDelegate: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
+            if let trend = currentTrend {
+                log("\(current.value % ".02lf")\(trendSymbol(for: currentTrend)) \(trend > 0 ? "+" : "")\(trend % ".02lf")")
+            }
             if let sharedDb = self.sharedDb {
                 DispatchQueue.global().async {
                     var error: NSError?
