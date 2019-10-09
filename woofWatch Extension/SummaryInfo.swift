@@ -49,7 +49,7 @@ struct Summary: Codable {
             self.range = range
             self.cgm = cgm ?? value + range
             self.seven = seven ?? value
-            self.tir = seven ?? value - range
+            self.tir = tir ?? value - range
         }
     }
     let a1c: EA1C

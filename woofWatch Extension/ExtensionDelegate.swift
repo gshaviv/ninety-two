@@ -66,7 +66,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func applicationWillEnterForeground() {
-        refresh()
         NotificationCenter.default.post(name: WKExtension.willEnterForegroundNotification, object: nil)
     }
 
@@ -78,7 +77,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if appState.state == .snapshot {
             appState.state = .ready
         }
-        refresh(force: true)
+        refresh()
     }
     
     func reconnectCmd() {
@@ -102,9 +101,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         appState.state = .sending
-//        if let ctr = WKExtension.shared().rootInterfaceController as? InterfaceController {
-//            ctr.isDimmed = InterfaceController.DimState(rawValue: max(blank.rawValue, ctr.isDimmed.rawValue))!
-//        }
         var ops = ["state"]
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
