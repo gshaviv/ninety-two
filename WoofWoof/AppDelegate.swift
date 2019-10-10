@@ -21,6 +21,7 @@ private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var sent: [String: AnyHashable] = [:]
+    let sentQueue = DispatchQueue(label: "sent", qos: .default, autoreleaseFrequency: .workItem)
     var window: UIWindow? {
         didSet {
             window?.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
@@ -355,24 +356,32 @@ extension AppDelegate: WCSessionDelegate {
                 }
             } catch {}
         }
-        
-        for key in state.keys {
-            if let old = sent[key], let current = state[key], old == current {
-                state[key] = nil
+        sentQueue.sync {
+            for key in state.keys {
+                if let old = self.sent[key], let current = state[key], old == current {
+                    state[key] = nil
+                }
             }
         }
+        
         return state
     }
     
     func markSent(_ state: [String:AnyHashable]) {
-        state.forEach { sent[$0.key] = $0.value }
+        sentQueue.async {
+            state.forEach { self.sent[$0.key] = $0.value }
+        }
     }
     
     func markSendSummary() {
-        sent["summary"] = nil
+        sentQueue.async {
+            self.sent["summary"] = nil
+        }
     }
     func markSendDefaults() {
-        sent["defaults"] = nil
+        sentQueue.async {
+            self.sent["defaults"] = nil
+        }
     }
     @objc func defaultsChanged() {
         if defaults[.needsUpdateDefaults] {
@@ -380,12 +389,16 @@ extension AppDelegate: WCSessionDelegate {
         }
     }
     func markSendState() {
-        for k in ["v","t","s","age","c"] {
-            sent[k] = nil
+        sentQueue.async {
+            for k in ["v","t","s","age","c","b"] {
+                self.sent[k] = nil
+            }
         }
     }
     func markSendAll() {
-        sent = [:]
+        sentQueue.async {
+            self.sent = [:]
+        }
     }
 
     func sendAppState() {
@@ -411,9 +424,11 @@ extension AppDelegate: WCSessionDelegate {
                 
             case "defaults":
                 markSendDefaults()
- 
+                sendState = true
+
             case "summary":
                 markSendSummary()
+                sendState = true
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
                     if $0 {
