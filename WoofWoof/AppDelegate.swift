@@ -417,7 +417,6 @@ extension AppDelegate: WCSessionDelegate {
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
                     if $0 {
-                        log("sending watch updated summary")
                         self.updateSummary()
                     }
                     UIApplication.shared.endBackgroundTask(bgt)
@@ -620,6 +619,7 @@ extension AppDelegate {
     func updateSummary() {
         if defaults[.needUpdateSummary] {
             let message = summaryMessage()
+            log("sending: [\"summary\"]")
             WCSession.default.sendMessage(message, replyHandler: { (response) in
                 self.markSent(message)
             }) { (_) in

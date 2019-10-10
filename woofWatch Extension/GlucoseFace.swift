@@ -68,7 +68,8 @@ struct GlucoseFace: View {
     }
     
     private func batteryLevelIcon(for level: Int) -> UIImage {
-        let color = UIColor(white: 0.2 + 0.7 * CGFloat(level) / 100, alpha: 1)
+        let frac = CGFloat(level) / 100
+        let color = UIColor(white: 0.2 + 0.7 * (1 - (1 - frac) * (1 - frac)), alpha: 1)
         
         switch level {
         case 90...:
@@ -147,7 +148,7 @@ let sendingState: AppState = {
 
 let snapshotState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 20)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 30)
     state.state = .snapshot
     return state
 }()
