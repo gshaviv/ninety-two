@@ -159,16 +159,22 @@ extension WCSession {
         DispatchQueue.global().async {
             self.processSummary(from: info)
             self.processDefaults(from: info)
-            guard let t = info["t"] as? Double, let s = info["s"] as? String, let m = info["v"] as? [Any], let iob = info["iob"] as? Double , let act = info["ia"] as? Double, let age = info["age"] as? TimeInterval, let level = info["b"] as? Int else {
+            guard let m = info["v"] as? [[Double]] else {
                 return
             }
+            let t = info["t"] as? Double ?? appState.data.trendValue
+            let s = info["s"] as? String ?? appState.data.trendSymbol
+            let iob = info["iob"] as? Double ?? appState.data.iob
+            let act = info["ia"] as? Double ?? appState.data.insulinAction
+            let age = info["age"] as? TimeInterval ?? appState.data.sensorAge
+            let level = info["b"] as? Int ?? appState.data.batteryLevel
             let readings = m.compactMap { value -> GlucosePoint? in
-                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
+                guard let d = value.first, let v = value.last else {
                     return nil
                 }
-                return GlucosePoint(date: d, value: v)
+                return GlucosePoint(date: Date(timeIntervalSince1970: d), value: v)
             }
-            
+           
             DispatchQueue.main.async {
                 appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != WKExtension.extensionDelegate.complicationState.string {
@@ -226,20 +232,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        guard let t = applicationContext["t"] as? Double, let s = applicationContext["s"] as? String, let m = applicationContext["v"] as? [Any], let act = applicationContext["ia"] as? Double, let iob = applicationContext["iob"] as? Double, let age = applicationContext["age"] as? TimeInterval, let level = applicationContext["b"] as? Int else {
-            return
-        }
-        DispatchQueue.global().async {
-            let readings = m.compactMap { value -> GlucosePoint? in
-                guard let a = value as? [Any], let d = a.first as? Date, let v = a.last as? Double else {
-                    return nil
-                }
-                return GlucosePoint(date: d, value: v)
-            }
-            DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
-            }
-        }
+        WCSession.replyHandler(applicationContext)
     }
     
 

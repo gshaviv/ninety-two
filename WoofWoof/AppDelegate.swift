@@ -20,6 +20,7 @@ private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    var sent: [String: AnyHashable] = [:]
     var window: UIWindow? {
         didSet {
             window?.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
@@ -47,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         defaults.register()
         coordinator = NSFileCoordinator(filePresenter: self)
+        NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.notificationForChange(UserDefaults.BoolKey.needsUpdateDefaults), object: nil)
     }
 
 
@@ -317,8 +319,8 @@ extension AppDelegate: WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if activationState == .activated {
-            defaults[.needUpdateSummary] = true
-            defaults[.needsUpdateDefaults] = true
+            log("WCSession activated")
+            markSendAll()
         }
     }
 
@@ -331,30 +333,59 @@ extension AppDelegate: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) {
     }
 
-    func appState() -> [String:Any] {
+    func appState() -> [String:AnyHashable] {
         let now = Date()
-        let relevant = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date, $0.value] }
-        var state:[String:Any] = ["v": relevant,
-                                  "t": currentTrend ?? 0,
-                                  "s": trendSymbol(),
-                                  "age": MiaoMiao.sensorAge ?? 0,
-                                  "b": MiaoMiao.batteryLevel,
-                                  "c": defaults[.complicationState] ?? "--",
-                                  "iob": Storage.default.insulinOnBoard(at: now),
-                                  "ia": Storage.default.insulinAction(at: now)]
-        if defaults[.needsUpdateDefaults] {
-            state.merge(defaultsMessage()) { (v, _) in
-                v
-            }
-            defaults[.needsUpdateDefaults] = true
+        let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
+        var state:[String:AnyHashable] = [
+            "v": points,
+            "t": currentTrend ?? 0,
+            "s": trendSymbol(),
+            "age": MiaoMiao.sensorAge ?? 0,
+            "b": MiaoMiao.batteryLevel,
+            "c": defaults[.complicationState] ?? "--",
+            "iob": Storage.default.insulinOnBoard(at: now),
+            "ia": Storage.default.insulinAction(at: now),
+            "defaults": defaults.dictionaryRepresentation() as! [String:AnyHashable]
+        ]
+        if summary.data.period > 0 {
+            do {
+                let data = try JSONEncoder().encode(summary.data)
+                if let str = String(data: data, encoding: .utf8)  {
+                    state["summary"] = str
+                }
+            } catch {}
         }
-        if defaults[.needUpdateSummary] {
-            state.merge(summaryMessage()) { (v, _) in
-                v
+        
+        for key in state.keys {
+            if let old = sent[key], let current = state[key], old == current {
+                state[key] = nil
             }
-            defaults[.needUpdateSummary] = true
         }
         return state
+    }
+    
+    func markSent(_ state: [String:AnyHashable]) {
+        state.forEach { sent[$0.key] = $0.value }
+    }
+    
+    func markSendSummary() {
+        sent["summary"] = nil
+    }
+    func markSendDefaults() {
+        sent["defaults"] = nil
+    }
+    @objc func defaultsChanged() {
+        if defaults[.needsUpdateDefaults] {
+            markSendDefaults()
+        }
+    }
+    func markSendState() {
+        for k in ["v","t","s","age","c"] {
+            sent[k] = nil
+        }
+    }
+    func markSendAll() {
+        sent = [:]
     }
 
     func sendAppState() {
@@ -362,8 +393,7 @@ extension AppDelegate: WCSessionDelegate {
             let state = appState()
             try WCSession.default.updateApplicationContext(state)
             log("Sent \(state.keys.sorted())")
-            defaults[.needsUpdateDefaults] = false
-            defaults[.needUpdateSummary] = false
+            markSent(state)
         } catch { }
     }
 
@@ -372,23 +402,18 @@ extension AppDelegate: WCSessionDelegate {
             return
         }
         log("Watch is asking: \(ops)")
-        var reply = [String:Any]()
+        var sendState = false
         ops.forEach {
             switch $0 {
             case "state":
-                reply.merge(appState()) { (val, _)  in
-                    val
-                }
+                markSendState()
+                sendState = true
                 
             case "defaults":
-                reply.merge(defaultsMessage()) { (v, _) in
-                    v
-                }
+                markSendDefaults()
  
             case "summary":
-                reply.merge(summaryMessage()) { (v, _) in
-                    v
-                }
+                markSendSummary()
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
                     if $0 {
@@ -413,8 +438,14 @@ extension AppDelegate: WCSessionDelegate {
                 break
             }
         }
-        log("reply -> \(reply.keys.sorted())")
-        replyHandler(reply)
+        if sendState {
+            let reply = appState()
+            log("reply -> \(reply.keys.sorted())")
+            replyHandler(reply)
+            markSent(reply)
+        } else {
+            replyHandler([:])
+        }
     }
 }
 
@@ -561,20 +592,20 @@ extension AppDelegate: NSFilePresenter {
 }
 
 extension AppDelegate {
-    func defaultsMessage() -> [String:Any] {
+    func defaultsMessage() -> [String:AnyHashable] {
         defaults[.needsUpdateDefaults] = false
-        return ["defaults": defaults.dictionaryRepresentation()]
+        return ["defaults": defaults.dictionaryRepresentation() as! [String:AnyHashable]]
     }
     func updateDefaults() {
         if defaults[.needsUpdateDefaults] {
-            WCSession.default.sendMessage(defaultsMessage(), replyHandler: { (response) in
-                
+            let message = defaultsMessage()
+            WCSession.default.sendMessage(message, replyHandler: { (response) in
+                self.markSent(message)
             }) { (_) in
-                defaults[.needsUpdateDefaults] = true
             }
         }
     }
-    func summaryMessage() -> [String:Any] {
+    func summaryMessage() -> [String:AnyHashable] {
         do {
             let data = try JSONEncoder().encode(summary.data)
             guard let str = String(data: data, encoding: .utf8) else {
@@ -588,9 +619,10 @@ extension AppDelegate {
     }
     func updateSummary() {
         if defaults[.needUpdateSummary] {
-            WCSession.default.sendMessage(summaryMessage(), replyHandler: { (response) in
+            let message = summaryMessage()
+            WCSession.default.sendMessage(message, replyHandler: { (response) in
+                self.markSent(message)
             }) { (_) in
-                defaults[.needUpdateSummary] = true
             }
         }
     }
