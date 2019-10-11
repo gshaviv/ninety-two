@@ -335,13 +335,8 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func appState() -> [String:AnyHashable] {
-        let when: Date
-        if let last = (sent["v"] as? [[Double]])?.last?.first {
-            when = Date(timeIntervalSince1970: last)
-        } else {
-            when = Date.distantPast
-        }
-        let points = MiaoMiao.allReadings.filter { $0.date > max(when,Date() - 3.h - 16.m) && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
+        let now = Date()
+        let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
         var state:[String:AnyHashable] = [
             "v": points,
             "t": currentTrend ?? 0,
@@ -349,8 +344,8 @@ extension AppDelegate: WCSessionDelegate {
             "age": defaults[.sensorBegin] ?? Date(),
             "b": MiaoMiao.batteryLevel,
             "c": defaults[.complicationState] ?? "--",
-            "iob": Storage.default.insulinOnBoard(at: Date()),
-            "ia": Storage.default.insulinAction(at: Date()),
+            "iob": Storage.default.insulinOnBoard(at: now),
+            "ia": Storage.default.insulinAction(at: now),
             "defaults": defaults.dictionaryRepresentation() as! [String:AnyHashable]
         ]
         if points.isEmpty {
@@ -398,7 +393,7 @@ extension AppDelegate: WCSessionDelegate {
     }
     func markSendState() {
         sentQueue.async {
-            for k in ["t","s","c","b"] {
+            for k in ["t","s","c"] {
                 self.sent[k] = nil
             }
         }
@@ -433,7 +428,9 @@ extension AppDelegate: WCSessionDelegate {
             case "fullState":
                 markSendState()
                 sentQueue.sync {
-                    self.sent["v"] = nil
+                    for k in ["v","b","age"] {
+                        self.sent[k] = nil
+                    }
                 }
                 sendState = true
 

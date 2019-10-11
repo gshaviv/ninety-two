@@ -92,6 +92,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
 
+    var lastFullState = Date.distantPast
     func refresh(force: Bool = false, summary sendSummary: Bool = false) {
         guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force || sendSummary) else {
             return
@@ -104,13 +105,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         appState.state = .sending
-        var cmd:String
-        if let earliest = appState.data.readings.first?.date, earliest < Date() - 3.h {
-            cmd = "state"
-        } else {
-            cmd = "fullState"
-        }
-        var ops = [cmd]
+        var ops = [appState.data.batteryLevel > 0 || appState.data.readings.isEmpty || Date() - lastFullState > 1.d ? "fullState" : "state"]
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
         }
