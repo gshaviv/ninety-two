@@ -39,9 +39,6 @@ class SummaryViewController: UIHostingController<SummaryView> {
     
     @objc public func updateSummary(completion: ((Bool)->Void)? = nil) {
         summary.update {
-            if $0 {
-                defaults[.needUpdateSummary] = true
-            }
             completion?($0)
         }
     }

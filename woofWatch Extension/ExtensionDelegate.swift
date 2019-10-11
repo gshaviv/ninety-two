@@ -21,7 +21,6 @@ struct StateData {
     private(set) var trendSymbol: String
     private(set) var readings:  [GlucosePoint]
     private(set) var iob: Double
-    private(set) var insulinAction: Double
     var sensorAge: TimeInterval {
         Date() - sensorBegin
     }
@@ -38,7 +37,7 @@ enum Status {
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0, sensorBegin: Date(), batteryLevel: 0) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0,  sensorBegin: Date(), batteryLevel: 0) {
         didSet {
             self.state = .ready
         }
@@ -105,16 +104,22 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         appState.state = .sending
-        var ops = [appState.data.batteryLevel > 0 || appState.data.readings.isEmpty || Date() - lastFullState > 1.d ? "fullState" : "state"]
-        if defaults[.needsUpdateDefaults] {
+        let cmd: String
+        if appState.data.batteryLevel == 0 || appState.data.readings.isEmpty || Date() - lastFullState > 1.d {
+            lastFullState = Date()
+            cmd = "fullState"
+        } else {
+            cmd = "state"
+        }
+        var ops = [cmd]
+        if defaults[.level0] == 0 {
             ops.insert("defaults", at: 0)
         }
-        if (summary.data.period == 0 && defaults[.needUpdateSummary]) || sendSummary {
+        if summary.data.period == 0 || sendSummary {
             ops.insert("summary", at: 0)
-            defaults[.needUpdateSummary] = false
         }
         WCSession.default.sendMessage(["op":ops], replyHandler: { (info) in
-            WCSession.replyHandler(info)
+            ExtensionDelegate.replyHandler(info)
         }) { (_) in
             DispatchQueue.main.async {
             appState.state = .error
@@ -158,7 +163,24 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 }
 
-extension WCSession {
+extension ExtensionDelegate {
+    private static func trendSymbol(for trend: Double) -> String {
+         if trend > 2.0 {
+            return "⇈"
+        } else if trend > 1.0 {
+            return "↑"
+        } else if trend > 0.33 {
+            return "↗︎"
+        } else if trend > -0.33 {
+            return "→"
+        } else if trend > -1.0 {
+            return "↘︎"
+        } else if trend > -2.0 {
+            return "↓"
+        } else {
+            return "⇊"
+        }
+    }
     static public func replyHandler(_ info: [String:Any]) {
         DispatchQueue.global().async {
             self.processSummary(from: info)
@@ -170,9 +192,8 @@ extension WCSession {
                 return
             }
             let t = info["t"] as? Double ?? appState.data.trendValue
-            let s = info["s"] as? String ?? appState.data.trendSymbol
+            let s = trendSymbol(for: t)
             let iob = info["iob"] as? Double ?? appState.data.iob
-            let act = info["ia"] as? Double ?? appState.data.insulinAction
             let begin = info["age"] as? Date ?? appState.data.sensorBegin
             let level = info["b"] as? Int ?? appState.data.batteryLevel
             let newReadings = m.compactMap { value -> GlucosePoint? in
@@ -188,7 +209,7 @@ extension WCSession {
                 readings = appState.data.readings
             }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorBegin: begin, batteryLevel: level)
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob,  sensorBegin: begin, batteryLevel: level)
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != WKExtension.extensionDelegate.complicationState.string {
                     WKExtension.extensionDelegate.complicationState = DisplayValue(date: last, string: symbol)
                 }
@@ -211,7 +232,6 @@ extension WCSession {
                 }
             }
         }
-        defaults[.needsUpdateDefaults] = false
     }
     
     fileprivate static func processSummary(from message: [String:Any]) {
@@ -220,7 +240,6 @@ extension WCSession {
                 let sumData = try JSONDecoder().decode(Summary.self, from: data)
                 DispatchQueue.main.async {
                     summary.data = sumData
-                    defaults[.needUpdateSummary] = false
                 }
             } catch {}
         }
@@ -244,14 +263,14 @@ extension ExtensionDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        WCSession.replyHandler(applicationContext)
+        ExtensionDelegate.replyHandler(applicationContext)
     }
     
 
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        WCSession.processDefaults(from: message)
-        WCSession.processSummary(from: message)
+        ExtensionDelegate.processDefaults(from: message)
+        ExtensionDelegate.processSummary(from: message)
         replyHandler(["ok": true])
     }
     

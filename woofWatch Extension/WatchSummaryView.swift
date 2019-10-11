@@ -100,7 +100,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
             }
         })
         if summary.data.period == 0 || Date() - summary.calcDate > 90.m {
-            WCSession.default.sendMessage(["op":["summary"]], replyHandler: WCSession.replyHandler(_:), errorHandler: { _ in })
+            WCSession.default.sendMessage(["op":["summary"]], replyHandler: ExtensionDelegate.replyHandler(_:), errorHandler: { _ in })
         }
     }
     

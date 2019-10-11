@@ -228,7 +228,7 @@ class ViewController: UIViewController {
         } else {
             iobLabel.isHidden = true
         }
-            summaryController?.updateSummary()
+        summaryController?.updateSummary()
     }
 
     private func updateTimeAgo() {

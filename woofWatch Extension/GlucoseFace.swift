@@ -98,65 +98,64 @@ extension View {
 
 
 #if DEBUG
-func GenerateReadings() -> [GlucosePoint] {
-    var readings = [GlucosePoint]()
-    var value = Double.random(in: 70 ... 180)
-    var when = Date() - 1.m - 30.s
-    var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
-    for _ in 0 ..< 5 {
-        readings.insert(GlucosePoint(date: when, value: value), at: 0)
-        when -= 3.m
-        if value > 180.0 {
-            trend = -1.0
-        } else if value < 75.0 {
-            trend = 1.0
-        }
-        value += trend * Double.random(in: 0 ... 2)
-    }
-    for _ in 0 ..< 12 {
-        readings.insert(GlucosePoint(date: when, value: value), at: 0)
-        when -= 15.m
-        if value > 180.0 {
-            trend = -1.0
-        } else if value < 75.0 {
-            trend = 1.0
-        }
-        value += trend * Double.random(in: 1 ... 10)
-    }
-    return readings
-}
-
-let testState: AppState = {
-    let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
-    return state
-}()
-
-let errorState: AppState = {
-    let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
-    state.state = .error
-    return state
-}()
-
-let sendingState: AppState = {
-    let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorBegin: Date() - 14.d, batteryLevel: 60)
-    state.state = .sending
-    return state
-}()
-
-let snapshotState: AppState = {
-    let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorBegin: Date() - 14.d, batteryLevel: 30)
-    state.state = .snapshot
-    return state
-}()
-
-let initialState = AppState()
-
-
 struct GlucoseFace_Previews: PreviewProvider {
+    static func GenerateReadings() -> [GlucosePoint] {
+        var readings = [GlucosePoint]()
+        var value = Double.random(in: 70 ... 180)
+        var when = Date() - 1.m - 30.s
+        var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
+        for _ in 0 ..< 5 {
+            readings.insert(GlucosePoint(date: when, value: value), at: 0)
+            when -= 3.m
+            if value > 180.0 {
+                trend = -1.0
+            } else if value < 75.0 {
+                trend = 1.0
+            }
+            value += trend * Double.random(in: 0 ... 2)
+        }
+        for _ in 0 ..< 12 {
+            readings.insert(GlucosePoint(date: when, value: value), at: 0)
+            when -= 15.m
+            if value > 180.0 {
+                trend = -1.0
+            } else if value < 75.0 {
+                trend = 1.0
+            }
+            value += trend * Double.random(in: 1 ... 10)
+        }
+        return readings
+    }
+    
+    static let testState: AppState = {
+        let state = AppState()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2,  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
+        return state
+    }()
+    
+    static let errorState: AppState = {
+        let state = AppState()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1,  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
+        state.state = .error
+        return state
+    }()
+    
+    static let sendingState: AppState = {
+        let state = AppState()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, sensorBegin: Date() - 14.d, batteryLevel: 60)
+        state.state = .sending
+        return state
+    }()
+    
+    static let snapshotState: AppState = {
+        let state = AppState()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, sensorBegin: Date() - 14.d, batteryLevel: 30)
+        state.state = .snapshot
+        return state
+    }()
+    
+    static let initialState = AppState()
+
     static var previews: some View {
         Group {
             GlucoseFace().previewDisplayName("Normal").environmentObject(testState)

@@ -86,14 +86,11 @@ extension UserDefaults {
     }
 
     public enum BoolKey: String {
-        case didAlertEvent
         case writeHealthKit
         case includePatternReport
         case includeMealReport
         case includeDailyReport
         case alertVibrate
-        case needsUpdateDefaults
-        case needUpdateSummary
     }
 
     public func register() {
@@ -123,8 +120,6 @@ extension UserDefaults {
                                        BoolKey.includeDailyReport.key: true,
                                        BoolKey.includePatternReport.key: true,
                                        BoolKey.alertVibrate.key: true,
-                                       BoolKey.needsUpdateDefaults.key: true,
-                                       BoolKey.needUpdateSummary.key: true
                                        ]
 
         register(defaults: defaults)
@@ -209,51 +204,10 @@ extension UserDefaults {
 }
 
 extension RawRepresentable where RawValue == String {
-    fileprivate var key: String {
+    public var key: String {
         return rawValue
     }
 }
-//extension UserDefaults.StringKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.ColorKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.DateKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.DoubleKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.DoubleArrayKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.IntKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
-//
-//extension UserDefaults.BoolKey {
-//    fileprivate var key: String {
-//        return rawValue
-//    }
-//}
 
 
 extension UserDefaults {
