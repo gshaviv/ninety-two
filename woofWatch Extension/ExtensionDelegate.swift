@@ -22,7 +22,10 @@ struct StateData {
     private(set) var readings:  [GlucosePoint]
     private(set) var iob: Double
     private(set) var insulinAction: Double
-    private(set) var sensorAge: TimeInterval
+    var sensorAge: TimeInterval {
+        Date() - sensorBegin
+    }
+    private(set) var sensorBegin: Date
     private(set) var batteryLevel: Int
 }
 
@@ -35,7 +38,7 @@ enum Status {
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0, sensorAge: 0, batteryLevel: 0) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0, insulinAction: 0, sensorBegin: Date(), batteryLevel: 0) {
         didSet {
             self.state = .ready
         }
@@ -101,7 +104,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
         appState.state = .sending
-        var ops = ["state"]
+        var cmd:String
+        if let earliest = appState.data.readings.first?.date, earliest < Date() - 3.h {
+            cmd = "state"
+        } else {
+            cmd = "fullState"
+        }
+        var ops = [cmd]
         if defaults[.needsUpdateDefaults] {
             ops.insert("defaults", at: 0)
         }
@@ -160,23 +169,31 @@ extension WCSession {
             self.processSummary(from: info)
             self.processDefaults(from: info)
             guard let m = info["v"] as? [[Double]] else {
+                DispatchQueue.main.async {
+                    appState.state = .ready
+                }
                 return
             }
             let t = info["t"] as? Double ?? appState.data.trendValue
             let s = info["s"] as? String ?? appState.data.trendSymbol
             let iob = info["iob"] as? Double ?? appState.data.iob
             let act = info["ia"] as? Double ?? appState.data.insulinAction
-            let age = info["age"] as? TimeInterval ?? appState.data.sensorAge
+            let begin = info["age"] as? Date ?? appState.data.sensorBegin
             let level = info["b"] as? Int ?? appState.data.batteryLevel
-            let readings = m.compactMap { value -> GlucosePoint? in
+            let newReadings = m.compactMap { value -> GlucosePoint? in
                 guard let d = value.first, let v = value.last else {
                     return nil
                 }
                 return GlucosePoint(date: Date(timeIntervalSince1970: d), value: v)
             }
-           
+            let readings: [GlucosePoint]
+            if let first = newReadings.first {
+                readings = appState.data.readings.filter { $0.date > Date() - 3.h - 16.m && $0.date < first.date } + newReadings
+            } else {
+                readings = appState.data.readings
+            }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorAge: age, batteryLevel: level)
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob, insulinAction: act, sensorBegin: begin, batteryLevel: level)
                 if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != WKExtension.extensionDelegate.complicationState.string {
                     WKExtension.extensionDelegate.complicationState = DisplayValue(date: last, string: symbol)
                 }

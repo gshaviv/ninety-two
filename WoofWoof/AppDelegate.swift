@@ -335,19 +335,27 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func appState() -> [String:AnyHashable] {
-        let now = Date()
-        let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
+        let when: Date
+        if let last = (sent["v"] as? [[Double]])?.last?.first {
+            when = Date(timeIntervalSince1970: last)
+        } else {
+            when = Date.distantPast
+        }
+        let points = MiaoMiao.allReadings.filter { $0.date > max(when,Date() - 3.h - 16.m) && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
         var state:[String:AnyHashable] = [
             "v": points,
             "t": currentTrend ?? 0,
             "s": trendSymbol(),
-            "age": MiaoMiao.sensorAge ?? 0,
+            "age": defaults[.sensorBegin] ?? Date(),
             "b": MiaoMiao.batteryLevel,
             "c": defaults[.complicationState] ?? "--",
-            "iob": Storage.default.insulinOnBoard(at: now),
-            "ia": Storage.default.insulinAction(at: now),
+            "iob": Storage.default.insulinOnBoard(at: Date()),
+            "ia": Storage.default.insulinAction(at: Date()),
             "defaults": defaults.dictionaryRepresentation() as! [String:AnyHashable]
         ]
+        if points.isEmpty {
+            state["v"] = nil
+        }
         if summary.data.period > 0 {
             do {
                 let data = try JSONEncoder().encode(summary.data)
@@ -390,7 +398,7 @@ extension AppDelegate: WCSessionDelegate {
     }
     func markSendState() {
         sentQueue.async {
-            for k in ["v","t","s","age","c","b"] {
+            for k in ["t","s","c","b"] {
                 self.sent[k] = nil
             }
         }
@@ -421,6 +429,14 @@ extension AppDelegate: WCSessionDelegate {
             case "state":
                 markSendState()
                 sendState = true
+                
+            case "fullState":
+                markSendState()
+                sentQueue.sync {
+                    self.sent["v"] = nil
+                }
+                sendState = true
+
                 
             case "defaults":
                 markSendDefaults()

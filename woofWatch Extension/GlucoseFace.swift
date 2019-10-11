@@ -128,27 +128,27 @@ func GenerateReadings() -> [GlucosePoint] {
 
 let testState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorAge: 7.d + 4.h, batteryLevel: 80)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2, insulinAction: 0.05, sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
     return state
 }()
 
 let errorState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorAge: 13.d + 2.h, batteryLevel: 70)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1, insulinAction: 0.3, sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
     state.state = .error
     return state
 }()
 
 let sendingState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 60)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorBegin: Date() - 14.d, batteryLevel: 60)
     state.state = .sending
     return state
 }()
 
 let snapshotState: AppState = {
     let state = AppState()
-    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorAge: 14.d, batteryLevel: 30)
+    state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, insulinAction: 0, sensorBegin: Date() - 14.d, batteryLevel: 30)
     state.state = .snapshot
     return state
 }()
