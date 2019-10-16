@@ -114,6 +114,9 @@
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
+		E4832310235718C50082E9F1 /* WCKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* WCKey.swift */; };
+		E4832311235718C50082E9F1 /* WCKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* WCKey.swift */; };
+		E4832315235720290082E9F1 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4832313235720290082E9F1 /* Event.swift */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
 		E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4892B9C2211EC5600A647B8 /* SearchViewController.swift */; };
@@ -415,6 +418,8 @@
 		E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "woofWatch Extension.entitlements"; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		E483230F235718C50082E9F1 /* WCKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCKey.swift; sourceTree = "<group>"; };
+		E4832313235720290082E9F1 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		E4892B9C2211EC5600A647B8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
@@ -674,6 +679,7 @@
 				E412606F23424B8800958601 /* WatchSummaryView.swift */,
 				E427E6DD234CB81B00F6A619 /* ea1cView.swift */,
 				E412607823433C0A00958601 /* CalibrateView.swift */,
+				E4832313235720290082E9F1 /* Event.swift */,
 			);
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
@@ -823,6 +829,7 @@
 				E4C18FD0234090B800B1163E /* SummaryView.swift */,
 				E4C18FDB2340E46A00B1163E /* PieChartView.swift */,
 				E4519E0C23509EB700002871 /* TrendSymbol.swift */,
+				E483230F235718C50082E9F1 /* WCKey.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1327,7 +1334,9 @@
 				E4126076234269B300958601 /* StringAdditions.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
 				E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */,
+				E4832315235720290082E9F1 /* Event.swift in Sources */,
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
+				E4832311235718C50082E9F1 /* WCKey.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,
 				E412607423425D0100958601 /* SummaryInfo.swift in Sources */,
 				E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */,
@@ -1368,6 +1377,7 @@
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
+				E4832310235718C50082E9F1 /* WCKey.swift in Sources */,
 				E4C18FD82340C32A00B1163E /* ColorDefinitions.swift in Sources */,
 				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,

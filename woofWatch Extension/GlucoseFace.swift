@@ -129,27 +129,27 @@ struct GlucoseFace_Previews: PreviewProvider {
     
     static let testState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 1.2,  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 6)],  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
         return state
     }()
     
     static let errorState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 12.1,  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
         state.state = .error
         return state
     }()
     
     static let sendingState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, sensorBegin: Date() - 14.d, batteryLevel: 60)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [], sensorBegin: Date() - 14.d, batteryLevel: 60)
         state.state = .sending
         return state
     }()
     
     static let snapshotState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), iob: 0, sensorBegin: Date() - 14.d, batteryLevel: 30)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [], sensorBegin: Date() - 14.d, batteryLevel: 30)
         state.state = .snapshot
         return state
     }()

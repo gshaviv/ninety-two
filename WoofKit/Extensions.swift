@@ -371,6 +371,27 @@ extension Int {
     }
 }
 
+extension Double {
+    public var s: TimeInterval {
+        return TimeInterval(self)
+    }
+    public var m: TimeInterval {
+        return self * 60.0
+    }
+    public var h: TimeInterval {
+        return self.m * 60
+    }
+    public var d: TimeInterval {
+        return self.h * 24
+    }
+    public var mo: TimeInterval {
+        return self.d * 30
+    }
+    public var y: TimeInterval {
+        return self.d * 365
+    }
+}
+
 precedencegroup TimeConcat {
     higherThan: MultiplicationPrecedence
 }

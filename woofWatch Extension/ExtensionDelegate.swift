@@ -20,7 +20,10 @@ struct StateData {
     private(set) var trendValue: Double
     private(set) var trendSymbol: String
     private(set) var readings:  [GlucosePoint]
-    private(set) var iob: Double
+    private(set) var events: [Event]
+    var iob: Double {
+        events.iob()
+    }
     var sensorAge: TimeInterval {
         Date() - sensorBegin
     }
@@ -37,7 +40,7 @@ enum Status {
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], iob: 0,  sensorBegin: Date(), batteryLevel: 0) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], events: [],  sensorBegin: Date(), batteryLevel: 0) {
         didSet {
             self.state = .ready
         }
@@ -181,21 +184,22 @@ extension ExtensionDelegate {
             return "⇊"
         }
     }
-    static public func replyHandler(_ info: [String:Any]) {
+    static public func replyHandler(_ info_in: [String:Any]) {
         DispatchQueue.global().async {
+            let info = info_in.withWCKeys()
             self.processSummary(from: info)
             self.processDefaults(from: info)
-            guard let m = info["v"] as? [[Double]] else {
+            guard let m = info[.measurements] as? [[Double]] else {
                 DispatchQueue.main.async {
                     appState.state = .ready
                 }
                 return
             }
-            let t = info["t"] as? Double ?? appState.data.trendValue
+            let t = info[.trendValue] as? Double ?? appState.data.trendValue
             let s = trendSymbol(for: t)
-            let iob = info["iob"] as? Double ?? appState.data.iob
-            let begin = info["age"] as? Date ?? appState.data.sensorBegin
-            let level = info["b"] as? Int ?? appState.data.batteryLevel
+            let events = (info[.events] as? [[Double]])?.map { Event(date: $0[0], bolus: $0[1]) } ?? appState.data.events
+            let begin = info[.sensorStart] as? Date ?? appState.data.sensorBegin
+            let level = info[.battery] as? Int ?? appState.data.batteryLevel
             let newReadings = m.compactMap { value -> GlucosePoint? in
                 guard let d = value.first, let v = value.last else {
                     return nil
@@ -209,16 +213,16 @@ extension ExtensionDelegate {
                 readings = appState.data.readings
             }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, iob: iob,  sensorBegin: begin, batteryLevel: level)
-                if let symbol = info["c"] as? String, let last = readings.last?.date, symbol != WKExtension.extensionDelegate.complicationState.string {
-                    WKExtension.extensionDelegate.complicationState = DisplayValue(date: last, string: symbol)
+                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, events: events,  sensorBegin: begin, batteryLevel: level)
+                if let symbol = info[.complication] as? String,  symbol != WKExtension.extensionDelegate.complicationState.string {
+                    WKExtension.extensionDelegate.complicationState = DisplayValue(date: Date(), string: symbol)
                 }
             }
         }
     }
     
-    fileprivate static func processDefaults(from message: [String:Any]) {
-        if let dflt = message["defaults"] as? [String: Any] {
+    fileprivate static func processDefaults(from message: [WCKey:Any]) {
+        if let dflt = message[.defaults] as? [String: Any] {
             dflt.forEach {
                 switch $0.value {
                 case let v as Double:
@@ -234,8 +238,8 @@ extension ExtensionDelegate {
         }
     }
     
-    fileprivate static func processSummary(from message: [String:Any]) {
-        if let sumStr = message["summary"] as? String, let data = sumStr.data(using: .utf8) {
+    fileprivate static func processSummary(from message: [WCKey:Any]) {
+        if let sumStr = message[.summary] as? String, let data = sumStr.data(using: .utf8) {
             do {
                 let sumData = try JSONDecoder().decode(Summary.self, from: data)
                 DispatchQueue.main.async {
@@ -257,8 +261,10 @@ extension ExtensionDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
-        if let d = userInfo["d"] as? Double, let v = userInfo["v"] as? String {
-            complicationState = DisplayValue(date: Date(timeIntervalSince1970: d), string: v)
+        if  let v = userInfo[key(.complication)] as? String {
+            DispatchQueue.main.async {
+                self.complicationState = DisplayValue(date: Date(), string: v)
+            }
         }
     }
 
@@ -268,7 +274,8 @@ extension ExtensionDelegate: WCSessionDelegate {
     
 
     
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+    func session(_ session: WCSession, didReceiveMessage info: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        let message = info.withWCKeys()
         ExtensionDelegate.processDefaults(from: message)
         ExtensionDelegate.processSummary(from: message)
         replyHandler(["ok": true])

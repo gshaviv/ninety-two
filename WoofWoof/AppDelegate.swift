@@ -21,9 +21,58 @@ private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var didAlertEvent = false
-    var sent: [String: AnyHashable] = [:]
+    var sent: [WCKey: AnyHashable] = [:]
     let sentQueue = DispatchQueue(label: "sent", qos: .default, autoreleaseFrequency: .workItem)
-    var complicationState = "--"
+    var complicationState: String {
+        guard let current = MiaoMiao.currentGlucose else {
+            return "-"
+        }
+        var show: String
+        switch current.value {
+        case defaults[.maxRange]...:
+            let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
+            if current.value > highest {
+                show = "\(current.value > 250 ? "H" : "h")⤴︎"
+            } else {
+                show = "\(current.value > 250 ? "H" : "h")⤵︎"
+            }
+            
+            
+        case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
+            show = "✔︎"
+            
+        default:
+            guard let trend = MiaoMiao.trend else {
+                return "-"
+            }
+            let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(max(MiaoMiao.last24hReadings.count - 6,0))...].reduce(100.0) { min($0, $1.value) })
+            let sym: String
+            if current.value < lowest {
+                sym = "⤵︎"
+            } else {
+                sym = "⤴︎"
+            }
+            if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
+                show = "L\(sym)"
+            } else {
+                let level = Int(ceil(round(current.value) / 5) * 5)
+                show = "≤\(level)"
+            }
+            if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
+                showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
+            }
+        }
+        
+        let now = Date()
+        let nowTime = now.hour * 60 + now.minute
+        if nowTime < defaults[.watchWakeupTime] || nowTime > defaults[.watchSleepTime] {
+            show = "🌘"
+        }
+        if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
+            show = "❌"
+        }
+        return show
+    }
     var window: UIWindow? {
         didSet {
             window?.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
@@ -325,17 +374,19 @@ extension AppDelegate: WCSessionDelegate {
     func appState() -> [String:AnyHashable] {
         let now = Date()
         let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
-        var state:[String:AnyHashable] = [
-            "v": points,
-            "t": currentTrend ?? 0,
-            "s": trendSymbol(),
-            "age": defaults[.sensorBegin] ?? Date(),
-            "b": MiaoMiao.batteryLevel,
-            "c": complicationState,
-            "iob": Storage.default.insulinOnBoard(at: now),
+        let when = Date() - (defaults[.delayMinutes] + defaults[.diaMinutes]) * 60
+        let events = Storage.default.allEntries.filter { $0.bolus > 0 && $0.date > when }.map { [$0.date.timeIntervalSince1970, Double($0.bolus)] }
+        var state:[WCKey:AnyHashable] = [
+            .measurements: points,
+            .trendValue: currentTrend ?? 0,
+            .trendSymbol: trendSymbol(),
+            .sensorStart: defaults[.sensorBegin] ?? Date(),
+            .battery: MiaoMiao.batteryLevel,
+            .complication: complicationState,
+            .events: events
         ]
         if points.isEmpty {
-            state["v"] = nil
+            state[.measurements] = nil
         }
         let watchDefaults = [
             UserDefaults.DoubleKey.level0.key, UserDefaults.ColorKey.color0.key,
@@ -343,18 +394,21 @@ extension AppDelegate: WCSessionDelegate {
             UserDefaults.DoubleKey.level2.key, UserDefaults.ColorKey.color2.key,
             UserDefaults.DoubleKey.level3.key, UserDefaults.ColorKey.color3.key,
             UserDefaults.DoubleKey.level4.key, UserDefaults.ColorKey.color4.key,
-            UserDefaults.ColorKey.color5.key
+            UserDefaults.ColorKey.color5.key,
+            UserDefaults.DoubleKey.delayMinutes.key,
+            UserDefaults.DoubleKey.peakMinutes.key,
+            UserDefaults.DoubleKey.diaMinutes.key
         ]
         var defaultValues = [String:AnyHashable]()
         for key in watchDefaults {
             defaultValues[key] = defaults.value(forKey: key) as? AnyHashable
         }
-        state["defaults"] = defaultValues
+        state[.defaults] = defaultValues
         if summary.data.period > 0 {
             do {
                 let data = try JSONEncoder().encode(summary.data)
                 if let str = String(data: data, encoding: .utf8)  {
-                    state["summary"] = str
+                    state[.summary] = str
                 }
             } catch {}
         }
@@ -366,29 +420,29 @@ extension AppDelegate: WCSessionDelegate {
             }
         }
         
-        return state
+        return state.withStringKeys()
     }
     
     func markSent(_ state: [String:AnyHashable]) {
         sentQueue.async {
-            state.forEach { self.sent[$0.key] = $0.value }
+            state.withWCKeys().forEach { self.sent[$0.key] = $0.value }
         }
     }
     
     func markSendSummary() {
         sentQueue.async {
-            self.sent["summary"] = nil
+            self.sent[.summary] = nil
         }
     }
     func markSendDefaults() {
         sentQueue.async {
-            self.sent["defaults"] = nil
+            self.sent[.defaults] = nil
         }
     }
 
     func markSendState() {
         sentQueue.async {
-            for k in ["t","s","c"] {
+            for k in [WCKey.trendSymbol, WCKey.trendValue, WCKey.complication] {
                 self.sent[k] = nil
             }
         }
@@ -403,7 +457,7 @@ extension AppDelegate: WCSessionDelegate {
         do {
             let state = appState()
             try WCSession.default.updateApplicationContext(state)
-            log("Sent \(state.keys.sorted())")
+            log("Sent \(state.withWCKeys().keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted())")
             markSent(state)
         } catch { }
     }
@@ -423,7 +477,7 @@ extension AppDelegate: WCSessionDelegate {
             case "fullState":
                 markSendState()
                 sentQueue.sync {
-                    for k in ["v","b","age"] {
+                    for k in [WCKey.measurements,WCKey.battery,WCKey.sensorStart, WCKey.events] {
                         self.sent[k] = nil
                     }
                 }
@@ -440,7 +494,7 @@ extension AppDelegate: WCSessionDelegate {
                 let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
                 summary.update(force: true) {
                     if $0 {
-                        self.updateSummary()
+                        self.sendAppState()
                     }
                     UIApplication.shared.endBackgroundTask(bgt)
                 }
@@ -465,7 +519,7 @@ extension AppDelegate: WCSessionDelegate {
         }
         if sendState {
             let reply = appState()
-            log("reply -> \(reply.keys.sorted())")
+            log("reply -> \(reply.withWCKeys().keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted())")
             replyHandler(reply)
             markSent(reply)
         } else {
@@ -544,57 +598,29 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             if WCSession.default.activationState == .activated {
                 if  WCSession.default.isComplicationEnabled {
-                    var payload: [String: Any] = ["d": current.date.timeIntervalSince1970]
-                    var show: String
+                    var payload: [String: AnyHashable] = [key(.currentDate): current.date.timeIntervalSince1970]
                     switch current.value {
                     case defaults[.maxRange]...:
                         let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                         if current.value > highest {
-                            show = "\(current.value > 250 ? "H" : "h")⤴︎"
                             if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
                                 showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
                             }
-                        } else {
-                            show = "\(current.value > 250 ? "H" : "h")⤵︎"
                         }
 
 
                     case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
-                        show = "✔︎"
+                        break
 
                     default:
-                        guard let trend = MiaoMiao.trend else {
-                            return
-                        }
-                        let lowest = min(trend[1...].reduce(100.0) { min($0, $1.value) }, MiaoMiao.last24hReadings[(max(MiaoMiao.last24hReadings.count - 6,0))...].reduce(100.0) { min($0, $1.value) })
-                        let sym: String
-                        if current.value < lowest {
-                            sym = "⤵︎"
-                        } else {
-                            sym = "⤴︎"
-                        }
-                        if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
-                            show = "L\(sym)"
-                        } else {
-                            let level = Int(ceil(round(current.value) / 5) * 5)
-                            show = "≤\(level)"
-                        }
                         if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
                             showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
                         }
                     }
-                    let now = Date()
-                    let nowTime = now.hour * 60 + now.minute
-                    if nowTime < defaults[.watchWakeupTime] || nowTime > defaults[.watchSleepTime] {
-                        show = "🌘"
-                    }
-                    if show != sent["c"] as? String ?? "!" {
-                        if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
-                            show = "❌"
-                        }
-                        complicationState = show
-                        sent["c"] = show
-                        payload["v"] = show
+                    
+                    if complicationState != sent[.complication] as? String ?? "!" {
+                        payload[key(.complication)] = complicationState
+                        markSent(payload)
                         WCSession.default.transferCurrentComplicationUserInfo(payload)
                     }
                 }
@@ -614,38 +640,6 @@ extension AppDelegate: NSFilePresenter {
 
     var presentedItemOperationQueue: OperationQueue {
         return sharedOperationQueue
-    }
-}
-
-extension AppDelegate {
-    func defaultsMessage() -> [String:AnyHashable] {
-        return ["defaults": defaults.dictionaryRepresentation() as! [String:AnyHashable]]
-    }
-    func updateDefaults() {
-        let message = defaultsMessage()
-        WCSession.default.sendMessage(message, replyHandler: { (response) in
-            self.markSent(message)
-        }) { (_) in
-        }
-    }
-    func summaryMessage() -> [String:AnyHashable] {
-        do {
-            let data = try JSONEncoder().encode(summary.data)
-            guard let str = String(data: data, encoding: .utf8) else {
-                return [:]
-            }
-            return ["summary": str]
-        } catch {
-            return [:]
-        }
-    }
-    func updateSummary() {
-        let message = summaryMessage()
-        log("sending: [\"summary\"]")
-        WCSession.default.sendMessage(message, replyHandler: { (response) in
-            self.markSent(message)
-        }) { (_) in
-        }
     }
 }
 
