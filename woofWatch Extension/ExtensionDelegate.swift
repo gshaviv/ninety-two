@@ -105,7 +105,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         appState.state = .sending
         let cmd: String
-        if appState.data.batteryLevel == 0 || appState.data.readings.isEmpty || Date() - lastFullState > 1.d {
+        if appState.data.batteryLevel == 0 || appState.data.readings.isEmpty || Date() - lastFullState > 4.h {
             lastFullState = Date()
             cmd = "fullState"
         } else {

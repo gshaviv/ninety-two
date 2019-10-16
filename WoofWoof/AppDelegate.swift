@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var didAlertEvent = false
     var sent: [String: AnyHashable] = [:]
     let sentQueue = DispatchQueue(label: "sent", qos: .default, autoreleaseFrequency: .workItem)
+    var complicationState = "--"
     var window: UIWindow? {
         didSet {
             window?.tintColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
@@ -303,6 +304,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 }
 
 extension AppDelegate: WCSessionDelegate {
+    
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if activationState == .activated {
@@ -312,11 +314,11 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {
-        if WCSession.default.isComplicationEnabled, let current = MiaoMiao.trend?.first {
-            WCSession.default.transferUserInfo(["d": current.date.timeIntervalSince1970, "v": current.value, "c": true])
-        }
+        log("WCSession inactive")
+        markSendAll()
     }
 
+    
     func sessionDidDeactivate(_ session: WCSession) {
     }
 
@@ -329,7 +331,7 @@ extension AppDelegate: WCSessionDelegate {
             "s": trendSymbol(),
             "age": defaults[.sensorBegin] ?? Date(),
             "b": MiaoMiao.batteryLevel,
-            "c": defaults[.complicationState] ?? "--",
+            "c": complicationState,
             "iob": Storage.default.insulinOnBoard(at: now),
         ]
         if points.isEmpty {
@@ -586,11 +588,12 @@ extension AppDelegate: MiaoMiaoDelegate {
                     if nowTime < defaults[.watchWakeupTime] || nowTime > defaults[.watchSleepTime] {
                         show = "🌘"
                     }
-                    if show != defaults[.complicationState] {
+                    if show != sent["c"] as? String ?? "!" {
                         if WCSession.default.remainingComplicationUserInfoTransfers == 1 {
                             show = "❌"
                         }
-                        defaults[.complicationState] = show
+                        complicationState = show
+                        sent["c"] = show
                         payload["v"] = show
                         WCSession.default.transferCurrentComplicationUserInfo(payload)
                     }
