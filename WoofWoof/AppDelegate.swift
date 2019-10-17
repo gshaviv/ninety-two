@@ -58,9 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let level = Int(ceil(round(current.value) / 5) * 5)
                 show = "≤\(level)"
             }
-            if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
-                showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
-            }
         }
         
         let now = Date()
@@ -371,7 +368,7 @@ extension AppDelegate: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) {
     }
 
-    func appState() -> [String:AnyHashable] {
+    func appState() -> [WCKey:AnyHashable] {
         let now = Date()
         let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
         let when = Date() - (defaults[.delayMinutes] + defaults[.diaMinutes]) * 60
@@ -420,12 +417,12 @@ extension AppDelegate: WCSessionDelegate {
             }
         }
         
-        return state.withStringKeys()
+        return state
     }
     
-    func markSent(_ state: [String:AnyHashable]) {
+    func markSent(_ state: [WCKey:AnyHashable]) {
         sentQueue.async {
-            state.withWCKeys().forEach { self.sent[$0.key] = $0.value }
+            state.forEach { self.sent[$0.key] = $0.value }
         }
     }
     
@@ -441,11 +438,7 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func markSendState() {
-        sentQueue.async {
-            for k in [WCKey.trendSymbol, WCKey.trendValue, WCKey.complication] {
-                self.sent[k] = nil
-            }
-        }
+        
     }
     func markSendAll() {
         sentQueue.async {
@@ -456,8 +449,8 @@ extension AppDelegate: WCSessionDelegate {
     func sendAppState() {
         do {
             let state = appState()
-            try WCSession.default.updateApplicationContext(state)
-            log("Sent \(state.withWCKeys().keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted())")
+            try WCSession.default.updateApplicationContext(state.withStringKeys())
+            log("Sent [\(state.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
             markSent(state)
         } catch { }
     }
@@ -466,7 +459,7 @@ extension AppDelegate: WCSessionDelegate {
         guard let ops = message["op"] as? [String] else {
             return
         }
-        log("Watch request: \(ops.joined(separator: ", "))")
+        log("Watch message: \(ops.joined(separator: ", "))")
         var sendState = false
         ops.forEach {
             switch $0 {
@@ -477,7 +470,7 @@ extension AppDelegate: WCSessionDelegate {
             case "fullState":
                 markSendState()
                 sentQueue.sync {
-                    for k in [WCKey.measurements,WCKey.battery,WCKey.sensorStart, WCKey.events] {
+                    for k in [WCKey.measurements,WCKey.battery,WCKey.sensorStart, WCKey.events, WCKey.complication] {
                         self.sent[k] = nil
                     }
                 }
@@ -519,8 +512,8 @@ extension AppDelegate: WCSessionDelegate {
         }
         if sendState {
             let reply = appState()
-            log("reply -> \(reply.withWCKeys().keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted())")
-            replyHandler(reply)
+            log("reply -> [\(reply.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
+            replyHandler(reply.withStringKeys())
             markSent(reply)
         } else {
             replyHandler([:])
@@ -598,7 +591,7 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             if WCSession.default.activationState == .activated {
                 if  WCSession.default.isComplicationEnabled {
-                    var payload: [String: AnyHashable] = [key(.currentDate): current.date.timeIntervalSince1970]
+                    var payload: [WCKey: AnyHashable] = [.currentDate: current.date.timeIntervalSince1970]
                     switch current.value {
                     case defaults[.maxRange]...:
                         let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
@@ -619,9 +612,9 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
                     
                     if complicationState != sent[.complication] as? String ?? "!" {
-                        payload[key(.complication)] = complicationState
+                        payload[.complication] = complicationState
                         markSent(payload)
-                        WCSession.default.transferCurrentComplicationUserInfo(payload)
+                        WCSession.default.transferCurrentComplicationUserInfo(payload.withStringKeys())
                     }
                 }
                 if WCSession.default.isReachable {

@@ -244,6 +244,7 @@ extension Record {
 
 extension Record {
     public func insulinAction(at date:Date) -> (activity: Double, iob: Double) {
+        // based on: https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
         let t = (date - self.date) / 1.m - defaults[.delayMinutes]
         let td = defaults[.diaMinutes]
         let tp = defaults[.peakMinutes]
