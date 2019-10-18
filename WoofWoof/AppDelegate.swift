@@ -20,7 +20,15 @@ private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var didAlertEvent = false
+    var didAlertEvent: Bool {
+        if let last = defaults[.lastEventAlertTime] {
+            guard let level = MiaoMiao.currentGlucose?.value, let trend = currentTrend else {
+                return true
+            }
+            return Date() - last < 15.m && (level > defaults[.highAlertLevel] ? level > defaults[.lastEventAlertLevel] || trend > 0.25 : level < defaults[.lastEventAlertLevel] || trend < 0.1)
+        }
+        return false
+    }
     var sent: [WCKey: AnyHashable] = [:]
     let sentQueue = DispatchQueue(label: "sent", qos: .default, autoreleaseFrequency: .workItem)
     var complicationState: String {
@@ -52,7 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             } else {
                 sym = "⤴︎"
             }
-            if WCSession.default.remainingComplicationUserInfoTransfers < 10 {
+            if WCSession.default.remainingComplicationUserInfoTransfers < 10 && WCSession.default.remainingComplicationUserInfoTransfers > 0 {
                 show = "L\(sym)"
             } else {
                 let level = Int(ceil(round(current.value) / 5) * 5)
@@ -356,6 +364,9 @@ extension AppDelegate: WCSessionDelegate {
         if activationState == .activated {
             log("WCSession activated")
             markSendAll()
+            if MiaoMiao.sensorState != .unknown {
+            sendAppState()
+            }
         }
     }
 
@@ -447,76 +458,83 @@ extension AppDelegate: WCSessionDelegate {
     }
 
     func sendAppState() {
-        do {
-            let state = appState()
-            try WCSession.default.updateApplicationContext(state.withStringKeys())
-            log("Sent [\(state.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
-            markSent(state)
-        } catch { }
+        DispatchQueue.main.async {
+            do {
+                let state = self.appState()
+                try WCSession.default.updateApplicationContext(state.withStringKeys())
+                log("Sent [\(state.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
+                self.markSent(state)
+            } catch { }
+        }
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         guard let ops = message["op"] as? [String] else {
             return
         }
-        log("Watch message: \(ops.joined(separator: ", "))")
-        var sendState = false
-        ops.forEach {
-            switch $0 {
-            case "state":
-                markSendState()
-                sendState = true
-                
-            case "fullState":
-                markSendState()
-                sentQueue.sync {
-                    for k in [WCKey.measurements,WCKey.battery,WCKey.sensorStart, WCKey.events, WCKey.complication] {
-                        self.sent[k] = nil
+        DispatchQueue.main.async {
+            log("Watch message: \(ops.joined(separator: ", "))")
+            var sendState = false
+            ops.forEach {
+                switch $0 {
+                case "state":
+                    self.markSendState()
+                    sendState = true
+                    
+                case "fullState":
+                    self.markSendState()
+                    self.sentQueue.sync {
+                        for k in [WCKey.measurements,WCKey.battery,WCKey.sensorStart, WCKey.events] {
+                            self.sent[k] = nil
+                        }
                     }
-                }
-                sendState = true
-
-                
-            case "defaults":
-                markSendDefaults()
-                sendState = true
-
-            case "summary":
-                markSendSummary()
-                sendState = true
-                let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
-                summary.update(force: true) {
-                    if $0 {
-                        self.sendAppState()
+                    sendState = true
+                    
+                    
+                case "defaults":
+                    self.markSendDefaults()
+                    sendState = true
+                    
+                case "summary":
+                    self.markSendSummary()
+                    sendState = true
+                    let bgt = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+                    summary.update(force: true) {
+                        if $0 {
+                            self.sendAppState()
+                        }
+                        UIApplication.shared.endBackgroundTask(bgt)
                     }
-                    UIApplication.shared.endBackgroundTask(bgt)
-                }
-
-            case "reconnect":
-                Central.manager.restart()
-                
-            case "read":
-                MiaoMiao.Command.startReading()
-                
-            case "calibrate":
-                if let v = message["value"] as? Double {
-                    MiaoMiao.addCalibration(value: v)
-                    if UIApplication.shared.applicationState != .background, let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController {
-                        ctr.update()
+                    
+                case "reconnect":
+                    Central.manager.restart()
+                    
+                case "read":
+                    MiaoMiao.Command.startReading()
+                    
+                case "calibrate":
+                    if let v = message["value"] as? Double {
+                        MiaoMiao.addCalibration(value: v)
+                        if UIApplication.shared.applicationState != .background, let nav = self.window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController {
+                            ctr.update()
+                        }
                     }
+                    
+                default:
+                    break
                 }
-                
-            default:
-                break
             }
-        }
-        if sendState {
-            let reply = appState()
-            log("reply -> [\(reply.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
-            replyHandler(reply.withStringKeys())
-            markSent(reply)
-        } else {
-            replyHandler([:])
+            if sendState {
+                var reply = self.appState()
+                if reply[.complication] == nil && ops.contains("fullState") {
+                    reply[.complication] = self.complicationState
+                }
+                log("reply -> [\(reply.keys.map { String(describing:$0).replacingOccurrences(of: "WoofWoof.WCKey.", with: "") }.sorted().joined(separator: ", "))]")
+                replyHandler(reply.withStringKeys())
+                self.markSent(reply)
+            } else {
+                replyHandler([:])
+            }
         }
     }
 }
@@ -536,6 +554,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                 notification.sound = UNNotificationSound(named: sound)
             }
             defaults[.lastEventAlertTime] = Date()
+            defaults[.lastEventAlertLevel] = MiaoMiao.currentGlucose?.value ?? 100
             notification.categoryIdentifier = NotificationIdentifier.event
             let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
@@ -574,51 +593,49 @@ extension AppDelegate: MiaoMiaoDelegate {
             if let trend = currentTrend {
                 switch current.value {
                 case ...defaults[.lowAlertLevel] where !didAlertEvent && trend < -0.25:
-                    didAlertEvent = true
                     showAlert(title: "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
 
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
-                    didAlertEvent = true
                     showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
 
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
-                    didAlertEvent = false
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
+                    defaults[.lastEventAlertTime] = nil
 
                 default:
                     break
                 }
             }
             if WCSession.default.activationState == .activated {
-                if  WCSession.default.isComplicationEnabled {
-                    var payload: [WCKey: AnyHashable] = [.currentDate: current.date.timeIntervalSince1970]
-                    switch current.value {
-                    case defaults[.maxRange]...:
-                        let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
-                        if current.value > highest {
-                            if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                                showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
-                            }
-                        }
-
-
-                    case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
-                        break
-
-                    default:
-                        if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
-                            showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
+                if WCSession.default.isReachable {
+                    sendAppState()
+                }
+                var payload: [WCKey: AnyHashable] = [.currentDate: current.date.timeIntervalSince1970]
+                switch current.value {
+                case defaults[.maxRange]...:
+                    let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
+                    if current.value > highest {
+                        if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
+                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
                         }
                     }
                     
-                    if complicationState != sent[.complication] as? String ?? "!" {
-                        payload[.complication] = complicationState
-                        markSent(payload)
-                        WCSession.default.transferCurrentComplicationUserInfo(payload.withStringKeys())
+                    
+                case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
+                    break
+                    
+                default:
+                    if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
+                        showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
                     }
                 }
-                if WCSession.default.isReachable {
-                    sendAppState()
+                
+                DispatchQueue.main.async {
+                    if  WCSession.default.isComplicationEnabled && self.complicationState != self.sent[.complication] as? String ?? "!" {
+                        payload[.complication] = self.complicationState
+                        self.markSent(payload)
+                        WCSession.default.transferCurrentComplicationUserInfo(payload.withStringKeys())
+                    }
                 }
             }
         }

@@ -84,8 +84,11 @@ struct GlucoseFace: View {
         case 20..<30:
             return UIImage(named: "battery-2")!.tint(with: color)
             
-        default:
+        case 0 ..< 20:
             return UIImage(named: "battery-1")!.tint(with: color)
+            
+        default:
+            return UIImage(systemName: "questionmark.square.fill")!.tint(with: .red)
         }
     }
 }

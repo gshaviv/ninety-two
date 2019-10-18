@@ -40,7 +40,7 @@ enum Status {
 
 class AppState: ObservableObject {
     @Published var state: Status = .error
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], events: [],  sensorBegin: Date(), batteryLevel: 0) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], events: [],  sensorBegin: Date(), batteryLevel: -1) {
         didSet {
             self.state = .ready
         }
@@ -108,7 +108,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         appState.state = .sending
         let cmd: String
-        if appState.data.batteryLevel == 0 || appState.data.readings.isEmpty || Date() - lastFullState > 4.h {
+        if appState.data.batteryLevel <= 0 || appState.data.readings.isEmpty || Date() - lastFullState > 4.h {
             lastFullState = Date()
             cmd = "fullState"
         } else {
