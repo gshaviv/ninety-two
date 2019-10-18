@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Event {
+struct Event: Equatable {
     let date: Date
     let bolus: Double
     

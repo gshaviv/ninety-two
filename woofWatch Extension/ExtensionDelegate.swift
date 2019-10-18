@@ -16,7 +16,7 @@ extension WKExtension {
     static public let didEnterBackgroundNotification = Notification.Name("didEnterBackground")
 }
 
-struct StateData {
+struct StateData: Equatable {    
     private(set) var trendValue: Double
     private(set) var trendSymbol: String
     private(set) var readings:  [GlucosePoint]
@@ -39,10 +39,20 @@ enum Status {
 }
 
 class AppState: ObservableObject {
-    @Published var state: Status = .error
+    @Published var state: Status = .error {
+        didSet {
+            if state != oldValue {
+                lastStateChange = Date()
+            }
+        }
+    }
+    var lastStateChange = Date.distantPast
     var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], events: [],  sensorBegin: Date(), batteryLevel: -1) {
         didSet {
             self.state = .ready
+            if oldValue != data {
+                lastStateChange = Date()
+            }
         }
     }
 }
@@ -82,7 +92,11 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if appState.state == .snapshot {
             appState.state = .ready
         }
-        refresh()
+        if appState.data.readings.isEmpty {
+            refresh(force: true)
+        } else {
+            refresh()
+        }
     }
     
     func reconnectCmd() {
@@ -96,6 +110,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     var lastFullState = Date.distantPast
     func refresh(force: Bool = false, summary sendSummary: Bool = false) {
+        if appState.state == .sending && Date() - appState.lastStateChange > 20.s {
+            appState.state = .error
+        }
         guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force || sendSummary) else {
             return
         }
@@ -125,7 +142,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             ExtensionDelegate.replyHandler(info)
         }) { (_) in
             DispatchQueue.main.async {
-            appState.state = .error
+                appState.state = .error
             }
         }
     }
