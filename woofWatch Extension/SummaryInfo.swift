@@ -234,8 +234,9 @@ class SummaryInfo: ObservableObject {
                 let tir = (totalT - timeBelow70 - timeAbove180) / totalT * 100
                 // a1c relationhip to TIR from: https://academic.oup.com/jes/article/3/Supplement_1/SAT-126/5483093/
                 let a1c4 = (157 - tir) / 12.9
-                let aa1c = (a1c + a1c3 + a1c4) / 3
-                let ea1c = Summary.EA1C(value: aa1c, range: min(abs(a1c - aa1c),abs(a1c3 - aa1c),abs(a1c4 - aa1c)), cgm: a1c, seven: a1c3, tir: a1c4)
+                let a1cValues = [a1c, a1c3, a1c4].sorted()
+                let a1cMed = a1cValues.median()
+                let ea1c = Summary.EA1C(value: a1cMed, range: min(a1cValues.percentile(0.75) - a1cMed, a1cMed - a1cValues.percentile(0.25)), cgm: a1c, seven: a1c3, tir: a1c4)
                 DispatchQueue.main.async {
                     let rangeTime = Summary.TimeInRange(low: timeBelow, inRange: totalT - timeBelow - timeAbove, high: timeAbove)
                     let lows = Summary.Low(count: lowCount, median: medianLowTime)
