@@ -234,7 +234,14 @@ class SummaryInfo: ObservableObject {
                 let tir = (totalT - timeBelow70 - timeAbove180) / totalT * 100
                 // a1c relationhip to TIR from: https://academic.oup.com/jes/article/3/Supplement_1/SAT-126/5483093/
                 let a1c4 = (157 - tir) / 12.9
-                let a1cValues = [a1c, a1c3, a1c4].sorted()
+                // based on estimates from: https://care.diabetesjournals.org/content/diacare/31/8/1473.full.pdf
+                let a1c2 = (aveG + 36.9) / 28
+                let a1c5 = (ave7 + 50.7) / 29.1
+                let a1c6 = (ave7 + 43.9) / 28.3
+                let a1c7 = 3.38 + 0.02345 * aveG // https://care.diabetesjournals.org/content/41/11/2275
+                let a1c8 = 3.31 + aveG * 0.02392
+                let a1c9 = 3.15 + 0.02505 * aveG
+                let a1cValues = [a1c, a1c2, a1c3, a1c4, a1c5, a1c6, a1c7, a1c8, a1c9].sorted()
                 let a1cMed = a1cValues.median()
                 let ea1c = Summary.EA1C(value: a1cMed, range: min(a1cValues.percentile(0.75) - a1cMed, a1cMed - a1cValues.percentile(0.25)), cgm: a1c, seven: a1c3, tir: a1c4)
                 DispatchQueue.main.async {
