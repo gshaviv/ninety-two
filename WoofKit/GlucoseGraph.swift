@@ -856,13 +856,6 @@ public class GlucoseGraph: UIView {
         commonInit()
     }
 
-    override public func layoutSubviews() {
-        super.layoutSubviews()
-        contentView.setNeedsDisplay()
-        xAxis.setNeedsDisplay()
-        yAxis.setNeedsDisplay()
-    }
-
     private var touchPoint: GlucoseReading? {
         didSet {
             contentView.setNeedsDisplay()
