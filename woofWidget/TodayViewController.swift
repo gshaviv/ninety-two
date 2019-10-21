@@ -66,12 +66,18 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         }
     }
     func updateTime() {
-        if !isTriggerd {
-            isTriggerd = true
+        if repeater == nil {
+            self.updateAgo()
             repeater = Repeater.every(1, queue: DispatchQueue.main, perform: { (_) in
                 self.updateAgo()
             })
+        }
+        if !isTriggerd {
+            isTriggerd = true
             DispatchQueue.main.after(withDelay: 10) {
+                guard self.isTriggerd else {
+                    return
+                }
                 self.isTriggerd = false
                 if self.view.window != nil {
                     self.widgetPerformUpdate(completionHandler: { (result) in
@@ -81,30 +87,36 @@ class TodayViewController: UIViewController, NCWidgetProviding {
             }
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        repeater = nil
+        isTriggerd = false
+    }
+    
+    
 
     override func awakeFromNib() {
         super.awakeFromNib()
         coordinator = NSFileCoordinator(filePresenter: self)
     }
     
-
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateTime()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         extensionContext?.widgetLargestAvailableDisplayMode = .expanded
-        let intent = CheckGlucoseIntent()
-        intent.suggestedInvocationPhrase = "What's my glucose"
-        let interaction = INInteraction(intent: intent, response: nil)
-        interaction.donate { error in
-            // Handle error
-        }
+        repeater = nil
     }
         
     func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {
         DispatchQueue.global().async {
             self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
                 let old = self.points
-                if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
+                if let p = self.sharedDb?.evaluate(GlucosePoint.read()), p != old {
                     Storage.default.db.async {
                         Storage.default.reloadToday()
                         DispatchQueue.main.async {
@@ -119,6 +131,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                             }
                         }
                     }
+                } else {
+                    completionHandler(NCUpdateResult.noData)
                 }
             })
         }        

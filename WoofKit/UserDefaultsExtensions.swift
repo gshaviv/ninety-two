@@ -212,7 +212,7 @@ extension RawRepresentable where RawValue == String {
 
 
 extension UserDefaults {
-    public static let summaryPeriods = [1,2,7,14,30,40,60,90,120,180]
+    public static let summaryPeriods = [1,2,7,14,30,45,60,90,120,180]
     public var summaryPeriod: Int {
         get {
             return UserDefaults.summaryPeriods[defaults[.summaryPeriod]]
