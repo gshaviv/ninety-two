@@ -58,17 +58,23 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     }
 
     var isTriggerd = false
-    func updateTime() {
+    var repeater: Repeater?
+    func updateAgo() {
         if let current = points.first {
-            let time = Int(Date().timeIntervalSince(current.date)/60)
-            agoLabel.text = time == 0 ? "Now" : "\(time)m"
+            let time = Int(Date() - current.date)
+            agoLabel.text = "\(time / 60):\(time % 60 % ".02ld")"
         }
+    }
+    func updateTime() {
         if !isTriggerd {
             isTriggerd = true
-            DispatchQueue.main.after(withDelay: 20) {
+            repeater = Repeater.every(1, queue: DispatchQueue.main, perform: { (_) in
+                self.updateAgo()
+            })
+            DispatchQueue.main.after(withDelay: 10) {
                 self.isTriggerd = false
                 if self.view.window != nil {
-                    self.widgetPerformUpdate(completionHandler: { (_) in
+                    self.widgetPerformUpdate(completionHandler: { (result) in
 
                     })
                 }

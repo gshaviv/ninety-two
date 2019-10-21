@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E401514E22FA02FC00ACCF84 /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
 		E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F1117231029FD00346D0C /* HighPredictionLR.mlmodel */; };
 		E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E40F111D23103B6300346D0C /* LowPredictionLR.mlmodel */; };
@@ -112,6 +111,7 @@
 		E450641F235DA53200F11EEC /* StateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* StateKey.swift */; };
 		E4506422235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.h in Headers */ = {isa = PBXBuildFile; fileRef = E4506420235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.h */; };
 		E4506423235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.m in Sources */ = {isa = PBXBuildFile; fileRef = E4506421235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.m */; };
+		E4506425235DDA1300F11EEC /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E4519E0D23509EB700002871 /* TrendSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4519E0C23509EB700002871 /* TrendSymbol.swift */; };
 		E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4519E0C23509EB700002871 /* TrendSymbol.swift */; };
 		E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
@@ -1317,6 +1317,7 @@
 				E48B2D5F21F6109C001B19EB /* Record.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
+				E4506425235DDA1300F11EEC /* Repeater.swift in Sources */,
 				E4922A2D2202059E004CABB8 /* KVO.swift in Sources */,
 				E450641F235DA53200F11EEC /* StateKey.swift in Sources */,
 				E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */,
@@ -1417,7 +1418,6 @@
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E4D8A91B2310073E00895767 /* Predictor.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
-				E40021BA21D7BA6C001AB34D /* Repeater.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
 				E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */,
 				E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */,
