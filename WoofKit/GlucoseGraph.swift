@@ -145,6 +145,7 @@ public class GlucoseGraph: UIView {
                 contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
                 setNeedsLayout()
             }
+            setNeedsDisplay()
         }
     }
     public var records: [Record] = [] {
@@ -182,6 +183,31 @@ public class GlucoseGraph: UIView {
 
     public var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
 
+    override public func layoutSubviews() {
+        super.layoutSubviews()
+        contentView.setNeedsDisplay()
+        xAxis.setNeedsDisplay()
+        yAxis.setNeedsDisplay()
+    }
+    
+    public override func setNeedsDisplay() {
+        super.setNeedsDisplay()
+        if contentView != nil {
+            contentView.setNeedsDisplay()
+            xAxis.setNeedsDisplay()
+            yAxis.setNeedsDisplay()
+        }
+    }
+    
+    public override func setNeedsLayout() {
+        super.setNeedsLayout()
+        if contentView != nil {
+            contentView.setNeedsDisplay()
+            xAxis.setNeedsDisplay()
+            yAxis.setNeedsDisplay()
+        }
+    }
+    
     private func drawContent(_ rect: CGRect) {
         let colors = [(defaults[.level0], defaults[.color0]),
                       (defaults[.level1], defaults[.color1]),
