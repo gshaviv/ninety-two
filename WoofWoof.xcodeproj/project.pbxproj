@@ -108,14 +108,17 @@
 		E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */; };
 		E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */; };
 		E44F98DD22455E5900C51411 /* AkimaInterpolator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */; };
+		E450641E235DA52100F11EEC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
+		E450641F235DA53200F11EEC /* StateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* StateKey.swift */; };
+		E4506422235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.h in Headers */ = {isa = PBXBuildFile; fileRef = E4506420235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.h */; };
+		E4506423235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.m in Sources */ = {isa = PBXBuildFile; fileRef = E4506421235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.m */; };
 		E4519E0D23509EB700002871 /* TrendSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4519E0C23509EB700002871 /* TrendSymbol.swift */; };
 		E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4519E0C23509EB700002871 /* TrendSymbol.swift */; };
 		E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
-		E4832310235718C50082E9F1 /* WCKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* WCKey.swift */; };
-		E4832311235718C50082E9F1 /* WCKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* WCKey.swift */; };
+		E4832311235718C50082E9F1 /* StateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* StateKey.swift */; };
 		E4832315235720290082E9F1 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4832313235720290082E9F1 /* Event.swift */; };
 		E48873FC21F2180700694F6C /* BolusIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */; };
 		E48873FE21F232AE00694F6C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48873FD21F232AE00694F6C /* Storage.swift */; };
@@ -158,7 +161,6 @@
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4D8A91B2310073E00895767 /* Predictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D8A91A2310073E00895767 /* Predictor.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
-		E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */; };
 		E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6521C3F8D300336CE8 /* ViewController.swift */; };
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
 		E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */; };
@@ -412,13 +414,15 @@
 		E44EEC8221E9C58300F966A8 /* SiriIntentUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntentUI.entitlements; sourceTree = "<group>"; };
 		E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBezierPathExtension.swift; sourceTree = "<group>"; };
 		E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AkimaInterpolator.swift; sourceTree = "<group>"; };
+		E4506420235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+DebugPrint.h"; sourceTree = "<group>"; };
+		E4506421235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+DebugPrint.m"; sourceTree = "<group>"; };
 		E4519E0C23509EB700002871 /* TrendSymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendSymbol.swift; sourceTree = "<group>"; };
 		E45907DE21D550FA00B139CF /* GlucoseGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseGraph.swift; sourceTree = "<group>"; };
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "woofWatch Extension.entitlements"; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
-		E483230F235718C50082E9F1 /* WCKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCKey.swift; sourceTree = "<group>"; };
+		E483230F235718C50082E9F1 /* StateKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKey.swift; sourceTree = "<group>"; };
 		E4832313235720290082E9F1 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		E4892B9C2211EC5600A647B8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
@@ -626,6 +630,8 @@
 		E42A294721E886C70084D181 /* WoofKit */ = {
 			isa = PBXGroup;
 			children = (
+				E4506420235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.h */,
+				E4506421235DAF0B00F11EEC /* NSLayoutConstraint+DebugPrint.m */,
 				E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */,
 				E4C4E0C321FC4DC00046D28F /* Scan.swift */,
 				E432763221FAEF4A00A3755F /* words.json */,
@@ -829,7 +835,7 @@
 				E4C18FD0234090B800B1163E /* SummaryView.swift */,
 				E4C18FDB2340E46A00B1163E /* PieChartView.swift */,
 				E4519E0C23509EB700002871 /* TrendSymbol.swift */,
-				E483230F235718C50082E9F1 /* WCKey.swift */,
+				E483230F235718C50082E9F1 /* StateKey.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -849,6 +855,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4506422235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.h in Headers */,
 				E42A294A21E886C70084D181 /* WoofKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1045,7 +1052,7 @@
 					};
 					E42A294521E886C70084D181 = {
 						CreatedOnToolsVersion = 10.1;
-						LastSwiftMigration = 1020;
+						LastSwiftMigration = 1110;
 					};
 					E42E2A9821DF28C5004FD560 = {
 						CreatedOnToolsVersion = 10.1;
@@ -1306,10 +1313,12 @@
 				E42A295221E886F50084D181 /* Extensions.swift in Sources */,
 				E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */,
 				E4922A2C22020536004CABB8 /* Calculation.swift in Sources */,
+				E4506423235DAF0C00F11EEC /* NSLayoutConstraint+DebugPrint.m in Sources */,
 				E48B2D5F21F6109C001B19EB /* Record.swift in Sources */,
 				E42A295521E8872B0084D181 /* GlucoseGraph.swift in Sources */,
 				E42A295721E8874D0084D181 /* UserDefaultsExtensions.swift in Sources */,
 				E4922A2D2202059E004CABB8 /* KVO.swift in Sources */,
+				E450641F235DA53200F11EEC /* StateKey.swift in Sources */,
 				E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */,
 				E417F4AA21E8C95400C6BC9D /* Intents.intentdefinition in Sources */,
 				E42A295321E8872B0084D181 /* DrawingView.swift in Sources */,
@@ -1336,7 +1345,7 @@
 				E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */,
 				E4832315235720290082E9F1 /* Event.swift in Sources */,
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
-				E4832311235718C50082E9F1 /* WCKey.swift in Sources */,
+				E4832311235718C50082E9F1 /* StateKey.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,
 				E412607423425D0100958601 /* SummaryInfo.swift in Sources */,
 				E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */,
@@ -1372,12 +1381,10 @@
 				E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */,
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E44CFFFE223C20CB0022835A /* Meal.swift in Sources */,
-				E4E35A6421C3F8D300336CE8 /* AppDelegate.swift in Sources */,
 				E40F1118231029FE00346D0C /* HighPredictionLR.mlmodel in Sources */,
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
-				E4832310235718C50082E9F1 /* WCKey.swift in Sources */,
 				E4C18FD82340C32A00B1163E /* ColorDefinitions.swift in Sources */,
 				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
@@ -1403,6 +1410,7 @@
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
 				E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
+				E450641E235DA52100F11EEC /* AppDelegate.swift in Sources */,
 				E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */,
 				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
@@ -1677,6 +1685,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1696,6 +1705,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1707,6 +1717,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

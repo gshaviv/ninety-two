@@ -69,7 +69,7 @@ public class GlucoseGraph: UIView {
     private var historyPoints: [GlucoseReading]!
     @IBInspectable public var enableDelete: Bool = false {
         didSet {
-            if enableDelete {
+            if enableDelete && contentView != nil {
                 let long = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
                 long.delegate = self
                 contentView.addGestureRecognizer(long)
@@ -119,14 +119,16 @@ public class GlucoseGraph: UIView {
             yRange.min = max(CGFloat(floor(gmin / 5) * 5), 10)
             yRange.max = max(CGFloat(ceil(gmax / 5) * 5), CGFloat(ceil((prediction?.h50 ?? 0) / 5) * 5))
             contentWidthConstraint?.isActive = false
-            contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
+            if isScrollEnabled {
+                contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
+            }
             setNeedsLayout()
             if showAverage {
                 averageValue = CGFloat(zip(points[0 ..< points.count - 1], points[1 ..< points.count]).map { ($0.1.date - $0.0.date) * ($0.0.value + $0.1.value) }.sum() / (points.last!.date - points.first!.date) / 2.0)
             }
             DispatchQueue.main.async {
-                if !self.contentHolder.isDragging && !self.contentHolder.isDecelerating {
-                    self.contentHolder.contentOffset = CGPoint(x: self.contentHolder.contentSize.width - self.contentHolder.width, y: 0)
+                if let holder = self.contentHolder, !holder.isDragging && !holder.isDecelerating {
+                    holder.contentOffset = CGPoint(x: self.contentHolder.contentSize.width - self.contentHolder.width, y: 0)
                 }
             }
         }
@@ -138,9 +140,11 @@ public class GlucoseGraph: UIView {
     public var dotRadius: CGFloat = 3
     public var xTimeSpan = 6.h {
         didSet {
-            contentWidthConstraint?.isActive = false
-            contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
-            setNeedsLayout()
+            if isScrollEnabled {
+                contentWidthConstraint?.isActive = false
+                contentWidthConstraint = (contentView[.width] == self[.width] * CGFloat((xRange.max - xRange.min) / xTimeSpan))
+                setNeedsLayout()
+            }
         }
     }
     public var records: [Record] = [] {
@@ -742,7 +746,7 @@ public class GlucoseGraph: UIView {
             self?.drawContent(rect)
         }
         contentView.backgroundColor = .clear
-
+        
         if isScrollEnabled {
             contentHolder = UIScrollView(frame: .zero)
             contentHolder.translatesAutoresizingMaskIntoConstraints = false
@@ -753,8 +757,7 @@ public class GlucoseGraph: UIView {
                 contentHolder[.top] == self[.top]
                 contentHolder[.left] == self[.left]
                 self[.bottom] == contentHolder[.bottom] + xAxisHeight
-                contentHolder[.right] == self[.right] - 40 ~ 900
-
+                
                 contentView[.top] == contentHolder[.top]
                 contentView[.bottom] == contentHolder[.bottom]
                 contentView[.left] == contentHolder[.left]
@@ -766,54 +769,77 @@ public class GlucoseGraph: UIView {
             makeConstraints {
                 contentView[.top] == self[.top]
                 contentView[.left] == self[.left]
-                contentView[.right] == self[.right] - 40
-                contentView[.height] == self[.height] - xAxisHeight
+                contentView[.bottom] == self[.bottom] - xAxisHeight
             }
         }
-
-        xAxisHolder = UIScrollView(frame: .zero)
-        xAxisHolder.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(xAxisHolder)
-        xAxisHolder.isScrollEnabled = false
-        makeConstraints {
-            xAxisHolder[.left] == self[.left]
-            self[.right] == xAxisHolder[.right] + 40
-            xAxisHolder[.bottom] == self[.bottom]
-            xAxisHolder[.height] == xAxisHeight
+        
+        if isScrollEnabled {
+            xAxisHolder = UIScrollView(frame: .zero)
+            xAxisHolder.translatesAutoresizingMaskIntoConstraints = false
+            addSubview(xAxisHolder)
+            xAxisHolder.isScrollEnabled = false
+            makeConstraints {
+                xAxisHolder[.left] == self[.left]
+                self[.right] == xAxisHolder[.right] + 40
+                xAxisHolder[.bottom] == self[.bottom]
+                xAxisHolder[.height] == xAxisHeight
+            }
         }
-
+        
         xAxis = DrawingView { [weak self] (rect) in
             self?.drawXAxis(rect)
         }
         xAxis.backgroundColor = .clear
-        xAxisHolder.addSubview(xAxis)
-        makeConstraints {
-            xAxis[.top] == xAxisHolder[.top]
-            xAxis[.bottom] == xAxisHolder[.bottom]
-            xAxis[.left] == xAxisHolder[.left]
-            xAxis[.right] == xAxisHolder[.right]
-            xAxis[.height] == xAxisHeight
-            xAxis[.width] == contentView[.width]
+        if isScrollEnabled {
+            xAxisHolder.addSubview(xAxis)
+            makeConstraints {
+                xAxis[.top] == xAxisHolder[.top]
+                xAxis[.bottom] == xAxisHolder[.bottom]
+                xAxis[.left] == xAxisHolder[.left]
+                xAxis[.right] == xAxisHolder[.right]
+                xAxis[.height] == xAxisHeight
+                xAxis[.width] == contentView[.width]
+            }
+        } else {
+            self.addSubview(xAxis)
+            makeConstraints {
+                xAxis[.bottom] == self[.bottom]
+                xAxis[.left] == self[.left]
+                xAxis[.height] == xAxisHeight
+                xAxis[.width] == contentView[.width]
+            }
+            
         }
-
+        
         yAxis = DrawingView { [weak self] (rect) in
             self?.drawYAxis(rect)
         }
         yAxis.backgroundColor = .clear
         addSubview(yAxis)
         makeConstraints {
-            yAxis[.top] == self.contentHolder[.top]
-            yAxis[.left] == self.contentHolder[.right]
+            if isScrollEnabled {
+                yAxis[.left] == self.contentHolder[.right]
+            } else {
+                yAxis[.left] == self.contentView[.right]
+            }
+            yAxis[.width] == 40
+            yAxis[.top] == self[.top]
             yAxis[.bottom] == self[.bottom]
             yAxis[.right] == self[.right]
         }
-
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         contentView.addGestureRecognizer(tap)
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
         tap.require(toFail: doubleTap)
         contentView.addGestureRecognizer(doubleTap)
+        
+        if enableDelete {
+            let long = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
+            long.delegate = self
+            contentView.addGestureRecognizer(long)
+        }
     }
 
     override init(frame: CGRect) {
@@ -823,6 +849,10 @@ public class GlucoseGraph: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+    
+    public override func awakeFromNib() {
+        super.awakeFromNib()
         commonInit()
     }
 

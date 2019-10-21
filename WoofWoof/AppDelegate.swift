@@ -614,10 +614,10 @@ extension AppDelegate: MiaoMiaoDelegate {
                 log("\(current.value % ".02lf")\(trendSymbol(for: currentTrend)) \(trend > 0 ? "+" : "")\(trend % ".02lf")")
             }
             if let sharedDb = self.sharedDb {
-            DispatchQueue.global().async {
-                var error: NSError?
+                DispatchQueue.global().async {
+                    var error: NSError?
                     self.coordinator.coordinate(writingItemAt: sharedDbUrl, options: [], error: &error, byAccessor: { (_) in
-                    do {
+                        do {
                             try sharedDb.transaction { db in
                                 try? db.execute("delete from \(GlucosePoint.tableName)")
                                 let now = Date()
@@ -625,29 +625,29 @@ extension AppDelegate: MiaoMiaoDelegate {
                                     relevant.forEach { db.evaluate($0.insert()) }
                                 }
                             }
-                    } catch {}
-                })
+                        } catch {}
+                    })
+                }
             }
-
             if let trend = currentTrend {
                 switch current.value {
                 case ...defaults[.lowAlertLevel] where !didAlertEvent && trend < -0.25:
                     showAlert(title: "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
-
+                    
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
                     showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
-
+                    
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
                     defaults[.lastEventAlertTime] = nil
-
+                    
                 default:
                     break
                 }
             }
             if WCSession.default.activationState == .activated {
                 if WCSession.default.isReachable {
-                    sendAppState(state)
+                    sendAppState()
                 }
                 var payload: [StateKey: AnyHashable] = [.currentDate: current.date.timeIntervalSince1970]
                 switch current.value {
