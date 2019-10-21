@@ -310,7 +310,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let trend = inputTrend ?? currentTrend else {
             return ""
         }
-        return WoofWoof.trendSymbol(for: trend)
+        return WoofKit.trendSymbol(for: trend)
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {

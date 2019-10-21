@@ -86,23 +86,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         super.awakeFromNib()
         coordinator = NSFileCoordinator(filePresenter: self)
     }
-    func trendSymbol(for trend: Double) -> String {
-        if trend > 2.8 {
-            return "⇈"
-        } else if trend > 1.4 {
-            return "↑"
-        } else if trend > 0.5 {
-            return "↗︎"
-        } else if trend > -0.5 {
-            return "→"
-        } else if trend > -1.4 {
-            return "↘︎"
-        } else if trend > -2.8 {
-            return "↓"
-        } else {
-            return "⇊"
-        }
-    }
+    
 
     
     override func viewDidLoad() {
