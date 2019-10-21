@@ -203,7 +203,7 @@ extension ExtensionDelegate {
     }
     static public func replyHandler(_ info_in: [String:Any]) {
         DispatchQueue.global().async {
-            let info = info_in.withWCKeys()
+            let info = info_in.withStateKeys()
             self.processSummary(from: info)
             self.processDefaults(from: info)
             guard let m = info[.measurements] as? [[Double]] else {
@@ -238,7 +238,7 @@ extension ExtensionDelegate {
         }
     }
     
-    fileprivate static func processDefaults(from message: [WCKey:Any]) {
+    fileprivate static func processDefaults(from message: [StateKey:Any]) {
         if let dflt = message[.defaults] as? [String: Any] {
             dflt.forEach {
                 switch $0.value {
@@ -255,7 +255,7 @@ extension ExtensionDelegate {
         }
     }
     
-    fileprivate static func processSummary(from message: [WCKey:Any]) {
+    fileprivate static func processSummary(from message: [StateKey:Any]) {
         if let sumStr = message[.summary] as? String, let data = sumStr.data(using: .utf8) {
             do {
                 let sumData = try JSONDecoder().decode(Summary.self, from: data)
@@ -278,7 +278,7 @@ extension ExtensionDelegate: WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
-        if  let v = userInfo[key(.complication)] as? String {
+        if  let v = userInfo.withStateKeys()[.complication] as? String {
             DispatchQueue.main.async {
                 self.complicationState = DisplayValue(date: Date(), string: v)
             }
@@ -292,7 +292,7 @@ extension ExtensionDelegate: WCSessionDelegate {
 
     
     func session(_ session: WCSession, didReceiveMessage info: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        let message = info.withWCKeys()
+        let message = info.withStateKeys()
         ExtensionDelegate.processDefaults(from: message)
         ExtensionDelegate.processSummary(from: message)
         replyHandler(["ok": true])

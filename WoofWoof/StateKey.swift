@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum WCKey: String {
+public enum StateKey: String {
     case measurements = "v"
     case trendValue = "t"
     case trendSymbol = "s"
@@ -21,12 +21,8 @@ enum WCKey: String {
     case currentDate = "d"
 }
 
-func key(_ key: WCKey) -> String {
-    key.rawValue
-}
-
-extension Dictionary where Key == WCKey {
-    func withStringKeys() -> [String:Value] {
+extension Dictionary where Key == StateKey {
+    public func withStringKeys() -> [String:Value] {
         reduce(into: [:]) { result, x in
             result[x.key.rawValue] = x.value
         }
@@ -34,9 +30,9 @@ extension Dictionary where Key == WCKey {
 }
 
 extension Dictionary where Key == String {
-    func withWCKeys() -> [WCKey:Value] {
+    public func withStateKeys() -> [StateKey:Value] {
         reduce(into: [:]) { result, x in
-            guard let k = WCKey(rawValue: x.key) else {
+            guard let k = StateKey(rawValue: x.key) else {
                 return
             }
             result[k] = x.value
