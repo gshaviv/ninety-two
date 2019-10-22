@@ -306,13 +306,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return (trend[0].value - trend[base].value) / (trend[0].date - trend[base].date) * 60
     }
 
-    func trendSymbol(for inputTrend: Double? = nil) -> String {
-        guard let trend = inputTrend ?? currentTrend else {
-            return ""
-        }
-        return WoofKit.trendSymbol(for: trend)
-    }
-
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         guard let nav = window?.rootViewController as? UINavigationController, let ctr = nav.viewControllers.first as? ViewController else {
             return false
@@ -386,8 +379,7 @@ extension AppDelegate: WCSessionDelegate {
         let events = Storage.default.allEntries.filter { $0.bolus > 0 && $0.date > when }.map { [$0.date.timeIntervalSince1970, Double($0.bolus)] }
         var state:[StateKey:AnyHashable] = [
             .measurements: points,
-            .trendValue: currentTrend ?? 0,
-            .trendSymbol: trendSymbol(),
+            .change: currentTrend ?? 0,
             .sensorStart: defaults[.sensorBegin] ?? Date(),
             .battery: MiaoMiao.batteryLevel,
             .complication: complicationState,
@@ -611,7 +603,7 @@ extension AppDelegate: MiaoMiaoDelegate {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
             if let trend = currentTrend {
-                log("\(current.value % ".02lf")\(trendSymbol(for: currentTrend)) \(trend > 0 ? "+" : "")\(trend % ".02lf")")
+                log("\(current.value % ".02lf")\(trendSymbol(for: trend)) \(trend > 0 ? "+" : "")\(trend % ".02lf")")
             }
             if let sharedDb = self.sharedDb {
                 DispatchQueue.global().async {

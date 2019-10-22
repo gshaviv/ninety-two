@@ -184,23 +184,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 }
 
 extension ExtensionDelegate {
-    private static func trendSymbol(for trend: Double) -> String {
-         if trend > 2.0 {
-            return "⇈"
-        } else if trend > 1.0 {
-            return "↑"
-        } else if trend > 0.33 {
-            return "↗︎"
-        } else if trend > -0.33 {
-            return "→"
-        } else if trend > -1.0 {
-            return "↘︎"
-        } else if trend > -2.0 {
-            return "↓"
-        } else {
-            return "⇊"
-        }
-    }
     static public func replyHandler(_ info_in: [String:Any]) {
         DispatchQueue.global().async {
             let info = info_in.withStateKeys()
@@ -212,7 +195,7 @@ extension ExtensionDelegate {
                 }
                 return
             }
-            let t = info[.trendValue] as? Double ?? appState.data.trendValue
+            let t = info[.change] as? Double ?? appState.data.trendValue
             let s = trendSymbol(for: t)
             let events = (info[.events] as? [[Double]])?.map { Event(date: $0[0], bolus: $0[1]) } ?? appState.data.events
             let begin = info[.sensorStart] as? Date ?? appState.data.sensorBegin

@@ -176,8 +176,7 @@ class ViewController: UIViewController {
         } else {
             logError("no last?")
         }
-        let trend = trendValue()
-        if let current = MiaoMiao.currentGlucose {
+        if let trend = trendValue(), let current = MiaoMiao.currentGlucose {
             let levelStr = current.value > 70 ? current.value % ".0lf" : current.value % ".1lf"
             currentGlucoseLabel.text = "\(levelStr)\(trendSymbol(for: trend))"
             updateTimeAgo()
@@ -214,7 +213,7 @@ class ViewController: UIViewController {
         default:
             sensorAgeLabel.textColor = .secondaryLabel
         }
-        if let trend = trend {
+        if let trend = trendValue() {
             trendLabel.text = String(format: "%@%.1lf", trend > 0 ? "+" : "", trend)
         } else {
             trendLabel.text = ""
@@ -710,9 +709,9 @@ class ViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (_) in
-            if let text = alert.textFields![0].text, let bg = Double(text), bg > 65 && bg < 185 {
+            if let text = alert.textFields![0].text, let bg = Double(text), bg > 65 && bg < 185, let trend = self.trendValue() {
                 MiaoMiao.addCalibration(value: bg)
-                self.currentGlucoseLabel.text = "\(Int(round(bg)))\(self.trendSymbol(for: self.trendValue()))"
+                self.currentGlucoseLabel.text = "\(Int(round(bg)))\(trendSymbol(for: trend))"
             }
         }))
         present(alert, animated: true, completion: nil)
@@ -730,10 +729,6 @@ class ViewController: UIViewController {
 
     private func trendValue() -> Double? {
         return UIApplication.theDelegate.trendCalculator.value
-    }
-
-    private func trendSymbol(for trend: Double?) -> String {
-        return UIApplication.theDelegate.trendSymbol(for: trend)
     }
 
     override func viewDidAppear(_ animated: Bool) {

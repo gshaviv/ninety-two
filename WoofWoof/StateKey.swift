@@ -10,8 +10,8 @@ import Foundation
 
 public enum StateKey: String {
     case measurements = "v"
-    case trendValue = "t"
-    case trendSymbol = "s"
+    case change = "t"
+    case symbol = "s"
     case sensorStart = "q"
     case complication = "c"
     case battery = "b"
