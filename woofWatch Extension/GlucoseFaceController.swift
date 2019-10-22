@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
-
+import WatchConnectivity
 
 class GlucoseFaceController: WKHostingController<AnyView> {
     var observer: AnyCancellable?
@@ -29,6 +29,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         makeTimer()
         addMenuItem(with: UIImage(systemName: "chart.pie.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Summary", action: #selector(showSummary))
         addMenuItem(with: UIImage(systemName: "eyedropper", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Calibrate", action: #selector(calibrate))
+         addMenuItem(with: UIImage(systemName: "arrow.clockwise", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Reload", action: #selector(reload))
     }
     
     private func makeTimer() {
@@ -65,5 +66,16 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     @objc func calibrate() {
         presentController(withName: "calibrate", context: nil)
+    }
+    
+    @objc func reload() {
+        appState.state = .sending
+        WCSession.default.sendMessage(["op":["fullState","defaults","summary"]], replyHandler: { (info) in
+            DispatchQueue.main.async {
+                ExtensionDelegate.replyHandler(info)
+            }
+        }) { (_) in
+            appState.state = .error
+        }
     }
 }
