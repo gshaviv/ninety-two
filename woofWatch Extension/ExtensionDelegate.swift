@@ -19,7 +19,11 @@ extension WKExtension {
 struct StateData: Equatable {    
     private(set) var trendValue: Double
     private(set) var trendSymbol: String
-    private(set) var readings:  [GlucosePoint]
+    var readings:  [GlucosePoint] {
+        history + trend
+    }
+    private(set) var trend:[GlucosePoint]
+    private(set) var history:[GlucosePoint]
     private(set) var events: [Event]
     var iob: Double {
         events.iob()
@@ -47,7 +51,7 @@ class AppState: ObservableObject {
         }
     }
     var lastStateChange = Date.distantPast
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", readings: [], events: [],  sensorBegin: Date(), batteryLevel: -1) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", trend: [], history: [], events: [],  sensorBegin: Date(), batteryLevel: -1) {
         didSet {
             self.state = .ready
             if oldValue != data {
@@ -189,7 +193,8 @@ extension ExtensionDelegate {
             let info = info_in.withStateKeys()
             self.processSummary(from: info)
             self.processDefaults(from: info)
-            guard let m = info[.measurements] as? [[Double]] else {
+            guard let m = info[.trend] as? [[Double]] else {
+                WKExtension.extensionDelegate.lastFullState = Date.distantPast
                 DispatchQueue.main.async {
                     appState.state = .ready
                 }
@@ -200,20 +205,37 @@ extension ExtensionDelegate {
             let events = (info[.events] as? [[Double]])?.map { Event(date: $0[0], bolus: $0[1]) } ?? appState.data.events
             let begin = info[.sensorStart] as? Date ?? appState.data.sensorBegin
             let level = info[.battery] as? Int ?? appState.data.batteryLevel
-            let newReadings = m.compactMap { value -> GlucosePoint? in
+            let trend = m.compactMap { value -> GlucosePoint? in
                 guard let d = value.first, let v = value.last else {
                     return nil
                 }
-                return GlucosePoint(date: Date(timeIntervalSince1970: d), value: v)
+                return GlucosePoint(date: Date(timeIntervalSince1970: d), value: v, isTrend: true)
             }
-            let readings: [GlucosePoint]
-            if let first = newReadings.first {
-                readings = appState.data.readings.filter { $0.date > Date() - 3.h - 16.m && $0.date < first.date } + newReadings
+            let newHistory: [GlucosePoint]
+            if let m = info[.history] as? [[Double]] {
+                newHistory = m.compactMap { value -> GlucosePoint? in
+                    guard let d = value.first, let v = value.last else {
+                        return nil
+                    }
+                    return GlucosePoint(date: Date(timeIntervalSince1970: d), value: v)
+                }
             } else {
-                readings = appState.data.readings
+                newHistory = []
+            }
+            let complateHistory: [GlucosePoint]
+            if let first = newHistory.first {
+                complateHistory = appState.data.history.filter { $0.date > Date() - 3.h - 16.m && $0.date < first.date } + newHistory
+            } else {
+                complateHistory = appState.data.history
+            }
+            if let lastHistory = complateHistory.last, let firstTrend = trend.first, lastHistory.date < firstTrend.date - 20.m {
+                WKExtension.extensionDelegate.lastFullState = Date.distantPast
+            }
+            if let firstHistory = complateHistory.first, firstHistory.date > Date() - 2.h {
+                WKExtension.extensionDelegate.lastFullState = Date.distantPast
             }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, readings: readings, events: events,  sensorBegin: begin, batteryLevel: level)
+                appState.data = StateData(trendValue: t, trendSymbol: s, trend: trend, history: complateHistory, events: events,  sensorBegin: begin, batteryLevel: level)
                 if let symbol = info[.complication] as? String,  symbol != WKExtension.extensionDelegate.complicationState.string {
                     WKExtension.extensionDelegate.complicationState = DisplayValue(date: Date(), string: symbol)
                 }

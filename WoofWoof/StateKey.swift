@@ -9,7 +9,6 @@
 import Foundation
 
 public enum StateKey: String {
-    case measurements = "v"
     case change = "t"
     case symbol = "s"
     case sensorStart = "q"
@@ -19,6 +18,8 @@ public enum StateKey: String {
     case summary = "u"
     case defaults = "f"
     case currentDate = "d"
+    case history = "h"
+    case trend = "r"
 }
 
 extension Dictionary where Key == StateKey {

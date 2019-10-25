@@ -91,18 +91,19 @@ struct GraphImage: View {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
-        let p = points.map { (CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))), $0.date) }
+        let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !points.isEmpty {
             let curve = UIBezierPath()
-            curve.interpolate(points: p.map { $0.0 })
+            curve.interpolate(points: p)
             UIColor.black.set()
             curve.lineWidth = lineWidth
             curve.stroke()
             
             UIColor.black.set()
             let fill = UIBezierPath()
-            for (point,date) in p {
-                let r = latest - date > 15.m + 10.s ? dotRadius : trendRadius
+            for gp in points {
+                let r = gp.isTrend ? trendRadius : dotRadius
+                let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
                 fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
             }
             fill.lineWidth = 0
@@ -138,7 +139,7 @@ struct GraphImage: View {
             
             let trect = options.first {
                 let toCheck = $0.insetBy(dx: -5, dy: -5)
-                for (point,_) in p {
+                for point in p {
                     if toCheck.contains(point) {
                         return false
                     }

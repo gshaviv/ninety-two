@@ -99,12 +99,11 @@ public class GlucoseGraph: UIView {
             } else {
                 points = newValue.reversed()
             }
-            let trendBreakoff = Date() - 15.m
             for point in points {
-                if point.date < trendBreakoff {
-                    historyPoints.append(point)
-                } else {
+                if point.isTrend {
                     trendPoints.append(point)
+                } else {
+                    historyPoints.append(point)
                 }
             }
             let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }

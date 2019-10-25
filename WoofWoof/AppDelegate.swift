@@ -146,8 +146,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                               GlucosePoint(date: Date() - 1.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
                               GlucosePoint(date: Date() - 2.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
                               GlucosePoint(date: Date() - 3.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
-                              GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)]
-            MiaoMiao.last24hReadings.append(gp)
+                GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)].reversed()
+            MiaoMiao.last24hReadings = MiaoMiao.last24hReadings.filter { $0.date < MiaoMiao.trend!.first!.date }
             lastHistoryDate = Date()
             DispatchQueue.main.async {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
@@ -374,19 +374,31 @@ extension AppDelegate: WCSessionDelegate {
 
     func appState() -> [StateKey:AnyHashable] {
         let now = Date()
-        let points = MiaoMiao.allReadings.filter { $0.date > now - 3.h - 16.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
+        let lastSent = Date(timeIntervalSince1970: (sent[.history] as? [[Double]])?.last?.first ?? 0.0)
+        let firstTrend = MiaoMiao.trend?.last?.date ?? Date.distantFuture
+        let points = MiaoMiao.last24hReadings.filter { $0.date > now - 3.h - 16.m && $0.date > lastSent && $0.date < firstTrend - 2.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
         let when = Date() - (defaults[.delayMinutes] + defaults[.diaMinutes]) * 60
         let events = Storage.default.allEntries.filter { $0.bolus > 0 && $0.date > when }.map { [$0.date.timeIntervalSince1970, Double($0.bolus)] }
         var state:[StateKey:AnyHashable] = [
-            .measurements: points,
             .change: currentTrend ?? 0,
             .sensorStart: defaults[.sensorBegin] ?? Date(),
             .battery: MiaoMiao.batteryLevel,
             .complication: complicationState,
             .events: events
         ]
-        if points.isEmpty {
-            state[.measurements] = nil
+        var trendToSend = [GlucosePoint]()
+        var last = Date.distantFuture
+        for point in MiaoMiao.trend ?? [] {
+            if point.date < last {
+                last = point.date - (2⁚30).s
+                trendToSend.insert(point, at: 0)
+            }
+        }
+        if !trendToSend.isEmpty {
+        state[.trend] = trendToSend.map { [$0.date.timeIntervalSince1970, $0.value ]}
+        }
+        if !points.isEmpty {
+            state[.history] = points
         }
         let watchDefaults = [
             UserDefaults.DoubleKey.level0.key, UserDefaults.ColorKey.color0.key,
@@ -515,7 +527,7 @@ extension AppDelegate: WCSessionDelegate {
                 case "fullState":
                     self.markSendState()
                     self.sentQueue.sync {
-                        for k in [StateKey.measurements,StateKey.battery,StateKey.sensorStart, StateKey.events] {
+                        for k in [StateKey.history, StateKey.trend, StateKey.battery, StateKey.sensorStart, StateKey.events] {
                             self.sent[k] = nil
                         }
                     }

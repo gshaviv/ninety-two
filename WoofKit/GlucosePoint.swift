@@ -15,6 +15,7 @@ public protocol GlucoseReading {
     var date: Date { get }
     var value: Double { get }
     var isCalibration: Bool { get }
+    var isTrend: Bool { get }
 }
 
 extension GlucoseReading {
@@ -84,6 +85,10 @@ extension GlucosePoint: Equatable {
 
 
 public struct Calibration: GlucoseReading {
+    public var isTrend: Bool {
+        return false
+    }
+    
     public var isCalibration: Bool {
         return true
     }
@@ -124,6 +129,10 @@ extension Calibration: Sqlable {
 #endif
 
 public struct ManualMeasurement: GlucoseReading {
+    public var isTrend: Bool {
+        return false
+    }
+    
     public let date: Date
     public let value: Double
 

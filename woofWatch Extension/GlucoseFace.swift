@@ -102,57 +102,62 @@ extension View {
 
 #if DEBUG
 struct GlucoseFace_Previews: PreviewProvider {
-    static func GenerateReadings() -> [GlucosePoint] {
-        var readings = [GlucosePoint]()
+    static func GenerateReadings() -> (trend:[GlucosePoint], history:[GlucosePoint]) {
+        var history = [GlucosePoint]()
+        var trend = [GlucosePoint]()
         var value = Double.random(in: 70 ... 180)
         var when = Date() - 1.m - 30.s
-        var trend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
+        var valueTrend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
         for _ in 0 ..< 5 {
-            readings.insert(GlucosePoint(date: when, value: value), at: 0)
+            trend.insert(GlucosePoint(date: when, value: value), at: 0)
             when -= 3.m
             if value > 180.0 {
-                trend = -1.0
+                valueTrend = -1.0
             } else if value < 75.0 {
-                trend = 1.0
+                valueTrend = 1.0
             }
-            value += trend * Double.random(in: 0 ... 2)
+            value += valueTrend * Double.random(in: 0 ... 2)
         }
         for _ in 0 ..< 12 {
-            readings.insert(GlucosePoint(date: when, value: value), at: 0)
+            history.insert(GlucosePoint(date: when, value: value), at: 0)
             when -= 15.m
             if value > 180.0 {
-                trend = -1.0
+                valueTrend = -1.0
             } else if value < 75.0 {
-                trend = 1.0
+                valueTrend = 1.0
             }
-            value += trend * Double.random(in: 1 ... 10)
+            value += valueTrend * Double.random(in: 1 ... 10)
         }
-        return readings
+        return (trend, history)
     }
     
     static let testState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 6)],  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
+        let readings = GenerateReadings()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 6)],  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
         return state
     }()
     
     static let errorState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
+        let readings = GenerateReadings()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
         state.state = .error
         return state
     }()
     
     static let sendingState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [], sensorBegin: Date() - 14.d, batteryLevel: 60)
+        let readings = GenerateReadings()
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d, batteryLevel: 60)
         state.state = .sending
         return state
     }()
     
     static let snapshotState: AppState = {
         let state = AppState()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", readings: GenerateReadings(), events: [], sensorBegin: Date() - 14.d, batteryLevel: 30)
+        let readings = GenerateReadings()
+       state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d, batteryLevel: 30)
         state.state = .snapshot
         return state
     }()
