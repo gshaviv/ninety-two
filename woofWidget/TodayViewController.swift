@@ -66,8 +66,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         }
     }
     func updateTime() {
+        self.updateAgo()
         if repeater == nil {
-            self.updateAgo()
             repeater = Repeater.every(1, queue: DispatchQueue.main, perform: { (_) in
                 self.updateAgo()
             })
@@ -110,6 +110,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         super.viewDidLoad()
         extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         repeater = nil
+        updateAgo()
     }
         
     func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {

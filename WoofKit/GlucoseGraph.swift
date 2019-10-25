@@ -99,8 +99,8 @@ public class GlucoseGraph: UIView {
             } else {
                 points = newValue.reversed()
             }
-            for point in points {
-                if point.isTrend {
+            for (idx,point) in points.enumerated() {
+                if point.isTrend || (idx > 0 && point.date - points[idx-1].date < 5.m) {
                     trendPoints.append(point)
                 } else {
                     historyPoints.append(point)
