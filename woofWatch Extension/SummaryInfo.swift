@@ -243,7 +243,7 @@ class SummaryInfo: ObservableObject {
                 let a1c9 = 3.15 + 0.02505 * aveG
                 let a1cValues = [a1c, a1c2, a1c3, a1c4, a1c5, a1c6, a1c7, a1c8, a1c9].sorted()
                 let a1cMed = a1cValues.median()
-                let ea1c = Summary.EA1C(value: a1cMed, range: min(a1cValues.percentile(0.75) - a1cMed, a1cMed - a1cValues.percentile(0.25)), cgm: a1c, seven: a1c3, tir: a1c4)
+                let ea1c = Summary.EA1C(value: a1cMed, range: max(a1cValues.percentile(0.75) - a1cMed, a1cMed - a1cValues.percentile(0.25)), cgm: a1c, seven: a1c3, tir: a1c4)
                 DispatchQueue.main.async {
                     let rangeTime = Summary.TimeInRange(low: timeBelow, inRange: totalT - timeBelow - timeAbove, high: timeAbove)
                     let lows = Summary.Low(count: lowCount, median: medianLowTime)
