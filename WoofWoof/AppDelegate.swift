@@ -376,7 +376,7 @@ extension AppDelegate: WCSessionDelegate {
         let now = Date()
         let lastSent = Date(timeIntervalSince1970: (sent[.history] as? [[Double]])?.last?.first ?? 0.0)
         let firstTrend = MiaoMiao.trend?.last?.date ?? Date.distantFuture
-        let points = MiaoMiao.last24hReadings.filter { $0.date > now - 3.h - 16.m && $0.date > lastSent && $0.date < firstTrend - 2.m && !$0.isCalibration }.map { [$0.date.timeIntervalSince1970, $0.value] }
+        let points = MiaoMiao.last24hReadings.filter { $0.date > now - 3.h - 16.m && $0.date > lastSent && $0.date < firstTrend - 2.m && $0.type == .history }.map { [$0.date.timeIntervalSince1970, $0.value] }
         let when = Date() - (defaults[.delayMinutes] + defaults[.diaMinutes]) * 60
         let events = Storage.default.allEntries.filter { $0.bolus > 0 && $0.date > when }.map { [$0.date.timeIntervalSince1970, Double($0.bolus)] }
         var state:[StateKey:AnyHashable] = [
@@ -625,7 +625,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                             try sharedDb.transaction { db in
                                 try? db.execute("delete from \(GlucosePoint.tableName)")
                                 let now = Date()
-                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && !$0.isCalibration }) as? [GlucosePoint] {
+                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && $0.type != .calibration }) as? [GlucosePoint] {
                                     relevant.forEach { db.evaluate($0.insert()) }
                                 }
                             }

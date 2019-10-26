@@ -100,7 +100,7 @@ public class GlucoseGraph: UIView {
                 points = newValue.reversed()
             }
             for (idx,point) in points.enumerated() {
-                if point.isTrend || (idx > 0 && point.date - points[idx-1].date < 5.m) {
+                if point.type == .trend || (idx > 0 && point.date - points[idx-1].date < 5.m && point.type == .history) {
                     trendPoints.append(point)
                 } else {
                     historyPoints.append(point)
@@ -109,7 +109,7 @@ public class GlucoseGraph: UIView {
             let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
             holes = []
             for (idx, gp) in points[1...].enumerated() {
-                if gp.isCalibration {
+                if gp.type == .calibration {
                     holes.append(idx + 1)
                 } else if gp.date - points[idx].date > 1.h + 30.m {
                     holes.append(idx + 1)
@@ -378,7 +378,7 @@ public class GlucoseGraph: UIView {
         }
         let historyPoints = self.historyPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let trendPoints = self.trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
-        let calibrationPoints = self.historyPoints.filter( { $0.isCalibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let calibrationPoints = self.historyPoints.filter( { $0.type == .calibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let all = historyPoints + trendPoints
         let plotter = Plot(points: all)
         if showAverage {

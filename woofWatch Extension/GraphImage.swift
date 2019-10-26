@@ -102,7 +102,7 @@ struct GraphImage: View {
             UIColor.black.set()
             let fill = UIBezierPath()
             for gp in points {
-                let r = gp.isTrend ? trendRadius : dotRadius
+                let r = gp.type == .trend ? trendRadius : dotRadius
                 let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
                 fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
             }

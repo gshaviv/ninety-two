@@ -11,28 +11,27 @@ import Foundation
 import Sqlable
 #endif
 
+public enum ReadingType {
+    case history
+    case calibration
+    case trend
+}
+
 public protocol GlucoseReading {
     var date: Date { get }
     var value: Double { get }
-    var isCalibration: Bool { get }
-    var isTrend: Bool { get }
-}
-
-extension GlucoseReading {
-    public var isCalibration: Bool {
-        return false
-    }
+    var type: ReadingType { get }
 }
 
 public struct GlucosePoint: GlucoseReading {
     public let date: Date
     public let value: Double
-    public let isTrend: Bool
+    public let type: ReadingType
 
     public init(date: Date, value: Double, isTrend: Bool = false) {
         self.date = date
         self.value = value
-        self.isTrend = isTrend
+        self.type = isTrend ? .trend : .history
     }
 }
 
@@ -59,7 +58,7 @@ extension GlucosePoint: Sqlable {
     public init(row: ReadRow) throws {
         date = try row.get(GlucosePoint.date)
         value = try row.get(GlucosePoint.value)
-        isTrend = false
+        type = .history
     }
 }
 #endif
@@ -85,12 +84,8 @@ extension GlucosePoint: Equatable {
 
 
 public struct Calibration: GlucoseReading {
-    public var isTrend: Bool {
-        return false
-    }
-    
-    public var isCalibration: Bool {
-        return true
+    public var type: ReadingType {
+        return .calibration
     }
 
     public let date: Date
@@ -129,8 +124,8 @@ extension Calibration: Sqlable {
 #endif
 
 public struct ManualMeasurement: GlucoseReading {
-    public var isTrend: Bool {
-        return false
+    public var type: ReadingType {
+        .history
     }
     
     public let date: Date
