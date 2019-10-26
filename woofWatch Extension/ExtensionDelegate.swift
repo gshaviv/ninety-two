@@ -191,10 +191,12 @@ extension ExtensionDelegate {
     static public func replyHandler(_ info_in: [String:Any]) {
         DispatchQueue.global().async {
             let info = info_in.withStateKeys()
-            self.processSummary(from: info)
-            self.processDefaults(from: info)
+            var gotSomething = self.processSummary(from: info)
+            gotSomething = self.processDefaults(from: info) || gotSomething
             guard let m = info[.trend] as? [[Double]] else {
-                WKExtension.extensionDelegate.lastFullState = Date.distantPast
+                if !gotSomething {
+                    WKExtension.extensionDelegate.lastFullState = Date.distantPast
+                }
                 DispatchQueue.main.async {
                     appState.state = .ready
                 }
@@ -243,7 +245,7 @@ extension ExtensionDelegate {
         }
     }
     
-    fileprivate static func processDefaults(from message: [StateKey:Any]) {
+    fileprivate static func processDefaults(from message: [StateKey:Any]) -> Bool {
         if let dflt = message[.defaults] as? [String: Any] {
             dflt.forEach {
                 switch $0.value {
@@ -257,18 +259,23 @@ extension ExtensionDelegate {
                     return
                 }
             }
+            return true
         }
+        return false
     }
     
-    fileprivate static func processSummary(from message: [StateKey:Any]) {
+    fileprivate static func processSummary(from message: [StateKey:Any]) -> Bool {
         if let sumStr = message[.summary] as? String, let data = sumStr.data(using: .utf8) {
             do {
                 let sumData = try JSONDecoder().decode(Summary.self, from: data)
                 DispatchQueue.main.async {
                     summary.data = sumData
                 }
-            } catch {}
+                return true
+            } catch {
+            }
         }
+        return false
     }
 }
 
@@ -298,8 +305,8 @@ extension ExtensionDelegate: WCSessionDelegate {
     
     func session(_ session: WCSession, didReceiveMessage info: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         let message = info.withStateKeys()
-        ExtensionDelegate.processDefaults(from: message)
-        ExtensionDelegate.processSummary(from: message)
+        _ = ExtensionDelegate.processDefaults(from: message)
+        _ = ExtensionDelegate.processSummary(from: message)
         replyHandler(["ok": true])
     }
     
