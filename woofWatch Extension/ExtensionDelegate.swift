@@ -191,12 +191,9 @@ extension ExtensionDelegate {
     static public func replyHandler(_ info_in: [String:Any]) {
         DispatchQueue.global().async {
             let info = info_in.withStateKeys()
-            var gotSomething = self.processSummary(from: info)
-            gotSomething = self.processDefaults(from: info) || gotSomething
+            _ = self.processSummary(from: info)
+            _ = self.processDefaults(from: info)
             guard let m = info[.trend] as? [[Double]] else {
-                if !gotSomething {
-                    WKExtension.extensionDelegate.lastFullState = Date.distantPast
-                }
                 DispatchQueue.main.async {
                     appState.state = .ready
                 }
