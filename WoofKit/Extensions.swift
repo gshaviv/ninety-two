@@ -248,6 +248,9 @@ extension Date {
             return diff.m
         }
     }
+    public func isOnSameDay(as date: Date) -> Bool {
+        day == date.day && month == date.month && year == date.year
+    }
 }
 
 extension UIImage {

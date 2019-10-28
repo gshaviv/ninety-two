@@ -35,7 +35,9 @@ class HistoryViewController: UIViewController {
             let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > displayDay - dateRange && GlucosePoint.date < displayDay + dateRange)) ?? []
             readings.forEach {
                 let inBucket = Int(($0.date - $0.date.startOfDay) / 3600.0)
+                if inBucket < buckets.count {
                 buckets[inBucket].append($0.value)
+                }
             }
 
             var p25 = [Double]()
@@ -103,7 +105,11 @@ class HistoryViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
         case let ctr as DatePickerViewController:
-            ctr.startDate = displayDay
+            if displayDay > Date() - 2.d {
+                ctr.startDate = Date() - defaults.summaryPeriod.d
+            } else {
+                ctr.startDate = displayDay
+            }
             ctr.onSelect = {
                 self.displayDay = $0
             }
