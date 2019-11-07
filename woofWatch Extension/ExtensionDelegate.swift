@@ -245,11 +245,15 @@ extension ExtensionDelegate {
     fileprivate static func processDefaults(from message: [StateKey:Any]) -> Bool {
         if let dflt = message[.defaults] as? [String: Any] {
             dflt.forEach {
+                log("Got default: \($0.key) = \($0.value)")
                 switch $0.value {
                 case let v as Double:
                     defaults.set(v, forKey: $0.key)
                     
                 case let v as String:
+                    defaults.set(v, forKey: $0.key)
+                    
+                case let v as Bool:
                     defaults.set(v, forKey: $0.key)
                     
                 default:
@@ -301,9 +305,7 @@ extension ExtensionDelegate: WCSessionDelegate {
 
     
     func session(_ session: WCSession, didReceiveMessage info: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        let message = info.withStateKeys()
-        _ = ExtensionDelegate.processDefaults(from: message)
-        _ = ExtensionDelegate.processSummary(from: message)
+        ExtensionDelegate.replyHandler(info)
         replyHandler(["ok": true])
     }
     

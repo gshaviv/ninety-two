@@ -406,6 +406,14 @@ class ViewController: UIViewController {
             }) {
                 defaults[.watchSleepTime] = $0 * 60 + $1
             }
+            ctr.addGroup("Watch App")
+            ctr.addEnum("Graph Style", count: 2, get: { () -> Int in
+                defaults[.useDarkGraph] ? 1 : 0
+            }, set: {
+                defaults[.useDarkGraph] = $0 == 1
+            }) { 
+                $0 == 0 ? "Light" : "Dark"
+            }
         }
 
         ctr.addGroup("Colors")

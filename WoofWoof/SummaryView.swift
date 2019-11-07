@@ -40,7 +40,7 @@ struct SummaryView: View {
             Text("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")").font(.headline).onTapGesture {
                 self.action.send()
             }
-            BalancedHStack(spacing: 2) {
+            BalancedHStack(spacing: 2, [
                 PieChartView([
                     ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
                     ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
@@ -48,7 +48,7 @@ struct SummaryView: View {
                     ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
                     ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
                     ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
-                ])
+                    ]).asAnyView,
                 VStack {
                     Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
@@ -56,7 +56,7 @@ struct SummaryView: View {
                     Text("\(summary.data.low.count)").value()
                     Text("Med Low").headline()
                     Text(summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60)).value()
-                }
+                }.asAnyView,
                 VStack {
                     Text("In Range").headline()
                     Text("\(summary.data.percentTimeIn.description)%").value()
@@ -64,7 +64,7 @@ struct SummaryView: View {
                     Text("\(summary.data.average % ".1lf")").value()
                     Text("eA1C").headline()
                     Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
-                }
+                }.asAnyView,
                 VStack {
                     Text("Above").headline()
                     Text("\(summary.data.percentTimeAbove.description)%").value()
@@ -72,8 +72,8 @@ struct SummaryView: View {
                     Text("\(summary.data.minLevel % ".0lf") / \(summary.data.maxLevel % ".0lf")").value()
                     Text("TDD").headline()
                     Text("\(summary.data.atdd % ".1lf")").value()
-                }
-            }
+                }.asAnyView
+            ])
         }.padding([.leading, .trailing], 4)
     }
 }

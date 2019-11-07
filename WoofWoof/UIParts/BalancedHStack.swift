@@ -23,6 +23,11 @@ struct BalancedHStack: View {
         }
     }
     
+    public init(alignment: VerticalAlignment = .center, spacing: CGFloat = 0, _ views: [AnyView]) {
+        self.views = views
+        self.alignment = alignment
+        self.spacing = spacing
+    }
     
     public init<Data: RandomAccessCollection,  Content: View>(_ data: Data, alignment: VerticalAlignment = .center, spacing: CGFloat = 0, @ViewBuilder content: (Data.Element) -> Content) {
         self.alignment = alignment

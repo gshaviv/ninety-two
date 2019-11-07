@@ -409,7 +409,8 @@ extension AppDelegate: WCSessionDelegate {
             UserDefaults.ColorKey.color5.key,
             UserDefaults.DoubleKey.delayMinutes.key,
             UserDefaults.DoubleKey.peakMinutes.key,
-            UserDefaults.DoubleKey.diaMinutes.key
+            UserDefaults.DoubleKey.diaMinutes.key,
+            UserDefaults.BoolKey.useDarkGraph.key
         ]
         var defaultValues = [String:AnyHashable]()
         for key in watchDefaults {
@@ -440,39 +441,46 @@ extension AppDelegate: WCSessionDelegate {
         return state
     }
     
-    func jsonState(_ state: [StateKey: AnyHashable]) -> String {
-        var jValues = [String]()
-        for (key,value) in state {
-            switch value {
-            case let v as [[Double]]:
-                var outer = [String]()
-                for outerV in v {
-                    var inner = [String]()
-                    for innerV in outerV {
-                        inner.append(innerV.decimal(digits: 2).description)
-                    }
-                    outer.append("[\(inner.joined(separator: ","))]")
-                }
-                jValues.append("\"\(key.rawValue)\":[\(outer.joined(separator: ","))]")
-                
-            case let v as Double:
-                jValues.append("\"\(key.rawValue)\":\(v.decimal(digits: 1))")
-                
-            case let v as String:
-                jValues.append("\"\(key.rawValue)\":\"\(v.replacingOccurrences(of: "\"", with: "\\\""))\"")
-                
-            case let v as Int:
-                jValues.append("\"\(key.rawValue)\":\(v)")
-
-            case let v as Date:
-                jValues.append("\"\(key.rawValue)\":\(v.timeIntervalSince1970.decimal(digits: 0))")
-
-            default:
-                break
-            }
-        }
-        return "{\(jValues.joined(separator: ","))}"
-    }
+//    func jsonState(_ state: [StateKey: AnyHashable]) -> String {
+//        var jValues = [String]()
+//        for (key,value) in state {
+//            switch value {
+//            case let v as [[Double]]:
+//                var outer = [String]()
+//                for outerV in v {
+//                    var inner = [String]()
+//                    for innerV in outerV {
+//                        inner.append(innerV.decimal(digits: 2).description)
+//                    }
+//                    outer.append("[\(inner.joined(separator: ","))]")
+//                }
+//                jValues.append("\"\(key.rawValue)\":[\(outer.joined(separator: ","))]")
+//                
+//            case let v as Double:
+//                jValues.append("\"\(key.rawValue)\":\(v.decimal(digits: 1))")
+//                
+//            case let v as String:
+//                jValues.append("\"\(key.rawValue)\":\"\(v.replacingOccurrences(of: "\"", with: "\\\""))\"")
+//                
+//            case let v as Int:
+//                jValues.append("\"\(key.rawValue)\":\(v)")
+//
+//            case let v as Date:
+//                jValues.append("\"\(key.rawValue)\":\(v.timeIntervalSince1970.decimal(digits: 0))")
+//                
+//            case let v as [String:AnyHashable]:
+//                do {
+//                    let data = try JSONSerialization.data(withJSONObject: v, options: [])
+//                    if let str = String(data: data, encoding: .utf8) {
+//                        jValues.append("\"\(key.rawValue)\":\"\(str.replacingOccurrences(of: "\"", with: "\\\""))\"")
+//                    }
+//                } catch { }
+//            default:
+//                break
+//            }
+//        }
+//        return "{\(jValues.joined(separator: ","))}"
+//    }
     
     func markSent(_ state: [StateKey:AnyHashable]) {
         sentQueue.async {

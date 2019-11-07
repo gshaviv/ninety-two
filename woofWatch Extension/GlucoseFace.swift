@@ -105,9 +105,9 @@ struct GlucoseFace_Previews: PreviewProvider {
     static func GenerateReadings() -> (trend:[GlucosePoint], history:[GlucosePoint]) {
         var history = [GlucosePoint]()
         var trend = [GlucosePoint]()
-        var value = Double.random(in: 70 ... 180)
+        var value = 65.0 // Double.random(in: 70 ... 180)
         var when = Date() - 1.m - 30.s
-        var valueTrend = Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
+        var valueTrend = 1.0 // Double.random(in: 0 ..< 1) > 0.5 ? 1.0 : -1.0
         for _ in 0 ..< 5 {
             trend.insert(GlucosePoint(date: when, value: value), at: 0)
             when -= 3.m

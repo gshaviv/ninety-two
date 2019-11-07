@@ -43,10 +43,19 @@ struct GraphImage: View {
                       defaults[.level2] ... defaults[.level3]: defaults[.color3] ,
                       defaults[.level3] ... defaults[.level4]: defaults[.color4] ,
                       defaults[.level4] ... 999: defaults[.color5] ]
-        let yReference = [35, 40, 50, 60, 70, 80, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
-        let lineWidth:CGFloat = 1.5
-        let dotRadius:CGFloat = 3
-        let trendRadius:CGFloat = 1.5
+        let yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+        let lineWidth:CGFloat
+        let dotRadius:CGFloat
+        let trendRadius:CGFloat
+        if defaults[.useDarkGraph] {
+            lineWidth = 2
+            dotRadius = 4
+            trendRadius = 2
+        } else {
+            lineWidth = 1.5
+            dotRadius = 3
+            trendRadius = 1.5
+        }
         
         let points = data.readings
         let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
@@ -67,18 +76,44 @@ struct GraphImage: View {
         let ctx = UIGraphicsGetCurrentContext()
         let yScale = size.height / (yRange.max - yRange.min)
         let yCoor = { (yRange.max - $0) * yScale }
+        func valueFor(y: CGFloat) -> Double {
+            Double(y / yScale + yRange.min)
+        }
         let xScale = size.width / CGFloat(xRange.max - xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - xRange.min) * xScale }
         for (range, color) in colors {
-            color.set()
+            if defaults[.useDarkGraph] {
+                color.withAlphaComponent(0.3).set()
+            } else {
+                color.set()
+            }
             ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
         }
-        UIColor(white: 0.25, alpha: 0.5).set()
         ctx?.beginPath()
+        func colorForValue(_ v: Double) -> UIColor {
+            for (range,color) in colors {
+                if range.contains(v) {
+                    return color
+                }
+            }
+            return UIColor.black
+        }
+        if !defaults[.useDarkGraph] {
+            UIColor(white: 0.25, alpha: 0.5).set()
+        } else {
+            UIColor(white: 0.5, alpha: 1).set()
+        }
         for y in yReference {
             let yc = yCoor(CGFloat(y))
-            ctx?.move(to: CGPoint(x: 0, y: yc))
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12, weight: .light),
+                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
+            let styled = NSAttributedString(string: "\(y)", attributes: attrib)
+            let tsize = styled.size()
+            ctx?.move(to: CGPoint(x: tsize.width + 8, y: yc))
             ctx?.addLine(to: CGPoint(x: size.width, y: yc))
+            ctx?.strokePath()
+            let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
+            styled.draw(in: trect)
         }
         var components = xRange.min.components
         components.second = 0
@@ -91,23 +126,59 @@ struct GraphImage: View {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
-        let p = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let p = points.map { CGPoint(x: xCoor($0.date), y: CGFloat($0.value)) }
+        let pd = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !points.isEmpty {
-            let curve = UIBezierPath()
-            curve.interpolate(points: p)
-            UIColor.black.set()
-            curve.lineWidth = lineWidth
-            curve.stroke()
-            
-            UIColor.black.set()
-            let fill = UIBezierPath()
-            for gp in points {
-                let r = gp.type == .trend ? trendRadius : dotRadius
-                let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
-                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
+            if defaults[.useDarkGraph] {
+                var curve: UIBezierPath?
+                var last = UIColor.black
+                let akima = AkimaInterpolator(points: p)
+                for x in stride(from: p.first!.x, to: p.last!.x, by: 1) {
+                    let value = akima.interpolateValue(at: x)
+                    let point = CGPoint(x: x, y: yCoor(value))
+                    let current = colorForValue(Double(value))
+                    if current != last {
+                        if let curve = curve {
+                            curve.addLine(to: point)
+                            curve.lineWidth = lineWidth
+                            last.set()
+                            curve.stroke()
+                        }
+                        curve = UIBezierPath()
+                        curve?.move(to: point)
+                    } else {
+                        curve?.addLine(to: point)
+                    }
+                    last = current
+                }
+                if let curve = curve {
+                    curve.lineWidth = lineWidth
+                    last.set()
+                    curve.stroke()
+                }
+                for gp in points {
+                    let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
+                    colorForValue(gp.value).set()
+                    let r = gp.type == .trend ? trendRadius : dotRadius
+                    UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))).fill()
+                }
+            } else {
+                let curve = UIBezierPath()
+                curve.interpolate(points: pd)
+                UIColor.black.set()
+                curve.lineWidth = lineWidth
+                curve.stroke()
+                
+                UIColor.black.set()
+                let fill = UIBezierPath()
+                for gp in points {
+                    let r = gp.type == .trend ? trendRadius : dotRadius
+                    let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
+                    fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
+                }
+                fill.lineWidth = 0
+                fill.fill()
             }
-            fill.lineWidth = 0
-            fill.fill()
         }
         let text: String?
         if state.state == .snapshot {
@@ -125,7 +196,7 @@ struct GraphImage: View {
             let pStyle = NSMutableParagraphStyle()
             pStyle.alignment = .center
             let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .bold),
-                          NSAttributedString.Key.foregroundColor: UIColor(white: 0.1, alpha: 0.7),
+                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7),
                           NSAttributedString.Key.paragraphStyle: pStyle]
             let styled = NSAttributedString(string: text, attributes: attrib)
             let tsize = styled.size()
@@ -139,7 +210,7 @@ struct GraphImage: View {
             
             let trect = options.first {
                 let toCheck = $0.insetBy(dx: -5, dy: -5)
-                for point in p {
+                for point in pd {
                     if toCheck.contains(point) {
                         return false
                     }

@@ -91,6 +91,7 @@ extension UserDefaults {
         case includeMealReport
         case includeDailyReport
         case alertVibrate
+        case useDarkGraph
     }
 
     public func register() {
