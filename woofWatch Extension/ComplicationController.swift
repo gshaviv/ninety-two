@@ -93,6 +93,11 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             t.textProvider = CLKSimpleTextProvider(text: current.string)
             return t
             
+        case .graphicCircular:
+            let t = CLKComplicationTemplateGraphicCircularImage()
+            t.imageProvider = CLKFullColorImageProvider(fullColorImage: current.image)
+            return t
+            
 //        case .graphicCorner:
 //            let t = CLKComplicationTemplateGraphicBezelCircularText()
 //            t.textProvider = CLKSimpleTextProvider(text: current.string)

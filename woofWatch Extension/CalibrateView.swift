@@ -113,7 +113,7 @@ struct CalibrateView: View {
             }.onAppear {
                 WCSession.default.sendMessage(["op":["read"]], replyHandler: { _ in }, errorHandler: { _ in })
             }
-        }
+        }.edgesIgnoringSafeArea([.bottom, .leading, .trailing])
     }
 }
 

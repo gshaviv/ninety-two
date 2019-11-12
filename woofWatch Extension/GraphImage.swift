@@ -83,7 +83,7 @@ struct GraphImage: View {
         let xCoor = { (d: Date) in CGFloat(d - xRange.min) * xScale }
         for (range, color) in colors {
             if defaults[.useDarkGraph] {
-                color.withAlphaComponent(0.3).set()
+                color.withAlphaComponent(0.4).set()
             } else {
                 color.set()
             }
@@ -98,23 +98,41 @@ struct GraphImage: View {
             }
             return UIColor.black
         }
-        if !defaults[.useDarkGraph] {
-            UIColor(white: 0.25, alpha: 0.5).set()
-        } else {
-            UIColor(white: 0.5, alpha: 1).set()
-        }
+       
+        let clip = UIBezierPath()
+        var union = CGRect(origin: .zero, size: size)
+        var lastY:CGFloat = -1
         for y in yReference {
             let yc = yCoor(CGFloat(y))
             let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12, weight: .light),
                           NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
             let styled = NSAttributedString(string: "\(y)", attributes: attrib)
             let tsize = styled.size()
+            if !defaults[.useDarkGraph] {
+                UIColor(white: 0.25, alpha: 0.5).set()
+            } else {
+                UIColor(white: 0.5, alpha: 1).set()
+            }
             ctx?.move(to: CGPoint(x: tsize.width + 8, y: yc))
             ctx?.addLine(to: CGPoint(x: size.width, y: yc))
             ctx?.strokePath()
             let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
-            styled.draw(in: trect)
+            if trect.minY > lastY {
+                if !defaults[.useDarkGraph] {
+                    UIColor(white: 0.25, alpha: 0.75).set()
+                } else {
+                    UIColor(white: 0.5, alpha: 1).set()
+                }
+                styled.draw(in: trect)
+                clip.append(UIBezierPath(rect: trect))
+                union = union.union(trect)
+                lastY = trect.maxY
+            }
         }
+        clip.append(UIBezierPath(rect: union))
+        clip.usesEvenOddFillRule = true
+        ctx?.saveGState()
+        clip.addClip()
         var components = xRange.min.components
         components.second = 0
         components.minute = 0
@@ -126,6 +144,7 @@ struct GraphImage: View {
             xDate += step
         } while xDate < xRange.max
         ctx?.strokePath()
+        ctx?.restoreGState()
         let p = points.map { CGPoint(x: xCoor($0.date), y: CGFloat($0.value)) }
         let pd = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !points.isEmpty {
@@ -201,12 +220,13 @@ struct GraphImage: View {
             let styled = NSAttributedString(string: text, attributes: attrib)
             let tsize = styled.size()
             let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(origin: CGPoint(x: 4, y: 2), size: tsize),
                            CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: size.width - tsize.width - 4, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
                            CGRect(x: size.width - tsize.width - 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)]
+                           CGRect(origin: CGPoint(x: 4, y: 2), size: tsize),
+                           CGRect(x: 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)
+            ]
             
             let trect = options.first {
                 let toCheck = $0.insetBy(dx: -5, dy: -5)
