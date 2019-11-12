@@ -146,7 +146,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                               GlucosePoint(date: Date() - 1.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
                               GlucosePoint(date: Date() - 2.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
                               GlucosePoint(date: Date() - 3.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
-                GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)].reversed()
+                GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)]
             MiaoMiao.last24hReadings = MiaoMiao.last24hReadings.filter { $0.date < MiaoMiao.trend!.first!.date }
             lastHistoryDate = Date()
             DispatchQueue.main.async {

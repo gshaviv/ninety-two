@@ -64,6 +64,9 @@ struct GraphImage: View {
             let mid = floor((yRange.max + yRange.min) / 2)
             yRange = mid > 89 ? (min: max(mid - 20, 70), max: max(mid - 20, 70) + 40) : (min: yRange.min, max: yRange.min + 40)
         }
+        while let p = points.last?.value, p < Double(yRange.max - yRange.min) * 0.18 + Double(yRange.min) {
+            yRange.min -= 5
+        }
         let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
         let maxDate = Date() - latest < 5.m ? latest : Date()
         #if targetEnvironment(simulator)
@@ -101,7 +104,8 @@ struct GraphImage: View {
        
         let clip = UIBezierPath()
         var union = CGRect(origin: .zero, size: size)
-        var lastY:CGFloat = -1
+        var lastY:CGFloat = 999
+
         for y in yReference {
             let yc = yCoor(CGFloat(y))
             let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12, weight: .light),
@@ -117,16 +121,16 @@ struct GraphImage: View {
             ctx?.addLine(to: CGPoint(x: size.width, y: yc))
             ctx?.strokePath()
             let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
-            if trect.minY > lastY {
+            if trect.maxY < lastY {
                 if !defaults[.useDarkGraph] {
                     UIColor(white: 0.25, alpha: 0.75).set()
                 } else {
-                    UIColor(white: 0.5, alpha: 1).set()
+                    UIColor(white: 0.7, alpha: 1).set()
                 }
                 styled.draw(in: trect)
-                clip.append(UIBezierPath(rect: trect))
+                clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 0))))
                 union = union.union(trect)
-                lastY = trect.maxY
+                lastY = trect.minY
             }
         }
         clip.append(UIBezierPath(rect: union))
