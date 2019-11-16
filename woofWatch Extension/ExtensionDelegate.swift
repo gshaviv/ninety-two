@@ -193,6 +193,11 @@ extension ExtensionDelegate {
             let info = info_in.withStateKeys()
             _ = self.processSummary(from: info)
             _ = self.processDefaults(from: info)
+            if let symbol = info[.complication] as? String,  symbol != WKExtension.extensionDelegate.complicationState.string {
+                DispatchQueue.main.async {
+                    WKExtension.extensionDelegate.complicationState = DisplayValue(date: Date(), string: symbol)
+                }
+            }
             guard let m = info[.trend] as? [[Double]] else {
                 DispatchQueue.main.async {
                     appState.state = .ready
@@ -235,9 +240,6 @@ extension ExtensionDelegate {
             }
             DispatchQueue.main.async {
                 appState.data = StateData(trendValue: t, trendSymbol: s, trend: trend, history: complateHistory, events: events,  sensorBegin: begin, batteryLevel: level)
-                if let symbol = info[.complication] as? String,  symbol != WKExtension.extensionDelegate.complicationState.string {
-                    WKExtension.extensionDelegate.complicationState = DisplayValue(date: Date(), string: symbol)
-                }
             }
         }
     }

@@ -127,7 +127,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         #if targetEnvironment(simulator)
         var lastHistoryDate = Date() - 15.m
-        var currentValue = Double.random(in: 80...160)
+        var currentValue = 170.0//Double.random(in: 80...180)
         MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: currentValue))
         var trend = Bool.random() ? -1.0 : 1.0
         
@@ -658,11 +658,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                 }
             }
             if WCSession.default.activationState == .activated {
-                if WCSession.default.isReachable {
-                    sendAppState()
-                }
-                var payload: [StateKey: AnyHashable] = [.currentDate: current.date.timeIntervalSince1970]
-                switch current.value {
+                 switch current.value {
                 case defaults[.maxRange]...:
                     let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                     if current.value > highest {
@@ -681,9 +677,11 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
                 }
                 
-                DispatchQueue.main.async {
-                    if  WCSession.default.isComplicationEnabled && self.complicationState != self.sent[.complication] as? String ?? "!" {
-                        payload[.complication] = self.complicationState
+                if WCSession.default.isReachable {
+                    sendAppState()
+                } else if  WCSession.default.isComplicationEnabled && self.complicationState != self.sent[.complication] as? String ?? "!" {
+                    DispatchQueue.main.async {
+                        let payload: [StateKey: AnyHashable] = [.complication: self.complicationState]
                         self.markSent(payload)
                         WCSession.default.transferCurrentComplicationUserInfo(payload.withStringKeys())
                     }

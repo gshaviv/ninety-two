@@ -17,7 +17,6 @@ public enum StateKey: String {
     case events = "e"
     case summary = "u"
     case defaults = "f"
-    case currentDate = "d"
     case history = "h"
     case trend = "r"
 }
