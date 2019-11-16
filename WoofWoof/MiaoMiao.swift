@@ -395,6 +395,7 @@ class MiaoMiao {
             }
         }
     }
+    private static var wrongFrequencyCount = 0
     public static var trend: [GlucosePoint]? {
         didSet {
             allReadingsCalculater.invalidate()
@@ -402,12 +403,32 @@ class MiaoMiao {
                 DispatchQueue.main.async {
                     UIApplication.shared.applicationIconBadgeNumber = Int(round(current.value))
                 }
-                if current.value < 70 && (shortRefresh == nil || !shortRefresh!) {
-                    shortRefresh = true
-                    Command.send(Code.shortFrequency)
-                } else if current.value > 70 && (shortRefresh == nil || shortRefresh!) {
-                    shortRefresh = false
-                    Command.send(Code.normalFrequency)
+                if current.value < 70 {
+                    if shortRefresh == nil || !shortRefresh! {
+                        shortRefresh = true
+                        Command.send(Code.shortFrequency)
+                    } else if let last = oldValue?.first?.date, abs(abs(last - Date()) - 1.m) > 30.s {
+                        wrongFrequencyCount += 1
+                        if wrongFrequencyCount > 2 {
+                            Command.send(Code.shortFrequency)
+                            wrongFrequencyCount = 0
+                        }
+                    } else {
+                        wrongFrequencyCount = 0
+                    }
+                } else if current.value > 70 {
+                    if shortRefresh == nil || shortRefresh! {
+                        shortRefresh = false
+                        Command.send(Code.normalFrequency)
+                    } else if let last = oldValue?.first?.date, abs(abs(last - Date()) - 3.m) > 30.s {
+                        wrongFrequencyCount += 1
+                        if wrongFrequencyCount > 2 {
+                            Command.send(Code.normalFrequency)
+                            wrongFrequencyCount = 0
+                        }
+                    } else {
+                        wrongFrequencyCount = 0
+                    }
                 }
             } else {
                 DispatchQueue.main.async {
