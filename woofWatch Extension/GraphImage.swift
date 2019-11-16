@@ -86,11 +86,12 @@ struct GraphImage: View {
         let xCoor = { (d: Date) in CGFloat(d - xRange.min) * xScale }
         for (range, color) in colors {
             if defaults[.useDarkGraph] {
-                color.withAlphaComponent(0.4).set()
+                color.darker(by: 60).set()
             } else {
                 color.set()
             }
-            ctx?.fill(CGRect(x: 0.0, y: yCoor(CGFloat(range.upperBound)), width: size.width, height: CGFloat(range.upperBound - range.lowerBound) * yScale))
+            let area = CGRect(x: 0.0, y: floor(yCoor(CGFloat(range.upperBound))), width: size.width, height: ceil(abs(CGFloat(range.upperBound - range.lowerBound) * yScale)))
+            ctx?.fill(area)
         }
         ctx?.beginPath()
         func colorForValue(_ v: Double) -> UIColor {
@@ -104,11 +105,11 @@ struct GraphImage: View {
        
         let clip = UIBezierPath()
         var union = CGRect(origin: .zero, size: size)
-        var lastY:CGFloat = 999
+        var lastY:CGFloat = 0
 
-        for y in yReference {
+        for y in yReference.reversed() {
             let yc = yCoor(CGFloat(y))
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12, weight: .light),
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
                           NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
             let styled = NSAttributedString(string: "\(y)", attributes: attrib)
             let tsize = styled.size()
@@ -121,7 +122,7 @@ struct GraphImage: View {
             ctx?.addLine(to: CGPoint(x: size.width, y: yc))
             ctx?.strokePath()
             let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
-            if trect.maxY < lastY {
+            if trect.minY > lastY {
                 if !defaults[.useDarkGraph] {
                     UIColor(white: 0.25, alpha: 0.75).set()
                 } else {
@@ -130,7 +131,7 @@ struct GraphImage: View {
                 styled.draw(in: trect)
                 clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 0))))
                 union = union.union(trect)
-                lastY = trect.minY
+                lastY = trect.maxY
             }
         }
         clip.append(UIBezierPath(rect: union))
