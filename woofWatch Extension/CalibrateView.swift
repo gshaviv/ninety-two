@@ -82,6 +82,7 @@ struct CalibrateView: View {
     var body: some View {
         GeometryReader { screen in
             VStack(spacing: 2.0) {
+                Spacer(minLength: 21)
                 Text(self.text)
                     .frame(minWidth: screen.size.width, minHeight: 24)
                     .background(Color(red: 0.15, green: 0.15, blue: 0.15)
@@ -116,7 +117,7 @@ struct CalibrateView: View {
             }.onAppear {
                 WCSession.default.sendMessage(["op":["read"]], replyHandler: { _ in }, errorHandler: { _ in })
             }
-        }.edgesIgnoringSafeArea([.bottom, .leading, .trailing])
+        }.edgesIgnoringSafeArea(.all)
     }
 }
 
