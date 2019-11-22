@@ -36,6 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return "-"
         }
         var show: String
+        let lowRange = "✔︎✔︎"
+        let highRange = "✔︎"
         switch current.value {
         case defaults[.maxRange]...:
             let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
@@ -47,7 +49,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             
         case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
-            show = "✔︎"
+            let mid = (defaults[.minRange] + defaults[.maxRange]) / 2
+            if let state = sent[.complication] as? String, state == highRange {
+                show = current.value > mid - 5 ? highRange : lowRange
+            } else if let state = sent[.complication] as? String, state == lowRange {
+                show = current.value < mid + 5 ? lowRange : highRange
+            } else {
+                show = current.value > mid ? highRange : lowRange
+            }
             
         default:
             guard let trend = MiaoMiao.trend else {
@@ -127,12 +136,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         #if targetEnvironment(simulator)
         var lastHistoryDate = Date() - 15.m
-        var currentValue = 170.0//Double.random(in: 80...180)
+        var currentValue = 125.0//Double.random(in: 80...180)
         MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: currentValue))
         var trend = Bool.random() ? -1.0 : 1.0
         
-        updater = Repeater.every(60, perform: { (_) in
-            currentValue += trend * Double.random(in: 0..<3)
+        updater = Repeater.every(5, perform: { (_) in
+            currentValue += trend * Double.random(in: 0..<4)
             if Double.random(in: 0..<1) < 0.2 {
                 trend *= -1
             }
@@ -679,7 +688,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                 
                 if WCSession.default.isReachable {
                     sendAppState()
-                } else if  WCSession.default.isComplicationEnabled && self.complicationState != self.sent[.complication] as? String ?? "!" {
+                } else if  WCSession.default.isComplicationEnabled && self.complicationState != (self.sent[.complication] as? String ?? "") {
                     DispatchQueue.main.async {
                         let payload: [StateKey: AnyHashable] = [.complication: self.complicationState]
                         self.markSent(payload)

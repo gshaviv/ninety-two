@@ -28,6 +28,7 @@ private struct Key: View {
         Text(value)
             .frame(width: self.width, height: self.height)
             .background(Color(red: 0.2, green: 0.2, blue: 0.2))
+        .cornerRadius(3)
             .onTapGesture {
             self.text.wrappedValue +=  self.value
         }
@@ -47,6 +48,7 @@ private struct Delete: View {
         Image(systemName: "delete.left")
             .frame(width: self.width, height: self.height)
             .disabled(text.wrappedValue.isEmpty)
+            .cornerRadius(3)
             .foregroundColor(text.wrappedValue.isEmpty ? Color.secondary : Color.primary)
             .onTapGesture {
                 self.text.wrappedValue = self.text.wrappedValue[0 ..< (self.text.wrappedValue.count - 1)]
@@ -67,6 +69,7 @@ private struct Return: View {
         Image(systemName: "return")
             .disabled(text.wrappedValue.isEmpty)
             .foregroundColor(text.wrappedValue.isEmpty ? Color.secondary : Color.primary)
+            .cornerRadius(3)
             .frame(width: self.width, height: self.height)
 
     }
@@ -80,11 +83,11 @@ struct CalibrateView: View {
         GeometryReader { screen in
             VStack(spacing: 2.0) {
                 Text(self.text)
-                    .frame(minWidth: screen.size.width, minHeight: 36)
+                    .frame(minWidth: screen.size.width, minHeight: 24)
                     .background(Color(red: 0.15, green: 0.15, blue: 0.15)
                         .border(Color.white))
                     .foregroundColor(Color.yellow)
-                    .font(.title)
+                    .font(Font.system(size: 18, weight: .medium))
                 HStack(spacing: 2.0) {
                     Key(1,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
                     Key(2,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
