@@ -228,7 +228,7 @@ struct GraphImage: View {
                            CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: size.width - tsize.width - 4, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: size.width - tsize.width - 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
+                           CGRect(x: size.width - tsize.width - 20, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
                            CGRect(origin: CGPoint(x: 4, y: 2), size: tsize),
                            CGRect(x: 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)
             ]
