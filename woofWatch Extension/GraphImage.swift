@@ -210,7 +210,7 @@ struct GraphImage: View {
         } else if state.data.iob > 0 {
             let ageInHours = Int(data.sensorAge / 1.h)
             text = ageInHours < 24 ? "\(ageInHours)h\n\(state.data.batteryLevel)%" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d\n\(state.data.batteryLevel)%" : "\(ageInHours / 24)d:\(ageInHours % 24)h\n\(state.data.batteryLevel)%"
-        } else if state.data.sensorAge > 10.d {
+        } else if state.data.sensorAge > 7.d {
             let ageInHours = Int(data.sensorAge / 1.h)
             text = ageInHours < 24 ? "\(ageInHours)h" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d" : "\(ageInHours / 24)d:\(ageInHours % 24)h"
         } else {

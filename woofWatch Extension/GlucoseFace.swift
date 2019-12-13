@@ -35,7 +35,7 @@ struct GlucoseFace: View {
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
                     if state.data.iob > 0 {
-                        Text(String(format:"BOB\n%.1lf",state.data.iob).replacingOccurrences(of: "0.", with: "."))
+                        Text(String(format:"BOB\n%.1lf",state.data.iob).replacingOccurrences(of: ".0", with: ""))
                             .lineLimit(2)
                             .font(.headline)
                             .multilineTextAlignment(.center)
