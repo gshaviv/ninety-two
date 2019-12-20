@@ -67,16 +67,7 @@ public class Plot {
 
     public func line(from x0: CGFloat, to x1: CGFloat, moveToFirst: Bool = true) -> UIBezierPath {
         let path = UIBezierPath()
-        var isFirst = moveToFirst
-        for x in stride(from: x0, to: x1, by: x1 > x0 ? 1 : -1) {
-            let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
-            if isFirst {
-                isFirst = false
-                path.move(to: point)
-            } else {
-                path.addLine(to: point)
-            }
-        }
+        line(in: path, from: x0, to: x1, moveToFirst: moveToFirst)
         return path
     }
 
@@ -91,6 +82,31 @@ public class Plot {
                 path.addLine(to: point)
             }
         }
+    }
+    
+    public func coloredLines(from x0: CGFloat, to x1: CGFloat) -> [(UIColor, UIBezierPath)] {
+        var out = [(UIColor, UIBezierPath)]()
+        var curve: UIBezierPath?
+        var currentColor = UIColor.blue
+        for x in stride(from: x0, to: x1, by: x1 > x0 ? 1 : -1) {
+            let point = CGPoint(x: x, y: akima.interpolateValue(at: x))
+            let pointColor = colorForValue(point.y)
+            if pointColor != currentColor {
+                if let curve = curve {
+                    curve.addLine(to: point)
+                    out.append((currentColor, curve))
+                }
+                curve = UIBezierPath()
+                curve?.move(to: point)
+            } else {
+                curve?.addLine(to: point)
+            }
+            currentColor = pointColor
+        }
+        if let curve = curve {
+            out.append((currentColor, curve))
+        }
+        return out
     }
 
     public func value(at x: CGFloat) -> CGFloat {
@@ -144,4 +160,23 @@ public class Plot {
         return false
     }
 
+    private var colors: [Range<CGFloat> : UIColor]!
+    
+    public func set(colors c: [(CGFloat,UIColor)]) {
+        colors = [:]
+        var lower:CGFloat = -CGFloat.greatestFiniteMagnitude
+        for (upper,color) in c.reversed() {
+            colors![lower ..< upper] = color
+            lower = upper
+        }
+    }
+    
+    public  func colorForValue(_ v: CGFloat) -> UIColor {
+        for (range,color) in colors {
+            if range.contains(v) {
+                return color
+            }
+        }
+        return UIColor.black
+    }
 }

@@ -181,7 +181,17 @@ public class GlucoseGraph: UIView {
     private var contentWidthConstraint: NSLayoutConstraint?
 
     public var yReference = [35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 350, 400, 500]
+    
+    private var theme: UIUserInterfaceStyle {
+        return traitCollection.userInterfaceStyle
+    }
 
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle {
+            setNeedsDisplay()
+        }
+    }
     override public func layoutSubviews() {
         super.layoutSubviews()
         contentView.setNeedsDisplay()
@@ -225,13 +235,21 @@ public class GlucoseGraph: UIView {
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
         var lower:Double = 0
         for (upper, color) in colors {
-            color.set()
+            if theme == .dark {
+                color.darker(by: 60).set()
+            } else {
+                color.set()
+            }
             let r = CGRect(x: 0.0, y: yCoor(CGFloat(upper)), width: size.width, height: CGFloat(upper - lower) * yScale)
             ctx?.fill(r)
             lower = upper
         }
-        UIColor(white: 0.5, alpha: 0.5).set()
         ctx?.beginPath()
+        if theme != .dark {
+            UIColor(white: 0.25, alpha: 0.5).set()
+        } else {
+            UIColor(white: 0.5, alpha: 1).set()
+        }
         for y in yReference {
             let yc = yCoor(CGFloat(y))
             ctx?.move(to: CGPoint(x: 0, y: yc))
@@ -398,84 +416,104 @@ public class GlucoseGraph: UIView {
             text.draw(in: frame)
             ctx?.restoreGState()
         }
-        do1: do {
-            let p = historyPoints
-            if p.isEmpty {
-                break do1
+        if theme == .dark {
+            plotter.set(colors: colors.map { (yCoor(CGFloat($0.0)), $0.1) })
+            var curves = [(UIColor, UIBezierPath)]()
+            var x0 = all.map { $0.x }.min()!
+            let blanks = holes.map { historyPoints[$0].x } + [all.map { $0.x }.max()!]
+            for x in blanks {
+                curves += plotter.coloredLines(from: x0, to: x)
+                x0 = x
             }
-            let curve = UIBezierPath()
-            if holes.isEmpty {
-                curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
-            } else {
-                var idx = 0
-                for hole in holes {
-                    guard hole <= p.count && hole > 0 else {
-                        continue
+            for (color,path) in curves {
+                color.set()
+                path.lineWidth = lineWidth
+                path.stroke()
+            }
+            let r = dotRadius
+            for point in all {
+                plotter.colorForValue(point.y).set()
+                UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))).fill()
+            }
+        } else {
+            do1: do {
+                let p = historyPoints
+                if p.isEmpty {
+                    break do1
+                }
+                let curve = UIBezierPath()
+                if holes.isEmpty {
+                    curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
+                } else {
+                    var idx = 0
+                    for hole in holes {
+                        guard hole <= p.count && hole > 0 else {
+                            continue
+                        }
+                        curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
+                        idx = hole
                     }
-                    curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
-                    idx = hole
-                }
-                if idx < p.count - 1 {
-                    curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
-                }
-            }
-            UIColor.darkGray.set()
-            curve.lineWidth = lineWidth
-            curve.stroke()
-            let fill = UIBezierPath()
-            let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
-            for point in p {
-                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
-            }
-            UIColor.black.set()
-            fill.lineWidth = 0
-            fill.fill()
-        }
-
-        do2: do {
-            var p = trendPoints
-            if p.isEmpty {
-                break do2
-            }
-            if let last = historyPoints.last {
-                p.insert(last, at: 0)
-            }
-            let curve = UIBezierPath()
-            if holes.isEmpty {
-                curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
-            } else {
-                var idx = 0
-                for h in holes {
-                    let hole = h - historyPoints.count + 1
-                    guard hole <= p.count && hole > 0 else {
-                        continue
+                    if idx < p.count - 1 {
+                        curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
                     }
-                    curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
-                    idx = hole
                 }
-                if idx < p.count - 1 {
-                    curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
+                UIColor.darkGray.set()
+                curve.lineWidth = lineWidth
+                curve.stroke()
+                let fill = UIBezierPath()
+                let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
+                for point in p {
+                    fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
                 }
+                UIColor.label.set()
+                fill.lineWidth = 0
+                fill.fill()
             }
-            UIColor(white: 0.5, alpha: 1).set()
-            curve.lineWidth = lineWidth
-            curve.stroke()
-            let fill = UIBezierPath()
-            let dotSize = CGSize(width: 2 * dotRadius - 1, height: 2 * dotRadius - 1)
-            for point in p {
-                fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+            
+            do2: do {
+                var p = trendPoints
+                if p.isEmpty {
+                    break do2
+                }
+                if let last = historyPoints.last {
+                    p.insert(last, at: 0)
+                }
+                let curve = UIBezierPath()
+                if holes.isEmpty {
+                    curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
+                } else {
+                    var idx = 0
+                    for h in holes {
+                        let hole = h - historyPoints.count + 1
+                        guard hole <= p.count && hole > 0 else {
+                            continue
+                        }
+                        curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
+                        idx = hole
+                    }
+                    if idx < p.count - 1 {
+                        curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
+                    }
+                }
+                UIColor.secondaryLabel.set()
+                curve.lineWidth = lineWidth
+                curve.stroke()
+                let fill = UIBezierPath()
+                let dotSize = CGSize(width: 2 * dotRadius - 1, height: 2 * dotRadius - 1)
+                for point in p {
+                    fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+                }
+                fill.lineWidth = 0
+                fill.fill()
             }
-            fill.lineWidth = 0
-            fill.fill()
+            
+            UIColor.label.set()
+            ctx?.setLineWidth(0.5)
+            for point in calibrationPoints {
+                ctx?.addEllipse(in: CGRect(center: point, size: CGSize(width: 14, height: 14)))
+            }
+            ctx?.strokePath()
         }
-
-        UIColor.black.set()
-        ctx?.setLineWidth(0.5)
-        for point in calibrationPoints {
-            ctx?.addEllipse(in: CGRect(center: point, size: CGSize(width: 14, height: 14)))
-        }
-        ctx?.strokePath()
-
         if !pointsToDelete.isEmpty {
             let selected = UIBezierPath()
             for idx in pointsToDelete {
@@ -490,7 +528,7 @@ public class GlucoseGraph: UIView {
         let syringeSize = syringeImage.size
         let mealImage = UIImage(named: "meal", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let mealSize = mealImage.size
-        let c = UIColor.blue.darker(by: 40)
+        let c = UIColor.tertiaryLabel
         c.setStroke()
         touchables = []
         for r in records {
