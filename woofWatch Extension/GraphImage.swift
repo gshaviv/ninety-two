@@ -11,23 +11,17 @@ import SwiftUI
 import Combine
 
 struct GraphImage: View {
-    @State private var image: UIImage = UIImage(systemName: "waveform.path.ecg")!
     @ObservedObject private var state: AppState
     private var size: CGSize
     @State private var lastTime = Date.distantPast
     
     var body: some View {
-        #if targetEnvironment(simulator)
-        return Image(uiImage: GraphImage.createImage(state: state, size: size) ?? image)
-        #else
-        if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(state: state, size: size) {
-            DispatchQueue.main.async {
-                self.lastTime = last
-                self.image = newImage
-            }
+         if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(state: state, size: size) {
+            self.lastTime = last
+            return Image(uiImage: newImage)
+        } else {
+            return Image(uiImage: UIImage(systemName: "waveform.path.ecg")!)
         }
-        return Image(uiImage: image )
-        #endif
     }
     
     init(state: AppState, size: CGSize) {
