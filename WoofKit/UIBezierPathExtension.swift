@@ -164,10 +164,10 @@ public class Plot {
     
     public func set(colors c: [(CGFloat,UIColor)]) {
         colors = [:]
-        var lower:CGFloat = -CGFloat.greatestFiniteMagnitude
-        for (upper,color) in c.reversed() {
-            colors![lower ..< upper] = color
-            lower = upper
+        var high:CGFloat = CGFloat.greatestFiniteMagnitude
+        for (low,color) in c {
+            colors![low ..< high] = color
+            high = low
         }
     }
     
