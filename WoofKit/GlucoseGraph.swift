@@ -528,7 +528,7 @@ public class GlucoseGraph: UIView {
         let syringeSize = syringeImage.size
         let mealImage = UIImage(named: "meal", in: Bundle(for: type(of:self)), compatibleWith: nil)!
         let mealSize = mealImage.size
-        let c = UIColor.tertiaryLabel
+        let c = UIColor.secondaryLabel.withAlphaComponent(0.75)
         c.setStroke()
         touchables = []
         for r in records {
@@ -553,7 +553,7 @@ public class GlucoseGraph: UIView {
                     let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
                     let frame = CGRect(center: center, size: syringeSize + CGSize(width: 4, height: 4))
                     let iob = r.insulinAction(at: Date()).iob
-                    let text = "\(units) \(iob > 0 ? "(\(iob % ".1lf"))" : "")".styled.systemFont(size: 14).color(.darkGray)
+                    let text = "\(units) \(iob > 0 ? "(\(iob % ".1lf"))" : "")".styled.systemFont(size: 14).color(UIColor.tertiaryLabel.withAlphaComponent(0.75))
                     let textFrame = CGRect(origin: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2), size: text.size())
                     if (plotter.intersects(frame) || plotter.intersects(textFrame)) && !isLast {
                         continue
@@ -579,7 +579,7 @@ public class GlucoseGraph: UIView {
                     }
                     y += above ? mealSize.height + 4 : -mealSize.height - 4
                     let note = r.note ?? ""
-                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs % ".0lf")" : note).styled.systemFont(size: 14).color(UIColor.darkGray.withAlphaComponent(0.9))
+                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs % ".0lf")" : note).styled.systemFont(size: 14).color(UIColor.tertiaryLabel.withAlphaComponent(0.75))
                     let size = text.size()
                     let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
                     let check = r1.insetBy(dx: -6, dy: -6)
