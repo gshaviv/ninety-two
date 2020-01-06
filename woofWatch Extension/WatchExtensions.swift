@@ -21,10 +21,13 @@ extension Date {
         if let comp = objc_getAssociatedObject(self, &Date.compKey) as? DateComponents {
             return comp
         } else {
-            let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond, .year, .month, .day], from: self)
+            let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond, .year, .month, .day, .weekday], from: self)
             objc_setAssociatedObject(self, &Date.compKey, comp, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             return comp
         }
+    }
+    public var weekDay: Int {
+        return components.weekday ?? 0
     }
     var day: Int {
         return components.day ?? 0
@@ -43,6 +46,9 @@ extension Date {
     }
     var second: Int {
         return components.second ?? 0
+    }
+    public func isOnSameDay(as date: Date) -> Bool {
+        day == date.day && month == date.month && year == date.year
     }
 }
 

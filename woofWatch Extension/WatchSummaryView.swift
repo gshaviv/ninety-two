@@ -9,6 +9,7 @@
 import SwiftUI
 import WatchConnectivity
 import Combine
+import UIKit
 
 extension Text {
     func headline() -> some View {
@@ -26,7 +27,8 @@ extension Text {
 struct WatchSummaryView: View {
     @ObservedObject var summary: SummaryInfo
     var showEa1c: Action
-
+    var showDose: Action
+    var showAve: Action
     var body: some View {
         if summary.data.period == 0 {
             return VStack {
@@ -51,16 +53,20 @@ struct WatchSummaryView: View {
                         .padding(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
                 }
                 Section(header: Text("Statistics").font(.headline).foregroundColor(Color(white: 0.5))) {
-                    Row(label: "Ave", detail: "\(summary.data.average % ".1lf")")
+                    Button(action: { self.showAve.send() }) {
+                        Row(label: "Ave", detail: "\(summary.data.average % ".1lf")", disclosureIndicator: true)
+                    }
                     Button(action: { self.showEa1c.send() }) {
-                        Row(label: "eA1C", detail: summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value % ".1lf") ± \(summary.data.a1c.range % ".1lf")" : "\(summary.data.a1c.value % ".1lf")")
+                        Row(label: "eA1C", detail: summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value % ".1lf") ± \(summary.data.a1c.range % ".1lf")" : "\(summary.data.a1c.value % ".1lf")", disclosureIndicator: true)
                     }
                     
                     Row(label: "# Lows", detail: "\(summary.data.low.count)")
                     Row(label: "Median Low", detail: summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60))
                     Row(label: "Min", detail: "\(summary.data.minLevel % ".0lf")")
                     Row(label: "Max", detail: "\(summary.data.maxLevel % ".0lf")")
-                    Row(label: "TDD", detail: "\(summary.data.atdd % ".1lf")")
+                    Button(action: { self.showDose.send() }) {
+                        Row(label: "TDD", detail: "\(summary.data.atdd % ".1lf")", disclosureIndicator: true)
+                    }
                 }
             }.asAnyView
         }
@@ -70,11 +76,24 @@ struct WatchSummaryView: View {
 struct Row: View {
     let label: String
     let detail: String
+    let chevron: Bool
+    
+    init(label: String, detail: String, disclosureIndicator: Bool = false) {
+        self.label = label
+        self.detail = detail
+        chevron = disclosureIndicator
+    }
+    
     var body: some View {
         HStack {
             Text("\(label):").headline()
             Spacer(minLength: 12)
             Text(detail).value()
+            if chevron {
+                Image(systemName: "chevron.right").font(Font.system(size: 8))
+            } else {
+                Image(systemName: "chevron.right").font(Font.system(size: 8)).hidden()
+            }
         }
     }
 }
@@ -82,13 +101,23 @@ struct Row: View {
 class WatchSummaryController: WKHostingController<AnyView> {
     var summaryObserver: AnyCancellable?
     var showObserver: AnyCancellable?
+    var doseObserver: AnyCancellable?
+    var aveObserver: AnyCancellable?
     
     override var body: AnyView {
         let show = Action()
-        showObserver = show.sink(receiveValue: {
-            self.showEa1c()
-        })
-        return WatchSummaryView(summary: summary, showEa1c: show).asAnyView
+        showObserver = show.sink { [weak self] in
+            self?.showEa1c()
+        }
+        let dose = Action()
+        doseObserver = dose.sink { [weak self] in
+            self?.showDoseage()
+        }
+        let ave = Action()
+        aveObserver = ave.sink { [weak self] in
+            self?.showAve()
+        }
+        return WatchSummaryView(summary: summary, showEa1c: show, showDose: dose, showAve: ave).asAnyView
     }
     
     override func awake(withContext context: Any?) {
@@ -107,14 +136,22 @@ class WatchSummaryController: WKHostingController<AnyView> {
     func showEa1c() {
         pushController(withName: "ea1c", context: nil)
     }
+    
+    func showDoseage() {
+        pushController(withName: "dose", context: nil)
+    }
+    
+    func showAve() {
+        pushController(withName: "ave", context: nil)
+    }
 }
 
 #if DEBUG
 struct WatchSummaryView_Previews: PreviewProvider {
     static var platform: PreviewPlatform? = .watchOS
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10]))
+    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10], daily: []))
     static var previews: some View {
-        WatchSummaryView(summary: summary, showEa1c: Action())
+        WatchSummaryView(summary: summary, showEa1c: Action(), showDose: Action(), showAve: Action())
     }
 }
 #endif

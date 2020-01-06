@@ -13,11 +13,9 @@ import Combine
 struct GraphImage: View {
     @ObservedObject private var state: AppState
     private var size: CGSize
-    @State private var lastTime = Date.distantPast
     
     var body: some View {
-         if let last = state.data.readings.last?.date, last != lastTime, let newImage = GraphImage.createImage(state: state, size: size) {
-            self.lastTime = last
+         if let newImage = GraphImage.createImage(state: state, size: size) {
             return Image(uiImage: newImage)
         } else {
             return Image(uiImage: UIImage(systemName: "waveform.path.ecg")!)

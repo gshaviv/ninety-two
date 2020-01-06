@@ -15,6 +15,36 @@ import Sqlable
 #endif
 
 struct Summary: Codable {
+    struct Marks: OptionSet {
+        let rawValue: Int
+        
+        static let none = Marks(rawValue: 1)
+        static let seperator = Marks(rawValue: 1 << 1)
+        static let blue = Marks(rawValue: 1 << 2)
+    }
+    struct Daily: Codable {
+        let average: Double
+        let dose: Int
+        let date: Date
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.unkeyedContainer()
+            try container.encode(average.decimal(digits: 2))
+            try container.encode(dose)
+            try container.encode(date.timeIntervalSince1970.decimal(digits: 0))
+        }
+        init(from decoder: Decoder) throws {
+            var container = try decoder.unkeyedContainer()
+            average = try container.decode(Double.self)
+            dose = try container.decode(Int.self)
+            let interval = try container.decode(Double.self)
+            date = Date(timeIntervalSince1970: interval)
+        }
+        init(average: Double, dose: Int, date: Date) {
+            self.average = average
+            self.dose = dose
+            self.date = date
+        }
+    }
     let period: Int
     struct TimeInRange: Codable {
         let low: TimeInterval
@@ -60,6 +90,7 @@ struct Summary: Codable {
     let low: Low
     let atdd: Double
     let timeInLevel: [TimeInterval]
+    let daily: [Daily]
 }
 
 class SummaryInfo: ObservableObject {
@@ -114,10 +145,15 @@ class SummaryInfo: ObservableObject {
                 var found = false
                 var sum90 = Double(0)
                 var total90 = Double(0)
+                var daySum: [Double] = []
+                var perDay = [Summary.Daily]()
+                var lastDay = -1
+                var dayStart = Date.distantPast
                 readings.forEach { gp in
                     defer {
                         previousPoint = gp
                     }
+                    
                     if let previous = previousPoint {
                         let duration = gp.date - previous.date
                         guard duration < 1.h else {
@@ -133,11 +169,34 @@ class SummaryInfo: ObservableObject {
                             }
                             sum90 += gp.value * duration
                             total90 += duration
+                            switch (previous.value, gp.value) {
+                            case (..<70, ..<70):
+                                timeBelow70 += duration
+                                
+                            case (_, ..<70):
+                                timeAbove180 += duration * (70 - gp.value) / (previous.value - gp.value)
+                                
+                            case (..<70, _):
+                                timeAbove180 += duration * (70 - previous.value) / (gp.value - previous.value)
+                                
+                            default:
+                                break
+                            }
                         }
-                        log("gp.date=\(gp.date) summery=\(defaults.summaryPeriod) date-summary=\(Date() - defaults.summaryPeriod.d)")
+                        
                         if gp.date > Date() - defaults.summaryPeriod.d {
+                            if gp.date.day != lastDay {
+                                if !daySum.isEmpty, gp.date - dayStart > 23.h && dayStart != Date.distantPast {
+                                    let units = meals.filter { $0.date > dayStart && $0.date < gp.date }.reduce(0) { $0 + $1.bolus }
+                                    perDay.append(Summary.Daily(average: daySum.average(), dose: units, date: previous.date))
+                                }
+                                lastDay = gp.date.day
+                                daySum = []
+                                dayStart = gp.date
+                            }
                             sumG += gp.value * duration
                             totalT += duration
+                            daySum.append(gp.value)
                             switch (previous.value, gp.value) {
                             case (defaults[.maxRange]..., defaults[.maxRange]...):
                                 timeAbove += duration
@@ -164,19 +223,7 @@ class SummaryInfo: ObservableObject {
                             default:
                                 break
                             }
-                            switch (previous.value, gp.value) {
-                            case (..<70, ..<70):
-                                timeBelow70 += duration
-                                
-                            case (_, ..<70):
-                                timeAbove180 += duration * (70 - gp.value) / (previous.value - gp.value)
-                                
-                            case (..<70, _):
-                                timeAbove180 += duration * (70 - previous.value) / (gp.value - previous.value)
-                                
-                            default:
-                                break
-                            }
+                           
                             
                             maxG = max(maxG, gp.value)
                             minG = min(minG, gp.value)
@@ -213,7 +260,13 @@ class SummaryInfo: ObservableObject {
                                 inLow = false
                             }
                         }
+                    } else {
+                        lastDay = gp.date.day
                     }
+                }
+                if !daySum.isEmpty {
+                    let units = meals.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
+                    perDay.append(Summary.Daily(average: daySum.average(), dose: units, date:  readings.last?.date ?? Date()))
                 }
                 if !meals.isEmpty {
                     let interp = AkimaInterpolator(points: readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) })
@@ -228,10 +281,8 @@ class SummaryInfo: ObservableObject {
                     }
                 }
                 
-                let start = (Date() - defaults.summaryPeriod.d).endOfDay
-                let end = defaults.summaryPeriod > 1 ? Date().startOfDay : Date()
-                let averageBolus = Storage.default.allEntries.filter { $0.date > start  && $0.date < end }.reduce(0.0) { $0 + Double($1.bolus) } / (end - start) * 1.d
-                
+                let averageBolus = perDay.dropLast().map { Double($0.dose) }.average()
+                 
                 let aveG = sumG / totalT
                 let ave90 = sum90 / total90
                 // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
@@ -269,14 +320,13 @@ class SummaryInfo: ObservableObject {
                                           a1c: ea1c,
                                           low: lows,
                                           atdd: averageBolus,
-                                          timeInLevel: [
-                                            bands[0] ?? 0,
-                                            bands[1] ?? 0,
-                                            bands[2] ?? 0,
-                                            bands[3] ?? 0,
-                                            bands[4] ?? 0,
-                                            bands[5] ?? 0,
-                    ])
+                                          timeInLevel: [bands[0] ?? 0,
+                                                        bands[1] ?? 0,
+                                                        bands[2] ?? 0,
+                                                        bands[3] ?? 0,
+                                                        bands[4] ?? 0,
+                                                        bands[5] ?? 0],
+                                          daily: perDay)
                     self.data = summary
                     completion?(true)
                 }

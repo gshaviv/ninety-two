@@ -117,6 +117,7 @@
 		E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
+		E46C847B23C118D500418207 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C847A23C118D500418207 /* HistoryView.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
 		E4832311235718C50082E9F1 /* StateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E483230F235718C50082E9F1 /* StateKey.swift */; };
 		E4832315235720290082E9F1 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4832313235720290082E9F1 /* Event.swift */; };
@@ -161,6 +162,7 @@
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4D8A91B2310073E00895767 /* Predictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D8A91A2310073E00895767 /* Predictor.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
+		E4DE243023C08B55004B6396 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DE242F23C08B55004B6396 /* BarView.swift */; };
 		E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6521C3F8D300336CE8 /* ViewController.swift */; };
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
 		E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */; };
@@ -421,6 +423,7 @@
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "woofWatch Extension.entitlements"; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
+		E46C847A23C118D500418207 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E483230F235718C50082E9F1 /* StateKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKey.swift; sourceTree = "<group>"; };
 		E4832313235720290082E9F1 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -468,6 +471,7 @@
 		E4D8A91A2310073E00895767 /* Predictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predictor.swift; sourceTree = "<group>"; };
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
+		E4DE242F23C08B55004B6396 /* BarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
 		E4E35A6021C3F8D300336CE8 /* Ninety Two.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ninety Two.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -683,9 +687,11 @@
 				E4A14D7B2333C70700383814 /* ActivityIndicator.swift */,
 				E4A14D792333C68900383814 /* GraphImage.swift */,
 				E412606F23424B8800958601 /* WatchSummaryView.swift */,
+				E4DE242F23C08B55004B6396 /* BarView.swift */,
 				E427E6DD234CB81B00F6A619 /* ea1cView.swift */,
 				E412607823433C0A00958601 /* CalibrateView.swift */,
 				E4832313235720290082E9F1 /* Event.swift */,
+				E46C847A23C118D500418207 /* HistoryView.swift */,
 			);
 			path = "woofWatch Extension";
 			sourceTree = "<group>";
@@ -1345,12 +1351,14 @@
 				E4126076234269B300958601 /* StringAdditions.swift in Sources */,
 				E42E2AB121DF28C7004FD560 /* ComplicationController.swift in Sources */,
 				E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */,
+				E46C847B23C118D500418207 /* HistoryView.swift in Sources */,
 				E4832315235720290082E9F1 /* Event.swift in Sources */,
 				E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */,
 				E4832311235718C50082E9F1 /* StateKey.swift in Sources */,
 				E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */,
 				E412607423425D0100958601 /* SummaryInfo.swift in Sources */,
 				E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */,
+				E4DE243023C08B55004B6396 /* BarView.swift in Sources */,
 				E4126075234262D900958601 /* PieChartView.swift in Sources */,
 				E42E2AAD21DF28C7004FD560 /* ExtensionDelegate.swift in Sources */,
 				E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */,

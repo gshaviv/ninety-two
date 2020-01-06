@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14868" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="C5u-kJ-FeA">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15505" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="C5u-kJ-FeA">
     <device id="watch38"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14643"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
         <!--Ninety two-->
@@ -64,6 +64,20 @@
                 <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="woofWatch" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="468" y="345"/>
+        </scene>
+        <!--Daily Dosage-->
+        <scene sceneID="3YL-Mm-GsJ">
+            <objects>
+                <hostingController identifier="dose" title="Daily Dosage" id="UK5-g4-GLD" customClass="WatchDoseController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="379" y="22"/>
+        </scene>
+        <!--Daily Averages-->
+        <scene sceneID="GZZ-Jw-HQk">
+            <objects>
+                <hostingController identifier="ave" title="Daily Averages" id="X6M-H6-1uF" customClass="WatchAveHistoryController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="379" y="22"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.95885573882161712" green="1" blue="0.5971645191477003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
