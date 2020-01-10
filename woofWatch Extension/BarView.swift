@@ -48,9 +48,6 @@ struct BarView: View {
         let gh = h
         
         var v0 = floor(bars.min()! / 10) * 10.0
-        if v0 - 10 >= 0 {
-            v0 -= 10
-        }
         let bm = ceil(bars.max()!)
         var step: CGFloat = 10
         for x:CGFloat in [1, 2, 5, 10, 20, 25, 50, 100] {
@@ -59,28 +56,55 @@ struct BarView: View {
                 break
             }
         }
-        let v1 = ceil(bars.max()! / max(step,5)) * max(step,5)
+        if v0 - step >= 0 {
+            v0 -= step
+        }
+
+        let v1 = ceil((bars.max()! - v0) / max(step,5)) * max(step,5) + v0
         
         UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, WKInterfaceDevice.current().screenScale)
         let ctx = UIGraphicsGetCurrentContext()
         
         UIColor(white: 0.35, alpha: 1).set()
+        var x0 = xOffset
+        ctx?.saveGState()
+        if v1 - v0 > 2 * step {
+            let clip = UIBezierPath(rect: CGRect(x: 0, y: 0, width: width, height: h))
+            clip.usesEvenOddFillRule = true
+            marks.forEach {
+                defer {
+                    x0 += barWidth + spacing
+                }
+                if $0.contains(.seperator) {
+                    for y in stride(from: v0 + step, to: v1, by: step) {
+                        let text = "\(Double(y).decimal(digits: 0))".styled.systemFont(size: 12).color(UIColor(white: 0.5, alpha: 1))
+                        let size = text.size()
+                        let rect = CGRect(origin: CGPoint(x: x0 + 1, y: (1 - (y - v0) / (v1 - v0)) * gh - size.height / 2), size: size)
+                        text.draw(in: rect)
+                        clip.append(UIBezierPath(rect: rect))
+                    }
+                }
+            }
+            clip.addClip()
+        }
+        
         for y in stride(from: v0, to: v1, by: step) {
             ctx?.move(to: CGPoint(x: xOffset, y: (y - v0) / (v1 - v0) * gh))
             ctx?.addLine(to: CGPoint(x: width, y: (y - v0) / (v1 - v0) * gh))
         }
         ctx?.strokePath()
+        ctx?.restoreGState()
         
-        var x0 = xOffset
+        x0 = xOffset
         var lastRect = CGRect.zero
         bars.enumerated().forEach {
             let mark = marks.isEmpty || $0.offset >= marks.count ? Summary.Marks.none : marks[$0.offset]
             let barH = ($0.element - v0) / (v1 - v0) * gh
             let barRect = CGRect(x: x0, y: gh - barH, width: barWidth, height: barH)
             if mark.contains(Summary.Marks.red) {
-                #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1).setFill()
+                #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1).withAlphaComponent(0.8).setFill()
             } else {
-                UIColor.blue.setFill()
+                UIColor.blue.withAlphaComponent(0.8).setFill()
             }
             ctx?.fill(barRect)
             if mark.contains(.seperator) {
