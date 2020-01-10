@@ -626,7 +626,7 @@ public class GlucoseGraph: UIView {
 
         if let touchPoint = touchPoint {
             let coor = CGPoint(x: xCoor(touchPoint.date), y: yCoor(CGFloat(touchPoint.value)))
-            UIColor.darkGray.set()
+            UIColor.tertiaryLabel.set()
             let IOB = Storage.default.allEntries.filter { $0.date > touchPoint.date - (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60 && $0.date < touchPoint.date }.reduce(0.0) { $0 + $1.insulinAction(at: touchPoint.date).iob }
             ctx?.beginPath()
             ctx?.move(to: CGPoint(x: rect.width, y: coor.y))

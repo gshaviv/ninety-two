@@ -25,14 +25,14 @@
             <objects>
                 <hostingController identifier="summary" title="Summary" id="ftO-Bn-Zg9" customClass="WatchSummaryController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="155" y="21"/>
+            <point key="canvasLocation" x="-46" y="1"/>
         </scene>
         <!--A1C Estimates-->
         <scene sceneID="eHV-1y-DcV">
             <objects>
                 <hostingController identifier="ea1c" title="A1C Estimates" id="VIP-Y9-u73" customClass="EA1CController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="379" y="22"/>
+            <point key="canvasLocation" x="179" y="282"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
@@ -70,14 +70,21 @@
             <objects>
                 <hostingController identifier="dose" title="Daily Dosage" id="UK5-g4-GLD" customClass="WatchDoseController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="379" y="22"/>
+            <point key="canvasLocation" x="382" y="1"/>
         </scene>
         <!--Daily Averages-->
         <scene sceneID="GZZ-Jw-HQk">
             <objects>
                 <hostingController identifier="ave" title="Daily Averages" id="X6M-H6-1uF" customClass="WatchAveHistoryController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="379" y="22"/>
+            <point key="canvasLocation" x="593" y="1"/>
+        </scene>
+        <!--Daily Lows-->
+        <scene sceneID="aP7-wM-gFA">
+            <objects>
+                <hostingController identifier="lows" title="Daily Lows" id="blH-yd-jm8" customClass="WatchLowsController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="170" y="1"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.95885573882161712" green="1" blue="0.5971645191477003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

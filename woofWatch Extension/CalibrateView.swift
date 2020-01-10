@@ -10,8 +10,7 @@ import SwiftUI
 import WatchConnectivity
 import Combine
 
-typealias Action = PassthroughSubject<Void,Never>
-typealias StringAction = PassthroughSubject<String, Never>
+typealias Action<T> = PassthroughSubject<T,Never>
 
 private struct Key: View {
     let value: String
@@ -80,8 +79,8 @@ private struct Return: View {
 
 struct CalibrateView: View {
     @State var text: String = ""
-    let dismiss: Action
-    let title: StringAction
+    let dismiss: Action<Void>
+    let title: Action<String>
     
     var body: some View {
         title.send(self.text)
@@ -135,11 +134,11 @@ class CalibrationController: WKHostingController<AnyView> {
     var dismissListener: AnyCancellable?
     var titleListener: AnyCancellable?
     override var body: AnyView {
-        let action = Action()
+        let action = Action<Void>()
         dismissListener = action.sink(receiveValue: {
             self.goAway()
         })
-        let titleAction = StringAction()
+        let titleAction = Action<String>()
         titleListener = titleAction.sink(receiveValue: { (value) in
             self.setTitle("Cancel     \(value)")
         })
@@ -157,7 +156,7 @@ class CalibrationController: WKHostingController<AnyView> {
 struct CalibrateView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            CalibrateView(dismiss: Action(), title: StringAction())
+            CalibrateView(dismiss: Action<Void>(), title: Action<String>())
         }
     }
 }

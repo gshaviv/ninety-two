@@ -20,29 +20,33 @@ struct Summary: Codable {
         
         static let none = Marks(rawValue: 1)
         static let seperator = Marks(rawValue: 1 << 1)
-        static let blue = Marks(rawValue: 1 << 2)
+        static let red = Marks(rawValue: 1 << 2)
     }
     struct Daily: Codable {
         let average: Double
         let dose: Int
+        let lows: Int
         let date: Date
         func encode(to encoder: Encoder) throws {
             var container = encoder.unkeyedContainer()
             try container.encode(average.decimal(digits: 2))
             try container.encode(dose)
+            try container.encode(lows)
             try container.encode(date.timeIntervalSince1970.decimal(digits: 0))
         }
         init(from decoder: Decoder) throws {
             var container = try decoder.unkeyedContainer()
             average = try container.decode(Double.self)
             dose = try container.decode(Int.self)
+            lows = try container.decode(Int.self)
             let interval = try container.decode(Double.self)
             date = Date(timeIntervalSince1970: interval)
         }
-        init(average: Double, dose: Int, date: Date) {
+        init(average: Double, dose: Int, lows: Int, date: Date) {
             self.average = average
             self.dose = dose
             self.date = date
+            self.lows = lows
         }
     }
     let period: Int
@@ -125,11 +129,11 @@ class SummaryInfo: ObservableObject {
                 MiaoMiao.flushToDatabase()
                 var lowStart: Date?
                 var lowTime = [TimeInterval]()
-                guard let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > min(Date() - defaults.summaryPeriod.d, Date() - 90.d)).orderBy(GlucosePoint.date)), !readings.isEmpty else {
+                guard let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > min(Date().startOfDay - defaults.summaryPeriod.d, Date().startOfDay - 90.d)).orderBy(GlucosePoint.date)), !readings.isEmpty else {
                     completion?(false)
                     return
                 }
-                let meals = Storage.default.allMeals.filter { $0.date > Date() - 90.d && $0.type != .other }
+                let meals = Storage.default.allMeals.filter { $0.date > Date().startOfDay - 90.d && $0.type != .other }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
                 var bands = [Int: TimeInterval]()
@@ -145,7 +149,7 @@ class SummaryInfo: ObservableObject {
                 var found = false
                 var sum90 = Double(0)
                 var total90 = Double(0)
-                var daySum: [Double] = []
+                var daySum: (glucose:[Double], lows: Int) = ([],0)
                 var perDay = [Summary.Daily]()
                 var lastDay = -1
                 var dayStart = Date.distantPast
@@ -184,19 +188,22 @@ class SummaryInfo: ObservableObject {
                             }
                         }
                         
-                        if gp.date > Date() - defaults.summaryPeriod.d {
+                        if gp.date > Date().startOfDay - defaults.summaryPeriod.d {
                             if gp.date.day != lastDay {
-                                if !daySum.isEmpty, gp.date - dayStart > 23.h && dayStart != Date.distantPast {
+                                if !daySum.glucose.isEmpty, gp.date - dayStart > 23.h  {
                                     let units = meals.filter { $0.date > dayStart && $0.date < gp.date }.reduce(0) { $0 + $1.bolus }
-                                    perDay.append(Summary.Daily(average: daySum.average(), dose: units, date: previous.date))
+                                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date: previous.date))
                                 }
                                 lastDay = gp.date.day
-                                daySum = []
+                                daySum = ([],0)
                                 dayStart = gp.date
                             }
+                            daySum.glucose.append(gp.value)
+                        }
+                        
+                        if gp.date > Date() - defaults.summaryPeriod.d {
                             sumG += gp.value * duration
                             totalT += duration
-                            daySum.append(gp.value)
                             switch (previous.value, gp.value) {
                             case (defaults[.maxRange]..., defaults[.maxRange]...):
                                 timeAbove += duration
@@ -248,6 +255,7 @@ class SummaryInfo: ObservableObject {
                                 if !inLow {
                                     lowStart = previous.date + (previous.value - defaults[.minRange]) / (previous.value - gp.value) * (gp.date - previous.date)
                                     countLow = gp.value < defaults[.minRange] - 3
+                                    daySum.lows += 1
                                 }
                                 inLow = true
                                 countLow = countLow || gp.value < defaults[.minRange] - 3
@@ -264,9 +272,9 @@ class SummaryInfo: ObservableObject {
                         lastDay = gp.date.day
                     }
                 }
-                if !daySum.isEmpty {
+                if !daySum.glucose.isEmpty {
                     let units = meals.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
-                    perDay.append(Summary.Daily(average: daySum.average(), dose: units, date:  readings.last?.date ?? Date()))
+                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date()))
                 }
                 if !meals.isEmpty {
                     let interp = AkimaInterpolator(points: readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) })

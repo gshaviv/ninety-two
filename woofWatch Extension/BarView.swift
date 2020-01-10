@@ -47,13 +47,16 @@ struct BarView: View {
 //        let th = "1".styled.color(.white).systemFont(size: 13).size().height
         let gh = h
         
-        let v0 = floor(bars.min()! / 10) * 10.0
+        var v0 = floor(bars.min()! / 10) * 10.0
+        if v0 - 10 >= 0 {
+            v0 -= 10
+        }
         let v1 = ceil(bars.max()! / 10) * 10.0
         
         UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, WKInterfaceDevice.current().screenScale)
         let ctx = UIGraphicsGetCurrentContext()
         
-        UIColor.lightGray.set()
+        UIColor(white: 0.25, alpha: 1).set()
         for y in stride(from: v0, to: v1, by: 10.0) {
             ctx?.move(to: CGPoint(x: xOffset, y: (y - v0) / (v1 - v0) * gh))
             ctx?.addLine(to: CGPoint(x: width, y: (y - v0) / (v1 - v0) * gh))
@@ -66,22 +69,28 @@ struct BarView: View {
             let mark = marks.isEmpty || $0.offset >= marks.count ? Summary.Marks.none : marks[$0.offset]
             let barH = ($0.element - v0) / (v1 - v0) * gh
             let barRect = CGRect(x: x0, y: gh - barH, width: barWidth, height: barH)
-            if mark.contains(Summary.Marks.blue) {
-                UIColor.blue.setFill()
+            if mark.contains(Summary.Marks.red) {
+                #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1).setFill()
             } else {
-                UIColor.purple.setFill()
+                UIColor.blue.setFill()
             }
             ctx?.fill(barRect)
             if mark.contains(.seperator) {
                 ctx?.move(to: CGPoint(x: x0 - spacing / 2, y: 0))
                 ctx?.addLine(to: CGPoint(x: x0 - spacing / 2, y: gh))
-                UIColor.darkGray.setStroke()
+                UIColor(white: 0.25, alpha: 1).setStroke()
                 ctx?.strokePath()
             }
             x0 += barWidth + spacing
         }
         x0 = xOffset
         bars.enumerated().forEach {
+            defer {
+                x0 += barWidth + spacing
+            }
+            guard $0.element != 0 else {
+                return
+            }
             let barH = ($0.element - v0) / (v1 - v0) * gh
             let barRect = CGRect(x: x0, y: gh - barH, width: barWidth, height: barH)
 
@@ -109,7 +118,6 @@ struct BarView: View {
             textValue.draw(in: textRect)
             
             lastRect = textRect
-            x0 += barWidth + spacing
 
         }
         let image = UIGraphicsGetImageFromCurrentImageContext()
@@ -121,7 +129,7 @@ struct BarView: View {
 #if DEBUG
 struct BarView_Previews: PreviewProvider {
     static var previews: some View {
-        BarView([113,114,113.5,113.6,116,111,119.5,118,119,118,106.5], marks: [.none, .none, .seperator, .none, .none, .none, .none, .none, .none, .none, .blue ])
+        BarView([113,114,113.5,113.6,116,111,119.5,118,119,118,106.5], marks: [.none, .none, .seperator, .none, .none, .none, .none, .none, .none, .none, .red ])
     }
    
 
