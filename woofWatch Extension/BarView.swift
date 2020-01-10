@@ -51,13 +51,21 @@ struct BarView: View {
         if v0 - 10 >= 0 {
             v0 -= 10
         }
-        let v1 = ceil(bars.max()! / 10) * 10.0
+        let bm = ceil(bars.max()!)
+        var step: CGFloat = 10
+        for x:CGFloat in [1, 2, 5, 10, 20, 25, 50, 100] {
+            if (bm - v0) / x < 6 {
+                step = x
+                break
+            }
+        }
+        let v1 = ceil(bars.max()! / max(step,5)) * max(step,5)
         
         UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, WKInterfaceDevice.current().screenScale)
         let ctx = UIGraphicsGetCurrentContext()
         
-        UIColor(white: 0.25, alpha: 1).set()
-        for y in stride(from: v0, to: v1, by: 10.0) {
+        UIColor(white: 0.35, alpha: 1).set()
+        for y in stride(from: v0, to: v1, by: step) {
             ctx?.move(to: CGPoint(x: xOffset, y: (y - v0) / (v1 - v0) * gh))
             ctx?.addLine(to: CGPoint(x: width, y: (y - v0) / (v1 - v0) * gh))
         }
@@ -78,7 +86,7 @@ struct BarView: View {
             if mark.contains(.seperator) {
                 ctx?.move(to: CGPoint(x: x0 - spacing / 2, y: 0))
                 ctx?.addLine(to: CGPoint(x: x0 - spacing / 2, y: gh))
-                UIColor(white: 0.25, alpha: 1).setStroke()
+                UIColor(white: 0.35, alpha: 1).setStroke()
                 ctx?.strokePath()
             }
             x0 += barWidth + spacing
