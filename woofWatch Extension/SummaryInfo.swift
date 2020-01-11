@@ -144,11 +144,13 @@ class SummaryInfo: ObservableObject {
                 var timeBelow70: Double = 0
                 var totalT = Double(0)
                 var sumG = Double(0)
+                var countG = 0
                 var countLow = false
                 var profile7 = [Double]()
                 var found = false
                 var sum90 = Double(0)
                 var total90 = Double(0)
+                var count90 = 0
                 var daySum: (glucose:[Double], lows: Int) = ([],0)
                 var perDay = [Summary.Daily]()
                 var lastDay = -1
@@ -171,8 +173,11 @@ class SummaryInfo: ObservableObject {
                                 found = true
                                 profile7.append(gp.value)
                             }
-                            sum90 += gp.value * duration
-                            total90 += duration
+                            if duration > 5.m {
+                                sum90 += gp.value
+                                total90 += duration
+                                count90 += 1
+                            }
                             switch (previous.value, gp.value) {
                             case (..<70, ..<70):
                                 timeBelow70 += duration
@@ -202,8 +207,11 @@ class SummaryInfo: ObservableObject {
                         }
                         
                         if gp.date > Date() - defaults.summaryPeriod.d {
-                            sumG += gp.value * duration
-                            totalT += duration
+                            if duration > 5.m {
+                                sumG += gp.value
+                                countG += 1
+                                totalT += duration
+                            }
                             switch (previous.value, gp.value) {
                             case (defaults[.maxRange]..., defaults[.maxRange]...):
                                 timeAbove += duration
@@ -292,8 +300,8 @@ class SummaryInfo: ObservableObject {
                 
                 let averageBolus = perDay.dropLast().map { Double($0.dose) }.average()
                  
-                let aveG = sumG / totalT
-                let ave90 = sum90 / total90
+                let aveG = sumG / Double(countG)
+                let ave90 = sum90 / Double(count90)
                 // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
                 let a1c = 3.31 + ave90 * 0.02392 // (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
                 let ave7 = profile7.average()
