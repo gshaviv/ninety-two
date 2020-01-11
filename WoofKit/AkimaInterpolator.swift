@@ -8,14 +8,10 @@
 
 import UIKit
 public class AkimaInterpolator {
-  
   private let points: [CGPoint]
   private var m: [CGFloat]
   private var n: Int
-  /*private var tr: [CGFloat]
-  private var tl: [CGFloat]*/
   private var t: [CGFloat]
-  
   private var a: [CGFloat]
   private var b: [CGFloat]
   private var c: [CGFloat]
@@ -31,8 +27,6 @@ public class AkimaInterpolator {
     self.points = points
     n = points.count
     m = Array<CGFloat>(repeatElement(0.0, count: n + 3))
-    //tr = Array<CGFloat>(repeatElement(0.0, count: n))
-    //tl = Array<CGFloat>(repeatElement(0.0, count: n))
     t = Array<CGFloat>(repeatElement(0.0, count: n))
     a = Array<CGFloat>(repeatElement(0.0, count: n))
     b = Array<CGFloat>(repeatElement(0.0, count: n))
@@ -57,10 +51,6 @@ public class AkimaInterpolator {
     for i in 0..<n-1 {
       let den = abs(m[i + 3] - m[i + 2]) + abs(m[i + 1] - m[i])
       if den > 0 {
-        /*let alpha = abs(m[i + 1] - m[i]) / NE
-        tl[i] = m[i + 1] + alpha * (m[i + 2] - m[i + 1])
-        tr[i] = tl[i]*/
-        
         let num=abs(m[i+3] - m[i+2])*m[i+1] + abs(m[i+1] - m[i])*m[i+2];
         t[i] = num / den
         
