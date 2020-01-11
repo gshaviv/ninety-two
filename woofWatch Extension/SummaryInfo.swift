@@ -133,7 +133,7 @@ class SummaryInfo: ObservableObject {
                     completion?(false)
                     return
                 }
-                let meals = Storage.default.allMeals.filter { $0.date > Date().startOfDay - 90.d && $0.type != .other }
+                let entries = Storage.default.allEntries.filter { $0.date > Date().startOfDay - 90.d && $0.type != .other }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
                 var bands = [Int: TimeInterval]()
@@ -191,7 +191,7 @@ class SummaryInfo: ObservableObject {
                         if gp.date > Date().startOfDay - defaults.summaryPeriod.d {
                             if gp.date.day != lastDay {
                                 if !daySum.glucose.isEmpty, gp.date - dayStart > 23.h  {
-                                    let units = meals.filter { $0.date > dayStart && $0.date < gp.date }.reduce(0) { $0 + $1.bolus }
+                                    let units = entries.filter { $0.date > dayStart && $0.date < gp.date }.reduce(0) { $0 + $1.bolus }
                                     perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date: previous.date))
                                 }
                                 lastDay = gp.date.day
@@ -273,12 +273,13 @@ class SummaryInfo: ObservableObject {
                     }
                 }
                 if !daySum.glucose.isEmpty {
-                    let units = meals.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
+                    let units = entries.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
                     perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date()))
                 }
-                if !meals.isEmpty {
+                let relevantMeals = entries.filter { $0.type != .other && $0.isMeal }
+                if !relevantMeals.isEmpty {
                     let interp = AkimaInterpolator(points: readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) })
-                    meals.forEach {
+                    relevantMeals.forEach {
                         if $0.date < readings.last!.date {
                             profile7.append(Double(interp.interpolateValue(at: CGFloat($0.date.timeIntervalSince1970))))
                             let after = $0.date + 90.m
