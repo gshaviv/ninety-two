@@ -22,8 +22,12 @@ class ContainerView: UIView {
 
     override func addSubview(_ view: UIView) {
         super.addSubview(view)
-        if containedController == nil, let c = view.controller {
-            containedController = c
+        if containedController == nil {
+            if let v = view.controller as? UINavigationController {
+                containedController = v.viewControllers.first
+            } else {
+                containedController = view.controller
+            }
         }
     }
 }

@@ -61,8 +61,11 @@ struct BarView: View {
         }
 
         let v1 = ceil((bars.max()! - v0) / max(step,5)) * max(step,5) + v0
-        
+        #if os(iOS)
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, UIScreen.main.scale)
+        #else
         UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, WKInterfaceDevice.current().screenScale)
+        #endif
         let ctx = UIGraphicsGetCurrentContext()
         
         UIColor(white: 0.35, alpha: 1).set()

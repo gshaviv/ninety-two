@@ -16,7 +16,7 @@ var summary = SummaryInfo(Summary(period: defaults.summaryPeriod, timeInRange: S
 
 class SummaryViewController: UIHostingController<SummaryView> {
     private var listen: NSObjectProtocol?
-    private var action = Action()
+    private var action = Action<SummaryActions>()
     private var actionListener: AnyCancellable?
 
     required init?(coder aDecoder: NSCoder) {
@@ -32,8 +32,20 @@ class SummaryViewController: UIHostingController<SummaryView> {
         listen = NotificationCenter.default.addObserver(forName: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil, queue: OperationQueue.main) { (_) in
             self.updateSummary()
         }
-        actionListener = action.sink {
-            self.changePeriod()
+        actionListener = action.sink { [weak self] in
+            switch $0 {
+            case .period:
+                self?.changePeriod()
+
+            case .dailyAverage:
+                self?.navigationController?.pushViewController(AveHistoryController(), animated: true)
+                
+            case .dailyLows:
+                self?.navigationController?.pushViewController(LowsHistoryController(), animated: true)
+                
+            case .dailyDose:
+                self?.navigationController?.pushViewController(DoseHistoryController(), animated: true)
+            }
         }
     }
     
@@ -41,6 +53,16 @@ class SummaryViewController: UIHostingController<SummaryView> {
         summary.update {
             completion?($0)
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     private func changePeriod() {

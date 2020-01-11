@@ -116,6 +116,8 @@
 		E4519E0E23509EB700002871 /* TrendSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4519E0C23509EB700002871 /* TrendSymbol.swift */; };
 		E45A0ABD230AEB420091957E /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42E2AF621E0A58C004FD560 /* UserDefaultsExtensions.swift */; };
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
+		E461B2BD23C9C521006F8283 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DE242F23C08B55004B6396 /* BarView.swift */; };
+		E461B2BF23C9E9EC006F8283 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C847A23C118D500418207 /* HistoryView.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E46C847B23C118D500418207 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C847A23C118D500418207 /* HistoryView.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
@@ -1407,6 +1409,7 @@
 				E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E4C18FDC2340E46A00B1163E /* PieChartView.swift in Sources */,
+				E461B2BD23C9C521006F8283 /* BarView.swift in Sources */,
 				E48F42C521C6DA5E001AF4CD /* LibreSensor.swift in Sources */,
 				E41F93D42223DD5D000CC69F /* ContainerView.swift in Sources */,
 				E425663B21CD6F8B00469232 /* TemperatureAlgorithmParameters.swift in Sources */,
@@ -1417,6 +1420,7 @@
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E40F112023103BA900346D0C /* EndPredictionLR.mlmodel in Sources */,
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
+				E461B2BF23C9E9EC006F8283 /* HistoryView.swift in Sources */,
 				E40F111E23103B6300346D0C /* LowPredictionLR.mlmodel in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E450641E235DA52100F11EEC /* AppDelegate.swift in Sources */,

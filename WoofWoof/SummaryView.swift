@@ -29,16 +29,22 @@ extension Text {
     }
 }
 
-typealias Action = PassthroughSubject<Void,Never>
+typealias Action<T> = PassthroughSubject<T,Never>
+enum SummaryActions {
+    case period
+    case dailyAverage
+    case dailyLows
+    case dailyDose
+}
 
 struct SummaryView: View {
     @ObservedObject var summary: SummaryInfo
-    let action: Action
+    let action: Action<SummaryActions>
     
     var body: some View {
         VStack {
             Text("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")").font(.headline).onTapGesture {
-                self.action.send()
+                self.action.send(.period)
             }
             BalancedHStack(spacing: 2, [
                 PieChartView([
@@ -52,16 +58,24 @@ struct SummaryView: View {
                 VStack {
                     Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
-                    Text("# Lows").headline()
-                    Text("\(summary.data.low.count)").value()
+                    Text("# Lows").headline().onTapGesture {
+                        self.action.send(.dailyLows)
+                    }
+                    Text("\(summary.data.low.count)").value().onTapGesture {
+                        self.action.send(.dailyLows)
+                    }
                     Text("Med Low").headline()
                     Text(summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60)).value()
                 }.asAnyView,
                 VStack {
                     Text("In Range").headline()
                     Text("\(summary.data.percentTimeIn.description)%").value()
-                    Text("Ave").headline()
-                    Text("\(summary.data.average % ".1lf")").value()
+                    Text("Ave").headline().onTapGesture {
+                        self.action.send(.dailyAverage)
+                    }
+                    Text("\(summary.data.average % ".1lf")").value().onTapGesture {
+                        self.action.send(.dailyAverage)
+                    }
                     Text("eA1C").headline()
                     Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
                 }.asAnyView,
@@ -70,8 +84,12 @@ struct SummaryView: View {
                     Text("\(summary.data.percentTimeAbove.description)%").value()
                     Text("Min / Max").headline()
                     Text("\(summary.data.minLevel % ".0lf") / \(summary.data.maxLevel % ".0lf")").value()
-                    Text("TDD").headline()
-                    Text("\(summary.data.atdd % ".1lf")").value()
+                    Text("TDD").headline().onTapGesture {
+                        self.action.send(.dailyDose)
+                    }
+                    Text("\(summary.data.atdd % ".1lf")").value().onTapGesture {
+                        self.action.send(.dailyDose)
+                    }
                 }.asAnyView
             ])
         }.padding([.leading, .trailing], 4)

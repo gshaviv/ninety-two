@@ -67,6 +67,10 @@ class ViewController: UIViewController {
                         }
                     }
                 }
+                
+            case let c as SummaryViewController:
+                summaryController = c
+
 
             default:
                 break

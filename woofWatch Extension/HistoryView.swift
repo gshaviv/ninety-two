@@ -8,14 +8,19 @@
 
 import SwiftUI
 import Combine
+import ObjectiveC
 
+
+
+
+#if os(watchOS)
 struct DoseHistoryView: View {
     @EnvironmentObject var summary: SummaryInfo
-
+    
     var body: some View {
         VStack {
             Text("Daily Dosages").font(Font.system(.headline))
-        BarView(summary.data.daily.map { $0.dose }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
+            BarView(summary.data.daily.map { $0.dose }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
         }
     }
 }
@@ -30,18 +35,6 @@ struct LowHistoryView: View {
         }
     }
 }
-
-struct AveHistoryView: View {
-    @EnvironmentObject var summary: SummaryInfo
-    
-    var body: some View {
-        VStack {
-            Text("Daily Averages").font(Font.system(.headline))
-        BarView(summary.data.daily.map { rint($0.average) }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
-        }
-    }
-}
-
 class WatchLowsController: WKHostingController<AnyView> {
     override var body: AnyView {
         return LowHistoryView().environmentObject(summary).asAnyView
@@ -64,6 +57,17 @@ class WatchDoseController: WKHostingController<AnyView> {
     }
 }
 
+struct AveHistoryView: View {
+    @EnvironmentObject var summary: SummaryInfo
+    
+    var body: some View {
+        VStack {
+            Text("Daily Averages").font(Font.system(.headline))
+            BarView(summary.data.daily.map { rint($0.average) }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
+        }
+    }
+}
+
 class WatchAveHistoryController: WKHostingController<AnyView> {    
     override var body: AnyView {
         return AveHistoryView().environmentObject(summary).asAnyView
@@ -74,6 +78,104 @@ class WatchAveHistoryController: WKHostingController<AnyView> {
         setTitle("Summary")
     }
 }
+#else
+extension UIView {
+    static private var flag = false
+    fileprivate func didScroll() -> Bool {
+        if objc_getAssociatedObject(self, &UIView.flag) == nil {
+            objc_setAssociatedObject(self, &UIView.flag, true, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return false
+        }
+        return true
+    }
+}
+struct DoseHistoryView: View {
+    @EnvironmentObject var summary: SummaryInfo
+    
+    var body: some View {
+        BarView(summary.data.daily.map { $0.dose }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
+    }
+}
+
+struct AveHistoryView: View {
+    @EnvironmentObject var summary: SummaryInfo
+    
+    var body: some View {
+        BarView(summary.data.daily.map { rint($0.average) }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
+    }
+}
+
+@discardableResult private func findScrollViewAndScrollToRight(_ view: UIView) -> Bool {
+    if let sv = view as? UIScrollView {
+        sv.contentOffset = CGPoint(x: sv.contentSize.width - sv.width, y: 0)
+        return true
+    }
+    for v in view.subviews {
+        if findScrollViewAndScrollToRight(v) {
+            return true
+        }
+    }
+    return false
+}
+class AveHistoryController: UIHostingController<AnyView> {
+    init() {
+        super.init(rootView: AveHistoryView().environmentObject(summary).asAnyView)
+        title = "Daily Average History"
+    }
+    
+    @objc required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !view.didScroll() {
+            findScrollViewAndScrollToRight(view)
+        }
+    }
+}
+struct LowHistoryView: View {
+    @EnvironmentObject var summary: SummaryInfo
+    
+    var body: some View {
+        BarView(summary.data.daily.map { $0.lows }, marks: summary.data.daily.map { [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.red : Summary.Marks.none ] })
+    }
+}
+class LowsHistoryController: UIHostingController<AnyView> {
+    init() {
+        super.init(rootView: LowHistoryView().environmentObject(summary).asAnyView)
+        title = "Daily Lows History"
+    }
+    
+    @objc required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !view.didScroll() {
+            findScrollViewAndScrollToRight(view)
+        }
+    }
+}
+class DoseHistoryController: UIHostingController<AnyView> {
+    init() {
+        super.init(rootView: DoseHistoryView().environmentObject(summary).asAnyView)
+        title = "Total Daily Doseage"
+    }
+    
+    @objc required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !view.didScroll() {
+            findScrollViewAndScrollToRight(view)
+        }
+    }
+}
+#endif
 
 #if DEBUG
 struct DoseHistoryView_Previews: PreviewProvider {
