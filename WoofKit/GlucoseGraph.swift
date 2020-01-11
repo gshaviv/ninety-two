@@ -615,7 +615,18 @@ public class GlucoseGraph: UIView {
         }
 
         if let manual = manual {
-            #colorLiteral(red: 0.4347818196, green: 0.1882995963, blue: 0.8658901453, alpha: 1).set()
+            UIColor {
+                switch $0.userInterfaceStyle {
+                case .unspecified:
+                    return #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1)
+                case .light:
+                    return #colorLiteral(red: 0.4347818196, green: 0.1882995963, blue: 0.8658901453, alpha: 1)
+                case .dark:
+                    return #colorLiteral(red: 0.6591138715, green: 0.445930695, blue: 1, alpha: 1)
+                @unknown default:
+                    return #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
+                }
+            }.set()
             let path = UIBezierPath()
             path.lineWidth = 2
             manual.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }.forEach {
@@ -638,7 +649,7 @@ public class GlucoseGraph: UIView {
             ctx?.addLine(to: CGPoint(x: coor.x, y: rect.height))
             ctx?.strokePath()
             if IOB > 0 {
-                let text = "BOB=\(IOB % ".1lf")".styled.font(UIFont.systemFont(ofSize: 15))
+                let text = "BOB=\(IOB % ".1lf")".styled.font(UIFont.systemFont(ofSize: 15)).color(UIColor.tertiaryLabel)
                 let size = text.size()
                 var rect = CGRect(center: CGPoint(x: coor.x, y: rect.height - 30), size: size)
                 if rect.maxX > contentView.bounds.maxX {

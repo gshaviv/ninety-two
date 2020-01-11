@@ -111,7 +111,7 @@ class SummaryInfo: ObservableObject {
     #if os(iOS)
     
     public func update(force: Bool = false, completion: ((Bool)->Void)? = nil) {
-        guard defaults.summaryPeriod != data.period || force || Date() > calcDate + min(max(3.h, defaults.summaryPeriod.d / 50), 6.h) else {
+        guard defaults.summaryPeriod != data.period || force || Date() > calcDate + min(max(1.h, defaults.summaryPeriod.d / 50), 3.h) else {
             logError("No update, too frequent")
             completion?(false)
             return
