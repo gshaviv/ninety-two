@@ -115,7 +115,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     var lastFullState = Date.distantPast
     func refresh(force: Bool = false, summary sendSummary: Bool = false) {
         if appState.state == .sending && Date() - appState.lastStateChange > 20.s {
-            appState.state = .error
+            appState.state = .ready
         }
         guard Date() - lastRefreshDate > 20.s && (appState.state != .sending || force || sendSummary) else {
             return

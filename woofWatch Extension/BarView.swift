@@ -88,9 +88,9 @@ struct BarView: View {
             clip.addClip()
         }
         
-        for y in stride(from: v0, to: v1, by: step) {
-            ctx?.move(to: CGPoint(x: xOffset, y: (y - v0) / (v1 - v0) * gh))
-            ctx?.addLine(to: CGPoint(x: width, y: (y - v0) / (v1 - v0) * gh))
+        for y in stride(from: v0, to: v1 + 0.5, by: step) {
+            ctx?.move(to: CGPoint(x: xOffset, y: (1 - (y - v0) / (v1 - v0)) * gh))
+            ctx?.addLine(to: CGPoint(x: width, y: (1 - (y - v0) / (v1 - v0)) * gh))
         }
         ctx?.strokePath()
         ctx?.restoreGState()
@@ -104,7 +104,7 @@ struct BarView: View {
             if mark.contains(Summary.Marks.red) {
                 #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1).withAlphaComponent(0.8).setFill()
             } else {
-                UIColor.blue.withAlphaComponent(0.8).setFill()
+                #colorLiteral(red: 0, green: 0, blue: 1, alpha: 1).withAlphaComponent(0.8).setFill()
             }
             ctx?.fill(barRect)
             if mark.contains(.seperator) {
