@@ -95,6 +95,28 @@ struct Summary: Codable {
     let atdd: Double
     let timeInLevel: [TimeInterval]
     let daily: [Daily]
+    let date: Date
+    public var dateString: String {
+        switch Date() - date {
+        case 0 ..< 3.m:
+            return "Just now"
+            
+        case 3.m ..< 1.h:
+            return "\(Int((Date() - date) / 1.m)) minutes ago"
+            
+        case 1.h ..< 12.h:
+            let formatter = DateFormatter()
+            formatter.dateStyle = .none
+            formatter.timeStyle = .short
+            return formatter.string(from: date)
+            
+        default:
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .none
+            return formatter.string(from: date)
+        }
+    }
 }
 
 class SummaryInfo: ObservableObject {
@@ -107,6 +129,7 @@ class SummaryInfo: ObservableObject {
     public init(_ summary: Summary) {
         data = summary
     }
+    
     
     #if os(iOS)
     
@@ -343,7 +366,8 @@ class SummaryInfo: ObservableObject {
                                                         bands[3] ?? 0,
                                                         bands[4] ?? 0,
                                                         bands[5] ?? 0],
-                                          daily: perDay)
+                                          daily: perDay,
+                                          date: readings.last?.date ?? Date())
                     self.data = summary
                     completion?(true)
                 }

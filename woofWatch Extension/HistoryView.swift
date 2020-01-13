@@ -189,7 +189,8 @@ struct DoseHistoryView_Previews: PreviewProvider {
             Summary.Daily(average: 117.4, dose: 19, lows: 0, date: Date() - 2.d),
             Summary.Daily(average: 114.4, dose: 21, lows: 0, date: Date() - 1.d),
             Summary.Daily(average: 120.0, dose: 8, lows: 0, date: Date())
-        ]
+        ],
+                                             date: Date()
     ))
     
     static var previews: some View {

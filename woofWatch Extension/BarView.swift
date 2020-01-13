@@ -47,20 +47,20 @@ struct BarView: View {
 //        let th = "1".styled.color(.white).systemFont(size: 13).size().height
         let gh = h
         
-        var v0 = floor(bars.min()! / 10) * 10.0
-        let bm = ceil(bars.max()!)
+        let maxValue = bars.max()!
+        let minValue = bars.min()!
+        var v0 = minValue
+        var v1 = maxValue
         var step: CGFloat = 10
         for x:CGFloat in [1, 2, 5, 10, 20, 25, 50, 100] {
-            if (bm - v0) / x < 6 {
+            v0 = floor(minValue / x) * x
+            v1 = ceil(maxValue / x) * x
+            if (v1 - v0) / x < 6 {
                 step = x
                 break
             }
         }
-        if v0 - step >= 0 {
-            v0 -= step
-        }
-
-        let v1 = ceil((bars.max()! - v0) / max(step,5)) * max(step,5) + v0
+        
         #if os(iOS)
         UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: h), true, UIScreen.main.scale)
         #else
@@ -68,7 +68,7 @@ struct BarView: View {
         #endif
         let ctx = UIGraphicsGetCurrentContext()
         
-        UIColor(white: 0.35, alpha: 1).set()
+        UIColor(white: 0.5, alpha: 1).set()
         var x0 = xOffset
         ctx?.saveGState()
         if v1 - v0 > 2 * step {
@@ -105,9 +105,9 @@ struct BarView: View {
             let barH = ($0.element - v0) / (v1 - v0) * gh
             let barRect = CGRect(x: x0, y: gh - barH, width: barWidth, height: barH)
             if mark.contains(Summary.Marks.red) {
-                #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1).withAlphaComponent(0.8).setFill()
+                #colorLiteral(red: 0.5664476752, green: 0.1925912797, blue: 0.2362607419, alpha: 1).withAlphaComponent(0.8).setFill()
             } else {
-                #colorLiteral(red: 0, green: 0, blue: 1, alpha: 1).withAlphaComponent(0.8).setFill()
+                #colorLiteral(red: 0.1621245146, green: 0.2436933815, blue: 1, alpha: 1).withAlphaComponent(0.8).setFill()
             }
             ctx?.fill(barRect)
             if mark.contains(.seperator) {
