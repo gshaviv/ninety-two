@@ -98,10 +98,10 @@ struct Summary: Codable {
     let date: Date
     public var dateString: String {
         switch Date() - date {
-        case 0 ..< 3.m:
+        case 0 ..< 5.m:
             return "Just now"
             
-        case 3.m ..< 1.h:
+        case 5.m ..< 1.h:
             return "\(Int((Date() - date) / 1.m)) minutes ago"
             
         case 1.h ..< 12.h:

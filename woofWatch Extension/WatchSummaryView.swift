@@ -68,7 +68,7 @@ struct WatchSummaryView: View {
                         Row(label: "TDD", detail: "\(summary.data.atdd % ".1lf")", disclosureIndicator: true)
                     }
                 }
-                Section(header: Text("Calculated at:").font(.headline).foregroundColor(Color(white: 0.5))) {
+                Section(header: Text("Data as of:").font(.headline).foregroundColor(Color(white: 0.5))) {
                     Text(summary.data.dateString)
                 }
             }.asAnyView
