@@ -22,6 +22,7 @@ public class Storage: NSObject {
     public let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
     public var db: SqliteDatabase = {
         let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
+        log("dbURL = \(dbUrl)")
         let db = try! SqliteDatabase(filepath: dbUrl.path)
         db.queue = DispatchQueue(label: "db")
         try! db.createTable(GlucosePoint.self)

@@ -35,6 +35,7 @@ enum SummaryActions {
     case dailyAverage
     case dailyLows
     case dailyDose
+    case dailyRange
 }
 
 struct SummaryView: View {
@@ -54,7 +55,9 @@ struct SummaryView: View {
                     ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
                     ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
                     ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
-                    ]).asAnyView,
+                ]).onTapGesture {
+                    self.action.send(.dailyRange)
+                }.asAnyView,
                 VStack {
                     Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()

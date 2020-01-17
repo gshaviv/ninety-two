@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15505" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="C5u-kJ-FeA">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15705" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="C5u-kJ-FeA">
     <device id="watch38"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
@@ -85,6 +85,13 @@
                 <hostingController identifier="lows" title="Daily Lows" id="blH-yd-jm8" customClass="WatchLowsController" customModule="woofWatch_Extension"/>
             </objects>
             <point key="canvasLocation" x="170" y="1"/>
+        </scene>
+        <!--Range History-->
+        <scene sceneID="jdf-FE-cCf">
+            <objects>
+                <hostingController identifier="rangeHistory" title="Range History" id="j9r-Y9-MTh" customClass="WatchRangeHistoryController" customModule="woofWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="807" y="4"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.95885573882161712" green="1" blue="0.5971645191477003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

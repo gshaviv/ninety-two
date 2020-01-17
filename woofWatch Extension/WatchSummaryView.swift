@@ -40,15 +40,20 @@ struct WatchSummaryView: View {
                     Row(label: "Below", detail: "\(summary.data.percentTimeBelow.description)%")
                     Row(label: "In Range", detail: "\(summary.data.percentTimeIn.description)%")
                     Row(label: "Above", detail: "\(summary.data.percentTimeAbove.description)%")
-                    PieChartView([
-                        ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
-                        ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
-                        ChartPiece(value: summary.data.timeInLevel[4], color: Color(defaults[.color4])),
-                        ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
-                        ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
-                        ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
-                    ]).aspectRatio(1, contentMode: .fit)
-                        .padding(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                    HStack {
+                        PieChartView([
+                            ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
+                            ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
+                            ChartPiece(value: summary.data.timeInLevel[4], color: Color(defaults[.color4])),
+                            ChartPiece(value: summary.data.timeInLevel[5], color: Color(defaults[.color5])),
+                            ChartPiece(value: summary.data.timeInLevel[1], color: Color(defaults[.color1])),
+                            ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
+                        ]).aspectRatio(1, contentMode: .fit)
+                            .padding(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                        Image(systemName: "chevron.right").font(Font.system(size: 12))
+                    }.onTapGesture {
+                        self.actions.send(.rangeHistory)
+                    }
                 }
                 Section(header: Text("Statistics").font(.headline).foregroundColor(Color(white: 0.5))) {
                     Button(action: { self.actions.send(.ave) }) {
@@ -106,6 +111,7 @@ enum SummaryAction: String {
     case dose
     case ave
     case lows
+    case rangeHistory
 }
 
 class WatchSummaryController: WKHostingController<AnyView> {
@@ -115,7 +121,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
         let show = Action<SummaryAction>()
         summaryObserver = show.sink { [weak self] in
             switch $0 {
-            case .ea1c, .dose, .ave, .lows:
+            case .ea1c, .dose, .ave, .lows, .rangeHistory:
                 self?.pushController(withName: $0.rawValue, context: nil)
             }
         }
@@ -131,7 +137,7 @@ class WatchSummaryController: WKHostingController<AnyView> {
                 self?.setTitle("\(data.period == 1 ? 24 : data.period) \(data.period > 1 ? "Days" : "Hours")")
             }
         })
-        if summary.data.period == 0 || Date() - summary.calcDate > 90.m {
+        if summary.data.period == 0 || Date() - summary.data.date > 1.h {
             WCSession.default.sendMessage(["op":["summary"]], replyHandler: ExtensionDelegate.replyHandler(_:), errorHandler: { _ in })
         }
     }

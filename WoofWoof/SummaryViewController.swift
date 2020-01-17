@@ -45,6 +45,9 @@ class SummaryViewController: UIHostingController<SummaryView> {
                 
             case .dailyDose:
                 self?.navigationController?.pushViewController(DoseHistoryController(), animated: true)
+                
+            case .dailyRange:
+                self?.navigationController?.pushViewController(RangeHistoryController(), animated: true)
             }
         }
     }
