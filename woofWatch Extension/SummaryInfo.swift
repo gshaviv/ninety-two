@@ -20,19 +20,24 @@ struct Summary: Codable {
         
         static let none = Marks(rawValue: 1)
         static let seperator = Marks(rawValue: 1 << 1)
-        static let red = Marks(rawValue: 1 << 2)
+        static let bottomText = Marks(rawValue: 1 << 2)
+        static let mark = Marks(rawValue: 1 << 3)
     }
     struct Daily: Codable {
         let average: Double
         let dose: Int
         let lows: Int
         let date: Date
+        let percentLow: Double
+        let percentHigh: Double
         func encode(to encoder: Encoder) throws {
             var container = encoder.unkeyedContainer()
             try container.encode(average.decimal(digits: 2))
             try container.encode(dose)
             try container.encode(lows)
             try container.encode(date.timeIntervalSince1970.decimal(digits: 0))
+            try container.encode(percentLow.decimal(digits: 1))
+            try container.encode(percentHigh.decimal(digits: 1))
         }
         init(from decoder: Decoder) throws {
             var container = try decoder.unkeyedContainer()
@@ -41,12 +46,16 @@ struct Summary: Codable {
             lows = try container.decode(Int.self)
             let interval = try container.decode(Double.self)
             date = Date(timeIntervalSince1970: interval)
+            percentLow = try container.decode(Double.self)
+            percentHigh = try container.decode(Double.self)
         }
-        init(average: Double, dose: Int, lows: Int, date: Date) {
+        init(average: Double, dose: Int, lows: Int, date: Date, percentLow: Double, percentHigh: Double) {
             self.average = average
             self.dose = dose
             self.date = date
             self.lows = lows
+            self.percentHigh = percentHigh
+            self.percentLow = percentLow
         }
     }
     let period: Int
@@ -156,7 +165,7 @@ class SummaryInfo: ObservableObject {
                     completion?(false)
                     return
                 }
-                let entries = Storage.default.allEntries.filter { $0.date > Date().startOfDay - 90.d && $0.type != .other }
+                let entries = Storage.default.allEntries.filter { $0.date > Date().startOfDay - 90.d  }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
                 var bands = [Int: TimeInterval]()
@@ -178,6 +187,7 @@ class SummaryInfo: ObservableObject {
                 var perDay = [Summary.Daily]()
                 var lastDay = -1
                 var dayStart = Date.distantPast
+                var dailyRange = (total: 0, low: 0, high: 0)
                 readings.forEach { gp in
                     defer {
                         previousPoint = gp
@@ -206,10 +216,23 @@ class SummaryInfo: ObservableObject {
                                 timeBelow70 += duration
                                 
                             case (_, ..<70):
-                                timeAbove180 += duration * (70 - gp.value) / (previous.value - gp.value)
+                                timeBelow70 += duration * (70 - gp.value) / (previous.value - gp.value)
                                 
                             case (..<70, _):
-                                timeAbove180 += duration * (70 - previous.value) / (gp.value - previous.value)
+                                timeBelow70 += duration * (70 - previous.value) / (gp.value - previous.value)
+                                
+                            default:
+                                break
+                            }
+                            switch (previous.value, gp.value) {
+                            case (180..., 180...):
+                                timeAbove180 += duration
+                                
+                            case (_, 180...):
+                                timeAbove180 += duration * (gp.value - 180) / (gp.value - previous.value)
+                                
+                            case (180..., _):
+                                timeAbove180 += duration * (previous.value - 180) / (previous.value - gp.value)
                                 
                             default:
                                 break
@@ -220,13 +243,25 @@ class SummaryInfo: ObservableObject {
                             if gp.date.day != lastDay {
                                 if !daySum.glucose.isEmpty, gp.date - dayStart > 23.h  {
                                     let units = entries.filter { $0.date > dayStart && $0.date < gp.date }.reduce(0) { $0 + $1.bolus }
-                                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date: previous.date))
+                                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date: previous.date, percentLow: Double(dailyRange.low) / Double(dailyRange.total) * 100, percentHigh: Double(dailyRange.high) / Double(dailyRange.total) * 100))
                                 }
                                 lastDay = gp.date.day
                                 daySum = ([],0)
                                 dayStart = gp.date
+                                dailyRange = (0,0,0)
                             }
                             daySum.glucose.append(gp.value)
+                            dailyRange.total += 1
+                            switch gp.value {
+                            case defaults[.maxRange]...:
+                                dailyRange.high += 1
+                                
+                            case ...(defaults[.minRange] - 3):
+                                dailyRange.low += 1
+                                
+                            default:
+                                break
+                            }
                         }
                         
                         if gp.date > Date() - defaults.summaryPeriod.d {
@@ -244,19 +279,6 @@ class SummaryInfo: ObservableObject {
                                 
                             case (defaults[.maxRange]..., _):
                                 timeAbove += duration * (previous.value - defaults[.maxRange]) / (previous.value - gp.value)
-                                
-                            default:
-                                break
-                            }
-                            switch (previous.value, gp.value) {
-                            case (180..., 180...):
-                                timeAbove180 += duration
-                                
-                            case (_, 180...):
-                                timeAbove180 += duration * (gp.value - 180) / (gp.value - previous.value)
-                                
-                            case (180..., _):
-                                timeAbove180 += duration * (previous.value - 180) / (previous.value - gp.value)
                                 
                             default:
                                 break
@@ -305,7 +327,7 @@ class SummaryInfo: ObservableObject {
                 }
                 if !daySum.glucose.isEmpty {
                     let units = entries.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
-                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date()))
+                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date(), percentLow: Double(dailyRange.low) / Double(dailyRange.total) * 100, percentHigh: Double(dailyRange.high) / Double(dailyRange.total) * 100))
                 }
                 let relevantMeals = entries.filter { $0.type != .other && $0.isMeal }
                 if !relevantMeals.isEmpty {
@@ -367,7 +389,7 @@ class SummaryInfo: ObservableObject {
                                                         bands[4] ?? 0,
                                                         bands[5] ?? 0],
                                           daily: perDay,
-                                          date: readings.last?.date ?? Date())
+                                          date:  Date())
                     self.data = summary
                     completion?(true)
                 }
