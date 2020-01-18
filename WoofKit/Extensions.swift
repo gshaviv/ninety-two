@@ -18,6 +18,12 @@ extension CGRect {
     }
 }
 
+public extension Sequence {
+    func countMatches(where test: (Element) throws -> Bool) rethrows -> Int {
+        return try self.filter(test).count
+    }
+}
+
 extension CGGradient {
     public static func with(colors:[UIColor], locations:[CGFloat]) -> CGGradient {
         return CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors.map{$0.cgColor} as CFArray, locations: locations)!

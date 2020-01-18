@@ -58,6 +58,13 @@ extension CGRect {
     }
 }
 
+public extension Collection {
+    func countMatches(where test: (Element) throws -> Bool) rethrows -> Int {
+        return try self.filter(test).count
+    }
+}
+
+
 extension Int {
     var s: TimeInterval {
         return TimeInterval(self)

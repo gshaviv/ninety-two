@@ -96,11 +96,13 @@ struct RangeHistoryView: View {
     
     var body: some View {
          VStack {
-            Text("Daily Time Outside Range").font(Font.system(size: 15))
+            Text("Daily Time Out of Range").font(Font.system(size: 15))
             BarView(summary.data.daily.map {
                 (values: [$0.percentLow, $0.percentHigh],
                  marks: [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? [Summary.Marks.mark, Summary.Marks.bottomText] : Summary.Marks.bottomText])
-            }, colors: [defaults[.color0].withAlphaComponent(0.4), defaults[.color5].withAlphaComponent(0.4)])
+            })
+                .clustered()
+                .colors([defaults[.color0].withAlphaComponent(0.4), defaults[.color5].withAlphaComponent(0.4)])
         }
     }
 }
@@ -168,6 +170,7 @@ class AveHistoryController: UIHostingController<AnyView> {
     init() {
         super.init(rootView: AveHistoryView().environmentObject(summary).asAnyView)
         title = "Daily Average History"
+        overrideUserInterfaceStyle = .dark
     }
     
     @objc required dynamic init?(coder aDecoder: NSCoder) {
@@ -196,6 +199,7 @@ class LowsHistoryController: UIHostingController<AnyView> {
     init() {
         super.init(rootView: LowHistoryView().environmentObject(summary).asAnyView)
         title = "Daily Lows History"
+        overrideUserInterfaceStyle = .dark
     }
     
     @objc required dynamic init?(coder aDecoder: NSCoder) {
@@ -213,6 +217,7 @@ class DoseHistoryController: UIHostingController<AnyView> {
     init() {
         super.init(rootView: DoseHistoryView().environmentObject(summary).asAnyView)
         title = "Total Daily Doseage"
+        overrideUserInterfaceStyle = .dark
     }
     
     @objc required dynamic init?(coder aDecoder: NSCoder) {
@@ -233,13 +238,16 @@ struct RangeHistoryView: View {
         BarView(summary.data.daily.map {
             (values: [$0.percentLow, $0.percentHigh],
              marks: [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? [Summary.Marks.mark, Summary.Marks.bottomText] : Summary.Marks.bottomText])
-        }, colors: [defaults[.color0].darker(by: 60), defaults[.color5].darker(by: 60)])
+        })
+            .clustered()
+            .colors([defaults[.color0].darker(by: 60), defaults[.color5].darker(by: 60)])
     }
 }
 class RangeHistoryController: UIHostingController<AnyView> {
     init() {
         super.init(rootView: RangeHistoryView().environmentObject(summary).asAnyView)
         title = "Daily Time Outside Range"
+        overrideUserInterfaceStyle = .dark
     }
     
     @objc required dynamic init?(coder aDecoder: NSCoder) {
