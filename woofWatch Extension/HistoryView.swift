@@ -100,7 +100,7 @@ struct RangeHistoryView: View {
             BarView(summary.data.daily.map {
                 (values: [$0.percentLow, $0.percentHigh],
                  marks: [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? [Summary.Marks.mark, Summary.Marks.bottomText] : Summary.Marks.bottomText])
-            }, colors: [defaults[.color0].darker(by: 60), defaults[.color5].darker(by: 60)])
+            }, colors: [defaults[.color0].withAlphaComponent(0.4), defaults[.color5].withAlphaComponent(0.4)])
         }
     }
 }

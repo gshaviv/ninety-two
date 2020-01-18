@@ -10,7 +10,7 @@ import SwiftUI
 
 struct BarView: View {
     let bars: [(values: [CGFloat], marks: Summary.Marks)]
-    private var colors: [UIColor] = [#colorLiteral(red: 0.1621245146, green: 0.2436933815, blue: 1, alpha: 1),#colorLiteral(red: 0.5664476752, green: 0.1350907288, blue: 0.2568396887, alpha: 1)]
+    private var colors: [UIColor] = [#colorLiteral(red: 0.1621245146, green: 0.2436933815, blue: 1, alpha: 0.8),#colorLiteral(red: 0.5664476752, green: 0.1350907288, blue: 0.2568396887, alpha: 0.8)]
     
     init(_ v: [(values: [CGFloat], marks: Summary.Marks)], colors: [UIColor] = []) {
         #if DEBUG
