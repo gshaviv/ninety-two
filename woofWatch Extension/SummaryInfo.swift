@@ -327,7 +327,7 @@ class SummaryInfo: ObservableObject {
                 }
                 if !daySum.glucose.isEmpty {
                     let units = entries.filter { $0.date > dayStart }.reduce(0) { $0 + $1.bolus }
-                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date(), percentLow: Double(dailyRange.low) / Double(dailyRange.total) * 100, percentHigh: Double(dailyRange.high) / Double(dailyRange.total) * 100))
+                    perDay.append(Summary.Daily(average: daySum.glucose.average(), dose: units, lows: daySum.lows, date:  readings.last?.date ?? Date(), percentLow: Double(dailyRange.low) / 24 / 4 * 100, percentHigh: Double(dailyRange.high) / 24 / 4 * 100))
                 }
                 let relevantMeals = entries.filter { $0.type != .other && $0.isMeal }
                 if !relevantMeals.isEmpty {
