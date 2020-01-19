@@ -12,6 +12,7 @@ import Combine
 
 struct GlucoseFace: View {
     @EnvironmentObject var state: AppState
+    @State var showPercentage = false
     
     var body: some View {
         guard let last = state.data.readings.last else {
@@ -39,8 +40,16 @@ struct GlucoseFace: View {
                             .lineLimit(2)
                             .font(.headline)
                             .multilineTextAlignment(.center)
+                    } else if !showPercentage {
+                        Image(uiImage: batteryLevelIcon(for: state.data.batteryLevel)).onTapGesture {
+                            self.showPercentage = true
+                        }
                     } else {
-                        Image(uiImage: batteryLevelIcon(for: state.data.batteryLevel))
+                        Text("\(state.data.batteryLevel)%").font(Font.system(.caption)).onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3)) {
+                                self.showPercentage = false
+                            }
+                        }
                     }
                     Spacer(minLength: 0)
                     if state.state == .sending {
