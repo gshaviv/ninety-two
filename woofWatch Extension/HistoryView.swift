@@ -137,7 +137,7 @@ struct DoseHistoryView: View {
         BarView(summary.data.daily.map {
             (values: [$0.date.isOnSameDay(as: Date()) ? 0 : $0.dose,
                       $0.date.isOnSameDay(as: Date()) ? $0.dose : 0],
-             marks: $0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none)
+             marks: [$0.date.weekDay == 1 ? Summary.Marks.seperator : Summary.Marks.none, $0.date.isOnSameDay(as: Date()) ? Summary.Marks.mark : Summary.Marks.none])
         })
     }
 }
