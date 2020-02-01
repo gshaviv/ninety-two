@@ -165,10 +165,10 @@
 		E4D8A91B2310073E00895767 /* Predictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D8A91A2310073E00895767 /* Predictor.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
 		E4DE243023C08B55004B6396 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DE242F23C08B55004B6396 /* BarView.swift */; };
+		E4DE505923D8760900979247 /* Launch.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4DE505823D8760900979247 /* Launch.storyboard */; };
 		E4E35A6621C3F8D300336CE8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E35A6521C3F8D300336CE8 /* ViewController.swift */; };
 		E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6721C3F8D300336CE8 /* Main.storyboard */; };
 		E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */; };
-		E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */; };
 		FC96E052A2C9BE1E3CA3E9D1 /* Pods_WoofWoof.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD0D33B35E2751EE0C452F5F /* Pods_WoofWoof.framework */; };
 /* End PBXBuildFile section */
 
@@ -474,12 +474,12 @@
 		E4DBF59121C3FC52006AF3CF /* Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Central.swift; sourceTree = "<group>"; };
 		E4DBF59321C408A4006AF3CF /* log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = log.swift; sourceTree = "<group>"; };
 		E4DE242F23C08B55004B6396 /* BarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
+		E4DE505823D8760900979247 /* Launch.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Launch.storyboard; sourceTree = "<group>"; };
 		E4E35A6021C3F8D300336CE8 /* Ninety Two.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ninety Two.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E35A6321C3F8D300336CE8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E4E35A6521C3F8D300336CE8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		E4E35A6821C3F8D300336CE8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E4E35A6D21C3F8DA00336CE8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E4E35A6F21C3F8DA00336CE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -817,7 +817,6 @@
 				E4E35A6721C3F8D300336CE8 /* Main.storyboard */,
 				E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */,
 				E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */,
-				E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */,
 				E4E35A6F21C3F8DA00336CE8 /* Info.plist */,
 				E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */,
 				E4B5022C21D6160C00E18DDD /* Calculation.swift */,
@@ -844,6 +843,7 @@
 				E4C18FDB2340E46A00B1163E /* PieChartView.swift */,
 				E4519E0C23509EB700002871 /* TrendSymbol.swift */,
 				E483230F235718C50082E9F1 /* StateKey.swift */,
+				E4DE505823D8760900979247 /* Launch.storyboard */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1215,13 +1215,13 @@
 				E42E2AEC21E0A33A004FD560 /* Siri_Transmitter_Battery_Low.caf in Resources */,
 				E42E2AF121E0A33A004FD560 /* Siri_Low_Glucose.caf in Resources */,
 				E49023F721EF5B8700846FC4 /* DateFromToPickerController.xib in Resources */,
-				E4E35A6E21C3F8DA00336CE8 /* LaunchScreen.storyboard in Resources */,
 				E42E2AEF21E0A33A004FD560 /* Siri_Device_Muted.caf in Resources */,
 				E42E2AEE21E0A33A004FD560 /* Siri_High_Glucose.caf in Resources */,
 				E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */,
 				E42E2AF021E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf in Resources */,
 				E42E2AED21E0A33A004FD560 /* Siri_Urgent_High_Glucose.caf in Resources */,
 				E42E2AF321E0A33A004FD560 /* Siri_Missed_Readings.caf in Resources */,
+				E4DE505923D8760900979247 /* Launch.storyboard in Resources */,
 				E4E35A6921C3F8D300336CE8 /* Main.storyboard in Resources */,
 				E4230FC321EA74C000A297A5 /* DateRangePickerController.xib in Resources */,
 			);
@@ -1533,14 +1533,6 @@
 				E4E35A6821C3F8D300336CE8 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		E4E35A6C21C3F8DA00336CE8 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				E4E35A6D21C3F8DA00336CE8 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
