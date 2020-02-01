@@ -354,15 +354,15 @@ class SummaryInfo: ObservableObject {
                 let a1c3 = (ave7 + 46.7) / 28.7
                 let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                 let timeBelow = lowTime.sum()
-                let tir = (totalT - timeBelow70 - timeAbove180) / totalT * 100
+                let tir = (total90 - timeBelow70 - timeAbove180) / total90 * 100
                 // a1c relationhip to TIR from: https://academic.oup.com/jes/article/3/Supplement_1/SAT-126/5483093/
                 let a1c4 = (157 - tir) / 12.9
                 // based on estimates from: https://care.diabetesjournals.org/content/diacare/31/8/1473.full.pdf
                 let a1c2 = (ave90 + 36.9) / 28
                 let a1c5 = (ave7 + 50.7) / 29.1
                 let a1c6 = (ave7 + 43.9) / 28.3
-                let a1c7 = 3.38 + 0.02345 * ave90 // https://care.diabetesjournals.org/content/41/11/2275
-                let a1c8 = 3.31 + ave90 * 0.02392
+                let a1c7 = 3.38 + 0.02345 * aveG // https://care.diabetesjournals.org/content/41/11/2275
+                let a1c8 = 3.31 + aveG * 0.02392
                 let a1c9 = 3.15 + 0.02505 * ave90
                 // formulas based on: http://diabetesupdate.blogspot.com/2006/12/formulas-equating-hba1c-to-average.html
                 let a1c10 = (ave90 + 77.3) / 35.6

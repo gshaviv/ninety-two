@@ -35,12 +35,7 @@ struct GlucoseFace: View {
         return
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
-                    if state.data.iob > 0 {
-                        Text(String(format:"BOB\n%.1lf",state.data.iob).replacingOccurrences(of: ".0", with: ""))
-                            .lineLimit(2)
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
-                    } else if !showPercentage {
+                    if !showPercentage {
                         Image(uiImage: batteryLevelIcon(for: state.data.batteryLevel)).onTapGesture {
                             self.showPercentage = true
                         }

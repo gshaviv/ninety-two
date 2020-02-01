@@ -196,26 +196,41 @@ struct GraphImage: View {
                 fill.fill()
             }
         }
-        let text: String?
+        var text: NSMutableAttributedString?
         if state.state == .snapshot {
             text = nil
-        } else if state.data.iob > 0 {
-            let ageInHours = Int(data.sensorAge / 1.h)
-            text = ageInHours < 24 ? "\(ageInHours)h\n\(state.data.batteryLevel)%" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d\n\(state.data.batteryLevel)%" : "\(ageInHours / 24)d:\(ageInHours % 24)h\n\(state.data.batteryLevel)%"
-        } else if state.data.sensorAge > 7.d {
-            let ageInHours = Int(data.sensorAge / 1.h)
-            text = ageInHours < 24 ? "\(ageInHours)h" : ageInHours % 24 == 0 ? "\(ageInHours / 24)d" : "\(ageInHours / 24)d:\(ageInHours % 24)h"
         } else {
-            text = nil
+            let ageInHours = Int(data.sensorAge / 1.h)
+            switch ageInHours {
+            case ...24:
+                text = "\(ageInHours)h".styled
+                
+            case 120... where ageInHours % 24 == 0:
+                text = "\(ageInHours / 24)d".styled
+                
+            case 120...:
+                text = "\(ageInHours / 24)d:\(ageInHours % 24)h".styled
+                
+            default:
+                text = nil
+            }
+            
+            text?.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7)).systemFont(.bold, size: 16)
+            
+            if state.data.iob > 0 {
+                let color = defaults[.useDarkGraph] ? UIColor.white : UIColor.black
+                if let txt = text {
+                    text = txt + "\nBOB".styled.color(color).systemFont(.bold, size: 16) + " \(state.data.iob.decimal(digits: 1))".styled.color(color).systemFont(.bold, size: 18)
+                } else {
+                    text = "BOB".styled.color(color).systemFont(.bold, size: 16) + " \(state.data.iob.decimal(digits: 1))".styled.color(color).systemFont(.bold, size: 18)
+                }
+            }
+            
+            text?.text(alignment: .center)
         }
+        
         if let text = text {
-            let pStyle = NSMutableParagraphStyle()
-            pStyle.alignment = .center
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .bold),
-                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7),
-                          NSAttributedString.Key.paragraphStyle: pStyle]
-            let styled = NSAttributedString(string: text, attributes: attrib)
-            let tsize = styled.size()
+            let tsize = text.size()
             let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
                            CGRect(x: size.width - tsize.width - 4, y: 2, width: tsize.width, height: tsize.height),
@@ -235,7 +250,7 @@ struct GraphImage: View {
                 return true
             }
             if let trect = trect {
-                styled.draw(in: trect)
+                text.draw(in: trect)
             }
         }
         let image = UIGraphicsGetImageFromCurrentImageContext()
