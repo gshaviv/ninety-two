@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -414,13 +414,16 @@
                                 <rect key="frame" x="0.0" y="44" width="375" height="603"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tic-94-NqD">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="68"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="Yg6-x0-PlP">
-                                                <rect key="frame" x="57.5" y="4" width="260" height="60"/>
+                                                <rect key="frame" x="57.5" y="4" width="260" height="36"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eyI-1G-BJB">
-                                                        <rect key="frame" x="0.0" y="0.0" width="12.5" height="60"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="40" height="36"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="40" id="ydl-t2-yK9"/>
+                                                        </constraints>
                                                         <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <state key="normal" image="chevron.left" catalog="system"/>
                                                         <connections>
@@ -428,7 +431,7 @@
                                                         </connections>
                                                     </button>
                                                     <label opaque="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="Date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="FIm-WP-qsv">
-                                                        <rect key="frame" x="20.5" y="0.0" width="219" height="60"/>
+                                                        <rect key="frame" x="48" y="0.0" width="191.5" height="36"/>
                                                         <gestureRecognizers/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
@@ -438,7 +441,7 @@
                                                         </connections>
                                                     </label>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xjd-DV-IUK">
-                                                        <rect key="frame" x="247.5" y="0.0" width="12.5" height="60"/>
+                                                        <rect key="frame" x="247.5" y="0.0" width="12.5" height="36"/>
                                                         <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <state key="normal" image="chevron.right" catalog="system"/>
                                                         <connections>
@@ -447,6 +450,7 @@
                                                     </button>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstItem="Xjd-DV-IUK" firstAttribute="width" secondItem="eyI-1G-BJB" secondAttribute="width" multiplier="0.3125" id="aq9-wA-CHd"/>
                                                     <constraint firstAttribute="width" constant="260" id="qT9-31-sCk"/>
                                                 </constraints>
                                             </stackView>
@@ -454,12 +458,13 @@
                                         <color key="backgroundColor" systemColor="tertiarySystemBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="bottom" secondItem="Yg6-x0-PlP" secondAttribute="bottom" constant="4" id="7RF-Az-sxf"/>
+                                            <constraint firstAttribute="height" constant="44" id="CWT-cv-LzZ"/>
                                             <constraint firstItem="Yg6-x0-PlP" firstAttribute="centerX" secondItem="Tic-94-NqD" secondAttribute="centerX" id="N8k-l7-fDa"/>
                                             <constraint firstItem="Yg6-x0-PlP" firstAttribute="top" secondItem="Tic-94-NqD" secondAttribute="top" constant="4" id="US0-qJ-1ol"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hUU-MU-rlj" customClass="GlucoseGraph" customModule="WoofKit">
-                                        <rect key="frame" x="0.0" y="68" width="375" height="334"/>
+                                        <rect key="frame" x="0.0" y="44" width="375" height="334"/>
                                         <color key="backgroundColor" systemColor="tertiarySystemBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="tintColor" red="0.57380741830000004" green="0.56553578380000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <userDefinedRuntimeAttributes>
@@ -467,7 +472,7 @@
                                         </userDefinedRuntimeAttributes>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S65-A6-Uxo">
-                                        <rect key="frame" x="0.0" y="402" width="375" height="51"/>
+                                        <rect key="frame" x="0.0" y="378" width="375" height="51"/>
                                         <subviews>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="R9k-9V-s93">
                                                 <rect key="frame" x="20" y="10" width="335" height="32"/>
@@ -495,7 +500,7 @@
                                         </constraints>
                                     </view>
                                     <containerView opaque="NO" contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="150" translatesAutoresizingMaskIntoConstraints="NO" id="878-B5-Obf" customClass="ContainerView" customModule="WoofWoof" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="453" width="375" height="150"/>
+                                        <rect key="frame" x="0.0" y="429" width="375" height="174"/>
                                         <connections>
                                             <segue destination="ui0-pG-QMH" kind="embed" id="Jni-hc-xuw"/>
                                         </connections>

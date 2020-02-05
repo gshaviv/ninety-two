@@ -29,7 +29,8 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         makeTimer()
         addMenuItem(with: UIImage(systemName: "chart.pie.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Summary", action: #selector(showSummary))
         addMenuItem(with: UIImage(systemName: "eyedropper", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Calibrate", action: #selector(calibrate))
-         addMenuItem(with: UIImage(systemName: "arrow.clockwise", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Reload", action: #selector(reload))
+        addMenuItem(with: UIImage(systemName: "arrow.clockwise", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Reload", action: #selector(reload))
+        addMenuItem(with: UIImage(systemName: "playpause.fill", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title1))!, title: "Now Playing", action: #selector(nowPlaying))
     }
     
     private func makeTimer() {
@@ -66,6 +67,10 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     @objc func calibrate() {
         presentController(withName: "calibrate", context: nil)
+    }
+    
+    @objc func nowPlaying() {
+        presentController(withName: "now", context: nil)
     }
     
     @objc func reload() {

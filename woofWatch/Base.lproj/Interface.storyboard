@@ -11,7 +11,18 @@
             <objects>
                 <controller title="Ninety two" id="C5u-kJ-FeA" customClass="GlucoseFaceController" customModule="woofWatch_Extension"/>
             </objects>
-            <point key="canvasLocation" x="-67" y="275"/>
+            <point key="canvasLocation" x="-54" y="941"/>
+        </scene>
+        <!--now-->
+        <scene sceneID="8gG-cN-Jq6">
+            <objects>
+                <controller identifier="now" id="9wQ-0e-Qlv">
+                    <items>
+                        <nowPlayingView alignment="left" id="0Oo-p5-3gK"/>
+                    </items>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="206" y="941"/>
         </scene>
         <!--Cancel-->
         <scene sceneID="8iz-6u-cM9">
