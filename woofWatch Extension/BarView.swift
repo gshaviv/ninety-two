@@ -260,7 +260,7 @@ struct BarView: View {
                     }
                     
                     
-                    let textValue = "\(Double($0.element).decimal(digits: 1))".styled.color(.white).systemFont(size: 12)
+                    let textValue = Double($0.element).maxDigits(1).styled.color(.white).systemFont(size: 12)
                     let size = textValue.size()
                     var textRect = CGRect(x: barRect.midX - size.width / 2,
                                           y: ($0.offset < datum.values.count - 1 || datum.marks.contains(.bottomText)) && self.chartType == .stacked ? barRect.maxY - size.height : barRect.minY + 2,
