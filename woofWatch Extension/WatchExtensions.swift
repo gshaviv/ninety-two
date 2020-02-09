@@ -87,6 +87,29 @@ extension Double {
         NSDecimalRound(&rounded, &initial, n, .plain)
         return rounded
     }
+    
+    public func maxDigits(_ n: Int) -> String {
+        let str = String(format:"%.\(n)lf",self)
+        guard str.contains(".") else {
+            return str
+        }
+        var idx = str.endIndex
+        while idx != str.startIndex  {
+            idx = str.index(before: idx)
+            if str[idx] == "0" {
+                continue
+            }
+            break
+        }
+        if str[idx] == "." {
+            if idx == str.startIndex {
+                return "0"
+            }
+            idx = str.index(before: idx)
+        }
+        let trimmed = str[...idx]
+        return trimmed.isEmpty ? "0" : String(trimmed)
+    }
 }
 
 func - (lhs: Date, rhs: Date) -> TimeInterval {
