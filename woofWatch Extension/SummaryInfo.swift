@@ -36,8 +36,8 @@ struct Summary: Codable {
             try container.encode(dose)
             try container.encode(lows)
             try container.encode(date.timeIntervalSince1970.decimal(digits: 0))
-            try container.encode(percentLow.decimal(digits: 1))
-            try container.encode(percentHigh.decimal(digits: 1))
+            try container.encode(percentLow.decimal(digits: 0))
+            try container.encode(percentHigh.decimal(digits: 0))
         }
         init(from decoder: Decoder) throws {
             var container = try decoder.unkeyedContainer()
