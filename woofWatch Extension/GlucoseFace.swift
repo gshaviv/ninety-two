@@ -76,19 +76,19 @@ struct GlucoseFace: View {
         let color = UIColor(white: 0.2 + 0.7 * (1 - (1 - frac) * (1 - frac)), alpha: 1)
         
         switch level {
-        case 90...:
+        case 87...:
             return UIImage(named: "battery-5")!.tint(with: color)
             
-        case 60..<90:
+        case 62 ..< 87:
             return UIImage(named: "battery-4")!.tint(with: color)
             
-        case 30..<60:
+        case 38 ..< 62:
             return UIImage(named: "battery-3")!.tint(with: color)
             
-        case 20..<30:
+        case 13 ..< 38:
             return UIImage(named: "battery-2")!.tint(with: color)
             
-        case 0 ..< 20:
+        case 0 ..< 13:
             return UIImage(named: "battery-1")!.tint(with: color)
             
         default:
