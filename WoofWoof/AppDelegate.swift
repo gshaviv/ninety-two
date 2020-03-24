@@ -672,7 +672,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                     if current.value > highest {
                         if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                            showAlert(title: "New High Level", body: "Current glucose level is \(Int(current.value))", sound: nil)
+                            showAlert(title: "New High Level", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
                         }
                     }
                     
@@ -682,7 +682,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     
                 default:
                     if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
-                        showAlert(title: "Low & dropping", body: "Current glucose level is \(Int(current.value))", sound: nil)
+                        showAlert(title: "Low & dropping", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
                     }
                 }
                 
