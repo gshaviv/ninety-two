@@ -249,9 +249,7 @@ struct GraphImage: View {
                 }
                 return true
             }
-            if let trect = trect {
-                text.draw(in: trect)
-            }
+            text.draw(in: trect ?? options[0])
         }
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
