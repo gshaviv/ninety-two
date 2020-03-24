@@ -157,11 +157,16 @@ class ViewController: UIViewController {
             }
         }
         NotificationCenter.default.addObserver(self, selector: #selector(deletedPoints), name: DeletedPointsNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willDeletePoints), name: WillDeletePointsNotification, object: nil)
     }
 
     @IBAction func selectedTimeSpan(_ sender: UISegmentedControl) {
         defaults[.timeSpanIndex] = sender.selectedSegmentIndex
         graphView.xTimeSpan = timeSpan[sender.selectedSegmentIndex]
+    }
+    
+    @objc private func willDeletePoints() {
+        MiaoMiao.flushToDatabase()
     }
 
 
