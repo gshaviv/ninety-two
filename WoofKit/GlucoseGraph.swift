@@ -20,6 +20,7 @@ extension GlucoseGraphDelegate {
 private let contractionFactor = CGFloat(0.6)
 
 public let DeletedPointsNotification = Notification.Name("deleted points")
+public let WillDeletePointsNotification = Notification.Name("will delete points")
 
 public struct Prediction {
     public let highDate: Date
@@ -308,13 +309,13 @@ public class GlucoseGraph: UIView {
                 ctx?.strokePath()
                 do {
                     let postfix = prediction.mealCount == 0 ? "1σ = " : ""
-                    let text = "\(Int(prediction.low))\(postfix)".styled.systemFont(size: 14).color(.blue)
+                    let text = "\(Int(round(prediction.low)))\(postfix)".styled.systemFont(size: 14).color(.blue)
                     let size = text.size()
                     text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low) - size.height, width: size.width, height: size.height))
                 }
                 do {
                     let prefix = prediction.mealCount == 0 ? "Ave " : "50% = "
-                    let text = "\(prefix)\(Int(prediction.low50))".styled.systemFont(size: 14).color(.blue)
+                    let text = "\(prefix)\(Int(round(prediction.low50)))".styled.systemFont(size: 14).color(.blue)
                     let size = text.size()
                     text.draw(in: CGRect(x: xCoor(prediction.highDate), y: yCoor(prediction.low50) - size.height, width: size.width, height: size.height))
                 }
@@ -322,19 +323,19 @@ public class GlucoseGraph: UIView {
             ctx?.restoreGState()
             if prediction.h90 > prediction.h50 {
                 let prefix = prediction.mealCount == 0 ? "80% < " : "90% < "
-                let text = "\(prefix)\(Int(prediction.h90))".styled.systemFont(size: 14).color(.blue)
+                let text = "\(prefix)\(Int(round(prediction.h90)))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h90) - size.height, width: size.width, height: size.height))
             }
             if prediction.h10 < prediction.h50 && prediction.h10 > 0 {
                 let prefix = prediction.mealCount == 0 ? "80% < " : "90% > "
-                let text = "\(prefix)\(Int(prediction.h10))".styled.systemFont(size: 14).color(.blue)
+                let text = "\(prefix)\(Int(round(prediction.h10)))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h10) - size.height, width: size.width, height: size.height))
             }
             do {
                 let prefix = prediction.mealCount > 2 ? "50% = " : ""
-                let text = "\(prefix)\(Int(prediction.h50))".styled.systemFont(size: 14).color(.blue)
+                let text = "\(prefix)\(Int(round(prediction.h50)))".styled.systemFont(size: 14).color(.blue)
                 let size = text.size()
                 text.draw(in: CGRect(x: xCoor(prediction.highDate - duration), y: yCoor(prediction.h50) - size.height, width: size.width, height: size.height))
             }
@@ -1008,6 +1009,7 @@ public class GlucoseGraph: UIView {
             if !pointsToDelete.isEmpty {
                 let sheet = UIAlertController(title: "Delete point\(pointsToDelete.count > 1 ? "s" : "")?", message: "Really delete the selected point\(pointsToDelete.count > 1 ? "s" : "")?", preferredStyle: .actionSheet)
                 sheet.addAction(UIAlertAction(title: "Delete", style: .default, handler: { (_) in
+                    NotificationCenter.default.post(name: WillDeletePointsNotification, object: self)
                     if var changedPoints = self.historyPoints {
                         for selected in Array(self.pointsToDelete).sorted().reversed() {
                             changedPoints.remove(at: selected)
