@@ -63,6 +63,7 @@ extension UserDefaults {
         case ce,cl,ch,ie,il,ih
         case esigma, hsigma, lsigma
         case lastEventAlertLevel
+        case timeToLow
     }
 
     public enum DoubleArrayKey: String {
@@ -122,6 +123,7 @@ extension UserDefaults {
                                        BoolKey.includePatternReport.key: true,
                                        BoolKey.alertVibrate.key: true,
                                        DoubleKey.lastEventAlertLevel.key: 100.0,
+                                       DoubleKey.timeToLow.key: 10.0
                                        ]
 
         register(defaults: defaults)

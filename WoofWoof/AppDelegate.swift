@@ -25,7 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             guard let level = MiaoMiao.currentGlucose?.value, let trend = currentTrend else {
                 return true
             }
-            return Date() - last < 15.m && (level > defaults[.highAlertLevel] ? level > defaults[.lastEventAlertLevel] || trend > 0.25 : level < defaults[.lastEventAlertLevel] || trend < 0.1)
+            return Date() - last < 15.m || (level > defaults[.highAlertLevel] ?
+                level > defaults[.lastEventAlertLevel] || trend > 0.25 :
+                false)
         }
         return false
     }
@@ -48,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             
-        case defaults[.lowAlertLevel] ..< defaults[.maxRange]:
+        case defaults[.minRange] ..< defaults[.maxRange]:
             let mid = (defaults[.minRange] + defaults[.maxRange]) / 2
             if let state = sent[.complication] as? String, state == highRange {
                 show = current.value > mid - 5 ? highRange : lowRange
@@ -616,6 +618,7 @@ extension AppDelegate: MiaoMiaoDelegate {
             defaults[.lastEventAlertTime] = Date()
             defaults[.lastEventAlertLevel] = MiaoMiao.currentGlucose?.value ?? 100
             notification.categoryIdentifier = NotificationIdentifier.event
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
             let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
@@ -652,8 +655,29 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             if let trend = currentTrend {
                 switch current.value {
-                case ...defaults[.lowAlertLevel] where !didAlertEvent && trend < -0.25:
-                    showAlert(title: "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
+                case ...defaults[.minRange] where defaults[.lastEventAlertTime] != nil:
+                    if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
+                        showAlert(title: "Low & dropping", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
+                    }
+                    
+                case ...defaults[.lowAlertLevel] where !didAlertEvent:
+                    guard let allTrend = MiaoMiao.trend, allTrend.count > 0, trend < 0 else {
+                        break
+                    }
+                    if current.value < defaults[.minRange] {
+                        showAlert(title:  "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
+                        break
+                    }
+                    let trend15 = (allTrend.first!.value - allTrend.last!.value) / (allTrend.first!.date - allTrend.last!.date) * 60
+                    guard trend15 < 0 else {
+                        break
+                    }
+                    let timeToLow = (70 - current.value) / trend15
+                    if timeToLow <= defaults[.timeToLow] {
+                        let when = Date() + timeToLow.m
+                        let hour = when.hour
+                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.lowGlucose)
+                    }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
                     showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
@@ -681,9 +705,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     break
                     
                 default:
-                    if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
-                        showAlert(title: "Low & dropping", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
-                    }
+                    break
                 }
                 
                 if WCSession.default.isReachable {

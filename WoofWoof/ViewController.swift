@@ -26,6 +26,7 @@ class ViewController: UIViewController {
     @IBOutlet var batteryLevelLabel: UILabel!
     @IBOutlet var sensorAgeLabel: UILabel!
     @IBOutlet var agoLabel: UILabel!
+    @IBOutlet weak var containerView: UIView!
     @IBOutlet var trendLabel: UILabel!
     var summaryController: SummaryViewController?
     @IBOutlet var timeSpanSelector: UISegmentedControl!
@@ -376,6 +377,11 @@ class ViewController: UIViewController {
             String(format: "%lg", defaults[.lowAlertLevel])
         }) {
             defaults[.lowAlertLevel] = $0
+        }
+        ctr.addValue(title: "Time to Predicted Low [m]", get: {
+            String(format: "%lg", defaults[.timeToLow])
+        }) {
+            defaults[.timeToLow] = $0
         }
         ctr.addBool(title: "Vibrate", get: { () -> Bool in
             return defaults[.alertVibrate]

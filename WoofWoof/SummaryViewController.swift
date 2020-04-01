@@ -21,14 +21,7 @@ class SummaryViewController: UIHostingController<SummaryView> {
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder, rootView: SummaryView(summary: summary, action: action))
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
         preferredContentSize = CGSize(width: 375, height: (UIFont.preferredFont(forTextStyle: .body).pointSize + 5) * 7)
-        
-        updateSummary()
         listen = NotificationCenter.default.addObserver(forName: UserDefaults.notificationForChange(UserDefaults.IntKey.summaryPeriod), object: nil, queue: OperationQueue.main) { (_) in
             self.updateSummary()
         }
@@ -36,7 +29,7 @@ class SummaryViewController: UIHostingController<SummaryView> {
             switch $0 {
             case .period:
                 self?.changePeriod()
-
+                
             case .dailyAverage:
                 self?.navigationController?.pushViewController(AveHistoryController(), animated: true)
                 
@@ -50,6 +43,11 @@ class SummaryViewController: UIHostingController<SummaryView> {
                 self?.navigationController?.pushViewController(RangeHistoryController(), animated: true)
             }
         }
+    }
+    
+    override func viewDidLoad() {
+        updateSummary()
+        super.viewDidLoad()        
     }
     
     @objc public func updateSummary(completion: ((Bool)->Void)? = nil) {

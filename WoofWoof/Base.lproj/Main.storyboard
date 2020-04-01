@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -202,6 +202,7 @@
                         <outlet property="batteryLevelImage" destination="kW8-4j-jwz" id="7TE-pN-rDg"/>
                         <outlet property="batteryLevelLabel" destination="6Sn-kc-7Gj" id="lIp-9K-1I0"/>
                         <outlet property="connectingLabel" destination="Q2P-eo-NhZ" id="uIc-0M-wld"/>
+                        <outlet property="containerView" destination="cr8-wz-VFX" id="fR6-pD-r9T"/>
                         <outlet property="currentGlucoseLabel" destination="fnn-TC-0vP" id="Odb-U7-Egd"/>
                         <outlet property="graphView" destination="HS6-O8-9Lv" id="SRV-c8-c8t"/>
                         <outlet property="insulinActionLabel" destination="kty-YP-6KW" id="0xJ-fU-tOx"/>
@@ -244,7 +245,7 @@
             </objects>
             <point key="canvasLocation" x="1151" y="-627"/>
         </scene>
-        <!--Autocomplete Data Source-->
+        <!--Add Record-->
         <scene sceneID="TkH-xb-pXy">
             <objects>
                 <viewController id="Uek-Uy-uXT" customClass="RecordViewController" customModule="WoofWoof" customModuleProvider="target" sceneMemberID="viewController">
@@ -1055,16 +1056,16 @@
             <point key="canvasLocation" x="2471" y="-28"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="Ndh-Sv-h7U"/>
+        <segue reference="sbN-Ga-rai"/>
+        <segue reference="IJY-fY-crx"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="battery-1" width="30" height="18"/>
-        <image name="chevron.left" catalog="system" width="48" height="64"/>
-        <image name="chevron.right" catalog="system" width="48" height="64"/>
+        <image name="chevron.left" catalog="system" width="96" height="128"/>
+        <image name="chevron.right" catalog="system" width="96" height="128"/>
         <image name="more" width="27" height="23"/>
         <image name="plus" width="20" height="20"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="Ndh-Sv-h7U"/>
-        <segue reference="Jni-hc-xuw"/>
-        <segue reference="uYj-cT-jsf"/>
-    </inferredMetricsTieBreakers>
 </document>

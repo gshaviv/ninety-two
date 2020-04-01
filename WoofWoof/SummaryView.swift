@@ -47,7 +47,7 @@ struct SummaryView: View {
             Text("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")").font(.headline).onTapGesture {
                 self.action.send(.period)
             }
-            BalancedHStack(spacing: 2, [
+            HStack(spacing: 2) {
                 PieChartView([
                     ChartPiece(value: summary.data.timeInLevel[2], color: Color(defaults[.color2])),
                     ChartPiece(value: summary.data.timeInLevel[3], color: Color(defaults[.color3])),
@@ -57,7 +57,7 @@ struct SummaryView: View {
                     ChartPiece(value: summary.data.timeInLevel[0], color: Color(defaults[.color0])),
                 ]).onTapGesture {
                     self.action.send(.dailyRange)
-                }.asAnyView,
+                }
                 VStack {
                     Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
@@ -69,7 +69,7 @@ struct SummaryView: View {
                     }
                     Text("Med Low").headline()
                     Text(summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60)).value()
-                }.asAnyView,
+                }
                 VStack {
                     Text("In Range").headline()
                     Text("\(summary.data.percentTimeIn.description)%").value()
@@ -81,7 +81,7 @@ struct SummaryView: View {
                     }
                     Text("eA1C").headline()
                     Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
-                }.asAnyView,
+                }
                 VStack {
                     Text("Above").headline()
                     Text("\(summary.data.percentTimeAbove.description)%").value()
@@ -93,8 +93,8 @@ struct SummaryView: View {
                     Text("\(summary.data.atdd % ".1lf")").value().onTapGesture {
                         self.action.send(.dailyDose)
                     }
-                }.asAnyView
-            ])
+                }
+            }
         }.padding([.leading, .trailing], 4)
     }
 }
