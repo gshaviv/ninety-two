@@ -661,22 +661,18 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
                     
                 case ...defaults[.lowAlertLevel] where !didAlertEvent:
-                    guard let allTrend = MiaoMiao.trend, allTrend.count > 0, trend < 0 else {
-                        break
-                    }
-                    if current.value < defaults[.minRange] {
+                    guard current.value > defaults[.minRange] else {
                         showAlert(title:  "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
                         break
                     }
-                    let trend15 = (allTrend.first!.value - allTrend.last!.value) / (allTrend.first!.date - allTrend.last!.date) * 60
-                    guard trend15 < 0 else {
+                    guard let timeToLow = estimatedTimeToLow(trend: MiaoMiao.trend ?? []) else {
                         break
                     }
-                    let timeToLow = (70 - current.value) / trend15
-                    if timeToLow <= defaults[.timeToLow] {
-                        let when = Date() + timeToLow.m
+
+                    if timeToLow <= defaults[.timeToLow].m && timeToLow > 0 {
+                        let when = Date() + timeToLow
                         let hour = when.hour
-                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.lowGlucose)
+                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.lowGlucose)
                     }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
@@ -719,6 +715,36 @@ extension AppDelegate: MiaoMiaoDelegate {
                 }
             }
         }
+    }
+    
+    private func estimatedTimeToLow(trend: [GlucosePoint]) -> TimeInterval? {
+        let n = Double(trend.count)
+        guard n > 2 else {
+            return nil
+        }
+        var sumy = Double(0)
+        var sumx = Double(0)
+        var sumx2 = Double(0)
+        var sumxy = Double(0)
+        for p in trend {
+            let x = p.date - trend[0].date
+            let y = p.value
+            sumy += y
+            sumx += x
+            sumx2 += x * x
+            sumxy += x * y
+        }
+        let denom = n * sumx2 - sumx * sumx
+        guard abs(denom) > 1e-6 else {
+            return nil
+        }
+        let b = (n * sumxy - sumx * sumy) / denom
+        guard b < -1e-6 else {
+            return nil
+        }
+        let a = (sumy * sumx2 - sumx * sumxy) / denom
+
+        return (defaults[.minRange] - a) / b
     }
 }
 
