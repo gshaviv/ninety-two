@@ -665,7 +665,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                         showAlert(title:  "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
                         break
                     }
-                    guard let timeToLow = estimatedTimeToLow(trend: MiaoMiao.trend ?? []) else {
+                    guard let timeToLow = estimatedTimeToLow() else {
                         break
                     }
 
