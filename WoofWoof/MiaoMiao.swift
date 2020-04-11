@@ -509,6 +509,29 @@ class MiaoMiao {
             }
         }
     }
+    
+    public static func trendline() -> (a: Double,b: Double)? {
+        guard let trend = trend else {
+            return nil
+        }
+        let n = Double(trend.count)
+        guard n > 2 else {
+            return nil
+        }
+        let s = trend.reduce((x: 0.0, x2: 0.0, y: 0.0, xy: 0.0)) {
+            let x = $1.date - trend[0].date
+            let y = $1.value
+            return $0 + (x, x * x, y, x * y)
+        }
+        let denom = n * s.x2 - s.x * s.x
+        guard abs(denom) > 1e-6 else {
+            return nil
+        }
+        let a = (n * s.xy - s.x * s.y) / denom
+        let b = (s.y * s.x2 - s.x * s.xy) / denom
+        
+        return (a: a, b: b)
+    }
 
     private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         DispatchQueue.global().async {
@@ -555,3 +578,6 @@ class MiaoMiao {
     }
 }
 
+private func + (lhs: (x: Double, x2: Double, y: Double, xy: Double), rhs: (x: Double, x2: Double, y: Double, xy: Double))  -> (x: Double, x2: Double, y: Double, xy: Double) {
+    (x: lhs.x + rhs.x, x2: lhs.x2 + rhs.x2, y: lhs.y + rhs.y, xy: lhs.xy + rhs.xy)
+}

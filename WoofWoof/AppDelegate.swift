@@ -717,34 +717,12 @@ extension AppDelegate: MiaoMiaoDelegate {
         }
     }
     
-    private func estimatedTimeToLow(trend: [GlucosePoint]) -> TimeInterval? {
-        let n = Double(trend.count)
-        guard n > 2 else {
+    private func estimatedTimeToLow() -> TimeInterval? {
+        guard let coef = MiaoMiao.trendline(), coef.a < -1e-6 else {
             return nil
         }
-        var sumy = Double(0)
-        var sumx = Double(0)
-        var sumx2 = Double(0)
-        var sumxy = Double(0)
-        for p in trend {
-            let x = p.date - trend[0].date
-            let y = p.value
-            sumy += y
-            sumx += x
-            sumx2 += x * x
-            sumxy += x * y
-        }
-        let denom = n * sumx2 - sumx * sumx
-        guard abs(denom) > 1e-6 else {
-            return nil
-        }
-        let b = (n * sumxy - sumx * sumy) / denom
-        guard b < -1e-6 else {
-            return nil
-        }
-        let a = (sumy * sumx2 - sumx * sumxy) / denom
-
-        return (defaults[.minRange] - a) / b
+        
+        return (defaults[.minRange] - coef.b) / coef.a
     }
 }
 
