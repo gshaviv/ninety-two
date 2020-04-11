@@ -302,11 +302,11 @@ class MiaoMiao {
                         let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                         let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                         record(trend: trendPoints, history: historyPoints)
-                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date {
+                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date , let line = MiaoMiao.trendline(), abs(line.a) < 0.01 {
                             if let sensorAge = sensorAge, sensorAge < 1.d {
                                 defaults[.nextCalibration] = Date() + 6.h
                             } else {
-                                defaults[.nextCalibration] = nil
+                                defaults[.nextCalibration] = Date() + 1.h
                             }
                             showCalibrationAlert()
                         }
