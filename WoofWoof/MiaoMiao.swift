@@ -302,7 +302,7 @@ class MiaoMiao {
                         let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                         let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                         record(trend: trendPoints, history: historyPoints)
-                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date , let line = MiaoMiao.trendline(), abs(line.a) < 0.01 {
+                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date , let line = MiaoMiao.trendline(), abs(line.a) < 0.005 {
                             if let sensorAge = sensorAge, sensorAge < 1.d {
                                 defaults[.nextCalibration] = Date() + 6.h
                             } else {
@@ -369,6 +369,7 @@ class MiaoMiao {
             notification.title = "Calibration needed"
             notification.body = "Please Calibrate BG"
             notification.categoryIdentifier = "calibrate"
+            notification.sound = UNNotificationSound.default
             let request = UNNotificationRequest(identifier: NotificationIdentifier.calibrate, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
