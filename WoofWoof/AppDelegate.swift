@@ -672,7 +672,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     if timeToLow <= defaults[.timeToLow].m && timeToLow > 0 {
                         let when = Date() + timeToLow
                         let hour = when.hour
-                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.lowGlucose)
+                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.toBeLow)
                     }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
@@ -769,4 +769,6 @@ extension UNNotificationSound {
     public static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose.caf")
     public static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose.caf")
     public static let missed = UNNotificationSoundName(rawValue: "Siri_Missed_Readings.caf")
+    public static let lowBattery = UNNotificationSoundName(rawValue: "Siri_Transmitter_Battery_Low.caf")
+    public static let toBeLow = UNNotificationSoundName(rawValue: "About_to_be_Low.caf")
 }

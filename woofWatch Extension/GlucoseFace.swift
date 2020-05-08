@@ -13,6 +13,7 @@ import Combine
 struct GlucoseFace: View {
     @EnvironmentObject var state: AppState
     @State var showPercentage = false
+    @ObservedObject var ago: MeasurementTime
     
     var body: some View {
         guard let last = state.data.readings.last else {
@@ -29,7 +30,7 @@ struct GlucoseFace: View {
         } else if last.value < 70 {
             tvalue = "\(state.data.trendValue > 0 ? "+" : "")\(String(format: "%.1lf",state.data.trendValue).trimmingCharacters(in: CharacterSet(charactersIn: "0")))"
         } else {
-            tvalue = String(format: "%@%.1lf", state.data.trendValue > 0 ? "+" : "", state.data.trendValue)
+            tvalue = String(format: "%@%.1lf ", state.data.trendValue > 0 ? "+" : "", state.data.trendValue)
         }
         
         return
@@ -50,9 +51,18 @@ struct GlucoseFace: View {
                     if state.state == .sending {
                         ActivityIndicator(size: 14).padding(.leading, 2)
                     } else {
-                        Text(tvalue)
-                            .lineLimit(1)
-                            .layoutPriority(0)
+                        VStack(alignment: .center, spacing: 0) {
+                            Text(ago.since)
+                                .lineLimit(1)
+                                .layoutPriority(0)
+                                .font(Font.monospacedDigit(Font.body)())
+                            Text(tvalue)
+                                .lineLimit(1)
+                                .layoutPriority(0)
+                                .font(Font.monospacedDigit(Font.body)())
+
+                        }
+                        .layoutPriority(0)
                     }
                     Spacer(minLength: 0)
                     Text("\(levelStr)\(state.data.trendSymbol)")
@@ -76,19 +86,19 @@ struct GlucoseFace: View {
         let color = UIColor(white: 0.2 + 0.7 * (1 - (1 - frac) * (1 - frac)), alpha: 1)
         
         switch level {
-        case 87...:
+        case 95...:
             return UIImage(named: "battery-5")!.tint(with: color)
             
-        case 62 ..< 87:
+        case 65 ..< 95:
             return UIImage(named: "battery-4")!.tint(with: color)
             
-        case 38 ..< 62:
+        case 35 ..< 65:
             return UIImage(named: "battery-3")!.tint(with: color)
             
-        case 13 ..< 38:
+        case 10 ..< 35:
             return UIImage(named: "battery-2")!.tint(with: color)
             
-        case 0 ..< 13:
+        case 0 ..< 10:
             return UIImage(named: "battery-1")!.tint(with: color)
             
         default:
@@ -167,14 +177,19 @@ struct GlucoseFace_Previews: PreviewProvider {
     }()
     
     static let initialState = AppState()
+    static let than: MeasurementTime = {
+        let than = MeasurementTime()
+        than.since = "2:22"
+        return than
+    }()
 
     static var previews: some View {
         Group {
-            GlucoseFace().previewDisplayName("Normal").environmentObject(testState)
-            GlucoseFace().previewDisplayName("Error").environmentObject(errorState)
-            GlucoseFace().previewDisplayName("Sending").environmentObject(sendingState)
-            GlucoseFace().previewDisplayName("Snapshot").environmentObject(snapshotState)
-            GlucoseFace().previewDisplayName("Initial").environmentObject(initialState)
+            GlucoseFace(ago: than).previewDisplayName("Normal").environmentObject(testState)
+            GlucoseFace(ago: than).previewDisplayName("Error").environmentObject(errorState)
+            GlucoseFace(ago: than).previewDisplayName("Sending").environmentObject(sendingState)
+            GlucoseFace(ago: than).previewDisplayName("Snapshot").environmentObject(snapshotState)
+            GlucoseFace(ago: than).previewDisplayName("Initial").environmentObject(initialState)
         }
     }
 }

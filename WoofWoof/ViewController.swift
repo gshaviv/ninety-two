@@ -99,16 +99,16 @@ class ViewController: UIViewController {
     
     private func batteryLevelIcon(for level: Int) -> UIImage {
         switch level {
-        case 90...:
+        case 95...:
             return UIImage(named: "battery-5")!
 
-        case 60..<90:
+        case 65..<95:
             return UIImage(named: "battery-4")!
 
-        case 30..<60:
+        case 35..<65:
             return UIImage(named: "battery-3")!
 
-        case 20..<30:
+        case 10..<35:
             return UIImage(named: "battery-2")!
 
         default:

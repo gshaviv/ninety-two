@@ -369,7 +369,7 @@ class MiaoMiao {
             notification.title = "Calibration needed"
             notification.body = "Please Calibrate BG"
             notification.categoryIdentifier = "calibrate"
-            notification.sound = UNNotificationSound.default
+            notification.sound = UNNotificationSound(named: UNNotificationSound.calibrationNeeded)
             let request = UNNotificationRequest(identifier: NotificationIdentifier.calibrate, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
@@ -470,12 +470,18 @@ class MiaoMiao {
                 try Storage.default.db.perform(c.insert())
                 let factor = bg / current.value
                 defaults[.additionalSlope] *= factor
-                if abs(factor - 1) > 0.1, let age = MiaoMiao.sensorAge, age < 1.d {
-                    if defaults[.nextCalibration] == nil {
-                        defaults[.nextCalibration] = Date() + 3.h
-                    } else {
+                if let age = MiaoMiao.sensorAge {
+                    switch (abs(factor - 1) < 0.1, age > 1.d) {
+                    case (true, false):
                         defaults[.nextCalibration] = Date() + 6.h
+
+                    case (true, true):
+                        defaults[.nextCalibration] = nil
+
+                    case (false, _):
+                        defaults[.nextCalibration] = Date() + 3.h
                     }
+                    
                 }
                 UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                 last24hReadings.append(c)

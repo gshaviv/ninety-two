@@ -15,15 +15,18 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     var observer: AnyCancellable?
     var started = false
     var repeater: Repeater?
+    let measurement =  MeasurementTime()
+    var dateString = ""
 
     override var body: AnyView {
-        GlucoseFace().environmentObject(appState).asAnyView
+        GlucoseFace(ago: measurement).environmentObject(appState).asAnyView
     }
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         observer = appState.$state.sink(receiveValue: {
             if $0 == .snapshot {
                 self.setTitle("Ninety two")
+                self.dateString = ""
             }
         })
         makeTimer()
@@ -39,16 +42,24 @@ class GlucoseFaceController: WKHostingController<AnyView> {
                 let diff = Int(Date().timeIntervalSince(last.date))
                 switch diff {
                 case ..<0:
-                    self?.setTitle("Ninety Two")
+                    self?.measurement.since = ""
                     
                 case 0 ..< 3600:
-                    self?.setTitle(String(format:"%ld:%02ld", diff / 60, diff % 60))
+                    self?.measurement.since = String(format:"%ld:%02ld", diff / 60, diff % 60)
                     
                 case 3600 ..< 86400:
-                    self?.setTitle(String(format:"%ld:%02ld:%02ld", diff / 3600, (diff / 60) % 60, diff % 60))
+                    self?.measurement.since = String(format:"%ld:%02ld:%02ld", diff / 3600, (diff / 60) % 60, diff % 60)
                     
                 default:
-                    self?.setTitle(">1day")
+                    self?.measurement.since = ">1day"
+                }
+                let now = Date()
+                let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+                let mo = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sep","Oct","Nov","Dec"]
+                let today = "\(days[now.weekDay - 1]), \(mo[now.month - 1]) \(now.day)"
+                if today != self?.dateString {
+                    self?.dateString = today
+                    self?.setTitle(today)
                 }
                 
             }
@@ -57,9 +68,14 @@ class GlucoseFaceController: WKHostingController<AnyView> {
     
     override func willActivate() {
         super.willActivate()
+        dateString = ""
         makeTimer()
     }
     
+    override func didAppear() {
+        super.didAppear()
+        dateString = ""
+    }
     
     @objc func showSummary() {
         pushController(withName: "summary", context: nil)
@@ -82,5 +98,16 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         }) { (_) in
             appState.state = .error
         }
+    }
+}
+
+
+class MeasurementTime: ObservableObject {
+    @Published var since: String = ""
+}
+
+struct GlucoseFaceController_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }
