@@ -155,7 +155,7 @@ struct GlucoseFace_Previews: PreviewProvider {
     static let errorState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 13.d - 2.h, batteryLevel: 70)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 14.d + 2.h + 3.m, batteryLevel: 70)
         state.state = .error
         return state
     }()
@@ -163,7 +163,7 @@ struct GlucoseFace_Previews: PreviewProvider {
     static let sendingState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d, batteryLevel: 60)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d - 2.h, batteryLevel: 60)
         state.state = .sending
         return state
     }()

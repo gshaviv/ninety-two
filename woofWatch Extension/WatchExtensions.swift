@@ -15,6 +15,9 @@ extension DateComponents {
         return Calendar.current.date(from: self) ?? Date(timeIntervalSince1970: 0)
     }
 }
+private let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+private let months = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sep","Oct","Nov","Dec"]
+
 extension Date {
     private static var compKey = false
     var components: DateComponents {
@@ -27,25 +30,32 @@ extension Date {
         }
     }
     public var weekDay: Int {
-        return components.weekday ?? 0
+        components.weekday ?? 0
     }
+    public var dayName: String {
+        days[weekDay - 1]
+    }
+    
     var day: Int {
-        return components.day ?? 0
+        components.day ?? 0
     }
     var month: Int {
-        return components.month ?? 0
+        components.month ?? 0
+    }
+    var monthName: String {
+        months[month - 1]
     }
     var year: Int {
-        return components.year ?? 0
+        components.year ?? 0
     }
     var hour: Int {
-        return components.hour ?? 0
+        components.hour ?? 0
     }
     var minute: Int {
-        return components.minute ?? 0
+        components.minute ?? 0
     }
     var second: Int {
-        return components.second ?? 0
+         components.second ?? 0
     }
     public func isOnSameDay(as date: Date) -> Bool {
         day == date.day && month == date.month && year == date.year

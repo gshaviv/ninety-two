@@ -54,9 +54,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
                     self?.measurement.since = ">1day"
                 }
                 let now = Date()
-                let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
-                let mo = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sep","Oct","Nov","Dec"]
-                let today = "\(days[now.weekDay - 1]), \(mo[now.month - 1]) \(now.day)"
+                let today = "\(now.dayName), \(now.monthName) \(now.day)"
                 if today != self?.dateString {
                     self?.dateString = today
                     self?.setTitle(today)

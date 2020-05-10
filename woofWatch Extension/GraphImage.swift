@@ -201,21 +201,41 @@ struct GraphImage: View {
             text = nil
         } else {
             let ageInHours = Int(data.sensorAge / 1.h)
+            let libreDays = Int(defaults[.libreDays] * 24)
             switch ageInHours {
             case ...24:
-                text = "\(ageInHours)h".styled
+                text = "\(ageInHours)h".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
                 
-            case 120... where ageInHours % 24 == 0:
-                text = "\(ageInHours / 24)d".styled
+            case (libreDays - 6*24) ..< (libreDays - 4):
+                let expire = data.sensorBegin + defaults[.libreDays].d
+                text = "\(expire.hour):\(Int(expire.minute) % ".02ld") \(expire.dayName)".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
+                    .systemFont(.medium, size: 16)
                 
-            case 120...:
-                text = "\(ageInHours / 24)d:\(ageInHours % 24)h".styled
+            case (libreDays - 4) ..< libreDays:
+                let timeLeft = Int((libreDays.h - data.sensorAge) / 1.m)
+                text = "-(\(timeLeft / 60):\(timeLeft % 60 % ".02ld"))".styled.color(defaults[.useDarkGraph] ? UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 0.75) : UIColor(red: 0.1, green: 0.1, blue: 0, alpha: 0.7))
+                .systemFont(.medium, size: 16)
+                
+            case libreDays...:
+                let timeOver = Int((data.sensorAge - libreDays.h) / 1.m)
+                text = { () -> NSMutableAttributedString in
+                    switch timeOver {
+                    case ..<1:
+                        return "Expired".styled
+                        
+                    case 1... where timeOver % 60 == 0:
+                        return "\(timeOver / 60)h".styled
+                        
+                    default:
+                        return "\(timeOver / 60):\(timeOver % 60 % ".02ld")".styled
+                    }
+                }()
+                    .color(defaults[.useDarkGraph] ? UIColor(red: 1, green: 0.3, blue: 0.3, alpha: 0.75) : UIColor(red: 0.4, green: 0.1, blue: 0.1, alpha: 0.7))
+                    .systemFont(.bold, size: 16)
                 
             default:
                 text = nil
             }
-            
-            text?.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7)).systemFont(.bold, size: 16)
             
             if state.data.iob > 0 {
                 let color = defaults[.useDarkGraph] ? UIColor.white : UIColor.black
@@ -254,5 +274,11 @@ struct GraphImage: View {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
+    }
+}
+
+struct GraphImage_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }

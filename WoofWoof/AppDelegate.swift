@@ -421,7 +421,8 @@ extension AppDelegate: WCSessionDelegate {
             UserDefaults.DoubleKey.delayMinutes.key,
             UserDefaults.DoubleKey.peakMinutes.key,
             UserDefaults.DoubleKey.diaMinutes.key,
-            UserDefaults.BoolKey.useDarkGraph.key
+            UserDefaults.BoolKey.useDarkGraph.key,
+            UserDefaults.IntKey.libreDays.key
         ]
         var defaultValues = [String:AnyHashable]()
         for key in watchDefaults {

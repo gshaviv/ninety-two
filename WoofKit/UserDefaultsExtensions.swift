@@ -76,6 +76,7 @@ extension UserDefaults {
         case watchSleepTime
         case badDataCount
         case summaryPeriod
+        case libreDays
     }
 
     public enum ColorKey: String {
@@ -123,7 +124,8 @@ extension UserDefaults {
                                        BoolKey.includePatternReport.key: true,
                                        BoolKey.alertVibrate.key: true,
                                        DoubleKey.lastEventAlertLevel.key: 100.0,
-                                       DoubleKey.timeToLow.key: 10.0
+                                       DoubleKey.timeToLow.key: 10.0,
+                                       IntKey.libreDays.key: 14
                                        ]
 
         register(defaults: defaults)
