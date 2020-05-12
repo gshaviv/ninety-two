@@ -71,6 +71,7 @@ class LowEventsViewController: UIViewController {
         
         let format = UIGraphicsImageRendererFormat()
         format.scale = UIScreen.main.scale
+        format.opaque = true
         let render = UIGraphicsImageRenderer(size: CGSize(width: view.width, height: view.height), format: format).image { (_) in
             guard lowEvents.count > 0 else {
                 return
@@ -78,6 +79,8 @@ class LowEventsViewController: UIViewController {
             let normalFont = UIFont.systemFont(ofSize: 11)
             let rect = CGRect(x: 0, y: 0, width: self.view.width, height: self.view.height)
             let ctx = UIGraphicsGetCurrentContext()
+            UIColor.systemBackground.set()
+            ctx?.fill(rect)
             let yMaxValue = Double(70)
             let yMinValue = floor(minValue / 5) * 5
             let topMargin:Double = 0
