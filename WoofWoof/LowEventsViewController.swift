@@ -15,7 +15,6 @@ class LowEventsViewController: UIViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         edgesForExtendedLayout = []
-        title = "Low Events"
     }
     
     required init?(coder: NSCoder) {
@@ -62,12 +61,15 @@ class LowEventsViewController: UIViewController {
                 currentEvent.append(point)
             } else if inEvent {
                 currentEvent.append(point)
-                lowEvents.append(currentEvent)
+                if currentEvent.map({ $0.value }).min() ?? 0 < 67 {
+                    lowEvents.append(currentEvent)
+                }
                 inEvent = false
                 currentEvent = []
             }
             lastPoint = point
         }
+        title = "\(lowEvents.count) Low Events"
         
         let format = UIGraphicsImageRendererFormat()
         format.scale = UIScreen.main.scale
@@ -114,9 +116,6 @@ class LowEventsViewController: UIViewController {
                 let size = time.size()
                 let xCenter = CGFloat(x) * graphRect.width / 12.0
                 let area = CGRect(origin: CGPoint(x: min(xCenter - size.width / 2,graphRect.maxX - size.width), y: graphRect.maxY - size.height), size: size)
-                if x > 0 && x < 12 {
-                    time.draw(in: area)
-                }
                 UIColor.secondaryLabel.setStroke()
                 ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: xCenter, y: 0))
@@ -164,6 +163,15 @@ class LowEventsViewController: UIViewController {
                 }
             }
             ctx?.restoreGState()
+            for x in 0 ... 12 {
+                let time = String(format: "%02ld",(x == 12 ? 0 : x) * 2).styled.font(normalFont).color(UIColor.label)
+                let size = time.size()
+                let xCenter = CGFloat(x) * graphRect.width / 12.0
+                let area = CGRect(origin: CGPoint(x: min(xCenter - size.width / 2,graphRect.maxX - size.width), y: graphRect.maxY - size.height), size: size)
+                if x > 0 && x < 12 {
+                    time.draw(in: area)
+                }
+            }
 //            UIColor.label.setStroke()
 //            ctx?.setLineWidth(1)
 //            ctx?.stroke(graphRect)
