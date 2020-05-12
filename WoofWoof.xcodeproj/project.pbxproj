@@ -114,6 +114,7 @@
 		E4600AA221E3DC0600CDB7D4 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40021B821D7BA6C001AB34D /* Repeater.swift */; };
 		E461B2BD23C9C521006F8283 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DE242F23C08B55004B6396 /* BarView.swift */; };
 		E461B2BF23C9E9EC006F8283 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C847A23C118D500418207 /* HistoryView.swift */; };
+		E46ACEB22469B5B2001274D6 /* LowEventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46ACEB12469B5B2001274D6 /* LowEventsViewController.swift */; };
 		E46BB2AA222C58EE00F44B4C /* AttributedStringConstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5023321D61E9800E18DDD /* AttributedStringConstruction.swift */; };
 		E46C847B23C118D500418207 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C847A23C118D500418207 /* HistoryView.swift */; };
 		E46DC58121F20FE700E9E391 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E46DC58021F20FE700E9E391 /* Media.xcassets */; };
@@ -422,6 +423,7 @@
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "woofWatch Extension.entitlements"; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
+		E46ACEB12469B5B2001274D6 /* LowEventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowEventsViewController.swift; sourceTree = "<group>"; };
 		E46C847A23C118D500418207 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		E483230F235718C50082E9F1 /* StateKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKey.swift; sourceTree = "<group>"; };
@@ -842,6 +844,7 @@
 				E4519E0C23509EB700002871 /* TrendSymbol.swift */,
 				E483230F235718C50082E9F1 /* StateKey.swift */,
 				E4DE505823D8760900979247 /* Launch.storyboard */,
+				E46ACEB12469B5B2001274D6 /* LowEventsViewController.swift */,
 			);
 			path = WoofWoof;
 			sourceTree = "<group>";
@@ -1411,6 +1414,7 @@
 				E48F42B121C53A0A001AF4CD /* MiaoMiao.swift in Sources */,
 				E4C18FD423409A2200B1163E /* BalancedHStack.swift in Sources */,
 				E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */,
+				E46ACEB22469B5B2001274D6 /* LowEventsViewController.swift in Sources */,
 				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E40F112023103BA900346D0C /* EndPredictionLR.mlmodel in Sources */,
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,

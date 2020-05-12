@@ -34,7 +34,7 @@ class SummaryViewController: UIHostingController<SummaryView> {
                 self?.navigationController?.pushViewController(AveHistoryController(), animated: true)
                 
             case .dailyLows:
-                self?.navigationController?.pushViewController(LowsHistoryController(), animated: true)
+                self?.navigationController?.pushViewController(LowEventsViewController(), animated: true)
                 
             case .dailyDose:
                 self?.navigationController?.pushViewController(DoseHistoryController(), animated: true)
