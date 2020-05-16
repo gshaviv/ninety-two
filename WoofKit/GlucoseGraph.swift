@@ -109,11 +109,13 @@ public class GlucoseGraph: UIView {
             }
             let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
             holes = []
-            for (idx, gp) in historyPoints[1...].enumerated() {
-                if gp.type == .calibration {
-                    holes.append(idx + 1)
-                } else if gp.date - historyPoints[idx].date > 1.h + 30.m {
-                    holes.append(idx + 1)
+            if historyPoints.count > 1 {
+                for (idx, gp) in historyPoints[1...].enumerated() {
+                    if gp.type == .calibration {
+                        holes.append(idx + 1)
+                    } else if gp.date - historyPoints[idx].date > 1.h + 30.m {
+                        holes.append(idx + 1)
+                    }
                 }
             }
             yRange.min = max(CGFloat(floor(gmin / 5) * 5), 10)
