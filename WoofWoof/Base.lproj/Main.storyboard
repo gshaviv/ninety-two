@@ -2,7 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LCA-B0-F41">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -205,10 +205,12 @@
                         <outlet property="containerView" destination="cr8-wz-VFX" id="fR6-pD-r9T"/>
                         <outlet property="currentGlucoseLabel" destination="fnn-TC-0vP" id="Odb-U7-Egd"/>
                         <outlet property="graphView" destination="HS6-O8-9Lv" id="SRV-c8-c8t"/>
+                        <outlet property="infoBar" destination="tgT-du-ZXK" id="vpr-EF-K84"/>
                         <outlet property="insulinActionLabel" destination="kty-YP-6KW" id="0xJ-fU-tOx"/>
                         <outlet property="iobLabel" destination="uBM-zf-Ix8" id="NNV-HG-ZWl"/>
                         <outlet property="sensorAgeLabel" destination="tss-jP-hB5" id="KTA-G8-LEh"/>
                         <outlet property="timeSpanSelector" destination="t4g-Xt-sNc" id="MTx-G2-cN3"/>
+                        <outlet property="timespanContainer" destination="e6r-xQ-IQs" id="vHn-3F-ZED"/>
                         <outlet property="trendLabel" destination="goz-Lk-GC9" id="mfz-8k-dli"/>
                         <segue destination="ZUa-p3-23U" kind="show" identifier="history" id="qnz-rn-XWa"/>
                         <segue destination="QxM-av-AOk" kind="presentation" identifier="addRecord" id="IJY-fY-crx"/>

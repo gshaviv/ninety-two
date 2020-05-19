@@ -31,9 +31,12 @@ class ViewController: UIViewController {
     var summaryController: SummaryViewController?
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     @IBOutlet var iobLabel: UILabel!
+    private var summaryNavigationController: UINavigationController!
+    @IBOutlet var timespanContainer: UIView!
     private var updater: Repeater?
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
     @IBOutlet weak var insulinActionLabel: UILabel!
+    @IBOutlet var infoBar: UIView!
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -41,6 +44,7 @@ class ViewController: UIViewController {
             summaryController = c
 
         case let nav as UINavigationController:
+            summaryNavigationController = nav
             switch nav.viewControllers[0] {
             case let c as RecordViewController:
                 if let r = sender as? Record {
@@ -81,6 +85,8 @@ class ViewController: UIViewController {
             break
         }
     }
+    
+
 
     @IBAction func ShowInsulatinAction(_ sender: Any) {
         insulinActionLabel.isHidden = false
@@ -115,7 +121,29 @@ class ViewController: UIViewController {
             return UIImage(named: "battery-1")!
         }
     }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        guard navigationController?.viewControllers.count == 1 else {
+            return
+        }
+        let isWide = size.width > size.height
+        coordinator.animate(alongsideTransition: { (ctx) in
+            switch self.summaryNavigationController.viewControllers.count {
+            case 1:
+                self.containerView.isHidden = isWide
+            default:
+                self.timespanContainer.isHidden = isWide
+                self.graphView.isHidden = isWide
+                self.infoBar.isHidden = isWide
+                self.summaryNavigationController.setNavigationBarHidden(isWide, animated: true)
+                
+            }
+            self.navigationController?.setNavigationBarHidden(isWide, animated: true)
 
+        }, completion: nil)
+    }
+    
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
         update()

@@ -117,6 +117,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         defaults.register()
         coordinator = NSFileCoordinator(filePresenter: self)
     }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        if let nav = window?.rootViewController as? UINavigationController, let vc = nav.viewControllers.first {
+            if nav.viewControllers.count > 1 || vc.presentedViewController != nil {
+                return [.portrait]
+            }
+        }
+        return [.portrait, .landscapeRight, .landscapeLeft]
+    }
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
