@@ -44,7 +44,6 @@ class ViewController: UIViewController {
             summaryController = c
 
         case let nav as UINavigationController:
-            summaryNavigationController = nav
             switch nav.viewControllers[0] {
             case let c as RecordViewController:
                 if let r = sender as? Record {
@@ -74,6 +73,7 @@ class ViewController: UIViewController {
                 }
                 
             case let c as SummaryViewController:
+                summaryNavigationController = nav
                 summaryController = c
 
 
