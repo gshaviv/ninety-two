@@ -178,7 +178,7 @@
                             <constraint firstItem="nju-bx-UHi" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="2Kf-Yb-rib"/>
                             <constraint firstItem="nju-bx-UHi" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="2pQ-1N-Nb6"/>
                             <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="nju-bx-UHi" secondAttribute="bottom" constant="20" id="E02-sl-Qgt"/>
-                            <constraint firstAttribute="trailing" secondItem="nju-bx-UHi" secondAttribute="trailing" id="XqC-rC-VfQ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="nju-bx-UHi" secondAttribute="trailing" id="XqC-rC-VfQ"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="nju-bx-UHi" secondAttribute="bottom" priority="900" id="meD-Gi-xOL"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>

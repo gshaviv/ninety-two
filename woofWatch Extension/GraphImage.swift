@@ -201,23 +201,24 @@ struct GraphImage: View {
             text = nil
         } else {
             let ageInHours = Int(data.sensorAge / 1.h)
-            let libreDays = Int(defaults[.libreDays] * 24)
-            switch ageInHours {
-            case ...24:
+            let libreDaysH = Int(defaults[.libreDays] * 24)
+            let expireDate = data.sensorBegin + defaults[.libreDays].d
+            switch (ageInHours, Date().isOnSameDay(as: expireDate)) {
+            case (...24, _):
                 text = "\(ageInHours)h".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
                 
-            case (libreDays - 6*24) ..< (libreDays - 4):
+            case ((libreDaysH - 6*24) ..< (libreDaysH - 4), false):
                 let expire = data.sensorBegin + defaults[.libreDays].d
                 text = "\(expire.hour):\(Int(expire.minute) % ".02ld") \(expire.dayName)".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
                     .systemFont(.medium, size: 16)
                 
-            case (libreDays - 4) ..< libreDays:
-                let timeLeft = Int((libreDays.h - data.sensorAge) / 1.m)
+            case (..<libreDaysH, true):
+                let timeLeft = Int((libreDaysH.h - data.sensorAge) / 1.m)
                 text = "-(\(timeLeft / 60):\(timeLeft % 60 % ".02ld"))".styled.color(defaults[.useDarkGraph] ? UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 0.75) : UIColor(red: 0.1, green: 0.1, blue: 0, alpha: 0.7))
                 .systemFont(.medium, size: 16)
                 
-            case libreDays...:
-                let timeOver = Int((data.sensorAge - libreDays.h) / 1.m)
+            case (libreDaysH...,_):
+                let timeOver = Int((data.sensorAge - libreDaysH.h) / 1.m)
                 text = { () -> NSMutableAttributedString in
                     switch timeOver {
                     case ..<1:
@@ -230,7 +231,7 @@ struct GraphImage: View {
                         return "\(timeOver / 60):\(timeOver % 60 % ".02ld")".styled
                     }
                 }()
-                    .color(defaults[.useDarkGraph] ? UIColor(red: 1, green: 0.3, blue: 0.3, alpha: 0.75) : UIColor(red: 0.4, green: 0.1, blue: 0.1, alpha: 0.7))
+                    .color(defaults[.useDarkGraph] ? UIColor(red: 1, green: 0.6, blue: 0.6, alpha: 0.85) : UIColor(red: 0.4, green: 0.1, blue: 0.1, alpha: 0.7))
                     .systemFont(.bold, size: 16)
                 
             default:
