@@ -78,7 +78,8 @@ class LowEventsViewController: UIViewController {
             guard lowEvents.count > 0 else {
                 return
             }
-            let normalFont = UIFont.systemFont(ofSize: 11)
+            let isSmall = UIScreen.main.bounds.width < UIScreen.main.bounds.height
+            let normalFont = UIFont.systemFont(ofSize: isSmall ? 11 : 13)
             let rect = CGRect(x: 0, y: 0, width: self.view.width, height: self.view.height)
             let ctx = UIGraphicsGetCurrentContext()
             UIColor.systemBackground.set()
@@ -104,43 +105,55 @@ class LowEventsViewController: UIViewController {
             ctx?.setLineWidth(0.5)
             UIColor.secondaryLabel.setStroke()
             ctx?.beginPath()
-            for y in stride(from: yMaxValue, to: yMinValue, by: -10) {
+            for y in stride(from: yMaxValue, to: yMinValue, by: isSmall ? -10 : -5) {
                 let yc = yPos(y)
                 ctx?.move(to: CGPoint(x: 0, y: yc))
                 ctx?.addLine(to: CGPoint(x: graphRect.maxX, y: yc))
             }
             ctx?.strokePath()
             ctx?.setLineWidth(0.5)
-            for x in 0 ... 12 {
-                let time = String(format: "%02ld",(x == 12 ? 0 : x) * 2).styled.font(normalFont).color(UIColor.label)
+            for x in 0 ... 24 {
+                let time = String(format: "%02ld",x == 24 ? 0 : x).styled.font(normalFont).color(UIColor.label)
                 let size = time.size()
-                let xCenter = CGFloat(x) * graphRect.width / 12.0
+                let xCenter = CGFloat(x) * graphRect.width / 24.0
                 let area = CGRect(origin: CGPoint(x: min(xCenter - size.width / 2,graphRect.maxX - size.width), y: graphRect.maxY - size.height), size: size)
-                UIColor.secondaryLabel.setStroke()
-                ctx?.beginPath()
-                ctx?.move(to: CGPoint(x: xCenter, y: 0))
-                ctx?.addLine(to: CGPoint(x: xCenter, y: area.minY))
-                ctx?.strokePath()
+                if  x % 2 == 0 {
+                    time.draw(in: area)
+                }
+                if !isSmall || x % 2 == 0 {
+                    UIColor.secondaryLabel.setStroke()
+                    ctx?.beginPath()
+                    ctx?.move(to: CGPoint(x: xCenter, y: 0))
+                    ctx?.addLine(to: CGPoint(x: xCenter, y: x % 2 == 1 ? graphRect.maxY : area.minY))
+                    ctx?.strokePath()
+                }
             }
             let xPos = { (time:TimeInterval) -> CGFloat in CGFloat(time) / 86400 * graphRect.width }
             ctx?.saveGState()
             ctx?.clip(to: graphRect)
             
-            UIColor.red.setStroke()
-            let fill = UIColor {
+            UIColor {
+                switch $0.userInterfaceStyle {
+                case .unspecified, .light:
+                    return UIColor.red
+                case .dark:
+                    return UIColor(red: 1, green: 0.5, blue: 0.5, alpha: 1)
+                @unknown default:
+                    return UIColor.red
+                }
+            }.setStroke()
+            UIColor {
                 switch $0.userInterfaceStyle {
                 case .unspecified:
                     return UIColor(red: 1, green: 0, blue: 0, alpha: 0.1)
                 case .light:
-                    return UIColor(red: 1, green: 0, blue: 0, alpha: 0.1)
+                    return UIColor(red: 1, green: 0, blue: 0, alpha: 0.4)
                 case .dark:
-                    return UIColor(red: 0.5, green: 0, blue: 0, alpha: 0.5)
+                    return UIColor(red: 0.5, green: 0, blue: 0, alpha: 0.65)
                 @unknown default:
                     return UIColor(red: 1, green: 0, blue: 0, alpha: 0.1)
                 }
-            }
-            fill.setFill()
-            
+            }.setFill()
             for event in lowEvents {
                 guard let eventStart = event.first else {
                     continue
@@ -150,6 +163,7 @@ class LowEventsViewController: UIViewController {
                 let path = UIBezierPath()
                 path.append(Plot(points: points).line(from: points.first!.x, to: points.last!.x, moveToFirst: true))
                 path.addLine(to: points[0])
+                path.lineWidth = 1/UIScreen.main.scale
                 path.fill()
                 path.stroke()
                 if points.map({ $0.x }).biggest() > graphRect.width {
@@ -158,6 +172,7 @@ class LowEventsViewController: UIViewController {
                     let path = UIBezierPath()
                     path.append(Plot(points: points).line(from: points.first!.x, to: points.last!.x, moveToFirst: true))
                     path.addLine(to: points[0])
+                    path.lineWidth = 1/UIScreen.main.scale
                     path.fill()
                     path.stroke()
                 }
