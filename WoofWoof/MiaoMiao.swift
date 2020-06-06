@@ -172,8 +172,8 @@ class MiaoMiao {
                     let notification = UNMutableNotificationContent()
                     notification.title = "New sensor detected"
                     notification.body = "Activate sensor using original Freestyle reader"
-                    let request = UNNotificationRequest(identifier: NotificationIdentifier.newSensor, content: notification, trigger: nil)
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+                    let request = UNNotificationRequest(identifier: Notification.Identifier.newSensor, content: notification, trigger: nil)
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.noData])
                     UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
 
                     UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
@@ -195,7 +195,7 @@ class MiaoMiao {
                         let notification = UNMutableNotificationContent()
                         notification.title = "Sensor not detected"
                         notification.body = "Check MiaoMiao is placed properly on top of the sensor"
-                        let request = UNNotificationRequest(identifier: NotificationIdentifier.noSensor, content: notification, trigger: nil)
+                        let request = UNNotificationRequest(identifier: Notification.Identifier.noSensor, content: notification, trigger: nil)
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                             if let err = err {
                                 logError("\(err)")
@@ -235,7 +235,7 @@ class MiaoMiao {
         } else {
             packetData += bytes
         }
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.noData])
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         if packetData.last == Code.endPacket {
             if packetData.count < 363 {
@@ -251,7 +251,7 @@ class MiaoMiao {
                 notification.title = "No Transmitter Detected"
                 notification.body = "Lost connection to the MiaoMiao transmitter"
                 notification.sound = UNNotificationSound(named: UNNotificationSound.missed)
-                let request = UNNotificationRequest(identifier: NotificationIdentifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 30.m, repeats: false))
+                let request = UNNotificationRequest(identifier: Notification.Identifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 30.m, repeats: false))
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                     if let err = err {
                         logError("\(err)")
@@ -276,8 +276,8 @@ class MiaoMiao {
                         let notification = UNMutableNotificationContent()
                         notification.title = "Sensor not yet activated"
                         notification.body = "Activate sensor using original Freestyle reader"
-                        let request = UNNotificationRequest(identifier: NotificationIdentifier.newSensor, content: notification, trigger: nil)
-                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noData])
+                        let request = UNNotificationRequest(identifier: Notification.Identifier.newSensor, content: notification, trigger: nil)
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.noData])
                         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
 
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
@@ -302,13 +302,21 @@ class MiaoMiao {
                         let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                         let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                         record(trend: trendPoints, history: historyPoints)
-                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.3, let date = defaults[.nextCalibration], Date() > date , let line = MiaoMiao.trendline(), abs(line.a) < 0.005 {
-                            if let sensorAge = sensorAge, sensorAge < 1.d {
-                                defaults[.nextCalibration] = Date() + 6.h
-                            } else {
-                                defaults[.nextCalibration] = Date() + 1.h
+                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.2, let line = MiaoMiao.trendline(), abs(line.a) < 0.006 {
+                            if let date = defaults[.nextCalibration], Date() > date  {
+                                checkIfShowingNotification(identifier: Notification.Identifier.calibrate) {
+                                    if !$0 {
+                                        showCalibrationAlert()
+                                    }
+                                }
                             }
-                            showCalibrationAlert()
+                        } else {
+                            checkIfShowingNotification(identifier: Notification.Identifier.calibrate) {
+                                if $0 {
+                                    defaults[.nextCalibration] = Date() + 15.m
+                                }
+                                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.calibrate])
+                            }
                         }
                     }
 
@@ -355,11 +363,23 @@ class MiaoMiao {
             packetData = []
         }
     }
+    
+    private static func checkIfShowingNotification(identifier: String,  result: @escaping (Bool) -> Void) {
+        UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (all) in
+            for note in all {
+                if note.request.identifier == identifier {
+                    result(true)
+                    return
+                }
+            }
+            result(false)
+        })
+    }
 
     private static func removeNoSensorNotification() {
         defaults[.nextNoSensorAlert] = nil
         DispatchQueue.main.async {
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.noSensor])
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.noSensor])
         }
     }
 
@@ -367,10 +387,10 @@ class MiaoMiao {
         DispatchQueue.main.async {
             let notification = UNMutableNotificationContent()
             notification.title = "Calibration needed"
-            notification.body = "Please Calibrate BG"
+            notification.body = "Please Calibrate BG Now"
             notification.categoryIdentifier = "calibrate"
             notification.sound = UNNotificationSound(named: UNNotificationSound.calibrationNeeded)
-            let request = UNNotificationRequest(identifier: NotificationIdentifier.calibrate, content: notification, trigger: nil)
+            let request = UNNotificationRequest(identifier: Notification.Identifier.calibrate, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
                     logError("\(err)")
@@ -486,7 +506,7 @@ class MiaoMiao {
                 UIApplication.shared.applicationIconBadgeNumber = Int(round(bg))
                 last24hReadings.append(c)
                 defaults[.sensorSerial] = serial
-                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.calibrate])
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.calibrate])
             } catch _ {}
         }
     }

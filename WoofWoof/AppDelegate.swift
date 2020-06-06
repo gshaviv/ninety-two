@@ -222,8 +222,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 let notification = UNMutableNotificationContent()
                                 notification.title = "Datebase not found"
                                 notification.body = "Imported zip file does not contain any database"
-                                notification.categoryIdentifier = NotificationIdentifier.error
-                                let request = UNNotificationRequest(identifier: NotificationIdentifier.error, content: notification, trigger: nil)
+                                notification.categoryIdentifier = Notification.Identifier.error
+                                let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
                                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                     if let err = err {
                                         logError("\(err)")
@@ -288,8 +288,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 notification.title = "Nothing to Import"
                                 notification.body = "No missing records in existing database"
                             }
-                            notification.categoryIdentifier = NotificationIdentifier.imported
-                            let request = UNNotificationRequest(identifier: NotificationIdentifier.imported, content: notification, trigger: nil)
+                            notification.categoryIdentifier = Notification.Identifier.imported
+                            let request = UNNotificationRequest(identifier: Notification.Identifier.imported, content: notification, trigger: nil)
                             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                 if let err = err {
                                     logError("\(err)")
@@ -302,8 +302,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             let notification = UNMutableNotificationContent()
                             notification.title = "Error Importing"
                             notification.body = error.localizedDescription
-                            notification.categoryIdentifier = NotificationIdentifier.error
-                            let request = UNNotificationRequest(identifier: NotificationIdentifier.error, content: notification, trigger: nil)
+                            notification.categoryIdentifier = Notification.Identifier.error
+                            let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
                             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                                 if let err = err {
                                     logError("\(err)")
@@ -352,10 +352,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             return
         }
         switch response.notification.request.identifier {
-        case NotificationIdentifier.calibrate:
+        case Notification.Identifier.calibrate:
             ctr.calibrate()
 
-        case NotificationIdentifier.noData:
+        case Notification.Identifier.noData:
             defaults[.nextNoSensorAlert] = Date()
             Central.manager.restart()
 
@@ -627,9 +627,9 @@ extension AppDelegate: MiaoMiaoDelegate {
             }
             defaults[.lastEventAlertTime] = Date()
             defaults[.lastEventAlertLevel] = MiaoMiao.currentGlucose?.value ?? 100
-            notification.categoryIdentifier = NotificationIdentifier.event
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
-            let request = UNNotificationRequest(identifier: NotificationIdentifier.event, content: notification, trigger: nil)
+            notification.categoryIdentifier = Notification.Identifier.event
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
+            let request = UNNotificationRequest(identifier: Notification.Identifier.event, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {
                     logError("\(err)")
@@ -689,7 +689,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
                     
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [NotificationIdentifier.event])
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
                     defaults[.lastEventAlertTime] = nil
                     
                 default:
@@ -754,15 +754,18 @@ extension UIApplication {
 }
 
 
-class NotificationIdentifier {
-    static let noSensor = "noSensor"
-    static let event = "event"
-    static let lowBattery = "lowBattery"
-    static let noData = "noData"
-    static let calibrate = "calibrate"
-    static let newSensor = "newSensor"
-    static let imported = "imported"
-    static let error = "error"
+
+public extension Notification {
+    enum Identifier {
+        public static let noSensor = "noSensor"
+        public static let event = "event"
+        public static let lowBattery = "lowBattery"
+        public static let noData = "noData"
+        public static let calibrate = "calibrate"
+        public static let newSensor = "newSensor"
+        public static let imported = "imported"
+        public static let error = "error"
+    }
 }
 
 extension Measurement {
