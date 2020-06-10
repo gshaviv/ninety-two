@@ -250,7 +250,7 @@ class MiaoMiao {
                 let notification = UNMutableNotificationContent()
                 notification.title = "No Transmitter Detected"
                 notification.body = "Lost connection to the MiaoMiao transmitter"
-                notification.sound = UNNotificationSound(named: UNNotificationSound.missed)
+                notification.sound = UNNotificationSound(named: UNNotificationSoundName.missed)
                 let request = UNNotificationRequest(identifier: Notification.Identifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 30.m, repeats: false))
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                     if let err = err {
@@ -363,18 +363,6 @@ class MiaoMiao {
             packetData = []
         }
     }
-    
-    private static func checkIfShowingNotification(identifier: String,  result: @escaping (Bool) -> Void) {
-        UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (all) in
-            for note in all {
-                if note.request.identifier == identifier {
-                    result(true)
-                    return
-                }
-            }
-            result(false)
-        })
-    }
 
     private static func removeNoSensorNotification() {
         defaults[.nextNoSensorAlert] = nil
@@ -389,7 +377,7 @@ class MiaoMiao {
             notification.title = "Calibration needed"
             notification.body = "Please Calibrate BG Now"
             notification.categoryIdentifier = "calibrate"
-            notification.sound = UNNotificationSound(named: UNNotificationSound.calibrationNeeded)
+            notification.sound = UNNotificationSound(named: UNNotificationSoundName.calibrationNeeded)
             let request = UNNotificationRequest(identifier: Notification.Identifier.calibrate, content: notification, trigger: nil)
             UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                 if let err = err {

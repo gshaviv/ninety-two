@@ -613,7 +613,7 @@ extension AppDelegate: WCSessionDelegate {
 
 extension AppDelegate: MiaoMiaoDelegate {
 
-    func showAlert(title: String?, body: String?, sound: UNNotificationSoundName?) {
+    private func showEventAlert(title: String?, body: String?, sound: UNNotificationSoundName?) {
         DispatchQueue.main.async {
             let notification = UNMutableNotificationContent()
             if let title = title {
@@ -667,12 +667,14 @@ extension AppDelegate: MiaoMiaoDelegate {
                 switch current.value {
                 case ...defaults[.minRange] where defaults[.lastEventAlertTime] != nil:
                     if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
-                        showAlert(title: "Low & dropping", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
+                        showEventAlert(title: "Low & dropping", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
                     }
                     
-                case ...defaults[.lowAlertLevel] where !didAlertEvent:
+                case ...defaults[.lowAlertLevel]:
                     guard current.value > defaults[.minRange] else {
-                        showAlert(title:  "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.lowGlucose)
+                        if !didAlertEvent {
+                            showEventAlert(title:  "Low Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSoundName.lowGlucose)
+                        }
                         break
                     }
                     guard let timeToLow = estimatedTimeToLow() else {
@@ -680,13 +682,18 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
 
                     if timeToLow <= defaults[.timeToLow].m && timeToLow > 0 {
-                        let when = Date() + timeToLow
-                        let hour = when.hour
-                        showAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: UNNotificationSound.toBeLow)
+                        checkIfShowingNotification(identifier: Notification.Identifier.event) {
+                            let when = Date() + timeToLow
+                            let hour = when.hour
+                            self.showEventAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: $0 && !self.didAlertEvent ? nil : UNNotificationSoundName.toBeLow)
+                        }
+                    } else {
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
+                        defaults[.lastEventAlertTime] = nil
                     }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
-                    showAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSound.highGlucose)
+                    showEventAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSoundName.highGlucose)
                     
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
@@ -702,7 +709,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                     if current.value > highest {
                         if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                            showAlert(title: "New High Level", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
+                            showEventAlert(title: "New High Level", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil)
                         }
                     }
                     
@@ -753,6 +760,17 @@ extension UIApplication {
     }
 }
 
+public func checkIfShowingNotification(identifier: String,  result: @escaping (Bool) -> Void) {
+    UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { (all) in
+        for note in all {
+            if note.request.identifier == identifier {
+                result(true)
+                return
+            }
+        }
+        result(false)
+    })
+}
 
 
 public extension Notification {
@@ -777,7 +795,7 @@ extension Measurement {
     }
 }
 
-extension UNNotificationSound {
+extension UNNotificationSoundName {
     public static let calibrationNeeded = UNNotificationSoundName(rawValue: "Siri_Calibration_Needed.caf")
     public static let lowGlucose = UNNotificationSoundName(rawValue: "Siri_Low_Glucose.caf")
     public static let highGlucose = UNNotificationSoundName(rawValue: "Siri_High_Glucose.caf")
