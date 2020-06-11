@@ -9,5 +9,5 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
-VERSION = 2.9.1
-BUILD = 176
+VERSION = 2.10.0
+BUILD = 177
