@@ -255,6 +255,48 @@ class RangeHistoryController: UIHostingController<AnyView> {
     }
 }
 
+extension RangeHistoryController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isMovingToParent {
+            if let view: UIScrollView = view.typedChild() {
+            view.isUserInteractionEnabled = true
+            view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
+            }
+        }
+    }
+    
+    @objc private func didTap(_ sender: UIGestureRecognizer) {
+        guard let sv = sender.view as? UIScrollView,
+            let ctr = parent?.parent as? HistoryViewController else {
+            return
+        }
+        let loc = sender.location(in: sv)
+        let ratio = 1 - loc.x / sv.contentSize.width
+        let daysback = Int(ratio * CGFloat(summary.data.daily.count))
+        if daysback > 0 {
+        ctr.displayDay = Date() - daysback.d
+        }
+    }
+}
+
+extension UIView {
+    func typedChild<T>() -> T? {
+        for v in subviews {
+            if let v = v as? T {
+                return v
+            } else if let v: T = v.typedChild() {
+                return v
+            }
+        }
+        return nil
+    }
+}
+
 #endif
 
 #if DEBUG
