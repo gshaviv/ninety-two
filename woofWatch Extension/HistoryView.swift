@@ -272,15 +272,38 @@ extension RangeHistoryController {
     
     @objc private func didTap(_ sender: UIGestureRecognizer) {
         guard let sv = sender.view as? UIScrollView,
-            let ctr = parent?.parent as? HistoryViewController else {
+            let grandparent = parent?.parent else {
             return
         }
         let loc = sender.location(in: sv)
         let ratio = 1 - loc.x / sv.contentSize.width
         let daysback = Int(ratio * CGFloat(summary.data.daily.count))
-        if daysback > 0 {
-        ctr.displayDay = Date() - daysback.d
+        guard daysback > 0 else {
+            return
         }
+        switch grandparent {
+        case let ctr as HistoryViewController:
+            ctr.displayDay = Date() - daysback.d
+            
+        case let ctr as ViewController:
+            ctr.performSegue(withIdentifier: "history", sender: nil)
+            if let hvc = grandparent.navigationController?.topViewController as? HistoryViewController {
+                hvc.displayDay = Date() - daysback.d
+                DispatchQueue.main.async {
+                    DispatchQueue.main.async {
+                        for child in hvc.children {
+                            if let child = child as? UINavigationController {
+                                child.pushViewController(RangeHistoryController(), animated: false)
+                            }
+                        }
+                    }
+                }
+            }
+            
+        default:
+            break
+        }
+        
     }
 }
 

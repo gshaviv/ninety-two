@@ -383,6 +383,11 @@ extension SettingsViewController {
                 } catch {}
             }
         }
+        
+        if let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+            let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+        addGroup("- Version \(v) (\(b))")
+        }
     }
 }
 
@@ -456,9 +461,9 @@ class SettingsViewController: UITableViewController {
                 currentItems.append(item)
             }
         }
-        if !currentItems.isEmpty {
+//        if !currentItems.isEmpty {
             grouped.append((currentTitle, currentItems))
-        }
+//        }
         return grouped.count
     }
     
