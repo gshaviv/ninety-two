@@ -18,6 +18,7 @@ class HistoryViewController: UIViewController {
     @IBOutlet var dateLabel: UILabel!
     @IBOutlet var timeSpanSelector: UISegmentedControl!
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
+    var onSummaryVC: ((UINavigationController) -> Void)?
 
     var displayDay: Date! {
         didSet {
@@ -130,7 +131,8 @@ class HistoryViewController: UIViewController {
                 }
 
             default:
-                break
+                onSummaryVC?(nav)
+                onSummaryVC = nil
             }
 
         default:
