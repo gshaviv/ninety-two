@@ -687,7 +687,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                             let hour = when.hour
                             self.showEventAlert(title:  "Trending to a Low", body: "Low predicted in \(timeToLow / 1.m % ".0f")m at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: $0 && !self.didAlertEvent ? nil : UNNotificationSoundName.toBeLow)
                         }
-                    } else {
+                    } else if timeToLow < 0 || timeToLow > defaults[.timeToLow] * 2 {
                         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
                         defaults[.lastEventAlertTime] = nil
                     }

@@ -386,7 +386,7 @@ extension SettingsViewController {
         
         if let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
             let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
-        addGroup("- Version \(v) (\(b))")
+            addGroup("- Version \(v) (\(b))")
         }
     }
 }
