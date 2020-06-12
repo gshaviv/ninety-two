@@ -289,8 +289,9 @@ extension RangeHistoryController {
             ctr.performSegue(withIdentifier: "history", sender: nil)
             if let hvc = grandparent.navigationController?.topViewController as? HistoryViewController {
                 hvc.displayDay = Date() - daysback.d
-                hvc.onSummaryVC = { nav in
+                hvc.onSummaryVC = { [weak self] nav in
                     nav.pushViewController(RangeHistoryController(), animated: false)
+                    self?.navigationController?.popToRootViewController(animated: false)
                 }
             }
             
