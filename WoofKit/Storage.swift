@@ -231,7 +231,7 @@ public class Storage: NSObject {
                     entryData.low = value
                     timeOfLow = time
                 }
-                if value < defaults[.lowAlertLevel] && inRange {
+                if value < defaults[.minRange] + 5 && inRange {
                     isValid = false
                     break
                 }
