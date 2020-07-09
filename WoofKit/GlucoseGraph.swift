@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreGraphics
+import SwiftUI
 
 public protocol GlucoseGraphDelegate: class {
     func didTouch(record: Record)
@@ -65,7 +66,7 @@ public struct Pattern {
 public class GlucoseGraph: UIView {
     private var touchables:[(CGRect, Record)] = []
     public weak var delegate: GlucoseGraphDelegate?
-    @IBInspectable var isScrollEnabled:Bool = true
+    @IBInspectable var isScrollEnabled:Bool
     private var trendPoints: [GlucoseReading]!
     private var historyPoints: [GlucoseReading]!
     @IBInspectable public var enableDelete: Bool = false {
@@ -227,11 +228,15 @@ public class GlucoseGraph: UIView {
                       (defaults[.level3], defaults[.color3]),
                       (defaults[.level4], defaults[.color4]),
                       (999.0, defaults[.color5])]
-        guard self.historyPoints != nil && self.trendPoints != nil else {
+        guard self.historyPoints != nil else {
             return
         }
         let ctx = UIGraphicsGetCurrentContext()
         let size = contentView.bounds.size
+        
+        UIColor.red.set()
+        ctx?.fill(rect)
+        
         let yScale = size.height / (yRange.max - yRange.min)
         let yCoor = { (self.yRange.max - $0) * yScale }
         let xScale = rect.size.width / CGFloat(xRange.max - xRange.min)
@@ -919,12 +924,14 @@ public class GlucoseGraph: UIView {
         }
     }
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, withScrolling: Bool = true) {
+        isScrollEnabled = withScrolling
         super.init(frame: frame)
         commonInit()
     }
 
     required init?(coder aDecoder: NSCoder) {
+        isScrollEnabled = true
         super.init(coder: aDecoder)
     }
     
@@ -1113,5 +1120,56 @@ extension UIImage {
         let out = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         out?.draw(in: CGRect(origin: CGPoint(x: at.x - size.width / 2, y: at.y - size.height / 2), size: size))
+    }
+}
+
+struct GlucoseGraphView: UIViewRepresentable {
+    var points: [GlucosePoint]
+    var timespan: TimeInterval
+    
+    func makeUIView(context: Context) -> GlucoseGraph {
+        let uiView = GlucoseGraph(frame: .zero, withScrolling: false)
+        uiView.backgroundColor = .clear
+        return uiView
+    }
+    
+    func updateUIView(_ uiView: GlucoseGraph, context: Context) {
+        uiView.points = self.points
+        uiView.yRange.max = ceil(uiView.yRange.max / 10) * 10
+        uiView.yRange.min = floor(uiView.yRange.min / 5) * 5
+        if uiView.yRange.max - uiView.yRange.min < 40 {
+            let mid = (uiView.yRange.max + uiView.yRange.min) / 2
+            uiView.yRange = mid < 90 ? (min: uiView.yRange.min, max: uiView.yRange.min + 40) : (min: mid - 20, max: mid + 20)
+        }
+        uiView.xRange = (min: points.reduce(Date()) { min($0, $1.date) }, max: Date())
+        uiView.xTimeSpan = timespan
+    }
+}
+
+struct GlucoseGraph_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            GlucoseGraphView(points: [
+                GlucosePoint(date: Date() - 1.h, value: 83),
+                GlucosePoint(date: Date() - 45.m, value: 95),
+                GlucosePoint(date: Date() - 30.m, value: 90),
+                GlucosePoint(date: Date() - 15.m, value: 82),
+                GlucosePoint(date: Date(), value: 80)
+            ], timespan: 2.h)
+            .environment(\.colorScheme, .light)
+            .background(Color.red)
+            .previewLayout(.fixed(width: 300, height: 200))
+            
+            GlucoseGraphView(points: [
+                GlucosePoint(date: Date() - 1.h, value: 83),
+                GlucosePoint(date: Date() - 45.m, value: 95),
+                GlucosePoint(date: Date() - 30.m, value: 90),
+                GlucosePoint(date: Date() - 15.m, value: 82),
+                GlucosePoint(date: Date(), value: 80)
+            ], timespan: 2.h)
+            .background(Color.black)
+            .environment(\.colorScheme, .dark)
+            .previewLayout(.fixed(width: 300, height: 200))
+        }
     }
 }
