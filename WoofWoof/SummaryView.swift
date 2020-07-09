@@ -14,18 +14,16 @@ import Combine
 
 extension Text {
     func headline() -> some View {
-        return GeometryReader { g in
             self
                 .font(.headline)
-                .frame(width: g.size.width)
+                .frame(maxWidth: .infinity)
                 .background(DynamicColor(light: Color(red: 0.85, green: 0.85, blue: 0.85),
                                          dark: Color(red: 0.2, green: 0.2, blue: 0.2)))
-        }
     }
     func value() -> some View {
         self
             .font(.body)
-//            .foregroundColor(Color.yellow)
+            .frame(maxHeight: .infinity, alignment: .center)
     }
 }
 

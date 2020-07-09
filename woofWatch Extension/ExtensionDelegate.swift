@@ -9,6 +9,7 @@
 import WatchKit
 import WatchConnectivity
 import Combine
+import ClockKit
 
 
 extension WKExtension {
