@@ -56,8 +56,10 @@
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "8"
       notificationPayloadFile = "woofWatch Extension/PushNotificationPayload.apns">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/Ninety Two">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E42E2A9821DF28C5004FD560"
@@ -65,7 +67,7 @@
             BlueprintName = "woofWatch"
             ReferencedContainer = "container:WoofWoof.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -75,8 +77,10 @@
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "8"
       notificationPayloadFile = "woofWatch Extension/PushNotificationPayload.apns">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/Ninety Two">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E42E2A9821DF28C5004FD560"
@@ -84,7 +88,16 @@
             BlueprintName = "woofWatch"
             ReferencedContainer = "container:WoofWoof.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "E42E2A9821DF28C5004FD560"
+            BuildableName = "woofWatch.app"
+            BlueprintName = "woofWatch"
+            ReferencedContainer = "container:WoofWoof.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
