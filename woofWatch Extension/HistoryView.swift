@@ -290,12 +290,7 @@ extension RangeHistoryController {
             if let hvc = grandparent.navigationController?.topViewController as? HistoryViewController {
                 hvc.displayDay = Date() - daysback.d
                 hvc.onSummaryVC = { [weak self] nav in
-                    let rvc = RangeHistoryController()
-                    rvc.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-                    nav.pushViewController(rvc, animated: false)
-                    DispatchQueue.main.async {
-                        nav.viewControllers = [RangeHistoryController()]
-                    }
+                    nav.pushViewController(RangeHistoryController(), animated: false)
                     self?.navigationController?.popToRootViewController(animated: false)
                 }
             }
