@@ -15,18 +15,14 @@ typealias Action<T> = PassthroughSubject<T,Never>
 private struct Key: View {
     let value: String
     var text: Binding<String>
-    let width: CGFloat
-    let height: CGFloat
 
-    init(_ n:Int, _ t: Binding<String>, width: CGFloat, height: CGFloat) {
+    init(_ n:Int, _ t: Binding<String>) {
         value = "\(n)"
         text = t
-        self.width = width
-        self.height = height
     }
     var body: some View {
         Text(value)
-            .frame(width: self.width, height: self.height)
+            .frame(maxWidth: .infinity,  maxHeight: .infinity, alignment: .center)
             .background(Color(red: 0.2, green: 0.2, blue: 0.2))
             .cornerRadius(3)
             .contentShape(Rectangle())
@@ -38,16 +34,13 @@ private struct Key: View {
 
 private struct Delete: View {
     var text: Binding<String>
-    let width: CGFloat
-    let height: CGFloat
-    init(_ t: Binding<String>, width: CGFloat, height: CGFloat) {
+    init(_ t: Binding<String>) {
         text = t
-        self.width = width
-        self.height = height
+        
     }
     var body: some View {
         Image(systemName: "delete.left")
-            .frame(width: self.width, height: self.height)
+            .frame(maxWidth: .infinity,  maxHeight: .infinity, alignment: .center)
             .disabled(text.wrappedValue.isEmpty)
             .cornerRadius(3)
             .foregroundColor(text.wrappedValue.isEmpty ? Color.secondary : Color.primary)
@@ -60,19 +53,15 @@ private struct Delete: View {
 
 private struct Return: View {
     var text: Binding<String>
-    let width: CGFloat
-    let height: CGFloat
-    init(_ t: Binding<String>, width: CGFloat, height: CGFloat) {
+     init(_ t: Binding<String>) {
         text = t
-        self.width = width
-        self.height = height
-    }
+     }
     var body: some View {
         Image(systemName: "return")
             .disabled(text.wrappedValue.isEmpty)
             .foregroundColor(text.wrappedValue.isEmpty ? Color.secondary : Color.primary)
             .cornerRadius(3)
-            .frame(width: self.width, height: self.height)
+            .frame(maxWidth: .infinity,  maxHeight: .infinity, alignment: .center)
             .contentShape(Rectangle())
     }
 }
@@ -84,32 +73,25 @@ struct CalibrateView: View {
     
     var body: some View {
         title.send(self.text)
-        return GeometryReader { screen in
+        return 
             VStack(spacing: 2.0) {
-//                Spacer(minLength: 1)
-//                Text(self.text)
-//                    .frame(minWidth: screen.size.width, minHeight: 24)
-//                    .background(Color(red: 0.15, green: 0.15, blue: 0.15)
-//                        .border(Color.white))
-//                    .foregroundColor(self.textError ? Color.red : Color.yellow)
-//                    .font(Font.system(size: 18, weight: .medium))
                 HStack(spacing: 2.0) {
-                    Key(1,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(2,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(3,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
+                    Key(1,self.$text)
+                    Key(2,self.$text)
+                    Key(3,self.$text)
                 }
                 HStack(spacing: 2.0) {
-                    Key(4,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(5,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(6,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
+                    Key(4,self.$text)
+                    Key(5,self.$text)
+                    Key(6,self.$text)
                 }
                 HStack(spacing: 2.0) {
-                    Key(7,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(8,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Key(9,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
+                    Key(7,self.$text)
+                    Key(8,self.$text)
+                    Key(9,self.$text)
                 }
                 HStack(spacing: 2.0) {
-                    Return(self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4).onTapGesture {
+                    Return(self.$text).onTapGesture {
                         if let v = Double(self.text), v > 65 && v < 200 {
                             WCSession.default.sendMessage(["op":["calibrate"],"value":v], replyHandler: { _ in }, errorHandler: { _ in })
                             self.dismiss.send()
@@ -120,13 +102,13 @@ struct CalibrateView: View {
                             }
                         }
                     }
-                    Key(0,self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
-                    Delete(self.$text, width: (screen.size.width - 4) / 3, height: (screen.size.height - 44 - 21) / 4)
+                    Key(0,self.$text)
+                    Delete(self.$text)
                 }
             }.onAppear {
                 WCSession.default.sendMessage(["op":["read"]], replyHandler: { _ in }, errorHandler: { _ in })
             }
-        }.edgesIgnoringSafeArea(.all)
+        .edgesIgnoringSafeArea([.bottom, .leading, .trailing])
     }
 }
 
@@ -145,7 +127,7 @@ class CalibrationController: WKHostingController<AnyView> {
         return CalibrateView(dismiss: action, title: titleAction).asAnyView
     }
     
-    override var contentSafeAreaInsets: UIEdgeInsets { .zero }
+//    override var contentSafeAreaInsets: UIEdgeInsets { .zero }
     
     @objc func goAway() {
         dismiss()
