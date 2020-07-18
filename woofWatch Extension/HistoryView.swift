@@ -183,6 +183,19 @@ class AveHistoryController: UIHostingController<AnyView> {
             findScrollViewAndScrollToRight(view)
         }
     }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isMovingToParent {
+            if let view: UIScrollView = view.typedChild() {
+                view.isUserInteractionEnabled = true
+                view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
+            }
+        }
+    }
+    
+    @objc private func didTap(_ sender: UIGestureRecognizer) {
+        TimeDisplay.respond(toTap: sender, in: self)
+    }
 }
 struct LowHistoryView: View {
     @EnvironmentObject var summary: SummaryInfo
@@ -212,6 +225,19 @@ class LowsHistoryController: UIHostingController<AnyView> {
             findScrollViewAndScrollToRight(view)
         }
     }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isMovingToParent {
+            if let view: UIScrollView = view.typedChild() {
+                view.isUserInteractionEnabled = true
+                view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
+            }
+        }
+    }
+    
+    @objc private func didTap(_ sender: UIGestureRecognizer) {
+        TimeDisplay.respond(toTap: sender, in: self)
+    }
 }
 class DoseHistoryController: UIHostingController<AnyView> {
     init() {
@@ -229,6 +255,20 @@ class DoseHistoryController: UIHostingController<AnyView> {
         if !view.didScroll() {
             findScrollViewAndScrollToRight(view)
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isMovingToParent {
+            if let view: UIScrollView = view.typedChild() {
+                view.isUserInteractionEnabled = true
+                view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
+            }
+        }
+    }
+    
+    @objc private func didTap(_ sender: UIGestureRecognizer) {
+        TimeDisplay.respond(toTap: sender, in: self)
     }
 }
 struct RangeHistoryView: View {
@@ -255,24 +295,11 @@ class RangeHistoryController: UIHostingController<AnyView> {
     }
 }
 
-extension RangeHistoryController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if isMovingToParent {
-            if let view: UIScrollView = view.typedChild() {
-            view.isUserInteractionEnabled = true
-            view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
-            }
-        }
-    }
-    
-    @objc private func didTap(_ sender: UIGestureRecognizer) {
+
+enum TimeDisplay {
+    static func respond(toTap sender: UIGestureRecognizer, in vc: UIViewController) {
         guard let sv = sender.view as? UIScrollView,
-            let grandparent = parent?.parent else {
+              let grandparent = vc.parent?.parent else {
             return
         }
         let loc = sender.location(in: sv)
@@ -289,9 +316,13 @@ extension RangeHistoryController {
             ctr.performSegue(withIdentifier: "history", sender: nil)
             if let hvc = grandparent.navigationController?.topViewController as? HistoryViewController {
                 hvc.displayDay = Date() - daysback.d
-                hvc.onSummaryVC = { [weak self] nav in
-                    nav.pushViewController(RangeHistoryController(), animated: false)
-                    self?.navigationController?.popToRootViewController(animated: false)
+                hvc.onSummaryVC = { [weak vc] nav in
+                    guard let vc = vc else {
+                        return
+                    }
+                    let tp = type(of: vc)
+                    nav.pushViewController(tp.init(), animated: false)
+                    vc.navigationController?.popToRootViewController(animated: false)
                 }
             }
             
@@ -299,6 +330,26 @@ extension RangeHistoryController {
             break
         }
         
+    }
+}
+
+extension RangeHistoryController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isMovingToParent {
+            if let view: UIScrollView = view.typedChild() {
+            view.isUserInteractionEnabled = true
+            view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap(_:))))
+            }
+        }
+    }
+    
+    @objc private func didTap(_ sender: UIGestureRecognizer) {
+        TimeDisplay.respond(toTap: sender, in: self)
     }
 }
 
