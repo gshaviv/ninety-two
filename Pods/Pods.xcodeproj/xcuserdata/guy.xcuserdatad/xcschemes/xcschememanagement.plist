@@ -26,6 +26,11 @@
 			<key>orderHint</key>
 			<integer>13</integer>
 		</dict>
+		<key>SQLite.swift.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>11</integer>
+		</dict>
 		<key>Zip.xcscheme</key>
 		<dict>
 			<key>isShown</key>

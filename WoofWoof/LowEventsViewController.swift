@@ -103,14 +103,17 @@ class LowEventsViewController: UIViewController {
             let graphRect = rect.inset(by: UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0, right: wMax + 1))
             
             ctx?.setLineWidth(0.5)
-            UIColor.secondaryLabel.setStroke()
-            ctx?.beginPath()
             for y in stride(from: yMaxValue, to: yMinValue, by: isSmall ? -10 : -5) {
                 let yc = yPos(y)
+                UIColor.secondaryLabel.setStroke()
+                if Int(y) % 10 == 5 {
+                    UIColor.tertiaryLabel.setStroke()
+                }
+                ctx?.beginPath()
                 ctx?.move(to: CGPoint(x: 0, y: yc))
                 ctx?.addLine(to: CGPoint(x: graphRect.maxX, y: yc))
+                ctx?.strokePath()
             }
-            ctx?.strokePath()
             ctx?.setLineWidth(0.5)
             for x in 0 ... 24 {
                 let time = String(format: "%02ld",x == 24 ? 0 : x).styled.font(normalFont).color(UIColor.label)
@@ -121,11 +124,16 @@ class LowEventsViewController: UIViewController {
                     time.draw(in: area)
                 }
                 if !isSmall || x % 2 == 0 {
-                    UIColor.secondaryLabel.setStroke()
+                    if x % 2 == 0 {
+                        UIColor.secondaryLabel.setStroke()
+                    } else {
+                        UIColor.tertiaryLabel.setStroke()
+                    }
                     ctx?.beginPath()
                     ctx?.move(to: CGPoint(x: xCenter, y: 0))
                     ctx?.addLine(to: CGPoint(x: xCenter, y: x % 2 == 1 ? graphRect.maxY : area.minY))
                     ctx?.strokePath()
+                    UIColor.secondaryLabel.setStroke()
                 }
             }
             let xPos = { (time:TimeInterval) -> CGFloat in CGFloat(time) / 86400 * graphRect.width }
