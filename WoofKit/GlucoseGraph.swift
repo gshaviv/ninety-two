@@ -223,7 +223,7 @@ public class GlucoseGraph: UIView {
                       (defaults[.level3], defaults[.color3]),
                       (defaults[.level4], defaults[.color4]),
                       (999.0, defaults[.color5])]
-        guard self.points != nil else {
+        guard self.points != nil, !points.isEmpty else {
             return
         }
         let ctx = UIGraphicsGetCurrentContext()

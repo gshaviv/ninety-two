@@ -785,6 +785,7 @@ public extension Notification {
         public static let newSensor = "newSensor"
         public static let imported = "imported"
         public static let error = "error"
+        public static let expire = "expire"
     }
 }
 
@@ -804,4 +805,5 @@ extension UNNotificationSoundName {
     public static let missed = UNNotificationSoundName(rawValue: "Siri_Missed_Readings.caf")
     public static let lowBattery = UNNotificationSoundName(rawValue: "Siri_Transmitter_Battery_Low.caf")
     public static let toBeLow = UNNotificationSoundName(rawValue: "About_to_be_Low.caf")
+    public static let sensorDie = UNNotificationSoundName("sensorDie.caf")
 }

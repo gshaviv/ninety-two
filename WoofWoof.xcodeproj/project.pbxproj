@@ -448,6 +448,7 @@
 		E4832313235720290082E9F1 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		E48873FD21F232AE00694F6C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		E4892B9C2211EC5600A647B8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		E4895B8424F00E3C00D71BA2 /* sensorDie.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sensorDie.caf; sourceTree = "<group>"; };
 		E48B2D5E21F6109C001B19EB /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		E48F42B021C53A0A001AF4CD /* MiaoMiao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoMiao.swift; sourceTree = "<group>"; };
 		E48F42BC21C6D96E001AF4CD /* SensorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorState.swift; sourceTree = "<group>"; };
@@ -741,6 +742,7 @@
 			isa = PBXGroup;
 			children = (
 				E43C12ED245C4FF700FAAA4C /* About_to_be_Low.caf */,
+				E4895B8424F00E3C00D71BA2 /* sensorDie.caf */,
 				E42E2AEA21E0A33A004FD560 /* Siri_Calibration_Needed.caf */,
 				E42E2AE521E0A33A004FD560 /* Siri_Device_Muted.caf */,
 				E42E2AE621E0A33A004FD560 /* Siri_Glucose_Dropping_Fast.caf */,

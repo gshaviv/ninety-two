@@ -398,6 +398,19 @@ class MiaoMiao {
             if let newValue = newValue {
                 if defaults[.sensorBegin] == nil {
                     defaults[.sensorBegin] = Date() - newValue
+                    let xDate = Date() - newValue + 14.d + 10.h
+                    DispatchQueue.main.async {
+                        let notification = UNMutableNotificationContent()
+                        notification.title = "Sensor about to fail"
+                        notification.body = "Sensor is over 10 hours beyond expiration"
+                        notification.sound = UNNotificationSound(named: .sensorDie)
+                        let request = UNNotificationRequest(identifier: Notification.Identifier.expire, content: notification, trigger: UNCalendarNotificationTrigger(dateMatching: xDate.components, repeats: false))
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.expire])
+                        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                        
+                        UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+                        })
+                    }
                 }
             } else {
                 defaults[.sensorBegin] = nil
@@ -553,7 +566,7 @@ class MiaoMiao {
             var added = [GlucosePoint]()
             if let last = last24hReadings.last?.date {
                 let storeInterval = 3.m
-                let filteredHistory = history.filter { $0.date > last + storeInterval && $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
+                let filteredHistory = history.filter {$0.date < (defaults[.sensorBegin] ?? Date.distantFuture) + 14.d + 12.h && $0.date > last + storeInterval && $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
                 added.append(contentsOf: filteredHistory)
             } else {
                 pendingReadings.append(contentsOf: history.filter { $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed())
