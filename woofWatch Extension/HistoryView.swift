@@ -304,7 +304,7 @@ enum TimeDisplay {
         }
         let loc = sender.location(in: sv)
         let ratio = 1 - loc.x / sv.contentSize.width
-        let daysback = Int(ratio * CGFloat(summary.data.daily.count))
+        let daysback = Int(ratio * CGFloat(summary.data.daily.count)) + 1
         guard daysback > 0 else {
             return
         }

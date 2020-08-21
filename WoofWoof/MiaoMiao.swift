@@ -302,7 +302,7 @@ class MiaoMiao {
                         let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                         let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                         record(trend: trendPoints, history: historyPoints)
-                        if trendPoints[0].value > 0, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.2, let line = MiaoMiao.trendline(), abs(line.a) < 0.006 {
+                        if trendPoints[0].value > 80 && trendPoints[0].value < 160, let current = UIApplication.theDelegate.currentTrend, current < 0 && current > -0.2, let line = MiaoMiao.trendline(), abs(line.a) < 0.006 {
                             if let date = defaults[.nextCalibration], Date() > date  {
                                 checkIfShowingNotification(identifier: Notification.Identifier.calibrate) {
                                     if !$0 {

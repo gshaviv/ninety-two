@@ -67,8 +67,6 @@ public class GlucoseGraph: UIView {
     private var touchables:[(CGRect, Record)] = []
     public weak var delegate: GlucoseGraphDelegate?
     @IBInspectable var isScrollEnabled:Bool
-    private var trendPoints: [GlucoseReading]!
-    private var historyPoints: [GlucoseReading]!
     @IBInspectable public var enableDelete: Bool = false {
         didSet {
             if enableDelete && contentView != nil {
@@ -86,39 +84,33 @@ public class GlucoseGraph: UIView {
     private var averageValue: CGFloat = 0
 
     public var points: [GlucoseReading]! {
-        get {
-            return historyPoints + trendPoints
-        }
-        set {
-            guard !newValue.isEmpty else {
+        didSet {
+            guard !points.isEmpty else {
                 return
             }
-            trendPoints = []
-            historyPoints = []
-            let points: [GlucoseReading]
-            if newValue.last!.date > newValue.first!.date {
-                points = newValue
-            } else {
-                points = newValue.reversed()
+            if points.last!.date < points.first!.date {
+                 points = points.reversed()
             }
-            for (idx,point) in points.enumerated() {
-                if point.type == .trend || (idx > 0 && point.date - points[idx-1].date < 5.m && point.type == .history) {
-                    trendPoints.append(point)
-                } else {
-                    historyPoints.append(point)
-                }
-            }
+            
             let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
-            holes = []
-            if historyPoints.count > 1 {
-                for (idx, gp) in historyPoints[1...].enumerated() {
+            segments = []
+            var segmentStart = 0
+            trendIsMarked = false
+            if points.count > 1 {
+                for (idx, gp) in points[1...].enumerated() {
                     if gp.type == .calibration {
-                        holes.append(idx + 1)
-                    } else if gp.date - historyPoints[idx].date > 1.h + 30.m {
-                        holes.append(idx + 1)
+                        segments.append(segmentStart...idx)
+                        segmentStart = idx + 1
+                    } else if gp.date - points[idx].date > 1.h + 30.m {
+                        segments.append(segmentStart...idx)
+                        segmentStart = idx + 1
+                    }
+                    if gp.type == .trend {
+                        trendIsMarked = true
                     }
                 }
             }
+            segments.append(segmentStart...(points.count - 1))
             yRange.min = max(CGFloat(floor(gmin / 5) * 5), 10)
             yRange.max = max(CGFloat(ceil(gmax / 5) * 5), CGFloat(ceil((prediction?.h50 ?? 0) / 5) * 5))
             contentWidthConstraint?.isActive = false
@@ -127,7 +119,8 @@ public class GlucoseGraph: UIView {
             }
             setNeedsLayout()
             if showAverage {
-                averageValue = CGFloat(zip(points[0 ..< points.count - 1], points[1 ..< points.count]).map { ($0.1.date - $0.0.date) * ($0.0.value + $0.1.value) }.sum() / (points.last!.date - points.first!.date) / 2.0)
+                let zipped = zip(points[0 ..< points.count - 1], points[1 ..< points.count])
+                averageValue = CGFloat(zipped.map { ($0.1.date - $0.0.date) * ($0.0.value + $0.1.value) }.sum() / (points.last!.date - points.first!.date) / 2.0)
             }
             DispatchQueue.main.async {
                 if let holder = self.contentHolder, !holder.isDragging && !holder.isDecelerating {
@@ -136,7 +129,7 @@ public class GlucoseGraph: UIView {
             }
         }
     }
-    private var holes: [Int] = []
+    private var segments: [ClosedRange<Int>] = []
     public var yRange = (min: CGFloat(70), max: CGFloat(180))
     public var xRange = (min: Date() - 1.d, max: Date())
     public var lineWidth: CGFloat = 1.5
@@ -221,6 +214,8 @@ public class GlucoseGraph: UIView {
         }
     }
     
+    private var trendIsMarked = false
+    
     private func drawContent(_ rect: CGRect) {
         let colors = [(defaults[.level0], defaults[.color0]),
                       (defaults[.level1], defaults[.color1]),
@@ -228,7 +223,7 @@ public class GlucoseGraph: UIView {
                       (defaults[.level3], defaults[.color3]),
                       (defaults[.level4], defaults[.color4]),
                       (999.0, defaults[.color5])]
-        guard self.historyPoints != nil else {
+        guard self.points != nil else {
             return
         }
         let ctx = UIGraphicsGetCurrentContext()
@@ -402,10 +397,8 @@ public class GlucoseGraph: UIView {
             median.stroke()
             ctx?.restoreGState()
         }
-        let historyPoints = self.historyPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
-        let trendPoints = self.trendPoints.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
-        let calibrationPoints = self.historyPoints.filter( { $0.type == .calibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
-        let all = historyPoints + trendPoints
+        let all = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let calibrationPoints = points.filter( { $0.type == .calibration }).map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         let plotter = Plot(points: all)
         if showAverage {
             ctx?.saveGState()
@@ -427,90 +420,45 @@ public class GlucoseGraph: UIView {
         if theme == .dark {
             plotter.set(colors: colors.map { (yCoor(CGFloat($0.0)), $0.1) })
             var curves = [(UIColor, UIBezierPath)]()
-            var x0 = all.map { $0.x }.min()!
-            let blanks = holes.map { historyPoints[$0].x } + [all.map { $0.x }.max()!]
-            for x in blanks {
-                curves += plotter.coloredLines(from: x0, to: x)
-                x0 = x
+            for x in segments {
+                curves += plotter.coloredLines(from: all[x.lowerBound].x , to: all[x.upperBound].x )
             }
             for (color,path) in curves {
                 color.set()
                 path.lineWidth = lineWidth
                 path.stroke()
             }
-            let r = dotRadius
-            for point in all {
+            for idx in 0 ..< points.count {
+                let point = all[idx]
+                let trend = trendIsMarked ? points[idx].type == .trend : points.last!.date - points[idx].date < 15.m
+                let r = trend ? dotRadius - 1 : dotRadius
                 plotter.colorForValue(point.y).set()
                 UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))).fill()
             }
         } else {
             do1: do {
-                let p = historyPoints
-                if p.isEmpty {
+                if all.isEmpty {
                     break do1
                 }
                 let curve = UIBezierPath()
-                if holes.isEmpty {
-                    curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
-                } else {
-                    var idx = 0
-                    for hole in holes {
-                        guard hole <= p.count && hole > 0 else {
-                            continue
-                        }
-                        curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
-                        idx = hole
-                    }
-                    if idx < p.count - 1 {
-                        curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
-                    }
+              
+                for segment in segments {
+                    curve.append(plotter.line(from: all[segment.lowerBound].x, to: all[max(segment.upperBound,all.count - 1)].x))
                 }
+                    
                 UIColor.darkGray.set()
                 curve.lineWidth = lineWidth
                 curve.stroke()
                 let fill = UIBezierPath()
                 let dotSize = CGSize(width: 2 * dotRadius, height: 2 * dotRadius)
-                for point in p {
-                    fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
+                let trendDotSize = CGSize(width: 2 * dotRadius - 1, height: 2 * dotRadius - 1)
+
+                for idx in 0 ..< all.count {
+                    let point = all[idx]
+                    let trend = trendIsMarked ? points[idx].type == .trend : points.last!.date - points[idx].date < 15.m
+                    fill.append(UIBezierPath(ovalIn: CGRect(center: point, size: trend ? trendDotSize : dotSize)))
                 }
                 UIColor.label.set()
-                fill.lineWidth = 0
-                fill.fill()
-            }
-            
-            do2: do {
-                var p = trendPoints
-                if p.isEmpty {
-                    break do2
-                }
-                if let last = historyPoints.last {
-                    p.insert(last, at: 0)
-                }
-                let curve = UIBezierPath()
-                if holes.isEmpty {
-                    curve.append(plotter.line(from: p.first!.x, to: p.last!.x))
-                } else {
-                    var idx = 0
-                    for h in holes {
-                        let hole = h - historyPoints.count + 1
-                        guard hole <= p.count && hole > 0 else {
-                            continue
-                        }
-                        curve.append(plotter.line(from: p[idx].x, to: p[hole - 1].x))
-                        idx = hole
-                    }
-                    if idx < p.count - 1 {
-                        curve.append(plotter.line(from: p[idx].x, to: p.last!.x))
-                    }
-                }
-                UIColor.secondaryLabel.set()
-                curve.lineWidth = lineWidth
-                curve.stroke()
-                let fill = UIBezierPath()
-                let dotSize = CGSize(width: 2 * dotRadius - 1, height: 2 * dotRadius - 1)
-                for point in p {
-                    fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: dotRadius, y: dotRadius), size: dotSize)))
-                }
                 fill.lineWidth = 0
                 fill.fill()
             }
@@ -525,7 +473,7 @@ public class GlucoseGraph: UIView {
         if !pointsToDelete.isEmpty {
             let selected = UIBezierPath()
             for idx in pointsToDelete {
-                let point = historyPoints[idx]
+                let point = all[idx]
                 selected.append(UIBezierPath(ovalIn: CGRect(center: point, size: CGSize(width: 20, height: 20))))
             }
             UIColor.magenta.set()
@@ -1005,7 +953,7 @@ public class GlucoseGraph: UIView {
             let xScale = contentView.bounds.size.width / CGFloat(xRange.max - xRange.min)
             let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
             let touchPoint = sender.location(in: contentView)
-            let historyPoints = self.historyPoints.enumerated().map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
+            let historyPoints = points.enumerated().filter { $0.element.type != .trend }.map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
             let nearest = historyPoints.filter { abs(touchPoint.x - $0.element.x) < 40 && abs(touchPoint.y - $0.element.y) < 40 }.map { (offset: $0.offset, element: touchPoint.distance(to: $0.element)) }.sorted(by: { $0.element < $1.element }).first?.offset
             if let nearest = nearest, !pointsToDelete.contains(nearest) {
                 pointsToDelete.insert(nearest)
@@ -1019,15 +967,15 @@ public class GlucoseGraph: UIView {
                 let sheet = UIAlertController(title: "Delete point\(pointsToDelete.count > 1 ? "s" : "")?", message: "Really delete the selected point\(pointsToDelete.count > 1 ? "s" : "")?", preferredStyle: .actionSheet)
                 sheet.addAction(UIAlertAction(title: "Delete", style: .default, handler: { (_) in
                     NotificationCenter.default.post(name: WillDeletePointsNotification, object: self)
-                    if var changedPoints = self.historyPoints {
+                    if var changedPoints = self.points {
                         for selected in Array(self.pointsToDelete).sorted().reversed() {
                             changedPoints.remove(at: selected)
-                            let date = self.historyPoints[selected].date
+                            let date = self.points[selected].date
                             try? Storage.default.db.execute("delete from \(GlucosePoint.tableName) where \(GlucosePoint.date.name) > \((date - 1.m).timeIntervalSince1970) and \(GlucosePoint.date.name) < \((date + 1.m).timeIntervalSince1970)")
                         }
 //                        let offset = self.contentHolder.contentOffset
                         NotificationCenter.default.post(name: DeletedPointsNotification, object: self)
-                        self.historyPoints = changedPoints
+                        self.points = changedPoints
                         self.pointsToDelete = []
                         self.setNeedsDisplay()
 //                        DispatchQueue.main.async {
@@ -1058,7 +1006,7 @@ extension GlucoseGraph: UIScrollViewDelegate {
 
 extension GlucoseGraph: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        guard historyPoints != nil else {
+        guard points != nil else {
             return false
         }
         let yScale = contentView.bounds.size.height / (yRange.max - yRange.min)
@@ -1066,7 +1014,7 @@ extension GlucoseGraph: UIGestureRecognizerDelegate {
         let xScale = contentView.bounds.size.width / CGFloat(xRange.max - xRange.min)
         let xCoor = { (d: Date) in CGFloat(d - self.xRange.min) * xScale }
         let touchPoint = touch.location(in: contentView)
-        let historyPoints = self.historyPoints.enumerated().map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
+        let historyPoints = self.points.enumerated().filter { $0.element.type == .history }.map { (offset: $0.offset, element: CGPoint(x: xCoor($0.element.date), y: yCoor(CGFloat($0.element.value)))) }
         let nearest = historyPoints.filter { abs(touchPoint.x - $0.element.x) < 40 && abs(touchPoint.y - $0.element.y) < 40 }.map { (offset: $0.offset, element: touchPoint.distance(to: $0.element)) }
         if let _ = nearest.first {
             return true
@@ -1123,17 +1071,22 @@ extension UIImage {
     }
 }
 
-struct GlucoseGraphView: UIViewRepresentable {
+public struct GlucoseGraphView: UIViewRepresentable {
     var points: [GlucosePoint]
     var timespan: TimeInterval
     
-    func makeUIView(context: Context) -> GlucoseGraph {
+    public init(points: [GlucosePoint], timespan: TimeInterval) {
+        self.points = points
+        self.timespan = timespan
+    }
+    
+    public func makeUIView(context: Context) -> GlucoseGraph {
         let uiView = GlucoseGraph(frame: .zero, withScrolling: false)
         uiView.backgroundColor = .clear
         return uiView
     }
     
-    func updateUIView(_ uiView: GlucoseGraph, context: Context) {
+    public func updateUIView(_ uiView: GlucoseGraph, context: Context) {
         uiView.points = self.points
         uiView.yRange.max = ceil(uiView.yRange.max / 10) * 10
         uiView.yRange.min = floor(uiView.yRange.min / 5) * 5

@@ -14,6 +14,7 @@ import WoofKit
 import Zip
 import AudioToolbox
 import BackgroundTasks
+import WidgetKit
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -659,6 +660,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                                     relevant.forEach { db.evaluate($0.insert()) }
                                 }
                             }
+                            WidgetCenter.shared.reloadAllTimelines()
                         } catch {}
                     })
                 }
