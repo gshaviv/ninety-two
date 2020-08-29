@@ -269,6 +269,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             for record in records {
                                 if !existingMeals.contains(record) {
                                     let newRecord = Record(date: record.date, meal: record.type, bolus: record.bolus, note: record.note)
+                                    newRecord.carbs = record.carbs
                                     if let oldMealId = record.mealId {
                                         if let newMealId = meals[oldMealId]?.id {
                                             newRecord.mealId = newMealId
