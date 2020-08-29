@@ -259,11 +259,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 }
                             }
 
-                            let meals = importDb.evaluate(Record.read()) ?? []
+                            let records = importDb.evaluate(Record.read()) ?? []
                             let existingMeals = Set(db.evaluate(Record.read()) ?? [])
-                            for record in meals {
+                            var meals = [Int: Meal]()
+                            (importDb.evaluate(Meal.read()) ?? []).forEach {
+                                meals[$0.id ?? -1] = $0
+                                $0.reset()
+                            }
+                            for record in records {
                                 if !existingMeals.contains(record) {
-                                    try db.perform(record.insert())
+                                    let newRecord = Record(date: record.date, meal: record.type, bolus: record.bolus, note: record.note)
+                                    if let oldMealId = record.mealId {
+                                        if let newMealId = meals[oldMealId]?.id {
+                                            newRecord.mealId = newMealId
+                                        } else if let meal = meals[oldMealId] {
+                                            try meal.save()
+                                            newRecord.mealId = meal.id
+                                        }
+                                    }
+                                    try db.perform(newRecord.insert())
                                     mealCount += 1
                                 }
                             }

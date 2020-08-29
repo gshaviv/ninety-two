@@ -13,7 +13,7 @@ import Sqlable
 public class FoodServing {
     public let foodId: Int
     public let amount: Double
-    private(set) public var id: Int?
+    fileprivate(set) public var id: Int?
     fileprivate(set) public var mealId: Int?
     public lazy var food: Food = try! Food.with(id: self.foodId)
 
@@ -115,6 +115,14 @@ class Meal {
             servings = s
         }
     }
+    
+    func reset() {
+        id = nil
+        for serving in servings {
+            serving.mealId = nil
+            serving.id = nil
+        }
+    }
 }
 
 extension Meal: Sqlable {
@@ -133,7 +141,7 @@ extension Meal: Sqlable {
         }
     }
 
-    public func save(to db: SqliteDatabase? = nil) throws {
+    public func save() throws {
         if id == nil {
             id = Storage.default.db.evaluate(insert())
         } else {
