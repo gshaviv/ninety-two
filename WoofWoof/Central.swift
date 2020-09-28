@@ -261,7 +261,8 @@ extension Data {
 
     func array<T>() -> [T] {
         return self.withUnsafeBytes {
-            [T](UnsafeBufferPointer(start: $0, count: self.count / MemoryLayout<T>.stride))
+            guard let addr = $0.baseAddress?.assumingMemoryBound(to: T.self)  else { return [] }
+            return [T](UnsafeBufferPointer(start: addr, count: self.count / MemoryLayout<T>.stride))
         }
     }
 

@@ -675,7 +675,9 @@ extension AppDelegate: MiaoMiaoDelegate {
                                     relevant.forEach { db.evaluate($0.insert()) }
                                 }
                             }
-                            WidgetCenter.shared.reloadAllTimelines()
+                            if #available(iOS 14.0, *) {
+                                WidgetCenter.shared.reloadAllTimelines()
+                            } 
                         } catch {}
                     })
                 }
