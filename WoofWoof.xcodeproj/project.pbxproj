@@ -460,6 +460,7 @@
 		E45907E121D5536400B139CF /* AutoLayoutExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLayoutExtension.swift; sourceTree = "<group>"; };
 		E45A0ABB230AEAFD0091957E /* woofWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "woofWatch Extension.entitlements"; sourceTree = "<group>"; };
 		E45A86C521F1D09900754C15 /* BolusIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusIntentHandler.swift; sourceTree = "<group>"; };
+		E45FC30E2523731E00421E5E /* GlucoseWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GlucoseWidgetExtension.entitlements; sourceTree = "<group>"; };
 		E46ACEB12469B5B2001274D6 /* LowEventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowEventsViewController.swift; sourceTree = "<group>"; };
 		E46C847A23C118D500418207 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		E46DC58021F20FE700E9E391 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
@@ -816,6 +817,7 @@
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
+				E45FC30E2523731E00421E5E /* GlucoseWidgetExtension.entitlements */,
 				E4B164392334B0B8006A0BF9 /* Version.xcconfig */,
 				E4230F9921EA472C00A297A5 /* SiriIntents.entitlements */,
 				E425663E21CE61D600469232 /* Dependencies */,
@@ -1690,6 +1692,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = GlucoseWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = GlucoseWidget/Info.plist;
@@ -1712,6 +1715,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = GlucoseWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = GlucoseWidget/Info.plist;

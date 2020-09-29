@@ -671,7 +671,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                             try sharedDb.transaction { db in
                                 try? db.execute("delete from \(GlucosePoint.tableName)")
                                 let now = Date()
-                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 4.h && $0.type != .calibration }) as? [GlucosePoint] {
+                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 5.h && $0.type != .calibration }) as? [GlucosePoint] {
                                     relevant.forEach { db.evaluate($0.insert()) }
                                 }
                             }

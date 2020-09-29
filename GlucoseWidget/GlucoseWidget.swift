@@ -31,7 +31,7 @@ class Provider: NSObject, IntentTimelineProvider {
 
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (BGEntry) -> ()) {
         readData { (points, records) in
-            let entryDate = points.first?.date ?? Date()
+            let entryDate = points.last?.date ?? Date()
             let entry = BGEntry(date: entryDate, configuration: configuration, points: points, records: records)
             completion(entry)
         }
@@ -39,7 +39,7 @@ class Provider: NSObject, IntentTimelineProvider {
 
     func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         readData { (points, records) in
-            let entryDate = points.first?.date ?? Date()
+            let entryDate = points.last?.date ?? Date()
             let timeline = Timeline(entries: [BGEntry(date: entryDate, configuration: configuration, points: points, records: records)], policy: .after(entryDate + 3.m))
             completion(timeline)
         }
@@ -51,7 +51,7 @@ class Provider: NSObject, IntentTimelineProvider {
                 if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
                     Storage.default.reloadToday()
                     let records = Storage.default.lastDay.entries
-                    completion(p.sorted(by: { $0.date > $1.date }), records)
+                    completion(p.sorted(by: { $0.date < $1.date }), records)
                 } else {
                     completion([], [])
                 }
@@ -107,9 +107,9 @@ struct GlucoseWidgetEntryView : View {
         case .systemSmall:
             return Font.system(.headline)
         case .systemMedium:
-            return Font.system(size: 21, weight: .bold, design: Font.Design.default)
+            return Font.system(size: 25, weight: .bold, design: Font.Design.default)
         case .systemLarge:
-            return Font.system(size: 25, weight: .black, design: Font.Design.default)
+            return Font.system(size: 36, weight: .black, design: Font.Design.default)
         @unknown default:
             return Font.system(.headline)
         }
@@ -120,7 +120,7 @@ struct GlucoseWidgetEntryView : View {
             HStack(spacing: 2) {
                 Text(entry.date, style: .timer)
                     .lineLimit(1)
-                    .font(Font.monospacedDigit(Font.system(.body))())
+                    .font(Font.monospacedDigit(Font.system(.caption))())
                     .minimumScaleFactor(0.5)
                     .frame(maxWidth: 100)
                 if family != .systemSmall {
@@ -129,19 +129,21 @@ struct GlucoseWidgetEntryView : View {
                     if iob > 0 {
                         Text("BOB\n\(iob % ".1lf")")
                             .lineLimit(2)
-                            .font(Font.monospacedDigit(Font.system(.callout))())
+                            .font(Font.monospacedDigit(Font.system(.caption2))())
                             .multilineTextAlignment(.center)
                     } else {
                         Text("\n")
                             .lineLimit(2)
-                            .font(Font.monospacedDigit(Font.system(.callout))())
+                            .font(Font.monospacedDigit(Font.system(.caption2))())
                     }
                 }
                 Spacer()
                 Text(trend)
                     .font(Font.system(.caption))
+                    .lineLimit(1)
                 Text(levelString)
                     .font(levelFont)
+                    .lineLimit(1)
             }
             .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
             

@@ -92,25 +92,15 @@ struct BGWidgetGraph: View {
         let clip = UIBezierPath()
         var union = CGRect.zero
         var lastY:CGFloat = 0
+        let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
+                      NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.8, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
         
         for y in yReference.reversed() {
             let yc = yCoor(CGFloat(y))
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
-                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
             let styled = NSAttributedString(string: "\(y)", attributes: attrib)
             let tsize = styled.size()
-            if !defaults[.useDarkGraph] {
-                UIColor(white: 0.25, alpha: 0.5).set()
-            } else {
-                UIColor(white: 0.5, alpha: 1).set()
-            }
             let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
             if trect.minY > lastY {
-                if !defaults[.useDarkGraph] {
-                    UIColor(white: 0.25, alpha: 0.75).set()
-                } else {
-                    UIColor(white: 0.7, alpha: 1).set()
-                }
                 styled.draw(in: trect)
                 clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -4, bottom: 0, right: -4))))
                 union = union.union(trect)
@@ -125,10 +115,13 @@ struct BGWidgetGraph: View {
         let step = 1.h
         let yplaces = union
         union = union.union(CGRect(origin: .zero, size: size))
+        if !defaults[.useDarkGraph] {
+            UIColor(white: 0.25, alpha: 0.5).set()
+        } else {
+            UIColor(white: 0.5, alpha: 1).set()
+        }
         repeat {
             let cx = xCoor(xDate)
-            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
-                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
             let styled = NSAttributedString(string: "\(xDate.hour):00", attributes: attrib)
             let tsize = styled.size()
             let trect = CGRect(origin: CGPoint(x: cx - tsize.width / 2, y: size.height - tsize.height - 2), size: tsize)
