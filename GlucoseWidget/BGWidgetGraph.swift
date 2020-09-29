@@ -12,10 +12,11 @@ import WoofKit
 
 struct BGWidgetGraph: View {
     let points: [GlucosePoint]
+    let hours: Double
     
     var body: some View {
         GeometryReader { frame in
-            if let newImage = BGWidgetGraph.createImage(points: points, size: frame.size) {
+            if let newImage = BGWidgetGraph.createImage(points: points, size: frame.size, hours: hours) {
                  Image(uiImage: newImage)
             } else {
                  Image(uiImage: UIImage(systemName: "waveform.path.ecg")!)
@@ -26,7 +27,7 @@ struct BGWidgetGraph: View {
     
     
     
-    static func createImage(points: [GlucosePoint], size: CGSize) -> UIImage? {
+    static func createImage(points: [GlucosePoint], size: CGSize, hours: Double) -> UIImage? {
         let colors = [0 ... defaults[.level0]: defaults[.color0] ,
                       defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
                       defaults[.level1] ... defaults[.level2]: defaults[.color2] ,
@@ -58,7 +59,7 @@ struct BGWidgetGraph: View {
         }
         let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
         let maxDate = Date() - latest < 5.m ? latest : Date()
-        let xRange = (min: maxDate - 2.h, max: maxDate)
+        let xRange = (min: maxDate - hours.h, max: maxDate)
         
         UIGraphicsBeginImageContextWithOptions(size, true, 2)
         let ctx = UIGraphicsGetCurrentContext()
@@ -89,7 +90,7 @@ struct BGWidgetGraph: View {
         }
         
         let clip = UIBezierPath()
-        var union = CGRect(origin: .zero, size: size)
+        var union = CGRect.zero
         var lastY:CGFloat = 0
         
         for y in yReference.reversed() {
@@ -103,9 +104,6 @@ struct BGWidgetGraph: View {
             } else {
                 UIColor(white: 0.5, alpha: 1).set()
             }
-            ctx?.move(to: CGPoint(x: tsize.width + 8, y: yc))
-            ctx?.addLine(to: CGPoint(x: size.width, y: yc))
-            ctx?.strokePath()
             let trect = CGRect(origin: CGPoint(x: 4, y: yc - tsize.height / 2), size: tsize)
             if trect.minY > lastY {
                 if !defaults[.useDarkGraph] {
@@ -114,25 +112,52 @@ struct BGWidgetGraph: View {
                     UIColor(white: 0.7, alpha: 1).set()
                 }
                 styled.draw(in: trect)
-                clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 0))))
+                clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -4, bottom: 0, right: -4))))
                 union = union.union(trect)
                 lastY = trect.maxY
             }
         }
-        clip.append(UIBezierPath(rect: union))
-        clip.usesEvenOddFillRule = true
-        ctx?.saveGState()
-        clip.addClip()
+        
         var components = xRange.min.components
         components.second = 0
         components.minute = 0
         var xDate = components.getDate
         let step = 1.h
+        let yplaces = union
+        union = union.union(CGRect(origin: .zero, size: size))
+        repeat {
+            let cx = xCoor(xDate)
+            let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
+                          NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.6, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
+            let styled = NSAttributedString(string: "\(xDate.hour):00", attributes: attrib)
+            let tsize = styled.size()
+            let trect = CGRect(origin: CGPoint(x: cx - tsize.width / 2, y: size.height - tsize.height - 2), size: tsize)
+            if !yplaces.intersects(trect) {
+                styled.draw(in: trect)
+                clip.append(UIBezierPath(rect: trect.inset(by: UIEdgeInsets(top: 0, left: -2, bottom: -2, right: -2))))
+            }
+            xDate += step
+        } while xDate < xRange.max
+        
+        clip.append(UIBezierPath(rect: union))
+        clip.usesEvenOddFillRule = true
+        ctx?.saveGState()
+        clip.addClip()
+        components = xRange.min.components
+        components.second = 0
+        components.minute = 0
+        xDate = components.getDate
         repeat {
             ctx?.move(to: CGPoint(x: xCoor(xDate), y: 0))
             ctx?.addLine(to: CGPoint(x: xCoor(xDate), y: size.height))
             xDate += step
         } while xDate < xRange.max
+        for y in yReference {
+            let yc = yCoor(CGFloat(y))
+            ctx?.move(to: CGPoint(x: 0, y: yc))
+            ctx?.addLine(to: CGPoint(x: size.width, y: yc))
+            ctx?.strokePath()
+        }
         ctx?.strokePath()
         ctx?.restoreGState()
         let p = points.map { CGPoint(x: xCoor($0.date), y: CGFloat($0.value)) }

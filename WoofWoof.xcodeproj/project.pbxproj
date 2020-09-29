@@ -23,6 +23,13 @@
 		E417F4B821E8CFA200C6BC9D /* SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E417F4BC21E8CFB200C6BC9D /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
 		E417F4BD21E8CFB200C6BC9D /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
+		E41E50422521CA020041FD8A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D0052C24BA32D2005CBD89 /* WidgetKit.framework */; };
+		E41E50432521CA020041FD8A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D0052E24BA32D2005CBD89 /* SwiftUI.framework */; };
+		E41E50462521CA020041FD8A /* GlucoseWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41E50452521CA020041FD8A /* GlucoseWidget.swift */; };
+		E41E50492521CA040041FD8A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E41E50482521CA040041FD8A /* Assets.xcassets */; };
+		E41E504B2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E41E50472521CA020041FD8A /* GlucoseWidget.intentdefinition */; };
+		E41E504C2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E41E50472521CA020041FD8A /* GlucoseWidget.intentdefinition */; };
+		E41E504F2521CA040041FD8A /* GlucoseWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E41E50412521CA020041FD8A /* GlucoseWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F93D02223237B000CC69F /* SummaryViewController.swift */; };
 		E41F93D42223DD5D000CC69F /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F93D32223DD5D000CC69F /* ContainerView.swift */; };
 		E4230F8321E9DA4200A297A5 /* PDFCreation.h in Headers */ = {isa = PBXBuildFile; fileRef = E4230F8121E9DA4200A297A5 /* PDFCreation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -63,6 +70,11 @@
 		E42A295921E8875D0084D181 /* UIBezierPath+CurveThroughPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7C42621D5230C007BF0D8 /* UIBezierPath+CurveThroughPoints.swift */; };
 		E42A295A21E8876E0084D181 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
 		E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
+		E42D37B42521CC6100DECEF8 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
+		E42D37B52521CC6100DECEF8 /* WoofKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E42D37C12521CC6F00DECEF8 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
+		E42D37C22521CC6F00DECEF8 /* Sqlable.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E42D37CA2521CCA100DECEF8 /* BGWidgetGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */; };
 		E42E2A9D21DF28C5004FD560 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9B21DF28C5004FD560 /* Interface.storyboard */; };
 		E42E2A9F21DF28C7004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9E21DF28C7004FD560 /* Assets.xcassets */; };
 		E42E2AA621DF28C7004FD560 /* woofWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E42E2AA521DF28C7004FD560 /* woofWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -154,7 +166,6 @@
 		E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */; };
 		E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D121FCB8230046D28F /* EFControl.swift */; };
 		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
-		E4D0053824BA32D4005CBD89 /* BGWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = E4D0053324BA32D2005CBD89 /* BGWidget.intentdefinition */; };
 		E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */; };
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
@@ -187,6 +198,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
 			remoteInfo = Sqlable;
+		};
+		E41E504D2521CA040041FD8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E41E50402521CA020041FD8A;
+			remoteInfo = GlucoseWidgetExtension;
 		};
 		E4230F8421E9DA4200A297A5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -236,6 +254,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = FF94F2D31BDE2633009AD0C9;
 			remoteInfo = Sqlable;
+		};
+		E42D37B62521CC6100DECEF8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4E35A5821C3F8D300336CE8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E42A294521E886C70084D181;
+			remoteInfo = WoofKit;
 		};
 		E42E2AA721DF28C7004FD560 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -290,8 +315,21 @@
 				E417F4B821E8CFA200C6BC9D /* SiriIntents.appex in Embed App Extensions */,
 				E44EEC7D21E9C52600F966A8 /* SiriIntentUI.appex in Embed App Extensions */,
 				E42A292821E77B2A0084D181 /* woofWidget.appex in Embed App Extensions */,
+				E41E504F2521CA040041FD8A /* GlucoseWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E42D37B82521CC6100DECEF8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E42D37B52521CC6100DECEF8 /* WoofKit.framework in Embed Frameworks */,
+				E42D37C22521CC6F00DECEF8 /* Sqlable.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E42E2ABF21DF28C8004FD560 /* Embed App Extensions */ = {
@@ -332,6 +370,11 @@
 		E417F4B321E8CFA200C6BC9D /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		E417F4B521E8CFA200C6BC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E417F4C221E8D21300C6BC9D /* SiriIntents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiriIntents.entitlements; sourceTree = "<group>"; };
+		E41E50412521CA020041FD8A /* GlucoseWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GlucoseWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E41E50452521CA020041FD8A /* GlucoseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseWidget.swift; sourceTree = "<group>"; };
+		E41E50472521CA020041FD8A /* GlucoseWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = GlucoseWidget.intentdefinition; sourceTree = "<group>"; };
+		E41E50482521CA040041FD8A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E41E504A2521CA040041FD8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E41F93D02223237B000CC69F /* SummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryViewController.swift; sourceTree = "<group>"; };
 		E41F93D32223DD5D000CC69F /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		E4230F7F21E9DA4200A297A5 /* PDFCreation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PDFCreation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -464,10 +507,6 @@
 		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
 		E4D0052C24BA32D2005CBD89 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E4D0052E24BA32D2005CBD89 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		E4D0053124BA32D2005CBD89 /* BGWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGWidget.swift; sourceTree = "<group>"; };
-		E4D0053324BA32D2005CBD89 /* BGWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = BGWidget.intentdefinition; sourceTree = "<group>"; };
-		E4D0053424BA32D4005CBD89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E4D0053624BA32D4005CBD89 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E4D0054724BAF85D005CBD89 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareMealViewController.swift; sourceTree = "<group>"; };
 		E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodViewController.swift; sourceTree = "<group>"; };
@@ -498,6 +537,17 @@
 			files = (
 				E417F4BC21E8CFB200C6BC9D /* WoofKit.framework in Frameworks */,
 				E417F4BD21E8CFB200C6BC9D /* Sqlable.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E41E503E2521CA020041FD8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E41E50432521CA020041FD8A /* SwiftUI.framework in Frameworks */,
+				E42D37C12521CC6F00DECEF8 /* Sqlable.framework in Frameworks */,
+				E41E50422521CA020041FD8A /* WidgetKit.framework in Frameworks */,
+				E42D37B42521CC6100DECEF8 /* WoofKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,6 +617,18 @@
 				E417F4B521E8CFA200C6BC9D /* Info.plist */,
 			);
 			path = Intents;
+			sourceTree = "<group>";
+		};
+		E41E50442521CA020041FD8A /* GlucoseWidget */ = {
+			isa = PBXGroup;
+			children = (
+				E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */,
+				E41E50452521CA020041FD8A /* GlucoseWidget.swift */,
+				E41E50472521CA020041FD8A /* GlucoseWidget.intentdefinition */,
+				E41E50482521CA040041FD8A /* Assets.xcassets */,
+				E41E504A2521CA040041FD8A /* Info.plist */,
+			);
+			path = GlucoseWidget;
 			sourceTree = "<group>";
 		};
 		E4230F8021E9DA4200A297A5 /* PDFCreation */ = {
@@ -751,18 +813,6 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		E4D0053024BA32D2005CBD89 /* BGWidget */ = {
-			isa = PBXGroup;
-			children = (
-				E4D0053124BA32D2005CBD89 /* BGWidget.swift */,
-				E4D0053324BA32D2005CBD89 /* BGWidget.intentdefinition */,
-				E4D0053424BA32D4005CBD89 /* Assets.xcassets */,
-				E4D0053624BA32D4005CBD89 /* Info.plist */,
-				E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */,
-			);
-			path = BGWidget;
-			sourceTree = "<group>";
-		};
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
@@ -777,7 +827,7 @@
 				E417F4B221E8CFA200C6BC9D /* Intents */,
 				E44EEC7421E9C52600F966A8 /* SiriIntentUI */,
 				E4230F8021E9DA4200A297A5 /* PDFCreation */,
-				E4D0053024BA32D2005CBD89 /* BGWidget */,
+				E41E50442521CA020041FD8A /* GlucoseWidget */,
 				E42A291C21E77B2A0084D181 /* Frameworks */,
 				E4E35A6121C3F8D300336CE8 /* Products */,
 				E4CCA17880CC032C40CE3564 /* Pods */,
@@ -795,6 +845,7 @@
 				E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */,
 				E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */,
 				E4230F7F21E9DA4200A297A5 /* PDFCreation.framework */,
+				E41E50412521CA020041FD8A /* GlucoseWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -896,6 +947,25 @@
 			name = SiriIntents;
 			productName = Intents;
 			productReference = E417F4B121E8CFA200C6BC9D /* SiriIntents.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E41E50402521CA020041FD8A /* GlucoseWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E41E50532521CA040041FD8A /* Build configuration list for PBXNativeTarget "GlucoseWidgetExtension" */;
+			buildPhases = (
+				E41E503D2521CA020041FD8A /* Sources */,
+				E41E503E2521CA020041FD8A /* Frameworks */,
+				E41E503F2521CA020041FD8A /* Resources */,
+				E42D37B82521CC6100DECEF8 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E42D37B72521CC6100DECEF8 /* PBXTargetDependency */,
+			);
+			name = GlucoseWidgetExtension;
+			productName = GlucoseWidgetExtension;
+			productReference = E41E50412521CA020041FD8A /* GlucoseWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		E4230F7E21E9DA4200A297A5 /* PDFCreation */ = {
@@ -1028,6 +1098,7 @@
 				E417F4B721E8CFA200C6BC9D /* PBXTargetDependency */,
 				E44EEC7C21E9C52600F966A8 /* PBXTargetDependency */,
 				E4230F8521E9DA4200A297A5 /* PBXTargetDependency */,
+				E41E504E2521CA040041FD8A /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
 			productName = WoofWoof;
@@ -1052,6 +1123,9 @@
 								enabled = 1;
 							};
 						};
+					};
+					E41E50402521CA020041FD8A = {
+						CreatedOnToolsVersion = 12.0.1;
 					};
 					E4230F7E21E9DA4200A297A5 = {
 						CreatedOnToolsVersion = 10.1;
@@ -1130,6 +1204,7 @@
 				E417F4B021E8CFA200C6BC9D /* SiriIntents */,
 				E44EEC7021E9C52600F966A8 /* SiriIntentUI */,
 				E4230F7E21E9DA4200A297A5 /* PDFCreation */,
+				E41E50402521CA020041FD8A /* GlucoseWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1156,6 +1231,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E41E503F2521CA020041FD8A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E41E50492521CA040041FD8A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1290,6 +1373,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E41E503D2521CA020041FD8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E42D37CA2521CCA100DECEF8 /* BGWidgetGraph.swift in Sources */,
+				E41E50462521CA020041FD8A /* GlucoseWidget.swift in Sources */,
+				E41E504B2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E4230F7B21E9DA4200A297A5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1398,10 +1491,10 @@
 				E48F42C421C6DA5E001AF4CD /* CRC.swift in Sources */,
 				E44CFFFE223C20CB0022835A /* Meal.swift in Sources */,
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
-				E4D0053824BA32D4005CBD89 /* BGWidget.intentdefinition in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
 				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
 				E4C18FD82340C32A00B1163E /* ColorDefinitions.swift in Sources */,
+				E41E504C2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */,
 				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
 				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
@@ -1457,6 +1550,11 @@
 			name = Sqlable;
 			targetProxy = E417F4C021E8CFC500C6BC9D /* PBXContainerItemProxy */;
 		};
+		E41E504E2521CA040041FD8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E41E50402521CA020041FD8A /* GlucoseWidgetExtension */;
+			targetProxy = E41E504D2521CA040041FD8A /* PBXContainerItemProxy */;
+		};
 		E4230F8521E9DA4200A297A5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E4230F7E21E9DA4200A297A5 /* PDFCreation */;
@@ -1481,6 +1579,11 @@
 			isa = PBXTargetDependency;
 			name = Sqlable;
 			targetProxy = E42A295C21E889D30084D181 /* PBXContainerItemProxy */;
+		};
+		E42D37B72521CC6100DECEF8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E42A294521E886C70084D181 /* WoofKit */;
+			targetProxy = E42D37B62521CC6100DECEF8 /* PBXContainerItemProxy */;
 		};
 		E42E2AA821DF28C7004FD560 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1575,6 +1678,50 @@
 					"@executable_path/../../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.Intents;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E41E50502521CA040041FD8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = GlucoseWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.GlucoseWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E41E50512521CA040041FD8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GK93HYWFG3;
+				INFOPLIST_FILE = GlucoseWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tivstudio.WoofWoof.GlucoseWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -2069,6 +2216,15 @@
 			buildConfigurations = (
 				E417F4BA21E8CFA200C6BC9D /* Debug */,
 				E417F4BB21E8CFA200C6BC9D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E41E50532521CA040041FD8A /* Build configuration list for PBXNativeTarget "GlucoseWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E41E50502521CA040041FD8A /* Debug */,
+				E41E50512521CA040041FD8A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

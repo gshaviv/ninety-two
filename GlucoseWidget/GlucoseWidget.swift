@@ -1,8 +1,8 @@
 //
-//  BGWidget.swift
-//  BGWidget
+//  GlucoseWidget.swift
+//  GlucoseWidget
 //
-//  Created by Guy on 11/07/2020.
+//  Created by Guy on 28/09/2020.
 //  Copyright © 2020 TivStudio. All rights reserved.
 //
 
@@ -11,6 +11,7 @@ import SwiftUI
 import Intents
 import WoofKit
 import Sqlable
+import Foundation
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -24,17 +25,21 @@ class Provider: NSObject, IntentTimelineProvider {
         return db
     }()
     
-    public func snapshot(for configuration: ConfigurationIntent, with context: Context, completion: @escaping (BGEntry) -> ()) {
+    func placeholder(in context: Context) -> BGEntry {
+        BGEntry(date: Date(), configuration: ConfigurationIntent(), points: [], records: [])
+    }
+
+    func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (BGEntry) -> ()) {
         readData { (points, records) in
-            let entryDate = points.last?.date ?? Date()
+            let entryDate = points.first?.date ?? Date()
             let entry = BGEntry(date: entryDate, configuration: configuration, points: points, records: records)
             completion(entry)
         }
     }
 
-    public func timeline(for configuration: ConfigurationIntent, with context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         readData { (points, records) in
-            let entryDate = points.last?.date ?? Date()
+            let entryDate = points.first?.date ?? Date()
             let timeline = Timeline(entries: [BGEntry(date: entryDate, configuration: configuration, points: points, records: records)], policy: .after(entryDate + 3.m))
             completion(timeline)
         }
@@ -72,13 +77,8 @@ struct BGEntry: TimelineEntry {
     public let records: [Record]
 }
 
-struct PlaceholderView : View {
-    var body: some View {
-        Text("Placeholder View")
-    }
-}
 
-struct BGWidgetEntryView : View {
+struct GlucoseWidgetEntryView : View {
     var entry: BGEntry
     @Environment(\.widgetFamily) var family
     @Environment(\.colorScheme) var colorScheme
@@ -114,46 +114,57 @@ struct BGWidgetEntryView : View {
             return Font.system(.headline)
         }
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 2) {
                 Text(entry.date, style: .timer)
+                    .lineLimit(1)
                     .font(Font.monospacedDigit(Font.system(.body))())
+                    .minimumScaleFactor(0.5)
+                    .frame(maxWidth: 100)
+                if family != .systemSmall {
+                    let iob = Storage.default.insulinOnBoard(at: Date())
+                    Spacer()
+                    if iob > 0 {
+                        Text("BOB\n\(iob % ".1lf")")
+                            .lineLimit(2)
+                            .font(Font.monospacedDigit(Font.system(.callout))())
+                            .multilineTextAlignment(.center)
+                    } else {
+                        Text("\n")
+                            .lineLimit(2)
+                            .font(Font.monospacedDigit(Font.system(.callout))())
+                    }
+                }
                 Spacer()
                 Text(trend)
                     .font(Font.system(.caption))
                 Text(levelString)
                     .font(levelFont)
             }
-            .padding(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-
-            BGWidgetGraph(points: entry.points)
+            .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+            
+            BGWidgetGraph(points: entry.points, hours: family == .systemSmall ? 2 : 4)
                 .frame( maxWidth: .infinity,  maxHeight: .infinity)
-        }.background(colorScheme == .light ? Color(named: .lightGray) : Color(named: .darkGray))
-    }
-}
-
-extension Color {
-    init(named: UIColor) {
-        self.init(named)
+        }.background(colorScheme == .light ? Color(.lightGray) : Color(.darkGray))
     }
 }
 
 @main
-struct BGWidget: Widget {
-    private let kind: String = "BGWidget"
+struct GlucoseWidget: Widget {
+    let kind: String = "GlucoseWidget"
 
-    public var body: some WidgetConfiguration {
-        IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider(), placeholder: PlaceholderView()) { entry in
-            BGWidgetEntryView(entry: entry)
+    var body: some WidgetConfiguration {
+        IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
+            GlucoseWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("BG Widget")
         .description("Blood glucose widget.")
     }
 }
 
-struct BGWidget_Previews: PreviewProvider {
+struct GlucoseWidget_Previews: PreviewProvider {
     static let points = [
         GlucosePoint(date: Date() - 120.m, value: 127),
         GlucosePoint(date: Date() - 105.m, value: 123),
@@ -167,16 +178,16 @@ struct BGWidget_Previews: PreviewProvider {
     ]
     static var previews: some View {
         Group {
-        BGWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: BGWidget_Previews.points, records: []))
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
+            GlucoseWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: GlucoseWidget_Previews.points, records: []))
+                .previewContext(WidgetPreviewContext(family: .systemSmall))
             
-            BGWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: BGWidget_Previews.points, records: []))
+            GlucoseWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: GlucoseWidget_Previews.points, records: []))
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
             
-            BGWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: BGWidget_Previews.points, records: []))
+            GlucoseWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: GlucoseWidget_Previews.points, records: []))
                 .previewContext(WidgetPreviewContext(family: .systemLarge))
-
-            BGWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: BGWidget_Previews.points, records: []))
+            
+            GlucoseWidgetEntryView(entry: BGEntry(date: Date() - 46.s, configuration: ConfigurationIntent(), points: GlucoseWidget_Previews.points, records: []))
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
                 .environment(\.colorScheme, .dark)
         }
