@@ -91,7 +91,7 @@ struct BGWidgetGraph: View {
         
         let clip = UIBezierPath()
         var union = CGRect.zero
-        var lastY:CGFloat = 0
+        var lastY = -CGFloat.greatestFiniteMagnitude
         let attrib = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13, weight: .light),
                       NSAttributedString.Key.foregroundColor: defaults[.useDarkGraph] ? UIColor(white: 0.8, alpha: 1) : UIColor(white: 0.25, alpha: 1)]
         
@@ -186,7 +186,7 @@ struct BGWidgetGraph: View {
                 for gp in points {
                     let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
                     colorForValue(gp.value).set()
-                    let r = gp.type == .trend ? trendRadius : dotRadius
+                    let r = gp.type == .trend || Date() - gp.date < 15.m ? trendRadius : dotRadius
                     UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))).fill()
                 }
             } else {
@@ -199,7 +199,7 @@ struct BGWidgetGraph: View {
                 UIColor.black.set()
                 let fill = UIBezierPath()
                 for gp in points {
-                    let r = gp.type == .trend ? trendRadius : dotRadius
+                    let r = gp.type == .trend || Date() - gp.date < 15.m ? trendRadius : dotRadius
                     let point = CGPoint(x: xCoor(gp.date), y: yCoor(CGFloat(gp.value)))
                     fill.append(UIBezierPath(ovalIn: CGRect(origin: point - CGPoint(x: r, y: r), size: CGSize(width: 2 * r, height: 2 * r))))
                 }

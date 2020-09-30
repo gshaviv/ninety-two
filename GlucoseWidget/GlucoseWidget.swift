@@ -115,29 +115,43 @@ struct GlucoseWidgetEntryView : View {
         }
     }
     
+    private var TimeIndicator: some View {
+        if Date() - entry.date < 1.h {
+            return Text(entry.date, style: .timer)
+        } else {
+            return Text(">1h")
+        }
+    }
+    
+    let iob = 1.1//Storage.default.insulinOnBoard(at: Date())
+    
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 2) {
-                Text(entry.date, style: .timer)
+                TimeIndicator
                     .lineLimit(1)
                     .font(Font.monospacedDigit(Font.system(.caption))())
                     .minimumScaleFactor(0.5)
-                    .frame(maxWidth: 100)
+                    .layoutPriority(-1)
+                if iob > 0 && family == .systemSmall {
+                    Text("\(iob % ".1lf")")
+                        .lineLimit(1)
+                        .font(Font.monospacedDigit(Font.system(.caption2))())
+                        .multilineTextAlignment(.center)
+                }
                 if family != .systemSmall {
-                    let iob = Storage.default.insulinOnBoard(at: Date())
-                    Spacer()
                     if iob > 0 {
-                        Text("BOB\n\(iob % ".1lf")")
-                            .lineLimit(2)
+                        Text("\(family == .systemMedium ? "" : "BOB\n")\(iob % ".1lf")")
+                            .lineLimit(family == .systemMedium ? 1 : 2)
                             .font(Font.monospacedDigit(Font.system(.caption2))())
                             .multilineTextAlignment(.center)
-                    } else {
+                    } else if family == .systemLarge {
                         Text("\n")
                             .lineLimit(2)
                             .font(Font.monospacedDigit(Font.system(.caption2))())
                     }
                 }
-                Spacer()
+                Spacer(minLength: family == .systemSmall ? 8 : 20)
                 Text(trend)
                     .font(Font.system(.caption))
                     .lineLimit(1)
@@ -149,7 +163,8 @@ struct GlucoseWidgetEntryView : View {
             
             BGWidgetGraph(points: entry.points, hours: family == .systemSmall ? 2 : 4)
                 .frame( maxWidth: .infinity,  maxHeight: .infinity)
-        }.background(colorScheme == .light ? Color(.lightGray) : Color(.darkGray))
+        }
+        .background(colorScheme == .light ? Color(.lightGray) : Color(.darkGray))
     }
 }
 
