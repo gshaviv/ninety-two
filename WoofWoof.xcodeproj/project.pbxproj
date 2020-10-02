@@ -71,9 +71,7 @@
 		E42A295A21E8876E0084D181 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
 		E42A295E21E88B880084D181 /* GlucosePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425664D21CE66A200469232 /* GlucosePoint.swift */; };
 		E42D37B42521CC6100DECEF8 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
-		E42D37B52521CC6100DECEF8 /* WoofKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E42D37C12521CC6F00DECEF8 /* Sqlable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; };
-		E42D37C22521CC6F00DECEF8 /* Sqlable.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E425664521CE65A400469232 /* Sqlable.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E42D37CA2521CCA100DECEF8 /* BGWidgetGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */; };
 		E42E2A9D21DF28C5004FD560 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9B21DF28C5004FD560 /* Interface.storyboard */; };
 		E42E2A9F21DF28C7004FD560 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42E2A9E21DF28C7004FD560 /* Assets.xcassets */; };
@@ -318,18 +316,6 @@
 				E41E504F2521CA040041FD8A /* GlucoseWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42D37B82521CC6100DECEF8 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E42D37B52521CC6100DECEF8 /* WoofKit.framework in Embed Frameworks */,
-				E42D37C22521CC6F00DECEF8 /* Sqlable.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E42E2ABF21DF28C8004FD560 /* Embed App Extensions */ = {
@@ -627,6 +613,7 @@
 				E41E50452521CA020041FD8A /* GlucoseWidget.swift */,
 				E41E50472521CA020041FD8A /* GlucoseWidget.intentdefinition */,
 				E41E50482521CA040041FD8A /* Assets.xcassets */,
+				E45FC30E2523731E00421E5E /* GlucoseWidgetExtension.entitlements */,
 				E41E504A2521CA040041FD8A /* Info.plist */,
 			);
 			path = GlucoseWidget;
@@ -817,7 +804,6 @@
 		E4E35A5721C3F8D300336CE8 = {
 			isa = PBXGroup;
 			children = (
-				E45FC30E2523731E00421E5E /* GlucoseWidgetExtension.entitlements */,
 				E4B164392334B0B8006A0BF9 /* Version.xcconfig */,
 				E4230F9921EA472C00A297A5 /* SiriIntents.entitlements */,
 				E425663E21CE61D600469232 /* Dependencies */,
@@ -958,7 +944,6 @@
 				E41E503D2521CA020041FD8A /* Sources */,
 				E41E503E2521CA020041FD8A /* Frameworks */,
 				E41E503F2521CA020041FD8A /* Resources */,
-				E42D37B82521CC6100DECEF8 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1692,7 +1677,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = GlucoseWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GlucoseWidget/GlucoseWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = GlucoseWidget/Info.plist;
@@ -1715,7 +1700,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = GlucoseWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GlucoseWidget/GlucoseWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GK93HYWFG3;
 				INFOPLIST_FILE = GlucoseWidget/Info.plist;

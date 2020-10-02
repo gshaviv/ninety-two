@@ -12,22 +12,23 @@ import WoofKit
 
 struct BGWidgetGraph: View {
     let points: [GlucosePoint]
+    let records: [Record]
     let hours: Double
-    
+    @Environment(\.widgetFamily) var family
+
     var body: some View {
         GeometryReader { frame in
-            if let newImage = BGWidgetGraph.createImage(points: points, size: frame.size, hours: hours) {
+            if let newImage = createImage(size: frame.size, hours: hours) {
                  Image(uiImage: newImage)
             } else {
                  Image(uiImage: UIImage(systemName: "waveform.path.ecg")!)
             }
         }
-        
     }
     
     
     
-    static func createImage(points: [GlucosePoint], size: CGSize, hours: Double) -> UIImage? {
+    func createImage(size: CGSize, hours: Double) -> UIImage? {
         let colors = [0 ... defaults[.level0]: defaults[.color0] ,
                       defaults[.level0] ... defaults[.level1]: defaults[.color1] ,
                       defaults[.level1] ... defaults[.level2]: defaults[.color2] ,
@@ -48,13 +49,14 @@ struct BGWidgetGraph: View {
             trendRadius = 1.5
         }
         
-        let (gmin, gmax) = points.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
+        let (gmin, gmax) = points.filter { $0.date > Date() - hours.h }.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
         var yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
+        let cornerRatio = family == .systemLarge ? 0.08 : 0.16
         if yRange.max - yRange.min < 40 {
             let mid = floor((yRange.max + yRange.min) / 2)
             yRange = mid > 89 ? (min: max(mid - 20, 70), max: max(mid - 20, 70) + 40) : (min: yRange.min, max: yRange.min + 40)
         }
-        while let p = points.last?.value, p < Double(yRange.max - yRange.min) * 0.18 + Double(yRange.min) {
+        while let p = points.last?.value, p < Double(yRange.max - yRange.min) * cornerRatio + Double(yRange.min) {
             yRange.min -= 5
         }
         let latest = points.reduce(Date.distantPast) { max($0, $1.date) }
@@ -153,14 +155,14 @@ struct BGWidgetGraph: View {
         }
         ctx?.strokePath()
         ctx?.restoreGState()
-        let p = points.map { CGPoint(x: xCoor($0.date), y: CGFloat($0.value)) }
-        let pd = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
+        let valuesForCoor = points.map { CGPoint(x: xCoor($0.date), y: CGFloat($0.value)) }
+        let yForX = points.map { CGPoint(x: xCoor($0.date), y: yCoor(CGFloat($0.value))) }
         if !points.isEmpty {
             if defaults[.useDarkGraph] {
                 var curve: UIBezierPath?
                 var last = UIColor.black
-                let akima = AkimaInterpolator(points: p)
-                for x in stride(from: p.first!.x, to: p.last!.x, by: 1) {
+                let akima = AkimaInterpolator(points: valuesForCoor)
+                for x in stride(from: valuesForCoor.first!.x, to: valuesForCoor.last!.x, by: 1) {
                     let value = akima.interpolateValue(at: x)
                     let point = CGPoint(x: x, y: yCoor(value))
                     let current = colorForValue(Double(value))
@@ -191,7 +193,7 @@ struct BGWidgetGraph: View {
                 }
             } else {
                 let curve = UIBezierPath()
-                curve.interpolate(points: pd)
+                curve.interpolate(points: yForX)
                 UIColor.black.set()
                 curve.lineWidth = lineWidth
                 curve.stroke()
@@ -207,30 +209,96 @@ struct BGWidgetGraph: View {
                 fill.fill()
             }
         }
-        let text: NSMutableAttributedString? = nil
-                    
-        if let text = text?.text(alignment: .center) {
-            let tsize = text.size()
-            let options = [CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: (size.width - tsize.width) / 2, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: size.width - tsize.width - 4, y: 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: (size.width - tsize.width) / 2, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(x: size.width - tsize.width - 20, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height),
-                           CGRect(origin: CGPoint(x: 4, y: 2), size: tsize),
-                           CGRect(x: 4, y: size.height - tsize.height - 2, width: tsize.width, height: tsize.height)
-            ]
-            
-            let trect = options.first {
-                let toCheck = $0.insetBy(dx: -5, dy: -5)
-                for point in pd {
-                    if toCheck.contains(point) {
-                        return false
+        
+        let plotter = Plot(points: yForX)
+        let syringeImage = UIImage(named: "syringe", in: Bundle(for: Record.self), compatibleWith: nil)!
+        let syringeSize = syringeImage.size
+        let mealImage = UIImage(named: "meal", in: Bundle(for: Record.self), compatibleWith: nil)!
+        let mealSize = mealImage.size
+        let c = UIColor.secondaryLabel.withAlphaComponent(0.75)
+        c.setStroke()
+
+        for r in records.filter({ $0.date > Date() - hours.h - 15.m }) {
+            let x = xCoor(r.date)
+            let v = plotter.value(at: x)
+            let above = v > size.height / 2
+            let positions: [CGFloat]
+            if above {
+                positions = (v - [80.0,100.0,120.0,150.0,180.0,200.0,250.0,300.0,350.0]).filter { $0 > 8 } + [8.0]
+            } else {
+                positions = (v + [80.0,100.0,120.0,150.0,180.0,200.0,250.0,300.0,350.0]).filter { $0 < size.height - 8 } + [size.height - 8]
+            }
+            for position in positions {
+                if position == positions[0] && r.isMeal {
+                    continue
+                }
+                let isLast = (position == positions.last!)
+                var y = position
+                var drawers = [()->Void]()
+                if r.isBolus {
+                    let units = r.bolus
+                    let center = CGPoint(x: x, y: y + (above ? syringeSize.height / 2 : -syringeSize.height / 2))
+                    let frame = CGRect(center: center, size: syringeSize + CGSize(width: 4, height: 4))
+                    let iob = r.insulinAction(at: Date()).iob
+                    let text = "\(units) \(iob > 0 ? "(\(iob % ".1lf"))" : "")".styled.systemFont(size: 14).color(UIColor.tertiaryLabel.withAlphaComponent(0.75))
+                    let textFrame = CGRect(origin: CGPoint(x: x + syringeSize.width / 2, y: center.y - 2), size: text.size())
+                    if (plotter.intersects(frame) || plotter.intersects(textFrame)) && !isLast {
+                        continue
+                    } else {
+                        drawers.append {
+                            syringeImage.fill(at: center, with: c)
+                            text.draw(in: textFrame)
+                        }
+                    }
+                    y += above ? syringeSize.height + 4 : -syringeSize.height - 4
+                }
+                if r.isMeal {
+                    let center = CGPoint(x: x, y: y + (above ? mealSize.height / 2 : -mealSize.height / 2))
+                    let frame = CGRect(center: center, size: mealSize + CGSize(width: 4, height: 4))
+                    if plotter.intersects(frame) && !isLast {
+                        continue
+                    } else {
+                        drawers.append {
+                            mealImage.fill(at: center, with: c)
+                        }
+                    }
+                    y += above ? mealSize.height + 4 : -mealSize.height - 4
+                    let note = r.note ?? ""
+                    let text = (r.carbs > 0 ? "\(note)\(note.isEmpty ? "" : ": ")\(r.carbs % ".0lf")" : note).styled.systemFont(size: 14).color(UIColor.tertiaryLabel.withAlphaComponent(0.75))
+                    let size = text.size()
+                    let r1 = CGRect(x: center.x + mealSize.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height)
+                    let check = r1.insetBy(dx: -6, dy: -6)
+                    if plotter.intersects(check) {
+                        let r2 = CGRect(x: center.x - mealSize.width / 2 - size.width, y: center.y - size.height / 2, width: size.width, height: size.height)
+                        let check = r2.insetBy(dx: -6, dy: -6)
+                        if  plotter.intersects(check) {
+                            if isLast {
+                                drawers.append {
+                                    text.draw(in: r1)
+                                }
+                            } else {
+                                continue
+                            }
+                        } else {
+                            drawers.append {
+                                text.draw(in: r2)
+                            }
+                        }
+                    } else {
+                        drawers.append {
+                            text.draw(in: r1)
+                        }
                     }
                 }
-                return true
+                drawers.forEach { $0() }
+                ctx?.beginPath()
+                ctx?.move(to: CGPoint(x: x, y: y))
+                ctx?.addLine(to: CGPoint(x: x, y: v + (above ? -3 : 3)))
+                ctx?.strokePath()
+                break
             }
-            text.draw(in: trect ?? options[0])
         }
+        
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image

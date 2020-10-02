@@ -1052,7 +1052,7 @@ extension GlucoseGraph {
 }
 
 
-extension UIImage {
+public extension UIImage {
     func fill(at: CGPoint, with color: UIColor) {
         let imageRect = CGRect(origin: .zero, size: size)
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
