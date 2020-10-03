@@ -41,9 +41,8 @@ class Provider: NSObject, IntentTimelineProvider {
         readData { (points, records) in
             let entryDate = points.last?.date ?? Date()
             let timeline = Timeline(entries: [
-                BGEntry(date: entryDate, configuration: configuration, points: points, records: records),
-                BGEntry(date: entryDate + 1.h, configuration: configuration, points: points, records: records),
-            ], policy: .never)
+                BGEntry(date: entryDate, configuration: configuration, points: points, records: records)
+            ], policy: .after(entryDate + 15.m))
             completion(timeline)
         }
     }

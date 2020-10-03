@@ -676,8 +676,10 @@ extension AppDelegate: MiaoMiaoDelegate {
                                 }
                             }
                             if #available(iOS 14.0, *) {
-                                WidgetCenter.shared.reloadAllTimelines()
-                            } 
+                                DispatchQueue.main.async {
+                                    WidgetCenter.shared.reloadAllTimelines()
+                                }
+                            }
                         } catch {}
                     })
                 }
