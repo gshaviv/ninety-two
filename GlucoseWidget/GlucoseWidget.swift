@@ -142,15 +142,21 @@ struct GlucoseWidgetEntryView : View {
                         .lineLimit(1)
                         .font(Font.monospacedDigit(Font.system(.caption2))())
                         .multilineTextAlignment(.center)
+                        .layoutPriority(2)
+                        .minimumScaleFactor(0.75)
                 case (true, .systemMedium):
                     Text("\(iob % ".1lf")")
                         .lineLimit(1)
                         .font(Font.monospacedDigit(Font.system(.caption2))())
+                        .layoutPriority(2)
+                        .minimumScaleFactor(0.75)
                 case (true, .systemLarge):
                     Text("BOB\n\(iob % ".1lf")")
                         .lineLimit(2)
                         .font(Font.monospacedDigit(Font.system(.caption))())
                         .multilineTextAlignment(.center)
+                        .layoutPriority(2)
+                        .minimumScaleFactor(0.75)
                 case (false, .systemLarge):
                     Text("\n")
                         .lineLimit(2)
@@ -164,6 +170,8 @@ struct GlucoseWidgetEntryView : View {
                 Text(trend)
                     .font(Font.system(.caption))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+
                 Text(levelString)
                     .font(levelFont)
                     .lineLimit(1)
