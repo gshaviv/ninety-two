@@ -12,6 +12,7 @@ import WatchConnectivity
 import IntentsUI
 import Zip
 import Sqlable
+import EFColorPicker
 
 extension SettingsViewController {
     override func awakeFromNib() {

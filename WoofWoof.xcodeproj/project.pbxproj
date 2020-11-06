@@ -3,11 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		E401514E22FA02FC00ACCF84 /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
+		E41134CA255580FF00017603 /* EFColorPicker in Frameworks */ = {isa = PBXBuildFile; productRef = E41134C9255580FF00017603 /* EFColorPicker */; };
 		E412607023424B8800958601 /* WatchSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412606F23424B8800958601 /* WatchSummaryView.swift */; };
 		E412607323425D0100958601 /* SummaryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412607223425D0100958601 /* SummaryInfo.swift */; };
 		E412607423425D0100958601 /* SummaryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = E412607223425D0100958601 /* SummaryInfo.swift */; };
@@ -156,14 +157,6 @@
 		E4C4E0C021FC41880046D28F /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4C4E0BF21FC41880046D28F /* Settings.storyboard */; };
 		E4C4E0C221FC4C4D0046D28F /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */; };
 		E4C4E0C421FC4DC10046D28F /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C321FC4DC00046D28F /* Scan.swift */; };
-		E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C521FCB7710046D28F /* EFHSBView.swift */; };
-		E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */; };
-		E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */; };
-		E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */; };
-		E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0C921FCB7720046D28F /* EFColorView.swift */; };
-		E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */; };
-		E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D121FCB8230046D28F /* EFControl.swift */; };
-		E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C4E0D321FCB8380046D28F /* EFThumbView.swift */; };
 		E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D11139223D19D900B95FE5 /* PrepareMealViewController.swift */; };
 		E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D3ACDE22465F1A009394D7 /* FoodViewController.swift */; };
 		E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59121C3FC52006AF3CF /* Central.swift */; };
@@ -484,14 +477,6 @@
 		E4C4E0BF21FC41880046D28F /* Settings.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
 		E4C4E0C121FC4C4D0046D28F /* StringAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringAdditions.swift; sourceTree = "<group>"; };
 		E4C4E0C321FC4DC00046D28F /* Scan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
-		E4C4E0C521FCB7710046D28F /* EFHSBView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFHSBView.swift; sourceTree = "<group>"; };
-		E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorUtils.swift; sourceTree = "<group>"; };
-		E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorComponentView.swift; sourceTree = "<group>"; };
-		E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorWheelView.swift; sourceTree = "<group>"; };
-		E4C4E0C921FCB7720046D28F /* EFColorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFColorView.swift; sourceTree = "<group>"; };
-		E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFSliderView.swift; sourceTree = "<group>"; };
-		E4C4E0D121FCB8230046D28F /* EFControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFControl.swift; sourceTree = "<group>"; };
-		E4C4E0D321FCB8380046D28F /* EFThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EFThumbView.swift; sourceTree = "<group>"; };
 		E4D0052C24BA32D2005CBD89 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E4D0052E24BA32D2005CBD89 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E4D0054724BAF85D005CBD89 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -585,6 +570,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42A294D21E886C70084D181 /* WoofKit.framework in Frameworks */,
+				E41134CA255580FF00017603 /* EFColorPicker in Frameworks */,
 				E425664821CE65CA00469232 /* Sqlable.framework in Frameworks */,
 				E4230F8621E9DA4200A297A5 /* PDFCreation.framework in Frameworks */,
 				FC96E052A2C9BE1E3CA3E9D1 /* Pods_WoofWoof.framework in Frameworks */,
@@ -639,14 +625,6 @@
 		E425663E21CE61D600469232 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				E4C4E0C721FCB7720046D28F /* EFColorComponentView.swift */,
-				E4C4E0C621FCB7720046D28F /* EFColorUtils.swift */,
-				E4C4E0C921FCB7720046D28F /* EFColorView.swift */,
-				E4C4E0C821FCB7720046D28F /* EFColorWheelView.swift */,
-				E4C4E0CF21FCB7B40046D28F /* EFSliderView.swift */,
-				E4C4E0D321FCB8380046D28F /* EFThumbView.swift */,
-				E4C4E0C521FCB7710046D28F /* EFHSBView.swift */,
-				E4C4E0D121FCB8230046D28F /* EFControl.swift */,
 				E425663F21CE65A400469232 /* Sqlable.xcodeproj */,
 			);
 			path = Dependencies;
@@ -1088,6 +1066,9 @@
 				E41E504E2521CA040041FD8A /* PBXTargetDependency */,
 			);
 			name = WoofWoof;
+			packageProductDependencies = (
+				E41134C9255580FF00017603 /* EFColorPicker */,
+			);
 			productName = WoofWoof;
 			productReference = E4E35A6021C3F8D300336CE8 /* Ninety Two.app */;
 			productType = "com.apple.product-type.application";
@@ -1173,6 +1154,9 @@
 				Base,
 			);
 			mainGroup = E4E35A5721C3F8D300336CE8;
+			packageReferences = (
+				E41134C8255580FF00017603 /* XCRemoteSwiftPackageReference "EFColorPicker" */,
+			);
 			productRefGroup = E4E35A6121C3F8D300336CE8 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -1479,18 +1463,13 @@
 				E44CFFFE223C20CB0022835A /* Meal.swift in Sources */,
 				E44CFFFC223C189C0022835A /* Food.swift in Sources */,
 				E425663D21CD702900469232 /* SensorSerialNumber.swift in Sources */,
-				E4C4E0CA21FCB7720046D28F /* EFHSBView.swift in Sources */,
 				E4C18FD82340C32A00B1163E /* ColorDefinitions.swift in Sources */,
 				E41E504C2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */,
 				E4D1113A223D19D900B95FE5 /* PrepareMealViewController.swift in Sources */,
 				E4DBF59221C3FC53006AF3CF /* Central.swift in Sources */,
-				E4C4E0CE21FCB7720046D28F /* EFColorView.swift in Sources */,
 				E43F24A42208AA76005B0247 /* HealthKitManager.swift in Sources */,
-				E4C4E0D221FCB8230046D28F /* EFControl.swift in Sources */,
 				E4892B9D2211EC5600A647B8 /* SearchViewController.swift in Sources */,
 				E48F42C121C6DA03001AF4CD /* Measurement.swift in Sources */,
-				E4C4E0CC21FCB7720046D28F /* EFColorComponentView.swift in Sources */,
-				E4C4E0CD21FCB7720046D28F /* EFColorWheelView.swift in Sources */,
 				E48F42BD21C6D96E001AF4CD /* SensorState.swift in Sources */,
 				E4C18FDC2340E46A00B1163E /* PieChartView.swift in Sources */,
 				E461B2BD23C9C521006F8283 /* BarView.swift in Sources */,
@@ -1502,18 +1481,15 @@
 				E4C18FD423409A2200B1163E /* BalancedHStack.swift in Sources */,
 				E4D3ACDF22465F1A009394D7 /* FoodViewController.swift in Sources */,
 				E46ACEB22469B5B2001274D6 /* LowEventsViewController.swift in Sources */,
-				E4C4E0D421FCB8380046D28F /* EFThumbView.swift in Sources */,
 				E44C000A223CF5560022835A /* RecordViewController.swift in Sources */,
 				E461B2BF23C9E9EC006F8283 /* HistoryView.swift in Sources */,
 				E417F4AB21E8CCBA00C6BC9D /* Intents.intentdefinition in Sources */,
 				E450641E235DA52100F11EEC /* AppDelegate.swift in Sources */,
 				E41F93D12223237B000CC69F /* SummaryViewController.swift in Sources */,
-				E4C4E0D021FCB7B40046D28F /* EFSliderView.swift in Sources */,
 				E48F42BF21C6D9C1001AF4CD /* SensorData.swift in Sources */,
 				E4230FC121EA748C00A297A5 /* DateRangePickerController.swift in Sources */,
 				E432762621F8FA6B00A3755F /* AutoComleteTextField.swift in Sources */,
 				E4230FBE21EA6A5B00A297A5 /* ActionSheetController.swift in Sources */,
-				E4C4E0CB21FCB7720046D28F /* EFColorUtils.swift in Sources */,
 				E4C4E0BD21FC3E0D0046D28F /* SettingsViewController.swift in Sources */,
 				E4C18FDA2340C5FC00B1163E /* DynamicColor.swift in Sources */,
 			);
@@ -2291,6 +2267,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E41134C8255580FF00017603 /* XCRemoteSwiftPackageReference "EFColorPicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EFPrefix/EFColorPicker.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E41134C9255580FF00017603 /* EFColorPicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E41134C8255580FF00017603 /* XCRemoteSwiftPackageReference "EFColorPicker" */;
+			productName = EFColorPicker;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E4E35A5821C3F8D300336CE8 /* Project object */;
 }
