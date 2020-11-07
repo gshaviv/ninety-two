@@ -21,15 +21,32 @@ extension MiaoMiaoDelegate {
 }
 
 class MiaoMiao {
-    public static var hardware: String = ""
-    public static var firmware: String = ""
-    public static var batteryLevel: Int = 0 { // 0 - 100
+    public private(set) static var hardware: String = ""
+    public private(set) static var firmware: String = ""
+    public private(set) static var batteryLevel: Int = 0 { // 0 - 100
         didSet {
             if oldValue != batteryLevel {
                 log("MiaoMiao battery level = \(batteryLevel)")
+                defer {
+                    if batteryLevel > 0 && batteryLevel < 99 {
+                        previousBatteryData = (level: batteryLevel, date: Date())
+                    } else {
+                        previousBatteryData = nil
+                    }
+                }
+                if oldValue > 0 && oldValue < 100 && batteryLevel < oldValue,  let previous = previousBatteryData, batteryLevel < previous.level {
+                    let timeDiff = Date() - previous.date
+                    let levelDiff = previous.level - batteryLevel
+                    let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
+                    expectedBatterEndOfLife = Date() + timeRemain
+                } else {
+                    expectedBatterEndOfLife = nil
+                }
             }
         }
     }
+    private static var previousBatteryData: (level: Int, date: Date)?
+    public private(set) static var expectedBatterEndOfLife: Date?
     static var delegate: [MiaoMiaoDelegate]? = nil
 
     public static func addDelegate(_ obj: MiaoMiaoDelegate) {

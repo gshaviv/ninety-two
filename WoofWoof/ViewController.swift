@@ -37,6 +37,12 @@ class ViewController: UIViewController {
     private var timeSpan = [24.h, 12.h, 6.h, 4.h, 2.h, 1.h]
     @IBOutlet weak var insulinActionLabel: UILabel!
     @IBOutlet var infoBar: UIView!
+    enum BatteryDisplayMode {
+        case image
+        case level
+        case remain
+    }
+    private var batteryDisplayMode = BatteryDisplayMode.image
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.destination {
@@ -441,11 +447,39 @@ class ViewController: UIViewController {
     }
 
     @IBAction func showPercentage(_ sender: Any) {
-        batteryLevelImage.isHidden = true
-        batteryLevelLabel.isHidden = false
-        DispatchQueue.main.after(withDelay: 3) {
-            self.batteryLevelImage.isHidden = false
-            self.batteryLevelLabel.isHidden = true
+        switch batteryDisplayMode {
+        case .image:
+            batteryDisplayMode = .level
+            batteryLevelImage.isHidden = true
+            batteryLevelLabel.isHidden = false
+            batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
+            
+        case .level:
+            batteryDisplayMode = .remain
+            if let expected = MiaoMiao.expectedBatterEndOfLife {
+                let remain = expected - Date()
+                if remain > 2.d {
+                    batteryLevelLabel.text = "\(Int(round(remain / 1.d)))d"
+                } else if remain > 30.m {
+                    batteryLevelLabel.text = "\(Int(round(remain / 1.h)))h"
+                } else {
+                    batteryLevelLabel.text = "\(Int(round(remain / 1.m)))m"
+                }
+            } else {
+                showPercentage(sender)
+            }
+            
+        case .remain:
+            batteryDisplayMode = .image
+            batteryLevelImage.isHidden = false
+            batteryLevelLabel.isHidden = true
+            
+        }
+        
+        if batteryDisplayMode != .image {
+            DispatchQueue.main.after(withDelay: 3) {
+                self.showPercentage(sender)
+            }
         }
     }
     

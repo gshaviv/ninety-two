@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "EFColorPicker",
+        "repositoryURL": "https://github.com/EFPrefix/EFColorPicker.git",
+        "state": {
+          "branch": null,
+          "revision": "bb5435e626455c6e268f9da5ad7d543f0c605d7d",
+          "version": "5.2.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

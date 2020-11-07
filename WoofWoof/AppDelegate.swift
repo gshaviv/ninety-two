@@ -418,7 +418,8 @@ extension AppDelegate: WCSessionDelegate {
         var state:[StateKey:AnyHashable] = [
             .change: currentTrend ?? 0,
             .sensorStart: defaults[.sensorBegin] ?? Date(),
-            .battery: MiaoMiao.batteryLevel,
+            .batteryLevel: MiaoMiao.batteryLevel,
+            .batteryLife: MiaoMiao.expectedBatterEndOfLife ?? Date.distantPast,
             .complication: complicationState,
             .events: events
         ]
@@ -572,7 +573,7 @@ extension AppDelegate: WCSessionDelegate {
                 case "fullState":
                     self.markSendState()
                     self.sentQueue.sync {
-                        for k in [StateKey.history, StateKey.trend, StateKey.battery, StateKey.sensorStart, StateKey.events] {
+                        for k in [StateKey.history, StateKey.trend, StateKey.batteryLevel, StateKey.sensorStart, StateKey.events] {
                             self.sent[k] = nil
                         }
                     }

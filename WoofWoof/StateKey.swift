@@ -13,12 +13,13 @@ public enum StateKey: String {
     case symbol = "s"
     case sensorStart = "q"
     case complication = "c"
-    case battery = "b"
+    case batteryLevel = "b"
     case events = "e"
     case summary = "u"
     case defaults = "f"
     case history = "h"
     case trend = "r"
+    case batteryLife = "bl"
 }
 
 extension Dictionary where Key == StateKey {

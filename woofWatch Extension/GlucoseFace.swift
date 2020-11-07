@@ -11,9 +11,26 @@ import SwiftUI
 import Combine
 
 struct GlucoseFace: View {
+    enum BatteryDisplayMode {
+        case image
+        case percentage
+        case remain
+    }
     @EnvironmentObject var state: AppState
-    @State var showPercentage = false
+    @State var batteryMode = BatteryDisplayMode.image
     @ObservedObject var ago: MeasurementTime
+    var batteryRemainTime: String {
+        let remain = state.data.batteryLife - Date()
+        if remain > 2.h {
+            return "\("\(Int(round(remain / 1.d)))d")"
+        } else if remain > 30.m {
+            return "\(Int(round(remain / 1.h)))h"
+        } else if remain > 0 {
+            return "\(Int(round(remain / 1.m)))m"
+        } else {
+            return ""
+        }
+    }
     
     var body: some View {
         guard let last = state.data.readings.last else {
@@ -36,17 +53,35 @@ struct GlucoseFace: View {
         return
             VStack(alignment: HorizontalAlignment.center, spacing: 2) {
                 HStack(alignment: .center, spacing: 0) {
-                    if !showPercentage {
+                    switch batteryMode {
+                    case .image:
                         Image(uiImage: batteryLevelIcon(for: state.data.batteryLevel)).onTapGesture {
-                            self.showPercentage = true
+                            self.batteryMode = .percentage
                         }
-                    } else {
+                        
+                    case .percentage:
                         Text("\(state.data.batteryLevel)%").font(Font.system(.caption)).onAppear {
                             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3)) {
-                                self.showPercentage = false
+                                if state.data.batteryLife > Date() {
+                                    self.batteryMode = .remain
+                                } else {
+                                    self.batteryMode = .image
+                                }
+                            }
+                        }.onTapGesture {
+                            if state.data.batteryLife > Date() {
+                                self.batteryMode = .remain
+                            }
+                        }
+                        
+                    case .remain:
+                        Text("\(self.batteryRemainTime)").font(Font.system(.caption)).onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3)) {
+                                self.batteryMode = .image
                             }
                         }
                     }
+                    
                     Spacer(minLength: 0)
                     if state.state == .sending {
                         ActivityIndicator(size: 14).padding(.leading, 2)
@@ -148,14 +183,14 @@ struct GlucoseFace_Previews: PreviewProvider {
     static let testState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 6)],  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 6)],  sensorBegin: Date() - 7.d - 4.h, batteryLevel: 80, batteryLife: Date.distantPast)
         return state
     }()
     
     static let errorState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 14.d + 2.h + 3.m, batteryLevel: 70)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [Event(date: (Date() - 1.h).timeIntervalSince1970, bolus: 3)],  sensorBegin: Date() - 14.d + 2.h + 3.m, batteryLevel: 70, batteryLife: Date.distantPast)
         state.state = .error
         return state
     }()
@@ -163,7 +198,7 @@ struct GlucoseFace_Previews: PreviewProvider {
     static let sendingState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d - 2.h, batteryLevel: 60)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d - 2.h, batteryLevel: 60, batteryLife: Date.distantPast)
         state.state = .sending
         return state
     }()
@@ -171,7 +206,7 @@ struct GlucoseFace_Previews: PreviewProvider {
     static let snapshotState: AppState = {
         let state = AppState()
         let readings = GenerateReadings()
-       state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d, batteryLevel: 30)
+        state.data = StateData(trendValue: 0.1, trendSymbol: "→", trend: readings.trend, history: readings.history, events: [], sensorBegin: Date() - 14.d, batteryLevel: 30, batteryLife: Date.distantPast)
         state.state = .snapshot
         return state
     }()
