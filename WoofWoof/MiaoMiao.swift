@@ -39,7 +39,7 @@ class MiaoMiao {
                     let levelDiff = previous.level - batteryLevel
                     let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
                     expectedBatterEndOfLife = Date() + timeRemain
-                } else {
+                } else if batteryLevel > oldValue {
                     expectedBatterEndOfLife = nil
                 }
             }
