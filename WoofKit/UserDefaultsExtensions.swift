@@ -48,6 +48,8 @@ extension UserDefaults {
         case nextNoSensorAlert
         case sensorBegin
         case parameterCalcDate
+        case lastBatteryLevelDate
+        case batteryLife
     }
 
     public enum DoubleKey: String {
@@ -77,6 +79,7 @@ extension UserDefaults {
         case badDataCount
         case summaryPeriod
         case libreDays
+        case lastBatteryLevel
     }
 
     public enum ColorKey: String {

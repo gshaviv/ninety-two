@@ -39,14 +39,34 @@ class MiaoMiao {
                     let levelDiff = previous.level - batteryLevel
                     let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
                     expectedBatterEndOfLife = Date() + timeRemain
-                } else if batteryLevel > oldValue {
+                } else if batteryLevel > oldValue && oldValue > 0 {
                     expectedBatterEndOfLife = nil
                 }
             }
         }
     }
-    private static var previousBatteryData: (level: Int, date: Date)?
-    public private(set) static var expectedBatterEndOfLife: Date?
+    private static var previousBatteryData: (level: Int, date: Date)? = {
+        if let date = defaults[.lastBatteryLevelDate] {
+           let last = defaults[.lastBatteryLevel]
+            return (level: last, date: date)
+        }
+        return nil
+    }() {
+        didSet {
+            if let p = previousBatteryData {
+                defaults[.lastBatteryLevel] = p.level
+                defaults[.lastBatteryLevelDate] = p.date
+            } else {
+                defaults[.lastBatteryLevel] = 0
+                defaults[.lastBatteryLevelDate] = nil
+            }
+        }
+    }
+    public private(set) static var expectedBatterEndOfLife: Date? = defaults[.batteryLife] {
+        didSet {
+            defaults[.batteryLife] = expectedBatterEndOfLife
+        }
+    }
     static var delegate: [MiaoMiaoDelegate]? = nil
 
     public static func addDelegate(_ obj: MiaoMiaoDelegate) {
