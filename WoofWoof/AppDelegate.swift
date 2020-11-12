@@ -394,7 +394,7 @@ extension AppDelegate: WCSessionDelegate {
             log("WCSession activated")
             markSendAll()
             if MiaoMiao.sensorState != .unknown {
-            sendAppState()
+                sendAppState()
             }
         }
     }
@@ -479,46 +479,7 @@ extension AppDelegate: WCSessionDelegate {
         return state
     }
     
-//    func jsonState(_ state: [StateKey: AnyHashable]) -> String {
-//        var jValues = [String]()
-//        for (key,value) in state {
-//            switch value {
-//            case let v as [[Double]]:
-//                var outer = [String]()
-//                for outerV in v {
-//                    var inner = [String]()
-//                    for innerV in outerV {
-//                        inner.append(innerV.decimal(digits: 2).description)
-//                    }
-//                    outer.append("[\(inner.joined(separator: ","))]")
-//                }
-//                jValues.append("\"\(key.rawValue)\":[\(outer.joined(separator: ","))]")
-//                
-//            case let v as Double:
-//                jValues.append("\"\(key.rawValue)\":\(v.decimal(digits: 1))")
-//                
-//            case let v as String:
-//                jValues.append("\"\(key.rawValue)\":\"\(v.replacingOccurrences(of: "\"", with: "\\\""))\"")
-//                
-//            case let v as Int:
-//                jValues.append("\"\(key.rawValue)\":\(v)")
-//
-//            case let v as Date:
-//                jValues.append("\"\(key.rawValue)\":\(v.timeIntervalSince1970.decimal(digits: 0))")
-//                
-//            case let v as [String:AnyHashable]:
-//                do {
-//                    let data = try JSONSerialization.data(withJSONObject: v, options: [])
-//                    if let str = String(data: data, encoding: .utf8) {
-//                        jValues.append("\"\(key.rawValue)\":\"\(str.replacingOccurrences(of: "\"", with: "\\\""))\"")
-//                    }
-//                } catch { }
-//            default:
-//                break
-//            }
-//        }
-//        return "{\(jValues.joined(separator: ","))}"
-//    }
+
     
     func markSent(_ state: [StateKey:AnyHashable]) {
         sentQueue.async {
@@ -546,14 +507,16 @@ extension AppDelegate: WCSessionDelegate {
         }
     }
 
-    func sendAppState(_ inState: [StateKey:AnyHashable]? = nil) {
+    func sendAppState() {
         DispatchQueue.main.async {
             do {
-                let state = self.filteredState(inState ?? self.appState())
+                let state = self.filteredState(self.appState())
                 try WCSession.default.updateApplicationContext(state.withStringKeys())
                 log("Sent [\(state.keys.map { String(describing:$0).replacingOccurrences(of: "WoofKit.StateKey.", with: "") }.sorted().joined(separator: ", "))]")
                 self.markSent(state)
-            } catch { }
+            } catch {
+                logError("Error sending state: \(error.localizedDescription)")
+            }
         }
     }
 
@@ -573,7 +536,7 @@ extension AppDelegate: WCSessionDelegate {
                 case "fullState":
                     self.markSendState()
                     self.sentQueue.sync {
-                        for k in [StateKey.history, StateKey.trend, StateKey.batteryLevel, StateKey.sensorStart, StateKey.events] {
+                        for k in [StateKey.history, StateKey.trend, StateKey.batteryLevel, StateKey.sensorStart, StateKey.events, StateKey.batteryLife] {
                             self.sent[k] = nil
                         }
                     }

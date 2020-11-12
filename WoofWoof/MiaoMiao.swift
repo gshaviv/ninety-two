@@ -23,15 +23,16 @@ extension MiaoMiaoDelegate {
 class MiaoMiao {
     public private(set) static var hardware: String = ""
     public private(set) static var firmware: String = ""
-    public private(set) static var batteryLevel: Int = 0 { // 0 - 100
+    public private(set) static var batteryLevel: Int = -1 { // 0 - 100
         didSet {
             if oldValue != batteryLevel {
                 log("MiaoMiao battery level = \(batteryLevel)")
                 defer {
-                    if batteryLevel > 0 && batteryLevel < 99 {
-                        previousBatteryData = (level: batteryLevel, date: Date())
-                    } else {
+                    if batteryLevel > oldValue && oldValue >= 0 {
                         previousBatteryData = nil
+                        expectedBatterEndOfLife = nil
+                    } else if defaults[.lastBatteryLevelDate] == nil {
+                        previousBatteryData = (level: batteryLevel, date: Date())
                     }
                 }
                 if oldValue > 0 && oldValue < 100 && batteryLevel < oldValue,  let previous = previousBatteryData, batteryLevel < previous.level {
@@ -39,9 +40,7 @@ class MiaoMiao {
                     let levelDiff = previous.level - batteryLevel
                     let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
                     expectedBatterEndOfLife = Date() + timeRemain
-                } else if batteryLevel > oldValue && oldValue > 0 {
-                    expectedBatterEndOfLife = nil
-                }
+                } 
             }
         }
     }
