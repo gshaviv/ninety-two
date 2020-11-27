@@ -209,7 +209,7 @@ struct GraphImage: View {
                 
             case ((libreDaysH - 6*24) ..< (libreDaysH - 4), false):
                 let expire = data.sensorBegin + defaults[.libreDays].d
-                text = "\(expire.hour):\(Int(expire.minute) % ".02ld") \(expire.dayName)".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
+                text = "\(expire.hour):\(Int(expire.minute) % ".02ld") \(expire.weekDayName)".styled.color(defaults[.useDarkGraph] ? UIColor(white: 0.9, alpha: 0.75) : UIColor(white: 0.1, alpha: 0.7))
                     .systemFont(.medium, size: 16)
                 
             case (..<libreDaysH, true):

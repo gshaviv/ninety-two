@@ -241,7 +241,8 @@ class ViewController: UIViewController {
             batteryLevelImage.tintColor = .tertiaryLabel
         }
         batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
-
+        batteryLevelLabel.setNeedsLayout()
+        
         updater = Repeater.every(1, queue: DispatchQueue.main) { (_) in
             self.updateTimeAgo()
         }
@@ -458,13 +459,21 @@ class ViewController: UIViewController {
             batteryDisplayMode = .remain
             if let expected = MiaoMiao.expectedBatterEndOfLife {
                 let remain = expected - Date()
-                if remain > 2.d {
-                    batteryLevelLabel.text = "\(Int(round(remain / 1.d)))d"
-                } else if remain > 30.m {
-                    batteryLevelLabel.text = "\(Int(round(remain / 1.h)))h"
-                } else {
-                    batteryLevelLabel.text = "\(Int(round(remain / 1.m)))m"
+                switch remain {
+                case 7.d...:
+                    batteryLevelLabel.text = "\(expected.month)/\(expected.day)"
+                    
+                case 1.d ..< 7.d:
+                    batteryLevelLabel.text = "\(expected.weekDayName) \(expected.hour):xx"
+                    
+                case ..<1.d:
+                    batteryLevelLabel.text = "\((expected.hour - 1) % 12 + 1)\(expected.hour >= 1 && expected.hour <= 11 ? "am" : "pm")"
+                    
+                default:
+                    break
                 }
+                batteryLevelLabel.setNeedsLayout()()
+
             } else {
                 showPercentage(sender)
             }

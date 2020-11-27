@@ -32,7 +32,7 @@ extension Date {
     public var weekDay: Int {
         components.weekday ?? 0
     }
-    public var dayName: String {
+    public var weekDayName: String {
         days[weekDay - 1]
     }
     

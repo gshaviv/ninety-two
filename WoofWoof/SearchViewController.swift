@@ -131,8 +131,7 @@ class RecordCell: UITableViewCell {
             let formatter = DateFormatter()
             formatter.dateStyle = .short
             formatter.timeStyle = .short
-            let daysOfWeek = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
-            dateLabel?.text = "\(daysOfWeek[record.date.weekDay - 1]) \(formatter.string(from: record.date))"
+            dateLabel?.text = "\(record.date.weekDayName) \(formatter.string(from: record.date))"
         }
     }
 }

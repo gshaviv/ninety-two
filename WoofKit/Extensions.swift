@@ -229,6 +229,9 @@ extension Date {
     public var weekDay: Int {
         return components.weekday ?? 0
     }
+    public var weekDayName: String {
+        ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][weekDay - 1]
+    }
     public var month: Int {
         return components.month ?? 0
     }
