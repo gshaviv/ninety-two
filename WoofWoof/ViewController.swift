@@ -472,7 +472,7 @@ class ViewController: UIViewController {
                 default:
                     break
                 }
-                batteryLevelLabel.setNeedsLayout()()
+                batteryLevelLabel.setNeedsLayout()
 
             } else {
                 showPercentage(sender)

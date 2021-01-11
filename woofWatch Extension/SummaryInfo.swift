@@ -353,6 +353,7 @@ class SummaryInfo: ObservableObject {
 //                let a1c2 = (aveG + 46.7) / 28.7
                 let a1c3 = (ave7 + 46.7) / 28.7
                 let a1c31 = (ave90 + 46.7) / 28.7
+                lowTime = lowTime.filter { !$0.isNaN }
                 let medianLowTime = lowTime.isEmpty ? 0 : Int(lowTime.sorted().median() / 1.m)
                 let timeBelow = lowTime.sum()
                 let tir = (total90 - timeBelow70 - timeAbove180) / total90 * 100
