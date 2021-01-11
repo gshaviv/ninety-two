@@ -40,7 +40,6 @@ class ViewController: UIViewController {
     enum BatteryDisplayMode {
         case image
         case level
-        case remain
     }
     private var batteryDisplayMode = BatteryDisplayMode.image
     
@@ -456,29 +455,6 @@ class ViewController: UIViewController {
             batteryLevelLabel.text = "\(MiaoMiao.batteryLevel)%"
             
         case .level:
-            batteryDisplayMode = .remain
-            if let expected = MiaoMiao.expectedBatterEndOfLife {
-                let remain = expected - Date()
-                switch remain {
-                case 7.d...:
-                    batteryLevelLabel.text = "\(expected.month)/\(expected.day)"
-                    
-                case 1.d ..< 7.d:
-                    batteryLevelLabel.text = "\(expected.weekDayName) \(expected.hour):xx"
-                    
-                case ..<1.d:
-                    batteryLevelLabel.text = "\((expected.hour - 1) % 12 + 1)\(expected.hour >= 1 && expected.hour <= 11 ? "am" : "pm")"
-                    
-                default:
-                    break
-                }
-                batteryLevelLabel.setNeedsLayout()
-
-            } else {
-                showPercentage(sender)
-            }
-            
-        case .remain:
             batteryDisplayMode = .image
             batteryLevelImage.isHidden = false
             batteryLevelLabel.isHidden = true
