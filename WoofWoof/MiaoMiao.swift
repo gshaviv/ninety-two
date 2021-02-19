@@ -77,9 +77,13 @@ class MiaoMiao {
 
     private static var shortRefresh: Bool?
     static var serial: String? {
+        willSet {
+            if let serial = newValue, serial != defaults[.sensorSerial] {
+                prepareForNewSensor()
+            }
+        }
         didSet {
             if let serial = serial, serial != defaults[.sensorSerial] {
-                prepareForNewSensor()
                 defaults[.sensorSerial] = serial
             }
         }
@@ -338,7 +342,7 @@ class MiaoMiao {
                         let trendPoints = data.trendMeasurements().map { $0.trendPoint }
                         let historyPoints = data.historyMeasurements().map { $0.glucosePoint }
                         record(trend: trendPoints, history: historyPoints)
-                        if trendPoints[0].value > 80 && trendPoints[0].value < 160, let current = UIApplication.theDelegate.currentTrend, current < 0 && current > -0.2, let line = MiaoMiao.trendline(), abs(line.a) < 0.006 {
+                        if trendPoints[0].value > 80 && trendPoints[0].value < 180, let current = UIApplication.theDelegate.currentTrend, abs(current) < 0.1, let line = MiaoMiao.trendline(), abs(line.a) < 0.006 {
                             if let date = defaults[.nextCalibration], Date() > date  {
                                 checkIfShowingNotification(identifier: Notification.Identifier.calibrate) {
                                     if !$0 {
@@ -562,9 +566,15 @@ class MiaoMiao {
                             } else {
                                 try db.perform($0.insert())
                             }
+                            if serial != defaults[.lastSensorRead] {
+                                let nsc = Calibration(date: $0.date - 1.s, value: $0.value)
+                                try db.perform(nsc.insert())
+                                defaults[.lastSensorRead] = serial
+                            }
                             lastDate = $0.date
                         }
                         
+                       
                         pendingReadings = []
                     }
                 } catch let error {
@@ -600,14 +610,12 @@ class MiaoMiao {
     private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         DispatchQueue.global().async {
             var added = [GlucosePoint]()
-            if let last = last24hReadings.last?.date {
-                let storeInterval = 3.m
-                let filteredHistory = history.filter {$0.date < (defaults[.sensorBegin] ?? Date.distantFuture) + 14.d + 12.h && $0.date > last + storeInterval && $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
-                added.append(contentsOf: filteredHistory)
-            } else {
-                pendingReadings.append(contentsOf: history.filter { $0.value > 0 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed())
-            }
-            MiaoMiao.trend = trend.filter { $0.value > 0 }
+            let last = last24hReadings.last?.date ?? Date.distantPast
+            let storeInterval = 3.m
+            let filteredHistory = history.filter {$0.date < (defaults[.sensorBegin] ?? Date.distantFuture) + 14.d + 12.h && $0.date > last + storeInterval && $0.value > 30 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
+            added.append(contentsOf: filteredHistory)
+           
+            MiaoMiao.trend = trend.filter { $0.value > 30 }
             if !added.isEmpty {
                 addPoints(added)
                 pendingReadings.append(contentsOf: added)
@@ -630,6 +638,9 @@ class MiaoMiao {
     }
 
     static private func addPoints(_ data: [GlucoseReading]) {
+        if serial != defaults[.lastSensorRead], let first = data.first {
+            _last24.append(Calibration(date: first.date, value: first.value))
+        }
         for point in data {
             if point.date - 3.m > (_last24.last?.date ?? Date.distantFuture) {
                 _last24.append(point)

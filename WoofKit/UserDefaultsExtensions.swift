@@ -38,6 +38,7 @@ extension UserDefaults {
 
     public enum StringKey: String {
         case sensorSerial
+        case lastSensorRead
     }
 
     public enum DateKey: String {
