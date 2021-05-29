@@ -9,7 +9,7 @@ import UIKit
 import CoreGraphics
 import SwiftUI
 
-public protocol GlucoseGraphDelegate: class {
+public protocol GlucoseGraphDelegate: AnyObject {
     func didTouch(record: Record)
     func didDoubleTap(record: Record)
 }
@@ -120,7 +120,9 @@ public class GlucoseGraph: UIView {
             setNeedsLayout()
             if showAverage {
                 let zipped = zip(points[0 ..< points.count - 1], points[1 ..< points.count])
-                averageValue = CGFloat(zipped.map { ($0.1.date - $0.0.date) * ($0.0.value + $0.1.value) }.sum() / (points.last!.date - points.first!.date) / 2.0)
+                averageValue = CGFloat(zipped.map {
+                    CGFloat(($0.1.date - $0.0.date) * ($0.0.value + $0.1.value))
+                }.sum() / CGFloat(points.last!.date - points.first!.date) / 2.0)
             }
             DispatchQueue.main.async {
                 if let holder = self.contentHolder, !holder.isDragging && !holder.isDecelerating {

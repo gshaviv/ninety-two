@@ -527,6 +527,9 @@ class MiaoMiao {
     public static func addCalibration(value bg: Double) {
         if let current = currentGlucose {
             do {
+                if let current = currentGlucose, let last = last24hReadings.last, current.date - last.date > 2.m  {
+                    try Storage.default.db.perform(current.insert())
+                }
                 let c = Calibration(date: Date(), value: bg)
                 try Storage.default.db.perform(c.insert())
                 let factor = bg / current.value
@@ -612,7 +615,9 @@ class MiaoMiao {
             var added = [GlucosePoint]()
             let last = last24hReadings.last?.date ?? Date.distantPast
             let storeInterval = 3.m
-            let filteredHistory = history.filter {$0.date < (defaults[.sensorBegin] ?? Date.distantFuture) + 14.d + 12.h && $0.date > last + storeInterval && $0.value > 30 && $0.date > (defaults[.sensorBegin] ?? Date.distantPast) + 50.m }.reversed()
+            let later = (defaults[.sensorBegin] ?? .distantFuture) + 14.d + 12.h
+            let earlier = (defaults[.sensorBegin] ?? .distantPast) + 50.m
+            let filteredHistory = history.filter { $0.date < later && $0.date > last + storeInterval && $0.value > 30 && $0.date > earlier }.reversed()
             added.append(contentsOf: filteredHistory)
            
             MiaoMiao.trend = trend.filter { $0.value > 30 }
