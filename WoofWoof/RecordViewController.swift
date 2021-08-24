@@ -276,18 +276,19 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
 
     func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+        let w = (view.width - 20) / 6
         switch Component(rawValue: component)! {
         case .hour:
-            return 40
+            return w
 
         case .minute:
-            return 40
+            return w
 
         case .meal:
-            return 180
+            return w * 3
 
         case .units:
-            return 40
+            return w
         }
     }
 }

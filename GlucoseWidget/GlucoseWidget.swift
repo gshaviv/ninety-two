@@ -112,6 +112,8 @@ struct GlucoseWidgetEntryView : View {
             return Font.system(size: 25, weight: .bold, design: Font.Design.default)
         case .systemLarge:
             return Font.system(size: 36, weight: .black, design: Font.Design.default)
+        case .systemExtraLarge:
+            return Font.system(size: 36, weight: .black, design: Font.Design.default)
         @unknown default:
             return Font.system(.headline)
         }

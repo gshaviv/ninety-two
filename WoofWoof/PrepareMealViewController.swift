@@ -10,7 +10,7 @@ import UIKit
 import WoofKit
 import Sqlable
 
-protocol PrepareMealViewControllerDelegate: class {
+protocol PrepareMealViewControllerDelegate: AnyObject {
     func didSelectServing(_ serving: FoodServing)
     func didSelectMeal(_ meal: Meal)
 }
@@ -266,7 +266,7 @@ extension PrepareMealViewController: UIViewControllerPreviewingDelegate {
 
 }
 
-protocol ServingViewControllerDelegate: class {
+protocol ServingViewControllerDelegate: AnyObject {
     func didSelectAmount(_ amount: Double, from: Food)
 }
 

@@ -27,20 +27,21 @@ class MiaoMiao {
         didSet {
             if oldValue != batteryLevel {
                 log("MiaoMiao battery level = \(batteryLevel)")
-                defer {
-                    if batteryLevel > oldValue && oldValue >= 0 {
+                if oldValue > 0 {
+                    if oldValue < 100 && batteryLevel < oldValue,  let previous = previousBatteryData, batteryLevel < previous.level {
+                        let timeDiff = Date() - previous.date
+                        let levelDiff = previous.level - batteryLevel
+                        let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
+                        expectedBatterEndOfLife = Date() + timeRemain
+                        log("Updating expected battry life./noldLevel=\(oldValue)\nexpected=\(Date() + timeRemain)")
+                    }
+                    if batteryLevel > oldValue {
                         previousBatteryData = nil
                         expectedBatterEndOfLife = nil
-                    } else if defaults[.lastBatteryLevelDate] == nil {
+                    } else if defaults[.lastBatteryLevelDate] == nil && batteryLevel < oldValue {
                         previousBatteryData = (level: batteryLevel, date: Date())
                     }
                 }
-                if oldValue > 0 && oldValue < 100 && batteryLevel < oldValue,  let previous = previousBatteryData, batteryLevel < previous.level {
-                    let timeDiff = Date() - previous.date
-                    let levelDiff = previous.level - batteryLevel
-                    let timeRemain = Double(batteryLevel) / Double(levelDiff) * timeDiff
-                    expectedBatterEndOfLife = Date() + timeRemain
-                } 
             }
         }
     }
@@ -235,6 +236,7 @@ class MiaoMiao {
                         let notification = UNMutableNotificationContent()
                         notification.title = "Sensor not detected"
                         notification.body = "Check MiaoMiao is placed properly on top of the sensor"
+                        notification.interruptionLevel = .timeSensitive
                         let request = UNNotificationRequest(identifier: Notification.Identifier.noSensor, content: notification, trigger: nil)
                         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                             if let err = err {
@@ -291,6 +293,7 @@ class MiaoMiao {
                 notification.title = "No Transmitter Detected"
                 notification.body = "Lost connection to the MiaoMiao transmitter"
                 notification.sound = UNNotificationSound(named: UNNotificationSoundName.missed)
+                notification.interruptionLevel = .timeSensitive
                 let request = UNNotificationRequest(identifier: Notification.Identifier.noData, content: notification, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 30.m, repeats: false))
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
                     if let err = err {
@@ -416,6 +419,7 @@ class MiaoMiao {
             let notification = UNMutableNotificationContent()
             notification.title = "Calibration needed"
             notification.body = "Please Calibrate BG Now"
+            notification.interruptionLevel = .timeSensitive
             notification.categoryIdentifier = "calibrate"
             notification.sound = UNNotificationSound(named: UNNotificationSoundName.calibrationNeeded)
             let request = UNNotificationRequest(identifier: Notification.Identifier.calibrate, content: notification, trigger: nil)
@@ -443,6 +447,7 @@ class MiaoMiao {
                         let notification = UNMutableNotificationContent()
                         notification.title = "Sensor about to fail"
                         notification.body = "Sensor is over 10 hours beyond expiration"
+                        notification.interruptionLevel = .timeSensitive
                         notification.sound = UNNotificationSound(named: .sensorDie)
                         let request = UNNotificationRequest(identifier: Notification.Identifier.expire, content: notification, trigger: UNCalendarNotificationTrigger(dateMatching: xDate.components, repeats: false))
                         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.expire])

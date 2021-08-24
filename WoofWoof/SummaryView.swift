@@ -41,7 +41,7 @@ struct SummaryView: View {
     let action: Action<SummaryActions>
     
     var body: some View {
-        VStack {
+        VStack(spacing: 2) {
             Text("Last \(summary.data.period == 1 ? 24 : summary.data.period) \(summary.data.period > 1 ? "Days" : "Hours")").font(.headline).onTapGesture {
                 self.action.send(.period)
             }
@@ -56,7 +56,7 @@ struct SummaryView: View {
                 ]).onTapGesture {
                     self.action.send(.dailyRange)
                 }
-                VStack {
+                VStack(spacing: 2) {
                     Text("Below").headline()
                     Text("\(summary.data.percentTimeBelow.description)%").value()
                     Text("# Lows").headline().onTapGesture {
@@ -68,7 +68,7 @@ struct SummaryView: View {
                     Text("Med Low").headline()
                     Text(summary.data.low.median < 60 ? String(format: "%ldm", summary.data.low.median) : String(format: "%ld:%02ld",summary.data.low.median / 60, summary.data.low.median % 60)).value()
                 }
-                VStack {
+                VStack(spacing: 2) {
                     Text("In Range").headline()
                     Text("\(summary.data.percentTimeIn.description)%").value()
                     Text("Ave").headline().onTapGesture {
@@ -80,7 +80,7 @@ struct SummaryView: View {
                     Text("eA1C").headline()
                     Text(summary.data.a1c.range > 0.05 ? "\(summary.data.a1c.value, specifier:"%.1lf") ± \(summary.data.a1c.range, specifier:"%.1lf")" : "\(summary.data.a1c.value, specifier:"%.1lf")").value()
                 }
-                VStack {
+                VStack(spacing: 2) {
                     Text("Above").headline()
                     Text("\(summary.data.percentTimeAbove.description)%").value()
                     Text("Min / Max").headline()

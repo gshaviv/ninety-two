@@ -25,7 +25,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
         super.awake(withContext: context)
         observer = appState.$state.sink(receiveValue: {
             if $0 == .snapshot {
-                self.setTitle("Ninety two")
+                self.setTitle(nil)//("Ninety two")
                 self.dateString = ""
             }
         })
@@ -57,7 +57,7 @@ class GlucoseFaceController: WKHostingController<AnyView> {
                 let today = "\(now.weekDayName), \(now.monthName) \(now.day)"
                 if today != self?.dateString {
                     self?.dateString = today
-                    self?.setTitle(today)
+                    self?.setTitle(nil)//(today)
                 }
                 
             }
