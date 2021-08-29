@@ -234,20 +234,45 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         }
     }
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        switch Component(rawValue: component)! {
-        case .hour:
-            return "\(row)"
-
-        case .minute:
-            return "\(row)"
-
-        case .meal:
-            return Record.MealType(rawValue: row - 1)?.name.capitalized ?? "Bolus"
-
-        case .units:
-            return "\(row)"
-        }
+    func titleFor(row: Int, component: Int) -> NSAttributedString {
+        let text:String = {
+            switch Component(rawValue: component)! {
+            case .hour:
+                return "\(row)"
+                
+            case .minute:
+                return "\(row)"
+                
+            case .meal:
+                return Record.MealType(rawValue: row - 1)?.name.capitalized ?? "Bolus"
+                
+            case .units:
+                return "\(row)"
+            }
+        }()
+        
+        return NSAttributedString(string: text, attributes: [.font: UIFont.preferredFont(forTextStyle: .headline)])
+    }
+    
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let label = (view as? UILabel) ?? {
+            let l = UILabel(frame: .zero)
+            l.textAlignment = .center
+            let border = UIView(frame: .zero)
+            border.translatesAutoresizingMaskIntoConstraints = false
+            border.backgroundColor = .systemGray
+            l.addSubview(border)
+            makeConstraints {
+                border[.bottom] == l[.bottom]
+                border[.height] == 1 / UIScreen.main.scale
+                border[.left] == l[.left]
+                border[.right] == l[.right]
+            }
+            return l
+        }()
+        label.attributedText = titleFor(row: row, component: component)
+        return label
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -276,20 +301,14 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
 
     func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
-        let w = (view.width - 20) / 6
-        switch Component(rawValue: component)! {
-        case .hour:
-            return w
-
-        case .minute:
-            return w
-
-        case .meal:
-            return w * 3
-
-        case .units:
-            return w
+        var w = CGFloat.zero
+        for row in 0 ..< self.pickerView(pickerView, numberOfRowsInComponent: component) {
+            let rtext = titleFor(row: row, component: component)
+            let rw = rtext.size().width
+            w = max(w, rw)
         }
+        
+        return max(ceil(w + 8),44)
     }
 }
 

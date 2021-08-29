@@ -14,7 +14,7 @@ import Intents
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
-class TodayViewController: UIViewController, NCWidgetProviding {
+class TodayViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var agoLabel: UILabel!
     @IBOutlet var trendLabel: UILabel!
@@ -80,9 +80,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                 }
                 self.isTriggerd = false
                 if self.view.window != nil {
-                    self.widgetPerformUpdate(completionHandler: { (result) in
-
-                    })
+                    self.widgetPerformUpdate()
                 }
             }
         }
@@ -108,12 +106,12 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        extensionContext?.widgetLargestAvailableDisplayMode = .expanded
+//        extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         repeater = nil
         updateAgo()
     }
         
-    func widgetPerformUpdate(completionHandler: (@escaping (NCUpdateResult) -> Void)) {
+    func widgetPerformUpdate(completionHandler: (() -> Void)? = nil) {
         DispatchQueue.global().async {
             self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
                 let old = self.points
@@ -123,17 +121,17 @@ class TodayViewController: UIViewController, NCWidgetProviding {
                         DispatchQueue.main.async {
                             self.points = p.sorted(by: { $0.date > $1.date })
                             if old.isEmpty && !self.points.isEmpty {
-                                completionHandler(NCUpdateResult.newData)
+                                completionHandler?()
                             } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
-                                completionHandler(NCUpdateResult.newData)
+                                completionHandler?()
                             } else {
                                 self.updateTime()
-                                completionHandler(NCUpdateResult.noData)
+                                completionHandler?()
                             }
                         }
                     }
                 } else {
-                    completionHandler(NCUpdateResult.noData)
+                    completionHandler?()
                 }
             })
         }        
