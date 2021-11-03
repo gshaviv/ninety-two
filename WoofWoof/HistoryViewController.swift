@@ -7,11 +7,11 @@
 //
 
 import UIKit
-import Sqlable
 import WoofKit
+import GRDB
 
 class HistoryViewController: UIViewController {
-    private var lastTouchedRecord: Record?
+    private var lastTouchedRecord: Entry?
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var backButton: UIButton!
     @IBOutlet var forwardButton: UIButton!
@@ -27,13 +27,17 @@ class HistoryViewController: UIViewController {
             }
             updateControls()
             graphView.records = Storage.default.allEntries.filter { $0.date > displayDay.startOfDay && $0.date < displayDay.endOfDay }
-            graphView.points = Storage.default.db.evaluate(GlucosePoint.read().filter(Record.date > displayDay.startOfDay && Record.date < displayDay.endOfDay).orderBy(Record.date))
+            graphView.points = (try? Storage.default.db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.date > displayDay.startOfDay && GlucosePoint.Column.date < displayDay.endOfDay).order(GlucosePoint.Column.date).fetchAll($0)
+            }) ?? []
             graphView.xRange.min = displayDay.startOfDay
             graphView.xRange.max = displayDay.endOfDay
 
             var buckets = Array(repeating: [Double](), count: 24)
             let dateRange = ceil((Date() - displayDay) / 7.d) * 7.d
-            let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > displayDay - dateRange && GlucosePoint.date < displayDay + dateRange)) ?? []
+            let readings = (try? Storage.default.db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.date > displayDay - dateRange && GlucosePoint.Column.date < displayDay + dateRange).fetchAll($0)
+            }) ?? []
             readings.forEach {
                 let inBucket = Int(($0.date - $0.date.startOfDay) / 3600.0)
                 if inBucket < buckets.count {
@@ -118,7 +122,7 @@ class HistoryViewController: UIViewController {
         case let nav as UINavigationController:
             switch nav.viewControllers[0] {
             case let c as RecordViewController:
-                if let r = sender as? Record {
+                if let r = sender as? Entry {
                     c.editRecord = r
                     c.onSelect = { (_,prediction) in
                         self.graphView.prediction = prediction
@@ -142,11 +146,11 @@ class HistoryViewController: UIViewController {
 }
 
 extension HistoryViewController: GlucoseGraphDelegate {
-    func didDoubleTap(record: Record) {
+    func didDoubleTap(record: Entry) {
         self.performSegue(withIdentifier: "addRecord", sender: record)
     }
 
-    func didTouch(record: Record) {
+    func didTouch(record: Entry) {
         guard record.isMeal else {
             return
         }

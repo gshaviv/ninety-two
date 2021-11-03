@@ -7,45 +7,106 @@
 //
 
 import Foundation
-import Sqlable
-
+import GRDB
 
 public class Storage: NSObject {
     public static let `default` = Storage()
-    internal var lockfile: URL = {
-        let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
-        if !FileManager.default.fileExists(atPath: url.path) {
-            try? "lock".write(to: url, atomically: true, encoding: .utf8)
+//    internal var lockfile: URL = {
+//        let url = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "lockfile"))
+//        if !FileManager.default.fileExists(atPath: url.path) {
+//            try? "lock".write(to: url, atomically: true, encoding: .utf8)
+//        }
+//        return url
+//    }()
+    public let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "db.sqlite"))
+    private let trendDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "trend.sqlite"))
+    @Dependency(\.databaseOpener) private var openDb: DatabaseOpener
+    @Dependency(\.sharedDatabaseOpener) private var openSharedDb: DatabaseOpener
+    
+    public private(set) lazy var trendDb: DatabasePool = {
+        do {
+            return try openSharedDb.openDatabase(at: trendDbUrl)
+        } catch {
+            fatalError("Open trend database failed: \(error.localizedDescription)")
         }
-        return url
     }()
-    public let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
-    public var db: SqliteDatabase = {
-        let dbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "read.sqlite"))
-        log("dbURL = \(dbUrl)")
-        let db = try! SqliteDatabase(filepath: dbUrl.path)
-        db.queue = DispatchQueue(label: "db")
-        try! db.createTable(GlucosePoint.self)
-        try! db.createTable(Calibration.self)
-        try! db.createTable(Record.self)
-        try! db.createTable(ManualMeasurement.self)
-        try? db.execute("PRAGMA journal_mode = DELETE")
-        return db
+    
+    public lazy var db: DatabasePool = {
+        do {
+            return try openDb.openDatabase(at: dbUrl)
+        } catch {
+            fatalError("Open database failed: \(error.localizedDescription)")
+        }
     }()
+    
+    /// Returns an initialized database pool at the shared location databaseURL
+    public static func openSharedDatabase(at databaseURL: URL) throws -> DatabasePool {
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordinatorError: NSError?
+        var dbPool: DatabasePool?
+        var dbError: Error?
+        coordinator.coordinate(writingItemAt: databaseURL, options: .forMerging, error: &coordinatorError, byAccessor: { url in
+            do {
+                dbPool = try openDatabase(at: url)
+            } catch {
+                dbError = error
+            }
+        })
+        if let error = dbError ?? coordinatorError {
+            throw error
+        }
+        return dbPool!
+    }
+    
+    private static func openDatabase(at databaseURL: URL) throws -> DatabasePool {
+        var configuration = Configuration()
+        configuration.prepareDatabase { db in
+            // Activate the persistent WAL mode so that
+            // readonly processes can access the database.
+            //
+            // See https://www.sqlite.org/walformat.html#operations_that_require_locks_and_which_locks_those_operations_use
+            // and https://www.sqlite.org/c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpersistwal
+            if db.configuration.readonly == false {
+                var flag: CInt = 1
+                let code = withUnsafeMutablePointer(to: &flag) { flagP in
+                    sqlite3_file_control(db.sqliteConnection, nil, SQLITE_FCNTL_PERSIST_WAL, flagP)
+                }
+                guard code == SQLITE_OK else {
+                    throw DatabaseError(resultCode: ResultCode(rawValue: code))
+                }
+            }
+        }
+        return try DatabasePool(path: databaseURL.path, configuration: configuration)
+    }
+    
+    public static func openReadOnlyDatabase(at databaseURL: URL) throws -> DatabasePool? {
+        do {
+            var configuration = Configuration()
+            configuration.readonly = true
+            return try DatabasePool(path: databaseURL.path, configuration: configuration)
+        } catch {
+            if FileManager.default.fileExists(atPath: databaseURL.path) {
+                throw error
+            } else {
+                return nil
+            }
+        }
+    }
+
     public let fileCoordinator = NSFileCoordinator(filePresenter: nil)
     private(set) public var lastDay = Today()
     public func reloadToday() {
         lastDay = Today()
         _allEntries = nil
     }
-    private var _allEntries: [Record]? = nil
-    public var allEntries: [Record] {
+    private var _allEntries: [Entry]? = nil
+    public var allEntries: [Entry] {
         if _allEntries == nil {
-            _allEntries = db.evaluate(Record.read().orderBy(Record.date))
+            _allEntries = db.evaluate(Entry.order(Entry.Column.date))
         }
         return _allEntries ?? []
     }
-    public var allMeals: [Record] {
+    public var allMeals: [Entry] {
         return allEntries.filter { $0.isMeal }
     }
     @objc private func didReceiveMemoryWarning() {
@@ -53,7 +114,7 @@ public class Storage: NSObject {
         lastDay = Today()
     }
 
-    public func calculatedLevel(for record: Record, currentLevel: Double? = nil) -> Prediction? {
+    public func calculatedLevel(for record: Entry, currentLevel: Double? = nil) -> Prediction? {
         guard defaults[.parameterCalcDate] != nil && (record.isBolus || record.carbs > 0) else {
             return nil
         }
@@ -63,7 +124,9 @@ public class Storage: NSObject {
         if let level = currentLevel {
             current = level
         } else {
-            let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date  && GlucosePoint.date > record.date - 2.h).orderBy(GlucosePoint.date)) ?? []
+            let readings = (try? db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.date < record.date && GlucosePoint.Column.date > record.date - 2.h).order(GlucosePoint.Column.date).fetchAll($0)
+            }) ?? []
             if let last = readings.last {
                 current = last.value
             } else {
@@ -81,7 +144,7 @@ public class Storage: NSObject {
 
 
     public func estimateInsulinReaction() -> Double? {
-        let boluses = allEntries.enumerated().compactMap { (arg) -> (record:Record, time:TimeInterval)? in
+        let boluses = allEntries.enumerated().compactMap { (arg) -> (record:Entry, time:TimeInterval)? in
             guard arg.offset > 0 && arg.element.type == nil && arg.offset < allEntries.count - 1 else {
                 return nil
             }
@@ -92,7 +155,16 @@ public class Storage: NSObject {
         }
         var impact = [Double]()
         for bolus in boluses {
-            guard let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > bolus.record.date && GlucosePoint.date < bolus.record.date + bolus.time).orderBy(GlucosePoint.date)), !readings.isEmpty else {
+            let readings: [GlucosePoint] = {
+                do {
+                    return try db.read {
+                        try GlucosePoint.filter(GlucosePoint.Column.date > bolus.record.date && GlucosePoint.Column.date < bolus.record.date + bolus.time).order(GlucosePoint.Column.date).fetchAll($0)
+                    }
+                } catch {
+                    return []
+                }
+            }()
+            guard !readings.isEmpty else {
                 continue
             }
             let starting = readings.last { $0.date <  bolus.record.date + defaults[.delayMinutes] * 60 } ?? readings[0]
@@ -191,7 +263,9 @@ public class Storage: NSObject {
                 skip += 1
             }
            
-            let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > entry.date - 15.m && GlucosePoint.date < entry.date + mealtime + 15.m).orderBy(GlucosePoint.date)) ?? []
+            let readings = (try? db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.date > entry.date - 15.m && GlucosePoint.Column.date < entry.date + mealtime + 15.m).order(GlucosePoint.Column.date).fetchAll($0)
+            }) ?? []
             guard !readings.isEmpty, readings.last!.date - readings.first!.date > mealtime else {
                 continue
             }
@@ -260,8 +334,8 @@ public class Storage: NSObject {
         return datum
     }
 
-    public func relevantMeals(to record: Record) -> [(Record, Date)] {
-        var possibleRecords = [(Record,Date)]()
+    public func relevantMeals(to record: Entry) -> [(Entry, Date)] {
+        var possibleRecords = [(Entry,Date)]()
         guard let note = record.note else {
             return []
         }
@@ -295,10 +369,13 @@ public class Storage: NSObject {
             if endTime - meal.date < 3.h {
                 continue
             }
-            if let low = db.evaluate(GlucosePoint.read().filter(GlucosePoint.value < 70 && GlucosePoint.date > meal.date && GlucosePoint.date < endTime)), !low.isEmpty {
+            let low = (try? db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.value < 70 && GlucosePoint.Column.date > meal.date && GlucosePoint.Column.date < endTime).fetchAll($0)
+            }) ?? []
+            if !low.isEmpty {
                 continue
             }
-            possibleRecords.append((Record(id: meal.id, date: meal.date, meal: meal.type, bolus: meal.bolus + extra, note: meal.note), endTime))
+            possibleRecords.append((Entry(id: meal.id, date: meal.date, meal: meal.type, bolus: meal.bolus + extra, note: meal.note), endTime))
         }
         let meals = possibleRecords.filter { abs(Double($0.0.bolus) + $0.0.insulinOnBoardAtStart - Double(record.bolus) - record.insulinOnBoardAtStart) < 0.5 }
         if meals.count > 24 {
@@ -307,9 +384,11 @@ public class Storage: NSObject {
         return meals
     }
 
-    public func prediction(for record: Record, current level: Double? = nil) -> Prediction? {
+    public func prediction(for record: Entry, current level: Double? = nil) -> Prediction? {
         let current: GlucosePoint
-        let readings = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < record.date).orderBy(GlucosePoint.date)) ?? []
+        let readings = (try? db.read {
+            try GlucosePoint.filter(GlucosePoint.Column.date < record.date).order(GlucosePoint.Column.date).fetchAll($0)
+        }) ?? []
         if let level = level {
             current = GlucosePoint(date: Date(), value: level)
         } else {
@@ -364,7 +443,7 @@ public class Storage: NSObject {
             return nil
         }
     }
-    public func mealStatistics(meal: Record, points mealPoints: [GlucosePoint]) -> (Double, TimeInterval, Double) {
+    public func mealStatistics(meal: Entry, points mealPoints: [GlucosePoint]) -> (Double, TimeInterval, Double) {
         var highest = mealPoints[0]
         var lowestAfterHigh = mealPoints[0]
         for point in mealPoints[1...] {
@@ -403,13 +482,13 @@ public class Storage: NSObject {
 }
 
 public class Today {
-    public lazy var entries: [Record] = {
+    public lazy var entries: [Entry] = {
         let limit = Date() - 1.d
-        return Storage.default.db.evaluate(Record.read().filter(Record.date > limit).orderBy(Record.date)) ?? []
+        return Storage.default.db.evaluate(Entry.filter(Entry.Column.date > limit).order(Entry.Column.date)) ?? []
     }()
     public lazy var manualMeasurements: [ManualMeasurement] = {
         let limit = Date() - 1.d
-        return Storage.default.db.evaluate(ManualMeasurement.read().filter(ManualMeasurement.date > limit).orderBy(ManualMeasurement.date)) ?? []
+        return Storage.default.db.evaluate(ManualMeasurement.filter(ManualMeasurement.Column.date > limit).order(ManualMeasurement.Column.date)) ?? []
     }()
 }
 
@@ -484,3 +563,41 @@ public extension UserDefaults {
     }
 }
 
+public protocol DatabaseOpener {
+    func openDatabase(at url: URL) throws -> DatabasePool
+}
+
+class ReadOnlyOpener: DatabaseOpener {
+    enum Error: Swift.Error {
+        case notFound
+    }
+    public func openDatabase(at url: URL) throws -> DatabasePool {
+        if let db = try Storage.openReadOnlyDatabase(at: url) {
+            return db
+        }
+        throw Error.notFound
+    }
+}
+
+/// Key for dependency inhection
+/// currentValue is initialiazed with a default if an object was not set
+private struct DatabaseOpenerKey: DependencyInjectionKey {
+    static var currentValue: DatabaseOpener = ReadOnlyOpener()
+}
+
+private struct SharedDatabaseOpenerKey: DependencyInjectionKey {
+    static var currentValue: DatabaseOpener = ReadOnlyOpener()
+}
+
+/// define the apiProvider key path
+extension DependencyInjectionValues {
+    public var databaseOpener: DatabaseOpener {
+        get { Self[DatabaseOpenerKey.self] }
+        set { Self[DatabaseOpenerKey.self] = newValue }
+    }
+    
+    public var sharedDatabaseOpener: DatabaseOpener {
+        get { Self[SharedDatabaseOpenerKey.self] }
+        set { Self[SharedDatabaseOpenerKey.self] = newValue }
+    }
+}

@@ -9,13 +9,13 @@
 import Foundation
 import Intents
 import WoofKit
-import Sqlable
+import GRDB
 
 
 class DiaryHandler: NSObject, DiaryIntentHandling {
     func handle(intent: DiaryIntent, completion: @escaping (DiaryIntentResponse) -> Void) {
-        let kind: Record.MealType?
-        if let meal = Record.MealType(name: intent.meal) {
+        let kind: Entry.MealType?
+        if let meal = Entry.MealType(name: intent.meal) {
             kind = meal
         } else {
             var count = Array<Int>(repeating: 0, count: 4)
@@ -31,20 +31,21 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
                     return $0
                 }
             }
-            kind = Record.MealType(rawValue: ave.0)
+            kind = Entry.MealType(rawValue: ave.0)
         }
         let note = intent.note?.isEmpty == true ? nil : intent.note
         let bolus = intent.units?.intValue ?? 0
         let when = Date().rounded
-        Storage.default.db.async {
-            let record = Storage.default.db.evaluate(Record.read().filter(Record.date > Date() - 1.h))?.last ?? Record(date: when)
+        let record = Storage.default.db.evaluate(Entry.filter(Entry.Column.date > Date() - 1.h))?.last ?? Entry(date: when)
             record.bolus = bolus
             record.type = kind
             record.note = note
             if record.isMeal && bolus == 0 && note == nil {
                 completion(DiaryIntentResponse(code: .continueInApp, userActivity: nil))
             } else {
-                record.save(to: Storage.default.db)
+                try? Storage.default.db.write {
+                    try record.save($0)
+                }
                 if !record.isMeal, let units = intent.units {
                     completion(DiaryIntentResponse.bolus(units: units))
                 } else {
@@ -78,7 +79,6 @@ class DiaryHandler: NSObject, DiaryIntentHandling {
                     }
                 }
             }
-        }
     }
 }
 

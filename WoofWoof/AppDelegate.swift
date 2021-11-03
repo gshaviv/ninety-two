@@ -9,14 +9,44 @@
 import UIKit
 import UserNotifications
 import WatchConnectivity
-import Sqlable
 import WoofKit
 import Zip
 import AudioToolbox
 import BackgroundTasks
 import WidgetKit
+import GRDB
+import OSLog
 
-private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
+
+class MainOpener: DatabaseOpener {
+    func openDatabase(at url: URL) throws -> DatabasePool {
+        log("open main db at: \(url.path)")
+        let db = try Storage.openSharedDatabase(at: url)
+        var migrator = DatabaseMigrator()
+        migrator.registerMigration("v1") {
+            try GlucosePoint.createTable(in: $0)
+            try Calibration.createTable(in: $0)
+            try ManualMeasurement.createTable(in: $0)
+            try Meal.createTable(in: $0)
+            try Entry.createTable(in: $0)
+            try FoodServing.createTable(in: $0)
+        }
+        try migrator.migrate(db)
+        return db
+    }
+}
+
+class TrendDBOpener: DatabaseOpener {
+    func openDatabase(at url: URL) throws -> DatabasePool {
+        let db = try Storage.openSharedDatabase(at: url)
+        var migrator = DatabaseMigrator()
+        migrator.registerMigration("v1") {
+            try GlucosePoint.createTable(in: $0)
+        }
+        try migrator.migrate(db)
+        return db
+    }
+}
 
 
 @UIApplicationMain
@@ -34,6 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     var sent: [StateKey: AnyHashable] = [:]
     let sentQueue = DispatchQueue(label: "sent", qos: .default, autoreleaseFrequency: .workItem)
+    var clean = false
     var complicationState: String {
         guard let current = MiaoMiao.currentGlucose else {
             return "-"
@@ -102,13 +133,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     public var currentTrend: Double? {
         return trendCalculator.value
     }
-    private let sharedDb: SqliteDatabase? = {
-        let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
-        try! db?.createTable(GlucosePoint.self)
-        return db
-    }()
+    
     private let sharedOperationQueue = OperationQueue()
-    private var coordinator: NSFileCoordinator!
     override init() {
         super.init()
         defaults[.lastStatisticsCalculation] = nil
@@ -116,7 +142,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return self.trendValue()
         }
         defaults.register()
-        coordinator = NSFileCoordinator(filePresenter: self)
     }
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
@@ -128,6 +153,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return [.portrait, .landscapeRight, .landscapeLeft]
     }
 
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        DependencyInjectionValues[\.databaseOpener] = MainOpener()
+        DependencyInjectionValues[\.sharedDatabaseOpener] = TrendDBOpener()
+        return true
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -139,40 +169,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             log("Notifications granted=\(granted)")
         })
 
-        try! Storage.default.db.createTable(FoodServing.self)
-        try! Storage.default.db.createTable(Meal.self)
         WCSession.default.delegate = self
         WCSession.default.activate()
+        
 
         MiaoMiao.addDelegate(self)
 
         #if targetEnvironment(simulator)
-        var lastHistoryDate = Date() - 15.m
-        var currentValue = 125.0//Double.random(in: 80...180)
-        MiaoMiao.last24hReadings.append(GlucosePoint(date: lastHistoryDate, value: currentValue))
-        var trend = Bool.random() ? -1.0 : 1.0
+        var trendPoints = [GlucosePoint]()
+        var historyPoints = [GlucosePoint]()
+        var trendDirection = Bool.random() ? -1.0 : 1.0
         
         updater = Repeater.every(5, perform: { (_) in
-            currentValue += trend * Double.random(in: 0..<4)
+            var currentValue = trendPoints.first?.value ?? 120
+            currentValue += trendDirection * Double.random(in: 0..<4)
             if Double.random(in: 0..<1) < 0.2 {
-                trend *= -1
+                trendDirection *= -1
             }
             if currentValue < 60 {
-                trend = 1
+                trendDirection = 1
             } else if currentValue > 200 {
-                trend = -1
+                trendDirection = -1
             }
             let gp = GlucosePoint(date: Date(), value: currentValue)
-            MiaoMiao.trend = [gp,
-                              GlucosePoint(date: Date() - 1.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
-                              GlucosePoint(date: Date() - 2.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
-                              GlucosePoint(date: Date() - 3.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1),
-                GlucosePoint(date: Date() - 4.m, value: currentValue + Double(arc4random_uniform(100)) / 50 - 1)]
-            MiaoMiao.last24hReadings = MiaoMiao.last24hReadings.filter { $0.date < MiaoMiao.trend!.first!.date }
-            lastHistoryDate = Date()
-            DispatchQueue.main.async {
-                MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: [gp]) }
+            trendPoints.insert(gp, at: 0)
+            if trendPoints.count > 5 {
+                let last = trendPoints.removeLast()
+                historyPoints.insert(last, at: 0)
+                if historyPoints.count > 15 {
+                    historyPoints.removeLast()
+                }
             }
+            MiaoMiao.simulateData(trend: trendPoints, history: historyPoints)
         })
         #endif
         
@@ -191,6 +219,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         MiaoMiao.unloadMemory()
+        if clean {
+            do {
+                _ = try Storage.default.db.write {
+                    try $0.execute(literal: "delete from meal where id not in (select mealid from entry)")
+                }
+                clean = false
+            } catch {
+                logError("Error while cleaning: \(error.localizedDescription)")
+            }
+        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -210,125 +248,125 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         if url.isFileURL {
-            if url.pathExtension == "zip" {
-                DispatchQueue.global().async {
-                    _ = url.startAccessingSecurityScopedResource()
-                    do {
-                        let outputDir = try Zip.quickUnzipFile(url)
-                        try FileManager.default.removeItem(at: url)
-                        url.stopAccessingSecurityScopedResource()
-                        let path = outputDir.appendingPathComponent("read.sqlite").path
-                        if  !FileManager.default.fileExists(atPath: path) {
-                            DispatchQueue.main.async {
-                                let notification = UNMutableNotificationContent()
-                                notification.title = "Datebase not found"
-                                notification.body = "Imported zip file does not contain any database"
-                                notification.categoryIdentifier = Notification.Identifier.error
-                                let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
-                                UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
-                                    if let err = err {
-                                        logError("\(err)")
-                                    }
-                                })
-                            }
-                            return
-                        }
-                        let importDb = try SqliteDatabase(filepath: path)
-                        let readings = importDb.evaluate(GlucosePoint.read()) ?? []
-                        var mealCount = 0
-                        var readingCount = 0
-                        try Storage.default.db.transaction { (db)  in
-                            do {
-                                let have = db.evaluate(GlucosePoint.read()) ?? []
-                                let all = Set(have.map { $0.date })
-                                for gp in readings {
-                                    if !all.contains(gp.date) {
-                                        try db.perform(gp.insert())
-                                        readingCount += 1
-                                    }
-                                }
-                            }
-                            do {
-                                let have = db.evaluate(ManualMeasurement.read()) ?? []
-                                let all = Set(have.map { $0.date })
-                                for gp in importDb.evaluate(ManualMeasurement.read()) ?? [] {
-                                    if !all.contains(gp.date) {
-                                        try db.perform(gp.insert())
-                                        readingCount += 1
-                                    }
-                                }
-                            }
-
-                            let records = importDb.evaluate(Record.read()) ?? []
-                            let existingMeals = Set(db.evaluate(Record.read()) ?? [])
-                            var meals = [Int: Meal]()
-                            (importDb.evaluate(Meal.read()) ?? []).forEach {
-                                meals[$0.id ?? -1] = $0
-                                $0.reset()
-                            }
-                            for record in records {
-                                if !existingMeals.contains(record) {
-                                    let newRecord = Record(date: record.date, meal: record.type, bolus: record.bolus, note: record.note)
-                                    newRecord.carbs = record.carbs
-                                    if let oldMealId = record.mealId {
-                                        if let newMealId = meals[oldMealId]?.id {
-                                            newRecord.mealId = newMealId
-                                        } else if let meal = meals[oldMealId] {
-                                            try meal.save()
-                                            newRecord.mealId = meal.id
-                                        }
-                                    }
-                                    try db.perform(newRecord.insert())
-                                    mealCount += 1
-                                }
-                            }
-
-                            do {
-                                let cals = db.evaluate(Calibration.read()) ?? []
-                                let allCalibs = Set(cals.map { $0.date })
-                                let imported = importDb.evaluate(Calibration.read()) ?? []
-                                for row in imported {
-                                    if !allCalibs.contains(row.date) {
-                                        try db.perform(row.insert())
-                                    }
-                                }
-                            }
-                        }
-                        try Storage.default.db.execute("vacuum")
-                        DispatchQueue.main.async {
-                            let notification = UNMutableNotificationContent()
-                            if mealCount > 0 || readingCount > 0 {
-                                notification.title = "Imported"
-                                notification.body = "Imported \(readingCount) readings and \(mealCount) diary entries"
-                            } else {
-                                notification.title = "Nothing to Import"
-                                notification.body = "No missing records in existing database"
-                            }
-                            notification.categoryIdentifier = Notification.Identifier.imported
-                            let request = UNNotificationRequest(identifier: Notification.Identifier.imported, content: notification, trigger: nil)
-                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
-                                if let err = err {
-                                    logError("\(err)")
-                                }
-                            })
-                        }
-                    } catch {
-                        url.stopAccessingSecurityScopedResource()
-                        DispatchQueue.main.async {
-                            let notification = UNMutableNotificationContent()
-                            notification.title = "Error Importing"
-                            notification.body = error.localizedDescription
-                            notification.categoryIdentifier = Notification.Identifier.error
-                            let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
-                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
-                                if let err = err {
-                                    logError("\(err)")
-                                }
-                            })
-                        }
-                    }
-                }
-            }
+//            if url.pathExtension == "zip" {
+//                DispatchQueue.global().async {
+//                    _ = url.startAccessingSecurityScopedResource()
+//                    do {
+//                        let outputDir = try Zip.quickUnzipFile(url)
+//                        try FileManager.default.removeItem(at: url)
+//                        url.stopAccessingSecurityScopedResource()
+//                        let path = outputDir.appendingPathComponent("read.sqlite").path
+//                        if  !FileManager.default.fileExists(atPath: path) {
+//                            DispatchQueue.main.async {
+//                                let notification = UNMutableNotificationContent()
+//                                notification.title = "Datebase not found"
+//                                notification.body = "Imported zip file does not contain any database"
+//                                notification.categoryIdentifier = Notification.Identifier.error
+//                                let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
+//                                UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+//                                    if let err = err {
+//                                        logError("\(err)")
+//                                    }
+//                                })
+//                            }
+//                            return
+//                        }
+//                        let importDb = try SqliteDatabase(filepath: path)
+//                        let readings = importDb.evaluate(GlucosePoint.read()) ?? []
+//                        var mealCount = 0
+//                        var readingCount = 0
+//                        try Storage.default.db.transaction { (db)  in
+//                            do {
+//                                let have = db.evaluate(GlucosePoint.read()) ?? []
+//                                let all = Set(have.map { $0.date })
+//                                for gp in readings {
+//                                    if !all.contains(gp.date) {
+//                                        try db.perform(gp.insert())
+//                                        readingCount += 1
+//                                    }
+//                                }
+//                            }
+//                            do {
+//                                let have = db.evaluate(ManualMeasurement.read()) ?? []
+//                                let all = Set(have.map { $0.date })
+//                                for gp in importDb.evaluate(ManualMeasurement.read()) ?? [] {
+//                                    if !all.contains(gp.date) {
+//                                        try db.perform(gp.insert())
+//                                        readingCount += 1
+//                                    }
+//                                }
+//                            }
+//
+//                            let records = importDb.evaluate(Record.read()) ?? []
+//                            let existingMeals = Set(db.evaluate(Record.read()) ?? [])
+//                            var meals = [Int: Meal]()
+//                            (importDb.evaluate(Meal.read()) ?? []).forEach {
+//                                meals[$0.id ?? -1] = $0
+//                                $0.reset()
+//                            }
+//                            for record in records {
+//                                if !existingMeals.contains(record) {
+//                                    let newRecord = Record(date: record.date, meal: record.type, bolus: record.bolus, note: record.note)
+//                                    newRecord.carbs = record.carbs
+//                                    if let oldMealId = record.mealId {
+//                                        if let newMealId = meals[oldMealId]?.id {
+//                                            newRecord.mealId = newMealId
+//                                        } else if let meal = meals[oldMealId] {
+//                                            try meal.save()
+//                                            newRecord.mealId = meal.id
+//                                        }
+//                                    }
+//                                    try db.perform(newRecord.insert())
+//                                    mealCount += 1
+//                                }
+//                            }
+//
+//                            do {
+//                                let cals = db.evaluate(Calibration.read()) ?? []
+//                                let allCalibs = Set(cals.map { $0.date })
+//                                let imported = importDb.evaluate(Calibration.read()) ?? []
+//                                for row in imported {
+//                                    if !allCalibs.contains(row.date) {
+//                                        try db.perform(row.insert())
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        try Storage.default.db.execute("vacuum")
+//                        DispatchQueue.main.async {
+//                            let notification = UNMutableNotificationContent()
+//                            if mealCount > 0 || readingCount > 0 {
+//                                notification.title = "Imported"
+//                                notification.body = "Imported \(readingCount) readings and \(mealCount) diary entries"
+//                            } else {
+//                                notification.title = "Nothing to Import"
+//                                notification.body = "No missing records in existing database"
+//                            }
+//                            notification.categoryIdentifier = Notification.Identifier.imported
+//                            let request = UNNotificationRequest(identifier: Notification.Identifier.imported, content: notification, trigger: nil)
+//                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+//                                if let err = err {
+//                                    logError("\(err)")
+//                                }
+//                            })
+//                        }
+//                    } catch {
+//                        url.stopAccessingSecurityScopedResource()
+//                        DispatchQueue.main.async {
+//                            let notification = UNMutableNotificationContent()
+//                            notification.title = "Error Importing"
+//                            notification.body = error.localizedDescription
+//                            notification.categoryIdentifier = Notification.Identifier.error
+//                            let request = UNNotificationRequest(identifier: Notification.Identifier.error, content: notification, trigger: nil)
+//                            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+//                                if let err = err {
+//                                    logError("\(err)")
+//                                }
+//                            })
+//                        }
+//                    }
+//                }
+//            }
             return true
         }
         return false
@@ -348,7 +386,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         switch userActivity.activityType {
         case "DiaryIntent":
-            ctr.addRecord(meal: Record.MealType(name: userActivity.interaction?.intent.value(forKey: "meal") as? String), units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue, note: userActivity.interaction?.intent.value(forKey: "note") as? String)
+            ctr.addRecord(meal: Entry.MealType(name: userActivity.interaction?.intent.value(forKey: "meal") as? String), units: (userActivity.interaction?.intent.value(forKey: "units") as? NSNumber)?.intValue, note: userActivity.interaction?.intent.value(forKey: "note") as? String)
 
         default:
             break
@@ -625,31 +663,26 @@ extension AppDelegate: MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint]) {
         trendCalculator.invalidate()
         if let current = MiaoMiao.currentGlucose {
+            DispatchQueue.global().async {
+                do {
+                    _ = try Storage.default.trendDb.writeInTransaction { db in
+                        try GlucosePoint.deleteAll(db)
+                        if let trend = MiaoMiao.trend {
+                            try trend.reversed().forEach {
+                                try $0.insert(db)
+                            }
+                        }
+                        return .commit
+                    }
+                    DispatchQueue.main.async {
+                        WidgetCenter.shared.reloadAllTimelines()
+                    }
+                } catch { }
+            }
+
             if let trend = currentTrend {
                 log("\(current.value % ".02lf")\(trendSymbol(for: trend)) \(trend > 0 ? "+" : "")\(trend % ".02lf")")
-            }
-            if let sharedDb = self.sharedDb {
-                DispatchQueue.global().async {
-                    var error: NSError?
-                    self.coordinator.coordinate(writingItemAt: sharedDbUrl, options: [], error: &error, byAccessor: { (_) in
-                        do {
-                            try sharedDb.transaction { db in
-                                try? db.execute("delete from \(GlucosePoint.tableName)")
-                                let now = Date()
-                                if let relevant = MiaoMiao.allReadings.filter({ $0.date > now - 5.h && $0.type != .calibration }) as? [GlucosePoint] {
-                                    relevant.forEach { db.evaluate($0.insert()) }
-                                }
-                            }
-                            if #available(iOS 14.0, *) {
-                                DispatchQueue.main.async {
-                                    WidgetCenter.shared.reloadAllTimelines()
-                                }
-                            }
-                        } catch {}
-                    })
-                }
-            }
-            if let trend = currentTrend {
+
                 switch current.value {
                 case ...defaults[.minRange] where defaults[.lastEventAlertTime] != nil:
                     if let last = defaults[.lastEventAlertTime], Date() > last + 10.m, let currentTrend = currentTrend, currentTrend < 0 {
@@ -686,7 +719,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
-                    showEventAlert(title: "High Glucose", body: "Current level is \(current.value % ".0lf")", sound: UNNotificationSoundName.highGlucose, level: .timeSensitive)
+                    showEventAlert(title: "High Glucose", body: "Glucose level is \(current.value % ".0lf") and rising", sound: UNNotificationSoundName.highGlucose, level: .timeSensitive)
                     
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
@@ -702,7 +735,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                     if current.value > highest {
                         if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                            showEventAlert(title: "New High Level", body: "Current glucose level is \(current.value.decimal(digits: 0))", sound: nil, level: .timeSensitive)
+                            showEventAlert(title: "New High Glucose", body: "Glucose level is \(current.value.decimal(digits: 0))", sound: nil, level: .timeSensitive)
                         }
                     }
                     
@@ -737,15 +770,6 @@ extension AppDelegate: MiaoMiaoDelegate {
 }
 
 
-extension AppDelegate: NSFilePresenter {
-    var presentedItemURL: URL? {
-        return sharedDbUrl
-    }
-
-    var presentedItemOperationQueue: OperationQueue {
-        return sharedOperationQueue
-    }
-}
 
 extension UIApplication {
     static var theDelegate: AppDelegate {

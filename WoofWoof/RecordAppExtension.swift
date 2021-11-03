@@ -8,36 +8,27 @@
 
 import Foundation
 import WoofKit
-import Sqlable
+import GRDB
 
-extension Record {
+extension Entry {
     var meal: Meal {
         guard let mealId = mealId else {
             return Meal(name: note)
         }
-        return Storage.default.db.evaluate(Meal.read().filter(Meal.id == mealId))?.last ?? Meal(name: note)
+        return Storage.default.db.evaluate(Meal.filter(Meal.Column.id == mealId))?.last ?? Meal(name: note)
     }
 
     func discard() {
         if id == nil {
             return
         }
-        try? Storage.default.db.transaction { (db)  in
-            db.evaluate(self.delete())
-            if let mealId = mealId {
-                if let records = Storage.default.db.evaluate(Record.read().filter(Record.mealId == mealId)), records.isEmpty {
-                    meal.discard(db: db)
-                }
+        try? Storage.default.db.write {
+            try self.delete($0)
+            if let mealid = mealId {
+                try Meal.filter(Meal.Column.id == mealid).deleteAll($0)
             }
         }
+        
     }
 }
 
-extension Meal {
-    func discard(db: SqliteDatabase) {
-        for serving in servings {
-            db.evaluate(serving.delete())
-        }
-        db.evaluate(self.delete())
-    }
-}

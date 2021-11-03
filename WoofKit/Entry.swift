@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import Sqlable
+import GRDB
 import Intents
 
-public class Record : Hashable, Equatable {
-    public static func == (lhs: Record, rhs: Record) -> Bool {
+public class Entry : Hashable, Equatable {
+    public static func == (lhs: Entry, rhs: Entry) -> Bool {
         return lhs.date == rhs.date && lhs.type == rhs.type && rhs.bolus == lhs.bolus && lhs.note == rhs.note
     }
 
@@ -95,74 +95,43 @@ public class Record : Hashable, Equatable {
             return Storage.default.allEntries.filter { $0.date > fromDate && $0.date < self.date }.reduce(0.0) { $0 + $1.insulinAction(at: self.date).iob }
         }
     }
-    private var iobCalc: Calculation<Double>?
+    private var iobCalc: Calculation<Double>? = nil
 
-    public required init(row: ReadRow) throws {
-        id = try row.get(Record.id)
-        if let rv: Int = try row.get(Record.type) {
-            type = MealType(rawValue: rv)
-        }
-        bolus = try row.get(Record.bolus) ?? 0
-        note = try row.get(Record.note)
-        date = try row.get(Record.date)
-        mealId = try row.get(Record.mealId)
-        carbs = try row.get(Record.carbs) ?? 0
+    public required init(row: Row) {
+        id = row[Column.id]
+        type = MealType(rawValue: row[Column.type] ?? -1)
+        bolus = row[Column.bolus]
+        note = row[Column.note]
+        carbs = row[Column.carbs]
+        mealId = row[Column.mealId]
+        date = row[Column.date]
         commonInit()
     }
 }
 
-extension Record: Sqlable {
-    public static let id = Column("id", .integer, PrimaryKey(autoincrement: true))
-    public static let type = Column("meal", .nullable(.integer))
-    public static let bolus = Column("bolus", .integer)
-    public static let note = Column("note", .nullable(.text))
-    public static let date = Column("date", .date)
-    public static var mealId = Column("mealid", .integer)
-    public static var carbs = Column("carbs", .real)
-    public static var tableLayout = [id, type, bolus, note, date, mealId, carbs]
-
-    public func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case Record.id:
-            return id
-
-        case Record.type:
-            return type?.rawValue
-
-        case Record.bolus:
-            return bolus
-
-        case Record.note:
-            return note
-
-        case Record.date:
-            return date
-
-        case Record.mealId:
-            return mealId
-
-        case Record.carbs:
-            return carbs
-            
-        default:
-            return nil
-        }
+extension Entry: TableRecord, PersistableRecord, FetchableRecord {
+    public enum Column: String, ColumnExpression {
+        case id, type, bolus, note, date, mealId, carbs
     }
+    
+    public static var databaseTableName: String = "entry"
 
-    public  func insert(to db: SqliteDatabase) {
-        id = db.evaluate(insert())
+   
+    
+    public func encode(to container: inout PersistenceContainer) {
+        container[Column.id] = id
+        container[Column.type] = type?.rawValue
+        container[Column.bolus] = bolus
+        container[Column.note] = note
+        container[Column.mealId] = mealId
+        container[Column.carbs] = carbs
+        container[Column.date] = date
     }
-
-    public  func save(to db: SqliteDatabase) {
-        if id == nil {
-            insert(to: db)
-        } else {
-            db.evaluate(update())
-        }
-    }
+   
+    
 }
 
-extension Record {
+extension Entry {
 
     public enum IntentType {
         case meal
@@ -242,7 +211,7 @@ extension Record {
     }
 }
 
-extension Record {
+extension Entry {
     public func insulinAction(at date:Date) -> (activity: Double, iob: Double) {
         // based on: https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
         let t = (date - self.date) / 1.m - defaults[.delayMinutes]
@@ -275,7 +244,7 @@ extension Record {
 }
 
 extension DiaryIntent {
-    public var record: Record {
-        return Record(date: Date.distantFuture, meal: Record.MealType(name: meal), bolus: units?.intValue, note: note?.isEmpty == true ? nil : note)
+    public var record: Entry {
+        return Entry(date: Date.distantFuture, meal: Entry.MealType(name: meal), bolus: units?.intValue, note: note?.isEmpty == true ? nil : note)
     }
 }

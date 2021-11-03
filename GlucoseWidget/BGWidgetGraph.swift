@@ -12,7 +12,7 @@ import WoofKit
 
 struct BGWidgetGraph: View {
     let points: [GlucosePoint]
-    let records: [Record]
+    let records: [Entry]
     let hours: Double
     @Environment(\.widgetFamily) var family
 
@@ -211,9 +211,9 @@ struct BGWidgetGraph: View {
         }
         
         let plotter = Plot(points: yForX)
-        let syringeImage = UIImage(named: "syringe", in: Bundle(for: Record.self), compatibleWith: nil)!
+        let syringeImage = UIImage(named: "syringe", in: Bundle(for: Entry.self), compatibleWith: nil)!
         let syringeSize = syringeImage.size
-        let mealImage = UIImage(named: "meal", in: Bundle(for: Record.self), compatibleWith: nil)!
+        let mealImage = UIImage(named: "meal", in: Bundle(for: Entry.self), compatibleWith: nil)!
         let mealSize = mealImage.size
         let c = UIColor.secondaryLabel.withAlphaComponent(0.75)
         c.setStroke()

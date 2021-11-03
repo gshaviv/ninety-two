@@ -9,14 +9,14 @@
 import Foundation
 import PDFKit
 import PDFCreation
-import Sqlable
+import GRDB
 import WoofKit
 
 class GlucoseReport {
     let period: TimeInterval
     let start: Date
     let end: Date
-    let db: SqliteDatabase
+    let grdb: DatabasePool
     var readings: [GlucosePoint]!
 
     enum ReportError: Error {
@@ -28,22 +28,27 @@ class GlucoseReport {
     let subtitleFont = UIFont(name: "Helvetica", size: 18)
     let normalFont = UIFont(name: "Helvetica", size: 12)
 
-    init(period: TimeInterval, from db: SqliteDatabase) throws {
+    init(period: TimeInterval, from  grdb: DatabasePool) throws {
         self.period = period
         end = Date()
         start = end - period
-        self.db = try db.createChild()
+        self.grdb = grdb
     }
 
-    init(from: Date, to: Date, database: SqliteDatabase) throws {
+    init(from: Date, to: Date, database  grdb: DatabasePool) throws {
         self.period = from - to
         end = to
         start = from
-        self.db = try database.createChild()
+        self.grdb = grdb
     }
 
     func create() throws -> PDFDocument {
-        readings = try db.perform(GlucosePoint.read().filter(GlucosePoint.date > start && GlucosePoint.date < end && GlucosePoint.value > 0).orderBy(GlucosePoint.date))
+//        readings = try grdb.read {
+//            try GlucosePoint.filter(GlucosePoint.Column.date > start && GlucosePoint.Column.date < end && GlucosePoint.Column.value > 0).order(GlucosePoint.Column.date).fetchAll($0)
+//        }
+        readings = try grdb.perform(
+            GlucosePoint.filter(GlucosePoint.Column.date > start && GlucosePoint.Column.date < end && GlucosePoint.Column.value > 0).order(GlucosePoint.Column.date)
+        )
         if readings.isEmpty {
             throw ReportError.noData
         }
@@ -403,8 +408,8 @@ class GlucoseReport {
         if points.count < 24 {
             return
         }
-        let meals = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.type != Null())) ?? []
-        let boluses = db.evaluate(Record.read().filter(Record.date > dayStart && Record.date < dayEnd && Record.bolus > 0)) ?? []
+        let meals = grdb.evaluate(Entry.filter(Entry.Column.date > dayStart && Entry.Column.date < dayEnd && Entry.Column.type != nil)) ?? []
+        let boluses = grdb.evaluate(Entry.filter(Entry.Column.date > dayStart && Entry.Column.date < dayEnd && Entry.Column.bolus > 0)) ?? []
         let syringeImage = UIImage(named: "syringe-hires")!
         let mealImage = UIImage(named: "meal-hires")!
 
@@ -530,11 +535,11 @@ class GlucoseReport {
         })
     }
 
-    func mealReport(kind: Record.MealType, maker: PDFCreator) {
-        guard let meals = Storage.default.db.evaluate(Record.read().filter(Record.type == kind.rawValue && Record.date > self.start && Record.date < self.end)), !meals.isEmpty else {
+    func mealReport(kind: Entry.MealType, maker: PDFCreator) {
+        guard let meals = grdb.evaluate(Entry.filter(Entry.Column.type == kind.rawValue && Entry.Column.date > self.start && Entry.Column.date < self.end)), !meals.isEmpty else {
             return
         }
-        guard let allMeals = Storage.default.db.evaluate(Record.read().filter(Record.type != Null() && Record.date > self.start && Record.date < self.end).orderBy(Record.date)) else {
+        guard let allMeals = grdb.evaluate(Entry.filter(Entry.Column.type != nil && Entry.Column.date > self.start && Entry.Column.date < self.end).order(Entry.Column.date)) else {
             return
         }
         var afterMealBuckets = Array(repeating: [Double](), count: 10)

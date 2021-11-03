@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 #if os(iOS)
 import WoofKit
-import Sqlable
+import GRDB
 #endif
 
 struct Summary: Codable {
@@ -144,7 +144,7 @@ class SummaryInfo: ObservableObject {
     
     public func update(force: Bool = false, completion: ((Bool)->Void)? = nil) {
         guard defaults.summaryPeriod != data.period || force || Date() > calcDate + min(max(1.h, defaults.summaryPeriod.d / 50), 3.h) else {
-            logError("No update, too frequent")
+            logError("No summary update, too frequent")
             completion?(false)
             return
         }
@@ -153,15 +153,17 @@ class SummaryInfo: ObservableObject {
             completion?(false)
             return
         }
-        do {
-            let child = try Storage.default.db.createChild()
-            var lowCount = 0
-            var inLow = false
-            DispatchQueue.global().async {
+        var lowCount = 0
+        var inLow = false
+        DispatchQueue.global().async {
+            do {
                 MiaoMiao.flushToDatabase()
                 var lowStart: Date?
                 var lowTime = [TimeInterval]()
-                guard let readings = child.evaluate(GlucosePoint.read().filter(GlucosePoint.date > min(Date().startOfDay - defaults.summaryPeriod.d, Date().startOfDay - 90.d)).orderBy(GlucosePoint.date)), !readings.isEmpty else {
+                let readings = try Storage.default.db.read {
+                    try GlucosePoint.filter(GlucosePoint.Column.date >  min(Date().startOfDay - defaults.summaryPeriod.d, Date().startOfDay - 90.d)).order(GlucosePoint.Column.date).fetchAll($0)
+                }
+                guard  !readings.isEmpty else {
                     completion?(false)
                     return
                 }
@@ -283,7 +285,7 @@ class SummaryInfo: ObservableObject {
                             default:
                                 break
                             }
-                           
+                            
                             
                             maxG = max(maxG, gp.value)
                             minG = min(minG, gp.value)
@@ -344,13 +346,13 @@ class SummaryInfo: ObservableObject {
                 }
                 
                 let averageBolus = perDay.dropLast().map { Double($0.dose) }.average()
-                 
+                
                 let aveG = sumG / Double(countG)
                 let ave90 = sum90 / Double(count90)
                 // a1c estimation formula based on CGM data: https://care.diabetesjournals.org/content/41/11/2275
                 let a1c = 3.31 + ave90 * 0.02392 // (aveG + 46.7) / 28.7 //(aveG / 18.05 + 2.52) / 1.583
                 let ave7 = profile7.average()
-//                let a1c2 = (aveG + 46.7) / 28.7
+                //                let a1c2 = (aveG + 46.7) / 28.7
                 let a1c3 = (ave7 + 46.7) / 28.7
                 let a1c31 = (ave90 + 46.7) / 28.7
                 lowTime = lowTime.filter { !$0.isNaN }
@@ -363,12 +365,12 @@ class SummaryInfo: ObservableObject {
                 let a1c2 = (ave90 + 36.9) / 28
                 let a1c5 = (ave7 + 50.7) / 29.1
                 let a1c6 = (ave7 + 43.9) / 28.3
-//                let a1c7 = 3.38 + 0.02345 * ave90 // https://care.diabetesjournals.org/content/41/11/2275
-//                let a1c8 = 3.31 + ave90 * 0.02392
+                //                let a1c7 = 3.38 + 0.02345 * ave90 // https://care.diabetesjournals.org/content/41/11/2275
+                //                let a1c8 = 3.31 + ave90 * 0.02392
                 let a1c9 = 3.15 + 0.02505 * ave90
                 // formulas based on: http://diabetesupdate.blogspot.com/2006/12/formulas-equating-hba1c-to-average.html
                 let a1c10 = (ave90 + 77.3) / 35.6
-//                let a1c11 = (ave90 + 86) / 33.3
+                //                let a1c11 = (ave90 + 86) / 33.3
                 let a1c12 = (ave90 / 18.05 + 2.52) / 1.583
                 let a1cValues = [a1c, a1c2, a1c3, a1c4, a1c5, a1c6,  a1c9, a1c10,  a1c12, a1c31].sorted()
                 let a1cMed = a1cValues.median()
@@ -395,8 +397,10 @@ class SummaryInfo: ObservableObject {
                     self.data = summary
                     completion?(true)
                 }
+            } catch {
+                completion?(false)
             }
-        } catch {}
+        }
     }
     #endif
 }

@@ -8,7 +8,7 @@
 
 import Intents
 import WoofKit
-import Sqlable
+import GRDB
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
@@ -31,11 +31,6 @@ class IntentHandler: INExtension {
 }
 
 class CheckIntentHandler: NSObject, CheckGlucoseIntentHandling {
-    private let sharedDb: SqliteDatabase? = {
-        let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
-        try! db?.createTable(GlucosePoint.self)
-        return db
-    }()
     private var coordinator: NSFileCoordinator!
 
     override init() {
@@ -46,7 +41,10 @@ class CheckIntentHandler: NSObject, CheckGlucoseIntentHandling {
     func handle(intent: CheckGlucoseIntent, completion: @escaping (CheckGlucoseIntentResponse) -> Void) {
         DispatchQueue.global().async {
             self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
-                if let p = self.sharedDb?.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date, .desc)), let current = p.first {
+                let p = (try? Storage.default.db.read {
+                    try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).order(GlucosePoint.Column.date.desc).fetchAll($0)
+                }) ?? []
+                if let current = p.first {
                     let value = Int(round(current.value))
                     let trend = (p[0].value - p[1].value) / (p[0].date - p[1].date) * 60
                     let trendPhrase: String = {

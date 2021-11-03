@@ -11,8 +11,8 @@ import WoofKit
 import WatchConnectivity
 import IntentsUI
 import Zip
-import Sqlable
 import EFColorPicker
+import GRDB
 
 extension SettingsViewController {
     override func awakeFromNib() {
@@ -35,13 +35,13 @@ extension SettingsViewController {
                         }
                         HealthKitManager.shared?.findLast {
                             let date = $0 ?? Date.distantPast
-                            guard let points = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > date).orderBy(GlucosePoint.date))  else {
+                            guard let points = Storage.default.db.evaluate( GlucosePoint.filter(GlucosePoint.Column.date > date).order(GlucosePoint.Column.date) ) else {
                                 return
                             }
                             log("last HK record \(date), writng \(points.count) points")
                             HealthKitManager.shared?.write(points: points)
                             
-                            let boluses = Storage.default.db.evaluate(Record.read().filter(Record.date > date && Record.bolus > 0).orderBy(Record.date)) ?? []
+                            let boluses = Storage.default.db.evaluate(Entry.filter(Entry.Column.date > date && Entry.Column.bolus > 0).order(Entry.Column.date)) ?? []
                             if !boluses.isEmpty {
                                 HealthKitManager.shared?.write(records: boluses)
                             }
@@ -213,7 +213,7 @@ extension SettingsViewController {
             defaults[.includeDailyReport] = $0
         }
         
-        var siriActions = Set<Record>()
+        var siriActions = Set<Entry>()
         let group = DispatchGroup()
         group.enter()
         var has = false
@@ -232,20 +232,20 @@ extension SettingsViewController {
         }
         group.wait()
         
-        var entries = [Record: Int]()
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.breakfast)) {
-            entries[Record(date: Date.distantFuture, meal: Record.MealType.breakfast)] = 400
+        var entries = [Entry: Int]()
+        if !siriActions.contains(Entry(date: Date.distantFuture, meal: Entry.MealType.breakfast)) {
+            entries[Entry(date: Date.distantFuture, meal: Entry.MealType.breakfast)] = 400
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.lunch)) {
-            entries[Record(date: Date.distantFuture, meal: Record.MealType.lunch)] = 300
+        if !siriActions.contains(Entry(date: Date.distantFuture, meal: Entry.MealType.lunch)) {
+            entries[Entry(date: Date.distantFuture, meal: Entry.MealType.lunch)] = 300
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.dinner)) {
-            entries[Record(date: Date.distantFuture, meal: Record.MealType.dinner)] = 200
+        if !siriActions.contains(Entry(date: Date.distantFuture, meal: Entry.MealType.dinner)) {
+            entries[Entry(date: Date.distantFuture, meal: Entry.MealType.dinner)] = 200
         }
-        if !siriActions.contains(Record(date: Date.distantFuture, meal: Record.MealType.other)) {
-            entries[Record(date: Date.distantFuture, meal: Record.MealType.other)] = 100
+        if !siriActions.contains(Entry(date: Date.distantFuture, meal: Entry.MealType.other)) {
+            entries[Entry(date: Date.distantFuture, meal: Entry.MealType.other)] = 100
         }
-        Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Record(date: Date.distantFuture, meal: $0.type, bolus: $0.bolus, note: $0.note) }.forEach {
+        Storage.default.allEntries.filter { $0.date > Date() - 1.y }.map { Entry(date: Date.distantFuture, meal: $0.type, bolus: $0.bolus, note: $0.note) }.forEach {
             if !siriActions.contains($0) {
                 if let count = entries[$0] {
                     entries[$0] = count + 1
@@ -254,7 +254,7 @@ extension SettingsViewController {
                 }
             }
             if let note = $0.note {
-                let r = Record(date: Date.distantFuture, meal: nil, bolus: $0.bolus, note: note)
+                let r = Entry(date: Date.distantFuture, meal: nil, bolus: $0.bolus, note: note)
                 if !siriActions.contains(r) {
                     if let count = entries[r] {
                         entries[r] = count + 1
@@ -266,7 +266,7 @@ extension SettingsViewController {
         }
         for key in entries.keys {
             if key.type != nil, let note = key.note {
-                let r = Record(date: Date.distantFuture, meal: nil, bolus: key.bolus, note: note)
+                let r = Entry(date: Date.distantFuture, meal: nil, bolus: key.bolus, note: note)
                 if let full = entries[key], let partial = entries[r], partial == full {
                     entries[r] = nil
                 } else if siriActions.contains(key) {
@@ -322,8 +322,8 @@ extension SettingsViewController {
         
         addGroup("")
         addButton("Backup Database") { [weak self] in
-            Storage.default.db.async {
-                try? Storage.default.db.execute("vacuum")
+            try? Storage.default.db.execute(sql: "vacuum")
+            DispatchQueue.global().async {
                 let documentsDirectory = FileManager.default.urls(for:.documentDirectory, in: .userDomainMask)[0]
                 let zipFilePath = documentsDirectory.appendingPathComponent("archive.zip")
                 let path = Storage.default.dbUrl.path
@@ -369,15 +369,18 @@ extension SettingsViewController {
                 }
             }
         }
-        if let old = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < Date() - 1.y).limit(1)), !old.isEmpty {
+        if let old = Storage.default.db.evaluate(GlucosePoint.filter(GlucosePoint.Column.date < Date() - 1.y).limit(1)), !old.isEmpty {
             addButton("Delete records older than 1y") { [weak self] in
                 do {
                     let timestamp = Int((Date() - 1.y).timeIntervalSince1970)
-                    try Storage.default.db.execute("delete from \(GlucosePoint.tableName) where date < \(timestamp)")
-                    try Storage.default.db.execute("delete from \(Calibration.tableName) where date < \(timestamp)")
-                    try Storage.default.db.execute("delete from \(Record.tableName) where date < \(timestamp)")
-                    try Storage.default.db.execute("delete from \(ManualMeasurement.tableName) where date < \(timestamp)")
-                    try Storage.default.db.execute("vacuum")
+                    try Storage.default.db.write {
+                        try GlucosePoint.filter(GlucosePoint.Column.date < timestamp).deleteAll($0)
+                        try Calibration.filter(Calibration.Column.date < timestamp).deleteAll($0)
+                        try ManualMeasurement.filter(ManualMeasurement.Column.date < timestamp).deleteAll($0)
+                        try Entry.filter(Entry.Column.date < timestamp).deleteAll($0)
+                    }
+                    
+                    try Storage.default.db.execute(sql: "vacuum")
                     let alert = UIAlertController(title: "Done", message: "Deleted records over 1 year old", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
                     self?.present(alert, animated: true, completion: nil)

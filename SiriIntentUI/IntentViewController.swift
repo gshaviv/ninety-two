@@ -48,7 +48,7 @@ class IntentViewController: UIViewController, INUIHostedViewControlling {
             contentVC = ctr
             ctr.widgetPerformUpdate { 
                 self.done = true
-                ctr.widgetActiveDisplayModeDidChange(.expanded, withMaximumSize: self.desiredSize)
+                ctr.widgetActiveDisplayModeDidChange(maximumSize: self.desiredSize)
                 self.callback?(true, [], self.desiredSize)
             }
         }

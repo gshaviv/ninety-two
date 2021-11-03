@@ -48,11 +48,11 @@ class HealthKitManager {
         }
     }
 
-    func write(records: [Record]) {
+    func write(records: [Entry]) {
         guard let insulinType = HKQuantityType.quantityType(forIdentifier: .insulinDelivery) else {
             return
         }
-        let data = records.compactMap { (r:Record) -> HKQuantitySample? in
+        let data = records.compactMap { (r:Entry) -> HKQuantitySample? in
             guard r.bolus > 0 else {
                 return nil
             }

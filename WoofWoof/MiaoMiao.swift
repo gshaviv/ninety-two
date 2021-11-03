@@ -7,9 +7,9 @@
 //
 
 import UIKit
-import Sqlable
 import UserNotifications
 import WoofKit
+import GRDB
 
 protocol MiaoMiaoDelegate {
     func didUpdate(addedHistory: [GlucosePoint])
@@ -101,8 +101,8 @@ class MiaoMiao {
         get {
             if _last24.isEmpty {
                 let end = Date()
-                if let readings = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > end - 1.d - 30.m && GlucosePoint.value > 0).orderBy(GlucosePoint.date)),
-                    let calibrations = Storage.default.db.evaluate(Calibration.read().filter(Calibration.date > end - 1.d).orderBy(Calibration.date)) {
+                if let readings = Storage.default.db.evaluate(GlucosePoint.filter(GlucosePoint.Column.date > end - 1.d - 30.m && GlucosePoint.Column.value > 0).order(GlucosePoint.Column.date)),
+                   let calibrations = Storage.default.db.evaluate(Calibration.filter(Calibration.Column.date > end - 1.d).order(Calibration.Column.date)) {
                     if calibrations.isEmpty {
                         _last24 = readings.enumerated().compactMap {
                             if $0.offset == 0 {
@@ -182,18 +182,12 @@ class MiaoMiao {
 
     private static func prepareForNewSensor() {
         if !pendingReadings.isEmpty {
-            Storage.default.db.async {
-                do {
-                    try Storage.default.db.transaction { db in
-                        try pendingReadings.forEach {
-                            try db.perform($0.insert())
-                        }
-
-                        pendingReadings = []
-                    }
-                } catch let error {
-                    logError("\(error)")
+            try? Storage.default.db.writeInTransaction { db in
+                try pendingReadings.forEach {
+                    try $0.insert(db)
                 }
+                pendingReadings = []
+                return .commit
             }
         }
         defaults[.additionalSlope] = 1
@@ -532,11 +526,13 @@ class MiaoMiao {
     public static func addCalibration(value bg: Double) {
         if let current = currentGlucose {
             do {
-                if let current = currentGlucose, let last = last24hReadings.last, current.date - last.date > 2.m  {
-                    try Storage.default.db.perform(current.insert())
-                }
                 let c = Calibration(date: Date(), value: bg)
-                try Storage.default.db.perform(c.insert())
+                try Storage.default.db.write { db in
+                    if let current = currentGlucose, let last = last24hReadings.last, current.date - last.date > 2.m  {
+                        try current.insert(db)
+                    }
+                    try c.insert(db)
+                }
                 let factor = bg / current.value
                 defaults[.additionalSlope] *= factor
                 if let age = MiaoMiao.sensorAge {
@@ -561,22 +557,21 @@ class MiaoMiao {
     }
     
     public static func flushToDatabase() {
-        if pendingReadings.count > 3 {
-            Storage.default.db.async {
+        if !pendingReadings.isEmpty {
                 do {
-                    try Storage.default.db.transaction { db in
-                        var lastDate = db.evaluate(GlucosePoint.read().filter(GlucosePoint.date > Date() - 8.h).orderBy(GlucosePoint.date))?.last?.date
+                    try Storage.default.db.writeInTransaction { db in
+                        var lastDate = try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 8.h).order(GlucosePoint.Column.date).fetchAll(db).last?.date
                         try pendingReadings.forEach {
                             if let lastDate = lastDate {
                                 if $0.date - 3.m > lastDate {
-                                    try db.perform($0.insert())
+                                    try $0.insert(db)
                                 }
                             } else {
-                                try db.perform($0.insert())
+                                try $0.insert(db)
                             }
                             if serial != defaults[.lastSensorRead] {
                                 let nsc = Calibration(date: $0.date - 1.s, value: $0.value)
-                                try db.perform(nsc.insert())
+                                try nsc.insert(db)
                                 defaults[.lastSensorRead] = serial
                             }
                             lastDate = $0.date
@@ -584,11 +579,11 @@ class MiaoMiao {
                         
                        
                         pendingReadings = []
+                        return .commit
                     }
                 } catch let error {
                     logError("\(error)")
                 }
-            }
         }
     }
     
@@ -617,13 +612,15 @@ class MiaoMiao {
 
     private static func record(trend: [GlucosePoint], history: [GlucosePoint]) {
         DispatchQueue.global().async {
-            var added = [GlucosePoint]()
             let last = last24hReadings.last?.date ?? Date.distantPast
+            #if targetEnvironment(simulator)
+            let storeInterval = 3.s
+            #else
             let storeInterval = 3.m
+            #endif
             let later = (defaults[.sensorBegin] ?? .distantFuture) + 14.d + 12.h
             let earlier = (defaults[.sensorBegin] ?? .distantPast) + 50.m
-            let filteredHistory = history.filter { $0.date < later && $0.date > last + storeInterval && $0.value > 30 && $0.date > earlier }.reversed()
-            added.append(contentsOf: filteredHistory)
+            let added = Array(history.filter { $0.date < later && $0.date > last + storeInterval && $0.value > 30 && $0.date > earlier }.reversed())
            
             MiaoMiao.trend = trend.filter { $0.value > 30 }
             if !added.isEmpty {
@@ -645,6 +642,14 @@ class MiaoMiao {
                 MiaoMiao.delegate?.forEach { $0.didUpdate(addedHistory: added) }
             }
         }
+    }
+    
+    public static func simulateData(trend: [GlucosePoint], history: [GlucosePoint]) {
+        #if targetEnvironment(simulator)
+        record(trend: trend.sorted { $0.date > $1.date }, history: history.sorted { $0.date > $1.date })
+        #else
+        fatalError("simulateData(): Can only be used in simulator")
+        #endif
     }
 
     static private func addPoints(_ data: [GlucoseReading]) {

@@ -8,7 +8,6 @@
 
 import UIKit
 import WoofKit
-import Sqlable
 import SwiftUI
 import Combine
 

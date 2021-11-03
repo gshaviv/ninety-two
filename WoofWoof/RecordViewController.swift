@@ -9,8 +9,8 @@
 import Foundation
 import UIKit
 import WoofKit
-import Sqlable
 import BackgroundTasks
+import GRDB
 
 class RecordViewController: UIViewController {
     @IBOutlet var picker: UIPickerView!
@@ -21,11 +21,11 @@ class RecordViewController: UIViewController {
     @IBOutlet var deleteButton: UIBarButtonItem!
     @IBOutlet weak var activityIndiator: UIActivityIndicatorView!
     private var prediction: Prediction?
-    var onSelect: ((Record, Prediction?) -> Void)?
+    var onSelect: ((Entry, Prediction?) -> Void)?
     var onCancel: (() -> Void)?
     private let queue = DispatchQueue(label: "predict")
-    var meal = Meal(name: nil)
-    var editRecord: Record? {
+    lazy var meal = Meal(name: nil)
+    var editRecord: Entry? {
         didSet {
             if let meal = editRecord?.meal {
                 self.meal = meal
@@ -71,10 +71,10 @@ class RecordViewController: UIViewController {
         }
         return wordList.sorted()
     }()
-    var selectedRecord: Record {
+    var selectedRecord: Entry {
         let cd = selectedDate
-        let record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Record(date: cd, meal: nil, bolus: nil, note: nil)
-        record.type = Record.MealType(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
+        let record = editRecord ?? Storage.default.lastDay.entries.first(where: { $0.date == cd }) ?? Entry(date: cd, meal: nil, bolus: nil, note: nil)
+        record.type = Entry.MealType(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
         record.bolus = picker.selectedRow(inComponent: Component.units.rawValue)
         record.carbs = meal.totalCarbs
         if let note = noteField.text {
@@ -115,21 +115,21 @@ class RecordViewController: UIViewController {
         if let kind = editRecord?.type {
             picker.selectRow(kind.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
         } else {
-            var candidateType : Record.MealType? = nil
+            var candidateType : Entry.MealType? = nil
             switch now.hour {
             case 5...10:
-                candidateType = Record.MealType.breakfast
+                candidateType = Entry.MealType.breakfast
             case 11...14:
-                candidateType = Record.MealType.lunch
+                candidateType = Entry.MealType.lunch
             case 18...21:
-                candidateType = Record.MealType.dinner
+                candidateType = Entry.MealType.dinner
             default:
                 picker.selectRow(0, inComponent: Component.meal.rawValue, animated: false)
                 picker.selectRow(1, inComponent: Component.units.rawValue, animated: false)
             }
             if candidateType != nil {
                 if Storage.default.allMeals.first(where: { $0.date > Date().startOfDay && $0.type == candidateType }) != nil {
-                    candidateType = Record.MealType.other
+                    candidateType = Entry.MealType.other
                 }
                 picker.selectRow(candidateType!.rawValue + 1, inComponent: Component.meal.rawValue, animated: false)
             }
@@ -182,23 +182,25 @@ class RecordViewController: UIViewController {
     }
 
     @IBAction func handleSave() {
-        let record = selectedRecord
-        if record.isMeal {
-            if meal.id == nil {
-                try! meal.save()
+        do {
+            let record = selectedRecord
+            if record.isMeal {
+                try meal.save()
+                record.mealId = meal.id
             }
-            if let mealId = record.mealId, mealId != meal.id {
-                if let records = Storage.default.db.evaluate(Record.read().filter(Record.mealId == mealId)), records.count == 1 {
-                    record.meal.discard(db: Storage.default.db)
-                }
+            try Storage.default.db.write {
+                try record.save($0)
             }
-            record.mealId = meal.id
-        }
-        record.save(to: Storage.default.db)
-        onCancel = nil
-        dismiss(animated: true) {
-            self.onSelect?(record, self.prediction)
-            self.onSelect = nil
+            onCancel = nil
+            dismiss(animated: true) {
+                self.onSelect?(record, self.prediction)
+                self.onSelect = nil
+            }
+            UIApplication.theDelegate.clean = true
+        } catch {
+            let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Darn", style: .cancel, handler: nil))
+            present(alert, animated: true)
         }
     }
 
@@ -244,7 +246,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
                 return "\(row)"
                 
             case .meal:
-                return Record.MealType(rawValue: row - 1)?.name.capitalized ?? "Bolus"
+                return Entry.MealType(rawValue: row - 1)?.name.capitalized ?? "Bolus"
                 
             case .units:
                 return "\(row)"
@@ -292,7 +294,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
                 editRecord?.bolus = picker.selectedRow(inComponent: Component.units.rawValue)
 
             case .meal:
-                guard let k = Record.MealType(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1) else {
+                guard let k = Entry.MealType(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1) else {
                     return
                 }
                 editRecord?.type = k
@@ -308,7 +310,7 @@ extension RecordViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             w = max(w, rw)
         }
         
-        return max(ceil(w + 8),44)
+        return max(ceil(w + 20),44)
     }
 }
 
@@ -369,7 +371,7 @@ extension RecordViewController: PrepareMealViewControllerDelegate {
         meal.append(serving)
         mealTable.reloadData()
         if picker.selectedRow(inComponent: Component.meal.rawValue) == .none {
-            picker.selectRow(Record.MealType.other.rawValue + 1, inComponent: Component.meal.rawValue, animated: true)
+            picker.selectRow(Entry.MealType.other.rawValue + 1, inComponent: Component.meal.rawValue, animated: true)
         }
         predict()
     }
@@ -398,7 +400,8 @@ extension RecordViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         tableView.beginUpdates()
         tableView.deleteRows(at: [indexPath], with: .automatic)
-        if meal.id != nil {
+        // if existing meal, check if used by other entries, if so make a copy
+        if meal.id != nil && meal.usedCount > 1 {
             let appendedMeal = Meal(name: noteField.text)
             meal.servings.enumerated().forEach {
                 guard $0.offset != indexPath.row else {
@@ -476,7 +479,7 @@ extension RecordViewController {
         let meals = Array(Storage.default.allEntries.filter { $0.mealId != nil || $0.isBolus }.reversed())
         let after = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
         var effects = [MealEffect]()
-        guard let bgHistory = Storage.default.db.evaluate(GlucosePoint.read().orderBy(GlucosePoint.date))?.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)}) else {
+        guard let bgHistory = Storage.default.db.evaluate(GlucosePoint.order(GlucosePoint.Column.date))?.map({ CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value)}) else {
             return []
         }
         let interpolator = AkimaInterpolator(points: bgHistory)
@@ -491,7 +494,7 @@ extension RecordViewController {
             if let _ = Storage.default.allEntries.filter({ $0.date < horizon && $0.date > meal.date - after && $0.id! != meal.id!  }).first {
                 continue
             }
-            if let low = Storage.default.db.evaluate(GlucosePoint.read().filter(GlucosePoint.date < horizon && GlucosePoint.date > meal.date && GlucosePoint.value < 70)), !low.isEmpty {
+            if let low = Storage.default.db.evaluate(GlucosePoint.filter(GlucosePoint.Column.date < horizon && GlucosePoint.Column.date > meal.date && GlucosePoint.Column.value < 70)), !low.isEmpty {
                 horizon = Date(timeInterval: -10.m, since: low.first!.date)
                 let ratio = (horizon - meal.date) / after
                 units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob

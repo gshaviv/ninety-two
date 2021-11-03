@@ -8,7 +8,7 @@
 
 import Foundation
 import WoofKit
-import Sqlable
+import GRDB
 
 public class FoodServing {
     public let foodId: Int
@@ -27,60 +27,97 @@ public class FoodServing {
         self.mealId = mealId
     }
 
-    public required init(row: ReadRow) throws {
-        foodId = try row.get(FoodServing.foodId)
-        amount = try row.get(FoodServing.amount)
-        id = try row.get(FoodServing.id)
-        mealId = try row.get(FoodServing.mealId)
+    public required init(row: Row) {
+        foodId = row[Column.foodId]
+        amount = row[Column.amount]
+        mealId = row[Column.mealId]
+        id = row[Column.id]
     }
+   
 }
 
-extension FoodServing: Sqlable {
-    static let foodId = Column("ndb", .integer)
-    static let amount = Column("serving", .real)
-    static let id = Column("id", .integer, PrimaryKey(autoincrement: true))
-    static let mealId = Column("mealId", .integer)
-
-    public static var tableLayout = [id, mealId, foodId, amount]
-
-    public func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case FoodServing.foodId:
-            return foodId
-        case FoodServing.amount:
-            return amount
-        case FoodServing.id:
-            return id
-        case FoodServing.mealId:
-            return mealId
-        default:
-            return nil
-        }
+extension FoodServing: TableRecord, PersistableRecord, FetchableRecord, TablePersistable {
+    enum Column: String, ColumnExpression {
+        case foodId, amount, id, mealId
+    }
+    
+    public static var databaseTableName = "servings"
+    
+    public static func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName, body: { t in
+            t.autoIncrementedPrimaryKey(Column.id.rawValue)
+            t.column(Column.foodId.rawValue, .integer)
+                .notNull()
+            t.column(Column.amount.rawValue, .double)
+                .notNull()
+            t.column(Column.mealId.rawValue, .integer)
+                .notNull()
+                .references(Meal.databaseTableName, onDelete: .cascade)
+        })
     }
 
-    public func save() throws {
+    public func encode(to container: inout PersistenceContainer) {
+        container[Column.foodId] = foodId
+        container[Column.amount] = amount
+        container[Column.id] = id
+        container[Column.mealId] = mealId
+    }
+
+    public func save(_ db: Database) throws {
         if id == nil {
-            id = Storage.default.db.evaluate(insert())
+            try insert(db)
         } else {
-            Storage.default.db.evaluate(update())
+            try update(db)
         }
+    }
+    
+    public func didInsert(with rowID: Int64, for column: String?) {
+        id = Int(rowID)
     }
 }
 
 class Meal {
-    private(set) var id: Int? {
-        didSet {
-            // debug
-            assert(!(id != nil && oldValue != nil))
+    private(set) var id: Int?
+    var name: String?
+    private var _servings: [FoodServing]? = nil
+    var servings: [FoodServing] {
+        if let servings = _servings {
+            return servings
+        } else {
+            do {
+                if let id = id {
+                    _servings = try Storage.default.db.read {
+                        try FoodServing.filter(FoodServing.Column.mealId == id).fetchAll($0)
+                    }
+                    return _servings ?? []
+                } else {
+                    _servings = []
+                    return []
+                }
+            } catch {
+                return []
+            }
         }
     }
-    var name: String?
-    private(set) var servings: [FoodServing]
 
     init(name: String?) {
         self.name = name
-        servings = []
         id = nil
+        _servings = []
+    }
+    
+    var usedCount: Int {
+        do {
+            if let id = id {
+                return try Storage.default.db.read {
+                    try Entry.filter(Entry.Column.mealId == id).fetchCount($0)
+                }
+            } else {
+                return 0
+            }
+        } catch {
+            return 0
+        }
     }
 
     var totalCarbs: Double {
@@ -89,7 +126,8 @@ class Meal {
 
     func append(_ serving: FoodServing) {
         serving.mealId = id
-        servings.append(serving)
+        serving.id = nil
+        _servings?.append(serving)
     }
 
     var servingCount: Int {
@@ -97,23 +135,27 @@ class Meal {
     }
 
     func remove(servingAt idx: Int) {
-        if servings[idx].id != nil {
-            Storage.default.db.evaluate(servings[idx].delete())
+        if let sid = servings[idx].id  {
+            do {
+                _ = try Storage.default.db.write {
+                    try FoodServing.deleteOne($0, key: sid)
+                }
+                _servings?.remove(at: idx)
+            } catch {
+                
+            }
+        } else {
+            _servings?.remove(at: idx)
         }
-        servings.remove(at: idx)
     }
 
     subscript(index: Int) -> FoodServing {
         return servings[index]
     }
 
-    required init(row: ReadRow) throws {
-        id = try row.get(Meal.id)
-        name = try row.get(Meal.name)
-        servings = []
-        if let s = try? FoodServing.read().filter(FoodServing.mealId == id!).run(Storage.default.db) {
-            servings = s
-        }
+    public required init(row: Row)  {
+        id = row[Meal.Column.id]
+        name = row[Meal.Column.name]
     }
     
     func reset() {
@@ -125,31 +167,59 @@ class Meal {
     }
 }
 
-extension Meal: Sqlable {
-    static let id = Column("id", .integer, PrimaryKey(autoincrement: true))
-    static let name = Column("name", .nullable(.text))
-    static var tableLayout: [Column] = [id, name]
-
-    func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case Meal.id:
-            return id
-        case Meal.name:
-            return name
-        default:
-            return nil
+extension Meal: TableRecord, PersistableRecord, FetchableRecord, TablePersistable {
+    func encode(to container: inout PersistenceContainer) {
+        container[Column.id] = id
+        container[Column.name] = name
+    }
+    
+    static var databaseTableName = "meal"
+    
+    static public func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName, body: { t in
+            t.autoIncrementedPrimaryKey(Column.id.rawValue)
+            t.column(Column.name.rawValue, .text)
+        })
+    }
+    
+    public enum Column: String, ColumnExpression {
+        case id, name
+    }
+    
+    public func save() throws {
+        try Storage.default.db.write { db in
+            if id == nil {
+                try insert(db)
+            } else {
+                try update(db)
+            }
+            
+            try servings.forEach {
+                $0.mealId = self.id
+                try $0.save(db)
+            }
         }
     }
+    
+    func didInsert(with rowID: Int64, for column: String?) {
+        id = Int(rowID)
+    }
+}
 
-    public func save() throws {
-        if id == nil {
-            id = Storage.default.db.evaluate(insert())
-        } else {
-            Storage.default.db.evaluate(update())
-        }
-        try servings.forEach {
-            $0.mealId = self.id
-            try $0.save()
+extension Entry: TablePersistable {
+    static public func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName) { t in
+            t.autoIncrementedPrimaryKey(Column.id.rawValue, onConflict: .replace)
+            t.column(Column.type.rawValue, .integer)
+            t.column(Column.bolus.rawValue, .integer)
+                .defaults(to: 0)
+            t.column(Column.note.rawValue, .text)
+            t.column(Column.carbs.rawValue, .double)
+                .defaults(to: 0)
+            t.column(Column.mealId.rawValue, .integer)
+                .references(Meal.databaseTableName, onDelete: .cascade)
+            t.column(Column.date.rawValue, .datetime)
+                .notNull()
         }
     }
 }

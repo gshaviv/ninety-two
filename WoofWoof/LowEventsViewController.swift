@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import WoofKit
-import Sqlable
+import GRDB
 
 class LowEventsViewController: UIViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -45,7 +45,9 @@ class LowEventsViewController: UIViewController {
     func makeImage() -> UIImage? {
         let end = Date()
         let start = end - defaults.summaryPeriod.d
-        let readings = (try? Storage.default.db.perform(GlucosePoint.read().filter(GlucosePoint.date > start && GlucosePoint.date < end && GlucosePoint.value > 0).orderBy(GlucosePoint.date))) ?? []
+        let readings = Storage.default.db.evaluate(
+            GlucosePoint.filter(GlucosePoint.Column.date > start && GlucosePoint.Column.date < end && GlucosePoint.Column.value > 0).order(GlucosePoint.Column.date)
+        ) ?? []
         let minValue = readings.map { $0.value }.min() ?? 60
         
         var lowEvents = [[GlucosePoint]]()

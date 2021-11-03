@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import Sqlable
 import UserNotifications
 private let hexDigits = "0123456789ABCDEF".map { $0 }
 
@@ -30,15 +29,7 @@ extension CGGradient {
     }
 }
 
-extension Array where Element: Sqlable {
-    public func insert(into: SqliteDatabase) throws {
-        try into.transaction { db in
-            forEach {
-                db.evaluate($0.insert())
-            }
-        }
-    }
-}
+
 
 extension Array where Element: Hashable {
     public func unique() -> [Element] {
@@ -47,61 +38,6 @@ extension Array where Element: Hashable {
 }
 
 
-extension SqliteDatabase {
-    static private let dbQueue = DispatchQueue(label: "db")
-
-    @discardableResult public func perform<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) throws -> R {
-        return try SqliteDatabase.dbQueue.sync {
-            try statement().run(self)
-        }
-    }
-
-    @discardableResult public func evaluate<T, R>(_ statement: @autoclosure () throws -> Statement<T, R>) -> R? {
-        var result: R?
-        SqliteDatabase.dbQueue.sync {
-            result = try? statement().run(self)
-        }
-        return result
-    }
-
-    public func async(_ dbOp: @escaping () -> Void) {
-        Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
-            dbOp()
-        })
-    }
-    
-    public func sync(_ dbOp: @escaping () -> Void) {
-        Storage.default.fileCoordinator.coordinate(writingItemAt: Storage.default.lockfile, options: [], error: nil, byAccessor: { (_) in
-            dbOp()
-        })
-    }
-
-
-
-//    @discardableResult public func execute(_ sqlString: String, values: [SqlType]) -> [Any] {
-//        guard let sql = sqlString.cString(using: String.Encoding.utf8) else {
-//            fatalError("Invalid SQL")
-//        }
-//        var handlePointer : OpaquePointer? = nil
-//        if sqlite3_prepare_v2(db, sql, -1, &handlePointer, nil) != SQLITE_OK {
-//            try throwLastError(db)
-//        }
-//        guard let handle = handlePointer else {
-//            fatalError("No SQL handle received")
-//        }
-//        try bindValues(db, handle: handle, values: statement.values, from: 1)
-//
-//        var returnValue = [Any]()
-//        loop: while true {
-//            switch sqlite3_step(handle) {
-//            case SQLITE_ROW:
-//                returnValue.append(try T(row: ReadRow(handle: handle, tablename: T.tableName), db: self))
-//                continue
-//            case SQLITE_DONE: break loop
-//            }
-//        }
-//    }
-}
 
 extension Collection where Element: SignedNumeric {
 

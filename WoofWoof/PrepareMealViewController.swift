@@ -8,7 +8,6 @@
 
 import UIKit
 import WoofKit
-import Sqlable
 
 protocol PrepareMealViewControllerDelegate: AnyObject {
     func didSelectServing(_ serving: FoodServing)
@@ -166,7 +165,7 @@ extension PrepareMealViewController: ServingViewControllerDelegate {
 
 extension PrepareMealViewController: UISearchControllerDelegate {
     func didPresentSearchController(_ searchController: UISearchController) {
-        searchController.registerForPreviewing(with: self, sourceView: tableView)
+//        searchController.registerForPreviewing(with: self, sourceView: tableView)
         DispatchQueue.main.async {
             searchController.searchBar.becomeFirstResponder()
         }
@@ -190,7 +189,7 @@ extension PrepareMealViewController: UISearchResultsUpdating {
             return
         }
         lastTerm = term
-        let anyMeal = (term.isEmpty ? Storage.default.db.evaluate(Meal.read()) : Storage.default.db.evaluate(Meal.read().filter(Meal.name.like("%\(term)%")))) ?? []
+        let anyMeal = (term.isEmpty ? Storage.default.db.evaluate(Meal.all()) : Storage.default.db.evaluate(Meal.filter(Meal.Column.name.like("%\(term)%")))) ?? []
         let foundMeal = anyMeal.filter { $0.name != nil && $0.servings.count > 0 }.sorted { $0.name!.lowercased() < $1.name!.lowercased() }
         DispatchQueue.main.async {
             self.foundMeal = foundMeal

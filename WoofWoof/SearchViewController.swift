@@ -85,10 +85,12 @@ class SearchViewController: UITableViewController {
             defer {
                 tableView.endUpdates()
             }
-            try Storage.default.db.perform(record.delete())
+            _ = try Storage.default.db.write {
+                try record.delete($0)
+            }
             tableView.deleteRows(at: [indexPath], with: .automatic)
             Storage.default.reloadToday()
-            search(string: search.text ?? "", scope: Record.MealType(rawValue: search.selectedScopeButtonIndex - 1))
+            search(string: search.text ?? "", scope: Entry.MealType(rawValue: search.selectedScopeButtonIndex - 1))
         } catch { }
     }
 
@@ -97,15 +99,15 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        search(string: searchText, scope: Record.MealType(rawValue: searchBar.selectedScopeButtonIndex - 1))
+        search(string: searchText, scope: Entry.MealType(rawValue: searchBar.selectedScopeButtonIndex - 1))
     }
 
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         let searchText = searchBar.text ?? ""
-        search(string: searchText, scope: Record.MealType(rawValue: selectedScope - 1))
+        search(string: searchText, scope: Entry.MealType(rawValue: selectedScope - 1))
     }
 
-    func search(string: String, scope: Record.MealType?) {
+    func search(string: String, scope: Entry.MealType?) {
         filtered = Array(Storage.default.allMeals.filter {
             if let mealType = scope, $0.type != mealType {
                 return false
@@ -123,7 +125,7 @@ class RecordCell: UITableViewCell {
     @IBOutlet var dateLabel: UILabel?
     @IBOutlet var noteLabel: UILabel?
     @IBOutlet var bolusLabel: UILabel?
-    var record: Record! {
+    var record: Entry! {
         didSet {
             typeLabel?.text = record.type?.name.capitalized
             noteLabel?.text = record.note

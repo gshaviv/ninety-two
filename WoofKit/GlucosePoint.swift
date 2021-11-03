@@ -8,7 +8,7 @@
 
 import Foundation
 #if os(iOS)
-import Sqlable
+import GRDB
 #endif
 
 public enum ReadingType {
@@ -36,28 +36,31 @@ public struct GlucosePoint: GlucoseReading {
 }
 
 #if os(iOS)
-extension GlucosePoint: Sqlable {
-    public static let date = Column("date", .date)
-    public static let value = Column("value", .real)
-
-    public static var tableLayout = [date, value]
-
-    public func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case GlucosePoint.date:
-            return date
-
-        case GlucosePoint.value:
-            return value
-
-        default:
-            return nil
+public protocol TablePersistable {
+    static func createTable(in db: Database) throws
+}
+extension GlucosePoint: TableRecord, PersistableRecord, FetchableRecord, TablePersistable {
+    public enum Column: String, ColumnExpression {
+        case date
+        case value
+    }
+    public static var databaseTableName = "BG"
+    
+    public static func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName) { t in
+            t.column(Column.date.rawValue, .datetime)
+            t.column(Column.value.rawValue, .double)
         }
     }
+    
+    public func encode(to container: inout PersistenceContainer) {
+        container[Column.date] = date
+        container[Column.value] = value
+    }
 
-    public init(row: ReadRow) throws {
-        date = try row.get(GlucosePoint.date)
-        value = try row.get(GlucosePoint.value)
+    public init(row: Row)  {
+        date = row[Column.date]
+        value = row[Column.value]
         type = .history
     }
 }
@@ -97,30 +100,31 @@ public struct Calibration: GlucoseReading {
     }
 }
 
-extension Calibration: Sqlable {
-    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
-    public static let value = Column("value", .real)
-
-    public static var tableLayout = [date, value]
-
-    public func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case Calibration.date:
-            return date
-
-        case Calibration.value:
-            return value
-
-        default:
-            return nil
+extension Calibration: TableRecord, PersistableRecord, FetchableRecord, TablePersistable {
+    public enum Column: String, ColumnExpression {
+        case date
+        case value
+    }
+    public static var databaseTableName = "calibrations"
+    
+    public static func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName) { t in
+            t.column(Column.date.rawValue, .datetime)
+            t.column(Column.value.rawValue, .double)
         }
     }
-
-    public init(row: ReadRow) throws {
-        date = try row.get(GlucosePoint.date)
-        value = try row.get(GlucosePoint.value)
+    
+    public func encode(to container: inout PersistenceContainer) {
+        container[Column.date] = date
+        container[Column.value] = value
+    }
+    
+    public init(row: Row)  {
+        date = row[Column.date]
+        value = row[Column.value]
     }
 }
+
 #endif
 
 public struct ManualMeasurement: GlucoseReading {
@@ -138,29 +142,30 @@ public struct ManualMeasurement: GlucoseReading {
 }
 
 #if os(iOS)
-extension ManualMeasurement: Sqlable {
-    public static let date = Column("date", .date, PrimaryKey(autoincrement: false))
-    public static let value = Column("value", .real)
-
-    public static var tableLayout = [date, value]
-
-    public func valueForColumn(_ column: Column) -> SqlValue? {
-        switch column {
-        case ManualMeasurement.date:
-            return date
-
-        case ManualMeasurement.value:
-            return value
-
-        default:
-            return nil
+extension ManualMeasurement: TableRecord, PersistableRecord, FetchableRecord, TablePersistable {
+    public enum Column: String, ColumnExpression {
+        case date
+        case value
+    }
+    public static var databaseTableName = "manual"
+    
+    static public func createTable(in db: Database) throws {
+        try db.create(table: databaseTableName) { t in
+            t.column(Column.date.rawValue, .datetime)
+            t.column(Column.value.rawValue, .double)
         }
     }
-
-    public init(row: ReadRow) throws {
-        date = try row.get(GlucosePoint.date)
-        value = try row.get(GlucosePoint.value)
+    
+    public func encode(to container: inout PersistenceContainer) {
+        container[Column.date] = date
+        container[Column.value] = value
+    }
+    
+    public init(row: Row)  {
+        date = row[Column.date]
+        value = row[Column.value]
     }
 }
+
 #endif
 

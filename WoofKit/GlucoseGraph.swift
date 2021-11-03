@@ -8,14 +8,15 @@
 import UIKit
 import CoreGraphics
 import SwiftUI
+import GRDB
 
 public protocol GlucoseGraphDelegate: AnyObject {
-    func didTouch(record: Record)
-    func didDoubleTap(record: Record)
+    func didTouch(record: Entry)
+    func didDoubleTap(record: Entry)
 }
 
 extension GlucoseGraphDelegate {
-    public func didDoubleTap(record: Record) { }
+    public func didDoubleTap(record: Entry) { }
 }
 
 private let contractionFactor = CGFloat(0.6)
@@ -64,7 +65,7 @@ public struct Pattern {
 
 @IBDesignable
 public class GlucoseGraph: UIView {
-    private var touchables:[(CGRect, Record)] = []
+    private var touchables:[(CGRect, Entry)] = []
     public weak var delegate: GlucoseGraphDelegate?
     @IBInspectable var isScrollEnabled:Bool
     @IBInspectable public var enableDelete: Bool = false {
@@ -146,7 +147,7 @@ public class GlucoseGraph: UIView {
             setNeedsDisplay()
         }
     }
-    public var records: [Record] = [] {
+    public var records: [Entry] = [] {
         didSet {
             contentView.setNeedsDisplay()
         }
@@ -973,16 +974,14 @@ public class GlucoseGraph: UIView {
                         for selected in Array(self.pointsToDelete).sorted().reversed() {
                             changedPoints.remove(at: selected)
                             let date = self.points[selected].date
-                            try? Storage.default.db.execute("delete from \(GlucosePoint.tableName) where \(GlucosePoint.date.name) > \((date - 1.m).timeIntervalSince1970) and \(GlucosePoint.date.name) < \((date + 1.m).timeIntervalSince1970)")
+                            _ = try? Storage.default.db.write {
+                                try GlucosePoint.filter(GlucosePoint.Column.date > date - 1.m && GlucosePoint.Column.date < date + 1.m).deleteAll($0)
+                            }
                         }
-//                        let offset = self.contentHolder.contentOffset
                         NotificationCenter.default.post(name: DeletedPointsNotification, object: self)
                         self.points = changedPoints
                         self.pointsToDelete = []
                         self.setNeedsDisplay()
-//                        DispatchQueue.main.async {
-//                            self.contentHolder.contentOffset = offset
-//                        }
                     }
                 }))
                 sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in

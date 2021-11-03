@@ -10,7 +10,7 @@ import WidgetKit
 import SwiftUI
 import Intents
 import WoofKit
-import Sqlable
+import GRDB
 import Foundation
 
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
@@ -19,11 +19,7 @@ class Provider: NSObject, IntentTimelineProvider {
     lazy private var coordinator: NSFileCoordinator = {
         NSFileCoordinator(filePresenter: self)
     }()
-    private let sharedDb: SqliteDatabase? = {
-        defaults.register()
-        let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
-        return db
-    }()
+
     
     func placeholder(in context: Context) -> BGEntry {
         BGEntry(date: Date(), configuration: ConfigurationIntent(), points: [], records: [])
@@ -37,7 +33,7 @@ class Provider: NSObject, IntentTimelineProvider {
         }
     }
 
-    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<BGEntry>) -> ()) {
         readData { (points, records) in
             let entryDate = points.last?.date ?? Date()
             let timeline = Timeline(entries: [
@@ -47,17 +43,20 @@ class Provider: NSObject, IntentTimelineProvider {
         }
     }
     
-    private func readData(completion: @escaping ([GlucosePoint], [Record]) -> Void) {
+    private func readData(completion: @escaping ([GlucosePoint], [Entry]) -> Void) {
         DispatchQueue.global().async {
-            self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
-                if let p = self.sharedDb?.evaluate(GlucosePoint.read()) {
-                    Storage.default.reloadToday()
-                    let records = Storage.default.lastDay.entries
-                    completion(p.sorted(by: { $0.date < $1.date }), records)
-                } else {
-                    completion([], [])
+            do {
+                let p = try Storage.default.db.read {
+                    try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
+                } + Storage.default.trendDb.read {
+                    try GlucosePoint.fetchAll($0)
                 }
-            })
+                Storage.default.reloadToday()
+                let records = Storage.default.lastDay.entries
+                completion(p.sorted(by: { $0.date < $1.date }), records)
+            } catch {
+                completion([], [])
+            }
         }
     }
 }
@@ -76,7 +75,7 @@ struct BGEntry: TimelineEntry {
     public let date: Date
     public let configuration: ConfigurationIntent
     public let points: [GlucosePoint]
-    public let records: [Record]
+    public let records: [Entry]
 }
 
 

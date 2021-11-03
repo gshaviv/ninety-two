@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Sqlable
 import WoofKit
 import Intents
 import IntentsUI
@@ -18,7 +17,7 @@ import UserNotifications
 import Zip
 
 class ViewController: UIViewController {
-    private var lastTouchedRecord: Record?
+    private var lastTouchedRecord: Entry?
     @IBOutlet var connectingLabel: UILabel!
     @IBOutlet var graphView: GlucoseGraph!
     @IBOutlet var currentGlucoseLabel: UILabel!
@@ -51,7 +50,7 @@ class ViewController: UIViewController {
         case let nav as UINavigationController:
             switch nav.viewControllers[0] {
             case let c as RecordViewController:
-                if let r = sender as? Record {
+                if let r = sender as? Entry {
                     c.editRecord = r
                     c.onSelect = { (_,prediction) in
                         self.graphView.prediction = prediction
@@ -295,7 +294,7 @@ class ViewController: UIViewController {
         }
     }
 
-    func addRecord(meal: Record.MealType? = nil, units: Int? = nil, note: String? = nil) {
+    func addRecord(meal: Entry.MealType? = nil, units: Int? = nil, note: String? = nil) {
         self.performSegue(withIdentifier: "addRecord", sender: nil)
     }
 
@@ -309,9 +308,11 @@ class ViewController: UIViewController {
             guard let tf = alert.textFields?[0].text, let v = Double(tf) else {
                 return
             }
-            Storage.default.db.async {
+            DispatchQueue.global().async {
                 let m = ManualMeasurement(date: Date(), value: v)
-                Storage.default.db.evaluate(m.insert())
+                try? Storage.default.db.write {
+                    try m.insert($0)
+                }
                 DispatchQueue.main.async {
                     Storage.default.reloadToday()
                     self.graphView.manual = Storage.default.lastDay.manualMeasurements
@@ -510,11 +511,11 @@ extension ViewController: INUIAddVoiceShortcutViewControllerDelegate {
 
 
 extension ViewController: GlucoseGraphDelegate {
-    func didDoubleTap(record: Record) {
+    func didDoubleTap(record: Entry) {
         self.performSegue(withIdentifier: "addRecord", sender: record)
     }
 
-    func didTouch(record: Record) {
+    func didTouch(record: Entry) {
         var showBasedOnMeals = true
         if let last = lastTouchedRecord, last.id == record.id {
             showBasedOnMeals = false

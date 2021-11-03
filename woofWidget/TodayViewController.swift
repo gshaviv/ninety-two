@@ -8,7 +8,7 @@
 
 import UIKit
 import NotificationCenter
-import Sqlable
+import GRDB
 import WoofKit
 import Intents
 
@@ -20,12 +20,6 @@ class TodayViewController: UIViewController {
     @IBOutlet var trendLabel: UILabel!
     @IBOutlet var glucoseLabel: UILabel!
     @IBOutlet var iobLabel: UILabel!
-    private let sharedDb: SqliteDatabase? = {
-        defaults.register()
-        let db = try? SqliteDatabase(filepath: sharedDbUrl.path)
-        return db
-    }()
-    private var coordinator: NSFileCoordinator!
     private var points: [GlucosePoint] = [] {
         didSet {
             if let current = points.first {
@@ -94,11 +88,6 @@ class TodayViewController: UIViewController {
     
     
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        coordinator = NSFileCoordinator(filePresenter: self)
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         updateTime()
@@ -113,41 +102,34 @@ class TodayViewController: UIViewController {
         
     func widgetPerformUpdate(completionHandler: (() -> Void)? = nil) {
         DispatchQueue.global().async {
-            self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
-                let old = self.points
-                if let p = self.sharedDb?.evaluate(GlucosePoint.read()), p != old {
-                    Storage.default.db.async {
-                        Storage.default.reloadToday()
-                        DispatchQueue.main.async {
-                            self.points = p.sorted(by: { $0.date > $1.date })
-                            if old.isEmpty && !self.points.isEmpty {
-                                completionHandler?()
-                            } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
-                                completionHandler?()
-                            } else {
-                                self.updateTime()
-                                completionHandler?()
-                            }
-                        }
+            let old = self.points
+            let p = (try? Storage.default.db.read {
+                try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
+            }) ?? []
+            let trend = (try? Storage.default.trendDb.read {
+                try GlucosePoint.fetchAll($0)
+            }) ?? []
+            if  p != old {
+                Storage.default.reloadToday()
+                DispatchQueue.main.async {
+                    self.points = p.sorted(by: { $0.date > $1.date }) + trend
+                    if old.isEmpty && !self.points.isEmpty {
+                        completionHandler?()
+                    } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
+                        completionHandler?()
+                    } else {
+                        self.updateTime()
+                        completionHandler?()
                     }
-                } else {
-                    completionHandler?()
                 }
-            })
-        }        
+            } else {
+                completionHandler?()
+            }
+        }
     }
 
-    func widgetActiveDisplayModeDidChange(_ activeDisplayMode: NCWidgetDisplayMode, withMaximumSize maxSize: CGSize) {
-        switch activeDisplayMode {
-        case .compact:
-            graphView.isHidden = true
-
-        case .expanded:
+    func widgetActiveDisplayModeDidChange(maximumSize maxSize: CGSize) {
             graphView.isHidden = false
-
-        @unknown default:
-            graphView.isHidden = true
-        }
     }
     
 }
