@@ -552,7 +552,9 @@ class MiaoMiao {
                 last24hReadings.append(c)
                 defaults[.sensorSerial] = serial
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.calibrate])
-            } catch _ {}
+            } catch {
+                logError("Error adding calibration: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -560,13 +562,14 @@ class MiaoMiao {
         if !pendingReadings.isEmpty {
                 do {
                     try Storage.default.db.writeInTransaction { db in
-                        var lastDate = try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 8.h).order(GlucosePoint.Column.date).fetchAll(db).last?.date
+                        var lastDate = try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 8.h).order(GlucosePoint.Column.date).fetchAll(db).last?.date ?? Date.distantPast
+                        #if targetEnvironment(simulator)
+                        lastDate += 3.s
+                        #else
+                        lastDate += 3.m
+                        #endif
                         try pendingReadings.forEach {
-                            if let lastDate = lastDate {
-                                if $0.date - 3.m > lastDate {
-                                    try $0.insert(db)
-                                }
-                            } else {
+                            if $0.date > lastDate {
                                 try $0.insert(db)
                             }
                             if serial != defaults[.lastSensorRead] {
