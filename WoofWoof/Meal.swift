@@ -206,6 +206,26 @@ extension Meal: TableRecord, PersistableRecord, FetchableRecord, TablePersistabl
     }
 }
 
+extension Meal: Hashable {
+    static func == (lhs: Meal, rhs: Meal) -> Bool {
+        if lhs.id != rhs.id {
+            return false
+        } else {
+            return lhs.id != nil
+        }
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        if let id = id {
+            hasher.combine(id)
+        }
+        for serving in servings {
+            hasher.combine(serving.food.name)
+            hasher.combine(serving.amount)
+        }
+    }
+}
+
 extension Entry: TablePersistable {
     static public func createTable(in db: Database) throws {
         try db.create(table: databaseTableName) { t in

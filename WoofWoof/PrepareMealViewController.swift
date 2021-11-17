@@ -8,6 +8,7 @@
 
 import UIKit
 import WoofKit
+import CocoaPublisher
 
 protocol PrepareMealViewControllerDelegate: AnyObject {
     func didSelectServing(_ serving: FoodServing)
@@ -15,8 +16,9 @@ protocol PrepareMealViewControllerDelegate: AnyObject {
 }
 
 class PrepareMealViewController: UITableViewController {
-    var foundFood = [Food]()
-    var foundMeal = [Meal]()
+//    var foundFood = [Food]()
+//    var foundMeal = [Meal]()
+    var dataSource: ConfigurableTableViewDataSource<Section, AnyHashable>?
     let searchController = UISearchController(searchResultsController: nil)
     weak var delegate: PrepareMealViewControllerDelegate?
     var lastTerm = ""
@@ -39,6 +41,59 @@ class PrepareMealViewController: UITableViewController {
         definesPresentationContext = true
         title = "Add Food"
         clearsSelectionOnViewWillAppear = false
+        
+        dataSource = ConfigurableTableViewDataSource<Section, AnyHashable>(tableView: tableView) { tableView, indexPath, itemIdentifier in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "food") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "food")
+            cell.detailTextLabel?.numberOfLines = 3
+            cell.textLabel?.numberOfLines = 2
+            let button = UILabel(frame: .zero)
+            button.text = "Add"
+            button.font = UIFont.preferredFont(forTextStyle: .caption2)
+            button.textColor = self.view.tintColor
+            button.sizeToFit()
+            let size = button.frame.size
+            button.frame.size = CGSize(width: size.width + 16, height: size.height + 8)
+            button.isUserInteractionEnabled = true
+            button.tag = indexPath.row * 2 + indexPath.section
+            button.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.accessoryTap(_:))))
+            cell.accessoryView = button
+            switch itemIdentifier {
+            case let meal as Meal:
+                cell.textLabel?.text = meal.name
+                cell.detailTextLabel?.text = meal.servings.map {
+                    let c = $0.food.name.components(separatedBy: ",")
+                    return (c.count > 1 ? c[1] : c[0]).capitalized
+                }.joined(separator: ", ")
+                
+            case let food as Food:
+                cell.textLabel?.text = food.name.capitalized
+                cell.detailTextLabel?.text = food.ingredients?.listCase()
+                
+            default:
+                break
+            }
+            return cell
+        }
+        
+        dataSource?.sections = [.meals, .food]
+        dataSource?.items = [.meals: [], .food: []]
+        dataSource?.defaultRowAnimation = .fade
+        
+        dataSource?.titleForHeaderInSection { [weak dataSource] section in
+            guard let isEmpty = dataSource?.snapshot().itemIdentifiers(inSection: section).isEmpty, !isEmpty else {
+                return nil
+            }
+            switch section {
+            case .meals:
+                return "Meals"
+            case .food:
+                return  "Food"
+            }
+        }
+        
+        dataSource?.canEditRow({ indexPath in
+            indexPath.section == .meals
+        })
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -50,19 +105,7 @@ class PrepareMealViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        switch Section(rawValue: section)! {
-        case .meals:
-            return foundMeal.count
-        case .food:
-            return foundFood.count
-        }
-    }
+    
 
     @objc private func accessoryTap(_ sender: UITapGestureRecognizer) {
         let tag = sender.view!.tag
@@ -70,66 +113,88 @@ class PrepareMealViewController: UITableViewController {
         tableView(tableView, accessoryButtonTappedForRowWith: ip)
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "food") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "food")
-        cell.detailTextLabel?.numberOfLines = 3
-        cell.textLabel?.numberOfLines = 2
-        let button = UILabel(frame: .zero)
-        button.text = "Add"
-        button.font = UIFont.preferredFont(forTextStyle: .caption2)
-//        button.layer.borderColor = UIColor.black.cgColor
-//        button.layer.borderWidth = 1
-        button.textColor = view.tintColor
-        button.sizeToFit()
-        let size = button.frame.size
-        button.frame.size = CGSize(width: size.width + 16, height: size.height + 8)
-        button.isUserInteractionEnabled = true
-        button.tag = indexPath.row * 2 + indexPath.section
-        button.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(accessoryTap(_:))))
-        cell.accessoryView = button
-        switch Section(rawValue: indexPath.section)! {
-        case .meals:
-            let meal = foundMeal[indexPath.row]
-            cell.textLabel?.text = meal.name
-            cell.detailTextLabel?.text = meal.servings.map {
-                let c = $0.food.name.components(separatedBy: ",")
-                return (c.count > 1 ? c[1] : c[0]).capitalized
-            }.joined(separator: ", ")
-
-        case .food:
-            let food = foundFood[indexPath.row]
-            cell.textLabel?.text = food.name.capitalized
-            cell.detailTextLabel?.text = food.ingredients?.listCase()
-        }
-        return cell
-    }
-
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch Section(rawValue: section)! {
-        case .meals:
-            return foundMeal.isEmpty ? nil : "Meals"
-        case .food:
-            return foundFood.isEmpty ? nil : "Food"
-        }
-    }
 
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        switch Section(rawValue: indexPath.section)! {
-        case .food:
-            performSegue(withIdentifier: "amount", sender: foundFood[indexPath.row])
-        case .meals:
-            delegate?.didSelectMeal(foundMeal[indexPath.row])
+        let item = dataSource?.itemIdentifier(for: indexPath)
+        switch item {
+        case let food as Food:
+            performSegue(withIdentifier: "amount", sender: food)
+            
+        case let meal as Meal:
+            delegate?.didSelectMeal(meal)
             navigationController?.popViewController(animated: true)
+            
+        default:
+            break
         }
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch Section(rawValue: indexPath.section)! {
-        case .food:
-            performSegue(withIdentifier: "food", sender: foundFood[indexPath.row])
-        case .meals:
+        let item = dataSource?.itemIdentifier(for: indexPath)
+        switch item {
+        case let food as Food:
+            performSegue(withIdentifier: "food", sender: food)
+        default:
             break
         }
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard indexPath.section == Section.meals.rawValue, let meal = dataSource?.itemIdentifier(for: indexPath) as? Meal else {
+            return nil
+        }
+        
+        let actions = [
+            UIContextualAction(style: .destructive, title: "Hide") { [weak self] _, _, done in
+                if let name = meal.name {
+                    meal.name = "." + name
+                    do {
+                        try Storage.default.db.write {
+                            try meal.save($0)
+                        }
+                        done(true)
+                        DispatchQueue.main.after(withDelay: 0.3) {
+                            self?.dataSource?.items[.meals] = self?.dataSource?.items[.meals]?.compactMap { $0 as? Meal }.filter { $0.name?.hasPrefix(".") != true }
+                        }
+                    } catch {
+                        logError("\(error.localizedDescription)")
+                        done(false)
+                    }
+                } else {
+                    done(false)
+                }
+            },
+            UIContextualAction(style: .normal, title: "Rename") { [weak self] _, _, done in
+                let alert = UIAlertController(title: "Rename meal", message: nil, preferredStyle: .alert)
+                alert.addTextField {
+                    $0.text = meal.name
+                }
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                    done(false)
+                }))
+                alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak tableView] _ in
+                    guard let txt = alert.textFields?.first?.text else {
+                        done(false)
+                        return
+                    }
+                    meal.name = txt
+                    do {
+                        try Storage.default.db.write {
+                            try meal.save($0)
+                        }
+                        done(true)
+                        DispatchQueue.main.after(withDelay: 0.3) {
+                            tableView?.reloadData()
+                        }
+                    } catch {
+                        logError("\(error.localizedDescription)")
+                        done(false)
+                    }
+                })
+                self?.present(alert, animated: true, completion: nil)
+            }
+        ]
+        return UISwipeActionsConfiguration(actions: actions)
     }
 
 
@@ -177,9 +242,7 @@ extension PrepareMealViewController: UISearchResultsUpdating {
     static let searchQueue = DispatchQueue(label: "search")
     func updateSearchResults(for searchController: UISearchController) {
         guard let term = searchController.searchBar.text else {
-            foundFood = []
-            foundMeal = []
-            tableView.reloadData()
+            dataSource?.items = [:]
             return
         }
         if term.hasSuffix("!") {
@@ -190,10 +253,15 @@ extension PrepareMealViewController: UISearchResultsUpdating {
         }
         lastTerm = term
         let anyMeal = (term.isEmpty ? Storage.default.db.evaluate(Meal.all()) : Storage.default.db.evaluate(Meal.filter(Meal.Column.name.like("%\(term)%")))) ?? []
-        let foundMeal = anyMeal.filter { $0.name != nil && $0.servings.count > 0 }.sorted { $0.name!.lowercased() < $1.name!.lowercased() }
+        let foundMeal = anyMeal.filter {
+            if let name = $0.name, !name.hasPrefix(".") && !$0.servings.isEmpty {
+                return true
+            } else {
+                return false
+            }
+        }.sorted { $0.name!.lowercased() < $1.name!.lowercased() }
         DispatchQueue.main.async {
-            self.foundMeal = foundMeal
-            self.tableView.reloadData()
+            self.dataSource?.items[.meals] = foundMeal
         }
         PrepareMealViewController.searchQueue.async {
             let foundFood:[Food]
@@ -240,8 +308,7 @@ extension PrepareMealViewController: UISearchResultsUpdating {
                 foundFood = []
             }
             DispatchQueue.main.async {
-                self.foundFood = foundFood
-                self.tableView.reloadData()
+                self.dataSource?.items[.food] = foundFood
             }
         }
     }
@@ -250,10 +317,11 @@ extension PrepareMealViewController: UISearchResultsUpdating {
 extension PrepareMealViewController: UIViewControllerPreviewingDelegate {
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         guard let indexPath = tableView.indexPathForRow(at: location), indexPath.section == Section.food.rawValue,
-            let ctr = storyboard?.instantiateViewController(withIdentifier: "preview") as? FoodViewController else {
-            return nil
-        }
-        ctr.food = foundFood[indexPath.row]
+              let ctr = storyboard?.instantiateViewController(withIdentifier: "preview") as? FoodViewController,
+              let food = dataSource?.itemIdentifier(for: indexPath) as? Food else {
+                  return nil
+              }
+        ctr.food = food
         ctr.origin = self
         return ctr
     }

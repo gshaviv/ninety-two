@@ -141,7 +141,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         trendCalculator = Calculation {
             return self.trendValue()
         }
-        defaults.register()
     }
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
@@ -668,8 +667,8 @@ extension AppDelegate: MiaoMiaoDelegate {
                     _ = try Storage.default.trendDb.writeInTransaction { db in
                         try GlucosePoint.deleteAll(db)
                         if let trend = MiaoMiao.trend {
-                            try trend.reversed().forEach {
-                                try $0.insert(db)
+                            try trend.reversed().enumerated().filter { $0.offset % 3 == 0 }.forEach {
+                                try $0.element.insert(db)
                             }
                         }
                         return .commit
@@ -677,7 +676,11 @@ extension AppDelegate: MiaoMiaoDelegate {
                     DispatchQueue.main.async {
                         WidgetCenter.shared.reloadAllTimelines()
                     }
-                } catch { }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.window?.rootViewController?.present(title: "Error writing trend db", error: error)
+                    }
+                }
             }
 
             if let trend = currentTrend {
@@ -735,7 +738,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     let highest = MiaoMiao.allReadings.count > 6 ? MiaoMiao.allReadings[(MiaoMiao.allReadings.count - 6) ..< (MiaoMiao.allReadings.count - 2)].reduce(0.0) { max($0, $1.value) } : MiaoMiao.allReadings.last?.value ?? defaults[.maxRange]
                     if current.value > highest {
                         if let last = defaults[.lastEventAlertTime], Date() > last + 10.m {
-                            showEventAlert(title: "New High Glucose", body: "Glucose level is \(current.value.decimal(digits: 0))", sound: nil, level: .timeSensitive)
+                            showEventAlert(title: "Glucose still rising", body: "Current level is \(current.value.decimal(digits: 0))", sound: nil, level: .timeSensitive)
                         }
                     }
                     

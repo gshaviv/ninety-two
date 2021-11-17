@@ -34,7 +34,7 @@ class EA1CController: WKHostingController<AnyView> {
 #if DEBUG
 struct ea1cView_Previews: PreviewProvider {
     static var platform: PreviewPlatform? = .watchOS
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10], daily: [], date: Date()))
+    static let summary = SummaryInfo(Summary(period: 30, actualPeriod: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10], daily: [], date: Date()))
     static var previews: some View {
         Ea1cView(summary: summary)
     }

@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "CocoaPublisher",
+        "repositoryURL": "https://github.com/gshaviv/CocoaPublisher",
+        "state": {
+          "branch": "master",
+          "revision": "f1250c6d79867514c45a8de9e609c43b30aca6f3",
+          "version": null
+        }
+      },
+      {
         "package": "EFColorPicker",
         "repositoryURL": "https://github.com/EFPrefix/EFColorPicker.git",
         "state": {

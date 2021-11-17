@@ -370,7 +370,7 @@ extension UIView {
 
 #if DEBUG
 struct DoseHistoryView_Previews: PreviewProvider {
-    static let summary = SummaryInfo(Summary(period: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10], daily:
+    static let summary = SummaryInfo(Summary(period: 30, actualPeriod: 30, timeInRange: Summary.TimeInRange(low: 30, inRange: 30, high: 30), maxLevel: 246, minLevel: 45, average: 125, a1c: Summary.EA1C(value: 6.1, range: 0.1), low: Summary.Low(count: 20, median: 45), atdd: 20.1, timeInLevel: [5,5,40,40,40,10,10], daily:
         [
             Summary.Daily(average: 120.0, dose: 20, lows: 0, date: Date() - 7.d, percentLow: 2, percentHigh: 8),
             Summary.Daily(average: 120.5, dose: 18, lows: 1, date: Date() - 6.d, percentLow: 0, percentHigh: 7),

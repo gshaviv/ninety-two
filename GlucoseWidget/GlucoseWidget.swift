@@ -16,9 +16,7 @@ import Foundation
 private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
 
 class Provider: NSObject, IntentTimelineProvider {
-    lazy private var coordinator: NSFileCoordinator = {
-        NSFileCoordinator(filePresenter: self)
-    }()
+    
 
     
     func placeholder(in context: Context) -> BGEntry {
@@ -55,21 +53,13 @@ class Provider: NSObject, IntentTimelineProvider {
                 let records = Storage.default.lastDay.entries
                 completion(p.sorted(by: { $0.date < $1.date }), records)
             } catch {
+                logError("Error reading: \(error.localizedDescription)")
                 completion([], [])
             }
         }
     }
 }
 
-extension Provider: NSFilePresenter {
-    var presentedItemURL: URL? {
-        return sharedDbUrl
-    }
-    
-    var presentedItemOperationQueue: OperationQueue {
-        return OperationQueue.main
-    }
-}
 
 struct BGEntry: TimelineEntry {
     public let date: Date
@@ -95,13 +85,14 @@ struct GlucoseWidgetEntryView : View {
     }
     
     private var trend: String {
-        guard let current = entry.points.last, entry.points.count > 1 else {
+        guard let current = entry.points.last, entry.points.count > 3 else {
             return ""
         }
-        let previous = entry.points[entry.points.count - 2]
-        let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
+        let previous = entry.points[entry.points.count - (current.value > 70 ? 4 : 2)]
+        let trend = (current.value - previous.value) / abs(current.date - previous.date) * 60
         return "\(trend % ".1lf")"
     }
+    
     
     private var levelFont: Font {
         switch family {

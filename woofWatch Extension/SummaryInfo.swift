@@ -59,6 +59,7 @@ struct Summary: Codable {
         }
     }
     let period: Int
+    let actualPeriod: Int
     struct TimeInRange: Codable {
         let low: TimeInterval
         let inRange: TimeInterval
@@ -167,6 +168,7 @@ class SummaryInfo: ObservableObject {
                     completion?(false)
                     return
                 }
+                let actualPeriod = min(Int(ceil((Date().startOfDay - readings.first!.date) / 1.d)), defaults.summaryPeriod)
                 let entries = Storage.default.allEntries.filter { $0.date > Date().startOfDay - 90.d  }
                 self.calcDate = Date()
                 var previousPoint: GlucosePoint?
@@ -379,6 +381,7 @@ class SummaryInfo: ObservableObject {
                     let rangeTime = Summary.TimeInRange(low: timeBelow, inRange: totalT - timeBelow - timeAbove, high: timeAbove)
                     let lows = Summary.Low(count: lowCount, median: medianLowTime)
                     let summary = Summary(period: defaults.summaryPeriod,
+                                          actualPeriod: actualPeriod,
                                           timeInRange: rangeTime,
                                           maxLevel: maxG,
                                           minLevel: minG,

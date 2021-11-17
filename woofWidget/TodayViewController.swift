@@ -103,26 +103,32 @@ class TodayViewController: UIViewController {
     func widgetPerformUpdate(completionHandler: (() -> Void)? = nil) {
         DispatchQueue.global().async {
             let old = self.points
-            let p = (try? Storage.default.db.read {
-                try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
-            }) ?? []
-            let trend = (try? Storage.default.trendDb.read {
-                try GlucosePoint.fetchAll($0)
-            }) ?? []
-            if  p != old {
-                Storage.default.reloadToday()
-                DispatchQueue.main.async {
-                    self.points = p.sorted(by: { $0.date > $1.date }) + trend
-                    if old.isEmpty && !self.points.isEmpty {
-                        completionHandler?()
-                    } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
-                        completionHandler?()
-                    } else {
-                        self.updateTime()
-                        completionHandler?()
-                    }
+            do {
+                let p = try Storage.default.db.read {
+                    try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
                 }
-            } else {
+                let trend = try Storage.default.trendDb.read {
+                    try GlucosePoint.fetchAll($0)
+                }
+                let np = (trend + p).sorted(by: { $0.date < $1.date })
+                if  np != old {
+                    Storage.default.reloadToday()
+                    DispatchQueue.main.async {
+                        self.points = np
+                        if old.isEmpty && !self.points.isEmpty {
+                            completionHandler?()
+                        } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
+                            completionHandler?()
+                        } else {
+                            self.updateTime()
+                            completionHandler?()
+                        }
+                    }
+                } else {
+                    completionHandler?()
+                }
+            } catch {
+                logError("Read error: \(error.localizedDescription)")
                 completionHandler?()
             }
         }

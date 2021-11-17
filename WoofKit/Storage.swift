@@ -120,6 +120,7 @@ public class Storage: NSObject {
         }
         let bolus = Double(record.bolus) + record.insulinOnBoardAtStart
         let carbs = record.carbs + record.cobOnStart
+        let slope = record.slope
         let current: Double
         if let level = currentLevel {
             current = level
@@ -134,9 +135,9 @@ public class Storage: NSObject {
             }
         }
 
-        let high = CGFloat(carbs * defaults.param(.ch, at: record.date) - bolus * defaults.param(.ih, at: record.date) + current)
-        let low = CGFloat(carbs * defaults.param(.cl,at: record.date) - bolus * defaults.param(.il, at: record.date) + current)
-        let end = CGFloat(carbs * defaults.param(.ce,at: record.date) - bolus * defaults.param(.ie, at: record.date) + current)
+        let high = CGFloat(carbs * defaults.param(.ch, at: record.date) - bolus * defaults.param(.ih, at: record.date) + slope * defaults.param(.sh,at: record.date) + current)
+        let low = CGFloat(carbs * defaults.param(.cl,at: record.date) - bolus * defaults.param(.il, at: record.date) + slope * defaults.param(.sl,at: record.date)  + current)
+        let end = CGFloat(carbs * defaults.param(.ce,at: record.date) - bolus * defaults.param(.ie, at: record.date) + slope * defaults.param(.se,at: record.date)  + current)
 
         return Prediction(count: 0, mealTime: record.date, highDate: record.date + 2.h, h10: high - CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), h50: high, h90: high + CGFloat(defaults.param(.hsigma, at: record.date) * 1.2), low50: min(low,end), low: min(low - CGFloat(defaults.param(.lsigma, at: record.date)), end - CGFloat(defaults.param(.esigma, at: record.date))))
     }
@@ -201,6 +202,7 @@ public class Storage: NSObject {
         public let iob: Double
         public let cob: Double
         public fileprivate(set) var isComplete: Bool
+        public fileprivate(set) var carbSlope: Double
         
         public var description: String {
             let formater = DateFormatter()
@@ -264,7 +266,7 @@ public class Storage: NSObject {
             }
            
             let readings = (try? db.read {
-                try GlucosePoint.filter(GlucosePoint.Column.date > entry.date - 15.m && GlucosePoint.Column.date < entry.date + mealtime + 15.m).order(GlucosePoint.Column.date).fetchAll($0)
+                try GlucosePoint.filter(GlucosePoint.Column.date > entry.date - 1.h && GlucosePoint.Column.date < entry.date + mealtime + 15.m).order(GlucosePoint.Column.date).fetchAll($0)
             }) ?? []
             guard !readings.isEmpty, readings.last!.date - readings.first!.date > mealtime else {
                 continue
@@ -282,7 +284,8 @@ public class Storage: NSObject {
                                   bolus: totalBolus,
                                   iob: entry.insulinOnBoardAtStart,
                                   cob: entry.cobOnStart,
-                                  isComplete: mealtime >= timeframe)
+                                  isComplete: mealtime >= timeframe,
+                                  carbSlope: entry.slope)
             var last = readings.first!.date
             var isValid = true
             var inRange = false

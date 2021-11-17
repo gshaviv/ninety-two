@@ -169,6 +169,7 @@
 		E4E35A6B21C3F8DA00336CE8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4E35A6A21C3F8DA00336CE8 /* Assets.xcassets */; };
 		E4E8F112270C5EFF004B9705 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = E4E8F111270C5EFF004B9705 /* GRDB */; };
 		E4E8F1152712E5F9004B9705 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = E4E8F1142712E5F9004B9705 /* GRDB */; };
+		E4FA0A022741305B00D42ED5 /* CocoaPublisher in Frameworks */ = {isa = PBXBuildFile; productRef = E4FA0A012741305B00D42ED5 /* CocoaPublisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -536,6 +537,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4FA0A022741305B00D42ED5 /* CocoaPublisher in Frameworks */,
 				E48B40FF2732850900A4F022 /* Zip in Frameworks */,
 				E42A294D21E886C70084D181 /* WoofKit.framework in Frameworks */,
 				E41134CA255580FF00017603 /* EFColorPicker in Frameworks */,
@@ -1037,6 +1039,7 @@
 				E41134C9255580FF00017603 /* EFColorPicker */,
 				E4E8F111270C5EFF004B9705 /* GRDB */,
 				E48B40FE2732850900A4F022 /* Zip */,
+				E4FA0A012741305B00D42ED5 /* CocoaPublisher */,
 			);
 			productName = WoofWoof;
 			productReference = E4E35A6021C3F8D300336CE8 /* Ninety Two.app */;
@@ -1127,6 +1130,7 @@
 				E41134C8255580FF00017603 /* XCRemoteSwiftPackageReference "EFColorPicker" */,
 				E4E8F110270C5EFE004B9705 /* XCRemoteSwiftPackageReference "GRDB" */,
 				E48B40FD2732850800A4F022 /* XCRemoteSwiftPackageReference "Zip" */,
+				E4FA0A002741305B00D42ED5 /* XCRemoteSwiftPackageReference "CocoaPublisher" */,
 			);
 			productRefGroup = E4E35A6121C3F8D300336CE8 /* Products */;
 			projectDirPath = "";
@@ -2180,6 +2184,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		E4FA0A002741305B00D42ED5 /* XCRemoteSwiftPackageReference "CocoaPublisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gshaviv/CocoaPublisher";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2222,6 +2234,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E4E8F110270C5EFE004B9705 /* XCRemoteSwiftPackageReference "GRDB" */;
 			productName = GRDB;
+		};
+		E4FA0A012741305B00D42ED5 /* CocoaPublisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4FA0A002741305B00D42ED5 /* XCRemoteSwiftPackageReference "CocoaPublisher" */;
+			productName = CocoaPublisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

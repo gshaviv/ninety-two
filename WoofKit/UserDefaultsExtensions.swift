@@ -30,7 +30,7 @@ extension UIColor {
 }
 public let defaults = UserDefaults.standard
 #else
-public let defaults = UserDefaults(suiteName: "group.com.tivstudio.woof")!
+public let defaults = UserDefaults(suiteName: "group.com.tivstudio.woof")!.register()
 #endif
 
 
@@ -64,6 +64,7 @@ extension UserDefaults {
         case peakMinutes
         case delayMinutes
         case ce,cl,ch,ie,il,ih
+        case se,sl,sh
         case esigma, hsigma, lsigma
         case lastEventAlertLevel
         case timeToLow
@@ -100,7 +101,7 @@ extension UserDefaults {
         case useDarkGraph
     }
 
-    public func register() {
+    @discardableResult public func register() -> Self {
         let defaults: [String: Any] = [DoubleKey.additionalSlope.key: 1,
                                        IntKey.watchWakeupTime.key: 5 * 60 + 15,
                                        IntKey.watchSleepTime.key: 23 * 60,
@@ -129,10 +130,14 @@ extension UserDefaults {
                                        BoolKey.alertVibrate.key: true,
                                        DoubleKey.lastEventAlertLevel.key: 100.0,
                                        DoubleKey.timeToLow.key: 10.0,
-                                       IntKey.libreDays.key: 14
+                                       IntKey.libreDays.key: 14,
+                                       DoubleKey.se.key: 0,
+                                       DoubleKey.sl.key: 0,
+                                       DoubleKey.sh.key: 0,
                                        ]
 
         register(defaults: defaults)
+        return self
     }
 }
 

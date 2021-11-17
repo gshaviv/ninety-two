@@ -37,7 +37,13 @@ extension Array where Element: Hashable {
     }
 }
 
-
+extension UIViewController {
+    public func present(title: String, error: Error) {
+        let alert = UIAlertController(title: title, message: error.localizedDescription, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Darn", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+}
 
 extension Collection where Element: SignedNumeric {
 

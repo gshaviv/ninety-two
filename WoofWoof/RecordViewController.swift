@@ -77,8 +77,8 @@ class RecordViewController: UIViewController {
         record.type = Entry.MealType(rawValue: self.picker.selectedRow(inComponent: Component.meal.rawValue) - 1)
         record.bolus = picker.selectedRow(inComponent: Component.units.rawValue)
         record.carbs = meal.totalCarbs
-        if let note = noteField.text {
-            record.note = note.trimmed.isEmpty ? nil : note.trimmed
+        if let note = noteField.text?.trimmed {
+            record.note = note.isEmpty ? nil : note
             if meal.id == nil {
                 meal.name = record.note
             }
@@ -185,6 +185,9 @@ class RecordViewController: UIViewController {
         do {
             let record = selectedRecord
             if record.isMeal {
+                if !(noteField.text ?? "").trimmed.isEmpty && meal.usedCount == 0{
+                    meal.name = noteField.text?.trimmed
+                }
                 try meal.save()
                 record.mealId = meal.id
             }
@@ -469,11 +472,11 @@ extension RecordViewController {
 
 extension RecordViewController {
     struct MealEffect {
-        let change: Double
-        let carbs: Double
-        let units: Double
+        let change: Double // Change in BG before and after meal
+        let carbs: Double // number of carbs in meal
+        let units: Double // how many insulin units taken
         let slope: Double
-        let length: TimeInterval
+        let length: TimeInterval // time between before and after, may be shorter than normal if entered low
     }
     static func getEffects(around stamp: Date? = nil) -> [MealEffect] {
         let meals = Array(Storage.default.allEntries.filter { $0.mealId != nil || $0.isBolus }.reversed())
@@ -499,12 +502,11 @@ extension RecordViewController {
                 let ratio = (horizon - meal.date) / after
                 units = Double(meal.bolus) - meal.insulinAction(at: horizon).iob
                 carbs = meal.carbs * ratio
-                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             } else {
                 units = Double(meal.bolus)
                 carbs = meal.carbs
-                bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             }
+            bgAfter = interpolator.interpolateValue(at: CGFloat(horizon.timeIntervalSince1970))
             let bgAtMeal = interpolator.interpolateValue(at: CGFloat(meal.date.timeIntervalSince1970))
             guard !bgAfter.isNaN && !bgAtMeal.isNaN else {
                 continue
@@ -793,12 +795,13 @@ extension RecordViewController {
         
         var c: Double
         var i: Double
+        var s: Double
         var cost: Double
         
-        static let zero = Params(c: 0, i: 0, cost: 0)
+        static let zero = Params(c: 0, i: 0, s: 0, cost: 0)
         
         static func + (lhs: Params, rhs: Params) -> Params {
-            return Params(c: lhs.c + rhs.c, i: lhs.i + rhs.i, cost: lhs.cost + rhs.cost)
+            return Params(c: lhs.c + rhs.c, i: lhs.i + rhs.i, s: lhs.s + rhs.s, cost: lhs.cost + rhs.cost)
         }
     }
     
@@ -819,6 +822,10 @@ extension RecordViewController {
             defaults[.ie] = allEndP.i
             defaults[.ih] = allHighP.i
             defaults[.il] = allLowP.i
+            defaults[.se] = allEndP.s
+            defaults[.sh] = allHighP.s
+            defaults[.sl] = allLowP.s
+
             defaults[.esigma] = sqrt(allEndP.cost)
             defaults[.lsigma] = sqrt(allLowP.cost)
             defaults[.hsigma] = sqrt(allHighP.cost)
@@ -832,18 +839,21 @@ extension RecordViewController {
                     if bestEndP.cost < global.end.cost {
                         params[.ce] = bestEndP.c
                         params[.ie] = bestEndP.i
+                        params[.se] = bestEndP.s
                         params[.esigma] = sqrt(bestEndP.cost)
                         tookOne = true
                     }
                     if bestLowP.cost < global.low.cost {
                         params[.cl] = bestLowP.c
                         params[.il] = bestLowP.i
+                        params[.sl] = bestLowP.s
                         params[.lsigma] = sqrt(bestLowP.cost)
                         tookOne = true
                     }
                     if bestHighP.cost < global.high.cost {
                         params[.ch] = bestHighP.c
                         params[.ih] = bestHighP.i
+                        params[.sh] = bestHighP.s
                         params[.hsigma] = sqrt(bestHighP.cost)
                         tookOne = true
                     }
@@ -866,16 +876,16 @@ extension RecordViewController {
             let carbs = datum.carbs + datum.cob
             let insulin = Double(datum.bolus) + datum.iob
             let deltaEnd: Params = {
-                let f = carbs * endP.c  - insulin * endP.i + datum.start - datum.end
-                return Params(c: f * carbs,  i: -f * insulin, cost: f ** 2)
+                let f = carbs * endP.c  - insulin * endP.i + datum.carbSlope * endP.s + datum.start - datum.end
+                return Params(c: f * carbs,  i: -f * insulin, s: f * datum.carbSlope, cost: f ** 2)
             }()
             let deltaLow: Params = {
-                let f = carbs * lowP.c  - insulin * lowP.i   + datum.start - datum.low
-                return Params(c: f * carbs,  i: -f * insulin,  cost: f ** 2)
+                let f = carbs * lowP.c  - insulin * lowP.i + datum.carbSlope * lowP.s + datum.start - datum.low
+                return Params(c: f * carbs,  i: -f * insulin, s: f * datum.carbSlope,  cost: f ** 2)
             }()
             let deltaHigh: Params = {
-                let f = carbs * highP.c  - insulin * highP.i  + datum.start - datum.high
-                return Params(c: f * carbs, i: -f * insulin,  cost: f ** 2)
+                let f = carbs * highP.c  - insulin * highP.i + datum.carbSlope * highP.s + datum.start - datum.high
+                return Params(c: f * carbs, i: -f * insulin, s: datum.carbSlope * f,  cost: f ** 2)
             }()
             return (deltaLow, deltaHigh, deltaEnd)
         }
@@ -893,7 +903,7 @@ extension RecordViewController {
                     return $0
                 }
             }
-            return Params(c: sum.c, i: sum.i, cost: sum.cost / Double(count))
+            return Params(c: sum.c, i: sum.i, s: sum.s, cost: sum.cost / Double(count))
         }
         let low: Params = {
             let isolated = points.map { $0.0 }
@@ -934,14 +944,14 @@ extension RecordViewController {
             }
         }
         
-        var bestEndP = Params(c: 0,  i: 0,  cost: Double.greatestFiniteMagnitude)
-        var bestLowP = Params(c: 0, i: 0,  cost: Double.greatestFiniteMagnitude)
-        var bestHighP = Params(c: 0,  i: 0,  cost: Double.greatestFiniteMagnitude)
+        var bestEndP = Params(c: 0,  i: 0, s: 0,  cost: Double.greatestFiniteMagnitude)
+        var bestLowP = Params(c: 0, i: 0, s: 0,  cost: Double.greatestFiniteMagnitude)
+        var bestHighP = Params(c: 0,  i: 0, s: 0,  cost: Double.greatestFiniteMagnitude)
         
         for _ in 0 ..< 10 {
-            var endP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.1 ?? Double.random(in: 10 ... 50),  cost: Double.greatestFiniteMagnitude)
-            var lowP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.0 ?? Double.random(in: 10 ... 50),  cost: Double.greatestFiniteMagnitude)
-            var highP = Params(c: doingCarbs ? Double.random(in: 10 ... 20) : 0,  i: Double.random(in: 0 ... 30), cost: Double.greatestFiniteMagnitude)
+            var endP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.1 ?? Double.random(in: 10 ... 50), s: Double.random(in: -1 ... 1),  cost: Double.greatestFiniteMagnitude)
+            var lowP = Params(c: doingCarbs ? Double.random(in: 5 ... 20) : 0,  i: insulinReaction?.0 ?? Double.random(in: 10 ... 50), s: Double.random(in: -1 ... 1),  cost: Double.greatestFiniteMagnitude)
+            var highP = Params(c: doingCarbs ? Double.random(in: 10 ... 20) : 0,  i: Double.random(in: 0 ... 30), s: Double.random(in: -1 ... 1), cost: Double.greatestFiniteMagnitude)
             var previousEnd = endP
             var previousHigh = highP
             var previousLow = lowP
@@ -964,12 +974,12 @@ extension RecordViewController {
                         etaL /= 10
                         lowP = previousLow
                     } else {
-                        let unit = sqrt(sum.low.c ** 2  + sum.low.i ** 2 )
+                        let unit = sqrt(sum.low.c ** 2  + sum.low.i ** 2 + sum.low.s ** 2)
                         let delta: Params
                         if doingCarbs && doingInsulin {
-                            delta = Params(c: sum.low.c * etaL / unit,  i: sum.low.i * etaL / unit,  cost: sum.low.cost)
+                            delta = Params(c: sum.low.c * etaL / unit,  i: sum.low.i * etaL / unit, s: sum.low.s * etaL / unit,  cost: sum.low.cost)
                         } else {
-                            delta = Params(c: doingInsulin ? 0 : sum.low.c / abs(sum.low.c) * etaL,  i:  doingInsulin ? sum.low.i / abs(sum.low.i) * etaL : 0,  cost: sum.low.cost)
+                            delta = Params(c: doingInsulin ? 0 : sum.low.c / abs(sum.low.c) * etaL,  i:  doingInsulin ? sum.low.i / abs(sum.low.i) * etaL : 0, s: sum.low.s / abs(sum.low.s) * etaL,  cost: sum.low.cost)
                         }
                         if abs(delta.cost - lowP.cost) / lowP.cost < stop {
                             calcLow = false
@@ -977,6 +987,7 @@ extension RecordViewController {
                         previousLow = lowP
                         lowP.c = doingCarbs ? max(0, lowP.c - delta.c) : 0
                         lowP.i = doingInsulin ? max(0, lowP.i - delta.i) : insulinReaction!.0
+                        lowP.s = doingCarbs ? max(0, lowP.s - delta.s) : 0
                         lowP.cost = delta.cost
                     }
                 }
@@ -985,14 +996,15 @@ extension RecordViewController {
                         etaH /= 10
                         highP = previousHigh
                     } else {
-                        let unit = sqrt(sum.high.c ** 2  + sum.high.i ** 2 )
-                        let delta = Params(c: sum.high.c * etaH / unit,  i: sum.high.i * etaH / unit,  cost: sum.high.cost)
+                        let unit = sqrt(sum.high.c ** 2  + sum.high.i ** 2 + sum.high.s ** 2)
+                        let delta = Params(c: sum.high.c * etaH / unit,  i: sum.high.i * etaH / unit, s: sum.high.s * etaH / unit,  cost: sum.high.cost)
                         if abs(delta.cost - highP.cost) / highP.cost < stop {
                             calcHigh = false
                         }
                         previousHigh = highP
                         highP.c =  max(0, highP.c - delta.c)
                         highP.i =  max(0, highP.i - delta.i)
+                        highP.s = max(0, highP.s - delta.s)
                         highP.cost = delta.cost
                     }
                 }
@@ -1001,12 +1013,12 @@ extension RecordViewController {
                         etaE /= 10
                         endP = previousEnd
                     } else {
-                        let unit = sqrt(sum.end.c ** 2  + sum.end.i ** 2 )
+                        let unit = sqrt(sum.end.c ** 2  + sum.end.i ** 2 + sum.end.s ** 2)
                         let delta: Params
                         if doingCarbs && doingInsulin {
-                            delta = Params(c: sum.end.c * etaL / unit,  i: sum.end.i * etaL / unit,  cost: sum.end.cost)
+                            delta = Params(c: sum.end.c * etaL / unit,  i: sum.end.i * etaL / unit, s: sum.end.s * etaL / unit,  cost: sum.end.cost)
                         } else {
-                            delta = Params(c: doingInsulin ? 0 : sum.end.c / abs(sum.end.c) * etaE, i: doingInsulin ? sum.end.i / abs(sum.end.i) * etaE : 0,  cost: sum.end.cost)
+                            delta = Params(c: doingInsulin ? 0 : sum.end.c / abs(sum.end.c) * etaE, i: doingInsulin ? sum.end.i / abs(sum.end.i) * etaE : 0, s: doingInsulin ? sum.end.s / abs(sum.end.s) * etaE : 0,  cost: sum.end.cost)
                         }
                         if abs(delta.cost - endP.cost) / endP.cost < stop {
                             calcEnd = false
@@ -1014,6 +1026,7 @@ extension RecordViewController {
                         previousEnd = endP
                         endP.c = doingCarbs ? max(0, endP.c - delta.c) : 0
                         endP.i = doingInsulin ? max(0, endP.i - delta.i) : insulinReaction!.1
+                        endP.s = doingCarbs ? max(0, endP.s - delta.s) : 0
                         endP.cost = delta.cost
                     }
                 }

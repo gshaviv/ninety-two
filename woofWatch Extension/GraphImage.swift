@@ -213,26 +213,28 @@ struct GraphImage: View {
                     .systemFont(.medium, size: 16)
                 
             case (..<libreDaysH, true):
-                let timeLeft = Int((libreDaysH.h - data.sensorAge) / 1.m)
-                text = "-(\(timeLeft / 60):\(timeLeft % 60 % ".02ld"))".styled.color(defaults[.useDarkGraph] ? UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 0.75) : UIColor(red: 0.1, green: 0.1, blue: 0, alpha: 0.7))
+                let timeLeft = Int((libreDaysH.h - data.sensorAge) / 1.m) / 60
+                text = "\(timeLeft)h".styled.color(defaults[.useDarkGraph] ? UIColor(red: 1, green: 0.6, blue: 0.6, alpha: 0.85) : UIColor(red: 0.4, green: 0.1, blue: 0.1, alpha: 0.7))
                 .systemFont(.medium, size: 16)
                 
             case (libreDaysH...,_):
                 let timeOver = Int((data.sensorAge - libreDaysH.h) / 1.m)
-                text = { () -> NSMutableAttributedString in
+                text = { () -> String in
                     switch timeOver {
                     case ..<1:
-                        return "Expired".styled
+                        return "Expired"
                         
                     case 1... where timeOver % 60 == 0:
-                        return "\(timeOver / 60)h".styled
+                        return "-(\(timeOver / 60):\(timeOver % 60 % ".02ld"))"
                         
                     default:
-                        return "\(timeOver / 60):\(timeOver % 60 % ".02ld")".styled
+                        return "-(\(timeOver / 60):\(timeOver % 60 % ".02ld"))"
                     }
                 }()
-                    .color(defaults[.useDarkGraph] ? UIColor(red: 1, green: 0.6, blue: 0.6, alpha: 0.85) : UIColor(red: 0.4, green: 0.1, blue: 0.1, alpha: 0.7))
+                    .styled
                     .systemFont(.bold, size: 16)
+                    .color(defaults[.useDarkGraph] ? UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 0.75) : UIColor(red: 0.1, green: 0.1, blue: 0, alpha: 0.7))
+
                 
             default:
                 text = nil

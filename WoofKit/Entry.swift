@@ -75,6 +75,7 @@ public class Entry : Hashable, Equatable {
     public var note: String?
     public var mealId: Int?
     public var carbs: Double = 0
+    private var _slope: Double?
 
     public init(id: Int? = nil, date: Date, meal: MealType? = nil, bolus: Int? = nil, note: String? = nil) {
         self.date = date
@@ -240,6 +241,17 @@ extension Entry {
         let timeframe = (defaults[.diaMinutes] + defaults[.delayMinutes]) * 60
         let fromDate = self.date - timeframe
         return Storage.default.allEntries.filter { $0.date > fromDate && $0.date < self.date }.reduce(0.0) { $0 + $1.carbs * (1.0 - (self.date - $1.date) / timeframe) }
+    }
+    
+    public var slope: Double {
+        _slope ?? {
+            guard let readings = Storage.default.db.evaluate(GlucosePoint.filter(GlucosePoint.Column.date < date + 30.m && GlucosePoint.Column.date > date - 2.h)) else { return 0 }
+            
+            let interpolator = AkimaInterpolator(points: readings.map { CGPoint(x: $0.date.timeIntervalSince1970, y: $0.value) })
+            let s = (interpolator.interpolateValue(at: date.timeIntervalSince1970) - interpolator.interpolateValue(at: date.timeIntervalSince1970 - 45.m)) * 60
+            _slope = s
+            return s
+        }()
     }
 }
 

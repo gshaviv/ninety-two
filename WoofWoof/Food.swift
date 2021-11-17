@@ -47,6 +47,12 @@ public struct Food {
     
 }
 
+extension Food: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 extension Food: FetchableRecord, TableRecord {
     enum Column: String, ColumnExpression {
         case id = "ndb"
