@@ -667,7 +667,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     _ = try Storage.default.trendDb.writeInTransaction { db in
                         try GlucosePoint.deleteAll(db)
                         if let trend = MiaoMiao.trend {
-                            try trend.reversed().enumerated().filter { $0.offset % 3 == 0 }.forEach {
+                            try trend.enumerated().filter { $0.offset % 3 == 0 }.forEach {
                                 try $0.element.insert(db)
                             }
                         }
@@ -714,7 +714,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                             } else {
                                 timeMessage = "in one minute"
                             }
-                            self.showEventAlert(title:  "Trending to a Low", body: "Low predicted in \(timeMessage) at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld")", sound: $0 && !self.didAlertEvent ? nil : UNNotificationSoundName.toBeLow, level: .critical)
+                            self.showEventAlert(title:  "Trending to a Low", body: "Low predicted in \(timeMessage) at \(hour == 0 ? 12 : hour):\(when.minute % ".02ld"). Current glucose level is \(current.value.decimal(digits: 0))", sound: $0 && !self.didAlertEvent ? nil : UNNotificationSoundName.toBeLow, level: .critical)
                         }
                     } else if timeToLow < 0 || timeToLow > defaults[.timeToLow] * 2 {
                         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
@@ -722,7 +722,7 @@ extension AppDelegate: MiaoMiaoDelegate {
                     }
                     
                 case defaults[.highAlertLevel]... where !didAlertEvent && trend > 0.25:
-                    showEventAlert(title: "High Glucose", body: "Glucose level is \(current.value % ".0lf") and rising", sound: UNNotificationSoundName.highGlucose, level: .timeSensitive)
+                    showEventAlert(title: "High Glucose Reached", body: "Currantly at \(current.value % ".0lf")", sound: UNNotificationSoundName.highGlucose, level: .timeSensitive)
                     
                 case defaults[.lowAlertLevel] ..< defaults[.highAlertLevel]:
                     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Notification.Identifier.event])
