@@ -19,7 +19,6 @@ public enum StateKey: String {
     case defaults = "f"
     case history = "h"
     case trend = "r"
-    case batteryLife = "bl"
 }
 
 extension Dictionary where Key == StateKey {

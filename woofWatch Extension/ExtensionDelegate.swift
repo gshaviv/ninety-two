@@ -34,7 +34,6 @@ struct StateData: Equatable {
     }
     private(set) var sensorBegin: Date
     private(set) var batteryLevel: Int
-    private(set) var batteryLife: Date
 }
 
 enum Status {
@@ -53,7 +52,7 @@ class AppState: ObservableObject {
         }
     }
     var lastStateChange = Date.distantPast
-    var data: StateData = StateData(trendValue: 0, trendSymbol: "", trend: [], history: [], events: [],  sensorBegin: Date(), batteryLevel: -1, batteryLife: Date.distantPast) {
+    var data: StateData = StateData(trendValue: 0, trendSymbol: "", trend: [], history: [], events: [],  sensorBegin: Date(), batteryLevel: -1) {
         didSet {
             self.state = .ready
             if oldValue != data {
@@ -211,7 +210,6 @@ extension ExtensionDelegate {
             let events = (info[.events] as? [[Double]])?.map { Event(date: $0[0], bolus: $0[1]) } ?? appState.data.events
             let begin = info[.sensorStart] as? Date ?? appState.data.sensorBegin
             let level = info[.batteryLevel] as? Int ?? appState.data.batteryLevel
-            let eol = info[.batteryLife] as? Date ?? appState.data.batteryLife
             let trend = m.compactMap { value -> GlucosePoint? in
                 guard let d = value.first, let v = value.last else {
                     return nil
@@ -242,7 +240,7 @@ extension ExtensionDelegate {
                 WKExtension.extensionDelegate.lastFullState = Date.distantPast
             }
             DispatchQueue.main.async {
-                appState.data = StateData(trendValue: t, trendSymbol: s, trend: trend, history: complateHistory, events: events,  sensorBegin: begin, batteryLevel: level, batteryLife: eol)
+                appState.data = StateData(trendValue: t, trendSymbol: s, trend: trend, history: complateHistory, events: events,  sensorBegin: begin, batteryLevel: level)
             }
         }
     }

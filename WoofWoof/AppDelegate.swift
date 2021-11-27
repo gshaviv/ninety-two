@@ -456,7 +456,6 @@ extension AppDelegate: WCSessionDelegate {
             .change: currentTrend ?? 0,
             .sensorStart: defaults[.sensorBegin] ?? Date(),
             .batteryLevel: MiaoMiao.batteryLevel,
-            .batteryLife: MiaoMiao.expectedBatterEndOfLife ?? Date.distantPast,
             .complication: complicationState,
             .events: events
         ]
@@ -469,7 +468,7 @@ extension AppDelegate: WCSessionDelegate {
             }
         }
         if !trendToSend.isEmpty {
-        state[.trend] = trendToSend.map { [$0.date.timeIntervalSince1970, $0.value ]}
+            state[.trend] = trendToSend.map { [$0.date.timeIntervalSince1970, $0.value ]}
         }
         if !points.isEmpty {
             state[.history] = points
@@ -573,7 +572,7 @@ extension AppDelegate: WCSessionDelegate {
                 case "fullState":
                     self.markSendState()
                     self.sentQueue.sync {
-                        for k in [StateKey.history, StateKey.trend, StateKey.batteryLevel, StateKey.sensorStart, StateKey.events, StateKey.batteryLife] {
+                        for k in [StateKey.history, StateKey.trend, StateKey.batteryLevel, StateKey.sensorStart, StateKey.events] {
                             self.sent[k] = nil
                         }
                     }
