@@ -46,11 +46,10 @@ class IntentViewController: UIViewController, INUIHostedViewControlling {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let ctr = segue.destination as? TodayViewController {
             contentVC = ctr
-            ctr.widgetPerformUpdate { 
-                self.done = true
-                ctr.widgetActiveDisplayModeDidChange(maximumSize: self.desiredSize)
-                self.callback?(true, [], self.desiredSize)
-            }
+            ctr.readData()
+            self.done = true
+            ctr.widgetActiveDisplayModeDidChange(maximumSize: self.desiredSize)
+            self.callback?(true, [], self.desiredSize)
         }
     }
     

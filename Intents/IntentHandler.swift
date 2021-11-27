@@ -40,37 +40,35 @@ class CheckIntentHandler: NSObject, CheckGlucoseIntentHandling {
 
     func handle(intent: CheckGlucoseIntent, completion: @escaping (CheckGlucoseIntentResponse) -> Void) {
         DispatchQueue.global().async {
-            self.coordinator.coordinate(readingItemAt: sharedDbUrl, error: nil, byAccessor: { (_) in
-                let p = (try? Storage.default.db.read {
-                    try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).order(GlucosePoint.Column.date.desc).fetchAll($0)
-                }) ?? []
-                if let current = p.first {
-                    let value = Int(round(current.value))
-                    let trend = (p[0].value - p[1].value) / (p[0].date - p[1].date) * 60
-                    let trendPhrase: String = {
-                        if trend > 2.8 {
-                            return "rising fast"
-                        } else if trend > 1.4 {
-                            return "rising"
-                        } else if trend > 0.5 {
-                            return "moderately rising"
-                        } else if trend > -0.5 {
-                            return "stable"
-                        } else if trend > -1.4 {
-                            return "moderately dropping"
-                        } else if trend > -2.8 {
-                            return "dropping"
-                        } else {
-                            return "dropping fast"
-                        }
-                    }()
-                    let time = Int(Date().timeIntervalSince(current.date) / 60)
-                    let ago = time == 0 ? "less than a minute ago" : "\(time) minute\(time > 1 ? "s" : "") ago"
-                    completion(CheckGlucoseIntentResponse.success(glucose: NSNumber(value: value), trend: trendPhrase, when: ago))
-                } else {
-                    completion(CheckGlucoseIntentResponse(code: .failure, userActivity: nil))
-                }
-            })
+            let p = (try? Storage.default.trendDb.unsafeRead {
+                try GlucosePoint.order(GlucosePoint.Column.date.desc).fetchAll($0)
+            }) ?? []
+            if let current = p.first {
+                let value = Int(round(current.value))
+                let trend = (p[0].value - p[1].value) / (p[0].date - p[1].date) * 60
+                let trendPhrase: String = {
+                    if trend > 2.8 {
+                        return "rising fast"
+                    } else if trend > 1.4 {
+                        return "rising"
+                    } else if trend > 0.5 {
+                        return "moderately rising"
+                    } else if trend > -0.5 {
+                        return "stable"
+                    } else if trend > -1.4 {
+                        return "moderately dropping"
+                    } else if trend > -2.8 {
+                        return "dropping"
+                    } else {
+                        return "dropping fast"
+                    }
+                }()
+                let time = Int(Date().timeIntervalSince(current.date) / 60)
+                let ago = time == 0 ? "less than a minute ago" : "\(time) minute\(time > 1 ? "s" : "") ago"
+                completion(CheckGlucoseIntentResponse.success(glucose: NSNumber(value: value), trend: trendPhrase, when: ago))
+            } else {
+                completion(CheckGlucoseIntentResponse(code: .failure, userActivity: nil))
+            }
         }
     }
 }

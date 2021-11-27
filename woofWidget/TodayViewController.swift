@@ -11,15 +11,15 @@ import NotificationCenter
 import GRDB
 import WoofKit
 import Intents
-
-private let sharedDbUrl = URL(fileURLWithPath: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.tivstudio.woof")!.path.appending(pathComponent: "5h.sqlite"))
+import Combine
 
 class TodayViewController: UIViewController {
     @IBOutlet var graphView: GlucoseGraph!
-    @IBOutlet var agoLabel: UILabel!
-    @IBOutlet var trendLabel: UILabel!
-    @IBOutlet var glucoseLabel: UILabel!
-    @IBOutlet var iobLabel: UILabel!
+    @IBOutlet var agoLabel: UILabel?
+    @IBOutlet var trendLabel: UILabel?
+    @IBOutlet var glucoseLabel: UILabel?
+    @IBOutlet var iobLabel: UILabel?
+    private var bag = [AnyCancellable]()
     private var points: [GlucosePoint] = [] {
         didSet {
             if let current = points.first {
@@ -38,25 +38,24 @@ class TodayViewController: UIViewController {
                 let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
                 let symbol = trendSymbol(for: trend)
                 let levelStr = current.value > 70 ? current.value % ".0lf" : current.value % ".1lf"
-                glucoseLabel.text = "\(levelStr)\(symbol)"
-                trendLabel.text = String(format: "%.1lf", trend)
+                glucoseLabel?.text = "\(levelStr)\(symbol)"
+                trendLabel?.text = String(format: "%.1lf", trend)
                 let iob = Storage.default.insulinOnBoard(at: Date())
                 if iob > 0 && UIScreen.main.bounds.width > 350.0 {
-                    iobLabel.text = "BOB\n\(iob % ".1lf")"
-                    iobLabel.isHidden = false
+                    iobLabel?.text = "BOB\n\(iob % ".1lf")"
+                    iobLabel?.isHidden = false
                 } else {
-                    iobLabel.isHidden = true
+                    iobLabel?.isHidden = true
                 }
             }
         }
     }
-
     var isTriggerd = false
     var repeater: Repeater?
     func updateAgo() {
         if let current = points.first {
             let time = Int(Date() - current.date)
-            agoLabel.text = "\(time / 60):\(time % 60 % ".02ld")"
+            agoLabel?.text = "\(time / 60):\(time % 60 % ".02ld")"
         }
     }
     func updateTime() {
@@ -66,18 +65,6 @@ class TodayViewController: UIViewController {
                 self.updateAgo()
             })
         }
-        if !isTriggerd {
-            isTriggerd = true
-            DispatchQueue.main.after(withDelay: 10) {
-                guard self.isTriggerd else {
-                    return
-                }
-                self.isTriggerd = false
-                if self.view.window != nil {
-                    self.widgetPerformUpdate()
-                }
-            }
-        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -86,6 +73,10 @@ class TodayViewController: UIViewController {
         isTriggerd = false
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        readData()
+    }
     
 
     override func viewDidAppear(_ animated: Bool) {
@@ -95,42 +86,43 @@ class TodayViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         repeater = nil
         updateAgo()
+        
+        ValueObservation.tracking {
+            try GlucosePoint.fetchAll($0)
+        }
+        .publisher(in: Storage.default.trendDb)
+        .receive(on: DispatchQueue.main)
+        .sink { _ in
+        } receiveValue: { [weak self] _ in
+            self?.readData()
+        }
+        .store(in: &bag)
     }
         
-    func widgetPerformUpdate(completionHandler: (() -> Void)? = nil) {
+    func readData() {
         DispatchQueue.global().async {
-            let old = self.points
-            do {
-                let p = try Storage.default.db.read {
-                    try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
-                }
-                let trend = try Storage.default.trendDb.read {
-                    try GlucosePoint.fetchAll($0)
-                }
-                let np = (trend + p).sorted(by: { $0.date < $1.date })
-                if  np != old {
-                    Storage.default.reloadToday()
-                    DispatchQueue.main.async {
-                        self.points = np
-                        if old.isEmpty && !self.points.isEmpty {
-                            completionHandler?()
-                        } else if let previousLast = old.last, let currentLast = self.points.last, currentLast.date > previousLast.date {
-                            completionHandler?()
-                        } else {
-                            self.updateTime()
-                            completionHandler?()
-                        }
-                    }
-                } else {
-                    completionHandler?()
-                }
-            } catch {
-                logError("Read error: \(error.localizedDescription)")
-                completionHandler?()
+
+        do {
+            let p = try Storage.default.db.unsafeRead {
+                try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
             }
+            let trend = try Storage.default.trendDb.unsafeRead {
+                try GlucosePoint.fetchAll($0)
+            }
+            let np = (trend + p).sorted(by: { $0.date < $1.date })
+            if  np != self.points {
+                Storage.default.reloadToday()
+                DispatchQueue.main.async {
+                    self.points = np
+                    self.updateTime()
+                }
+
+            }
+        } catch {
+            logError("Read error: \(error.localizedDescription)")
+        }
         }
     }
 
@@ -140,14 +132,3 @@ class TodayViewController: UIViewController {
     
 }
 
-extension TodayViewController: NSFilePresenter {
-    var presentedItemURL: URL? {
-        return sharedDbUrl
-    }
-
-    var presentedItemOperationQueue: OperationQueue {
-        return OperationQueue.main
-    }
-
-
-}
