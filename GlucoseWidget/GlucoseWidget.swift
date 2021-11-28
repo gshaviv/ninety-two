@@ -171,7 +171,7 @@ struct GlucoseWidgetEntryView : View {
             .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
             .layoutPriority(4)
             
-            BGWidgetGraph(points: entry.points, records: family == .systemLarge ? entry.records : [], hours: family == .systemSmall ? 2 : 4)
+            BGWidgetGraph(points: entry.points, records: family == .systemLarge ? entry.records : [], hours: family == .systemSmall ? 2 : 4, cornerRatio: family == .systemLarge ? 0.16 : 0.08)
                 .frame( maxWidth: .infinity,  maxHeight: .infinity)
         }
         .background(colorScheme == .light ? Color(.lightGray) : Color(.darkGray))

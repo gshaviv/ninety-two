@@ -14,8 +14,7 @@ struct BGWidgetGraph: View {
     let points: [GlucosePoint]
     let records: [Entry]
     let hours: Double
-    @Environment(\.widgetFamily) var family
-
+    let cornerRatio: CGFloat
     var body: some View {
         GeometryReader { frame in
             if let newImage = createImage(size: frame.size, hours: hours) {
@@ -51,7 +50,6 @@ struct BGWidgetGraph: View {
         
         let (gmin, gmax) = points.filter { $0.date > Date() - hours.h }.reduce((999.0, 0.0)) { (min($0.0, $1.value), max($0.1, $1.value)) }
         var yRange = (min: CGFloat(floor(gmin / 5) * 5), max: CGFloat(ceil(gmax / 10) * 10))
-        let cornerRatio = family == .systemLarge ? 0.08 : 0.16
         if yRange.max - yRange.min < 40 {
             let mid = floor((yRange.max + yRange.min) / 2)
             yRange = mid > 89 ? (min: max(mid - 20, 70), max: max(mid - 20, 70) + 40) : (min: yRange.min, max: yRange.min + 40)

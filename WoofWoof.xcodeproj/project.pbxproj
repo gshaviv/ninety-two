@@ -99,8 +99,6 @@
 		E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EEC7721E9C52600F966A8 /* UI.storyboard */; };
 		E44EEC7D21E9C52600F966A8 /* SiriIntentUI.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E44EEC7121E9C52600F966A8 /* SiriIntentUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E44EEC8321E9C5C800F966A8 /* WoofKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42A294621E886C70084D181 /* WoofKit.framework */; };
-		E44EEC8521E9C77A00F966A8 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E42A292221E77B2A0084D181 /* MainInterface.storyboard */; };
-		E44EEC8621E9C78000F966A8 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42A292021E77B2A0084D181 /* TodayViewController.swift */; };
 		E44F98CD2244C43000C51411 /* UIBezierPathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */; };
 		E44F98CF2244D43600C51411 /* AkimaInterpolator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CE2244D43600C51411 /* AkimaInterpolator.swift */; };
 		E44F98DC22455E4700C51411 /* UIBezierPathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44F98CC2244C43000C51411 /* UIBezierPathExtension.swift */; };
@@ -145,6 +143,9 @@
 		E4922A2D2202059E004CABB8 /* KVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B5022F21D6167200E18DDD /* KVO.swift */; };
 		E4922A2F2202F2C8004CABB8 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */; };
 		E4971D7A23198EFD00FAFF0B /* log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBF59321C408A4006AF3CF /* log.swift */; };
+		E49CB42C275259D400B4A598 /* BGWidgetGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */; };
+		E49CB42E275259ED00B4A598 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E41E50482521CA040041FD8A /* Assets.xcassets */; };
+		E49CB43027528D8400B4A598 /* BGStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49CB42F27528D8400B4A598 /* BGStatusView.swift */; };
 		E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D792333C68900383814 /* GraphImage.swift */; };
 		E4A14D7C2333C70700383814 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* ActivityIndicator.swift */; };
 		E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */; };
@@ -424,6 +425,7 @@
 		E491651E272E6CBE00347503 /* DependencyInjectedValues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyInjectedValues.swift; sourceTree = "<group>"; };
 		E491651F272E6CBE00347503 /* Dependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dependency.swift; sourceTree = "<group>"; };
 		E4922A2E2202F2C8004CABB8 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
+		E49CB42F27528D8400B4A598 /* BGStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BGStatusView.swift; sourceTree = "<group>"; };
 		E4A14D792333C68900383814 /* GraphImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphImage.swift; sourceTree = "<group>"; };
 		E4A14D7B2333C70700383814 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseFaceController.swift; sourceTree = "<group>"; };
@@ -716,6 +718,7 @@
 				E44EEC7521E9C52600F966A8 /* IntentViewController.swift */,
 				E44EEC7721E9C52600F966A8 /* UI.storyboard */,
 				E44EEC7A21E9C52600F966A8 /* Info.plist */,
+				E49CB42F27528D8400B4A598 /* BGStatusView.swift */,
 			);
 			path = SiriIntentUI;
 			sourceTree = "<group>";
@@ -1213,7 +1216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E44EEC7921E9C52600F966A8 /* UI.storyboard in Resources */,
-				E44EEC8521E9C77A00F966A8 /* MainInterface.storyboard in Resources */,
+				E49CB42E275259ED00B4A598 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1352,7 +1355,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E44EEC8621E9C78000F966A8 /* TodayViewController.swift in Sources */,
+				E49CB43027528D8400B4A598 /* BGStatusView.swift in Sources */,
+				E49CB42C275259D400B4A598 /* BGWidgetGraph.swift in Sources */,
 				E44EEC7621E9C52600F966A8 /* IntentViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

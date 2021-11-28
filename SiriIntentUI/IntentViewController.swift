@@ -7,6 +7,9 @@
 //
 
 import IntentsUI
+import SwiftUI
+import WoofKit
+import GRDB
 
 // As an example, this extension's Info.plist has been configured to handle interactions for INSendMessageIntent.
 // You will want to replace this or add other intents as appropriate.
@@ -15,42 +18,49 @@ import IntentsUI
 // You can test this example integration by saying things to Siri like:
 // "Send a message using <myApp>"
 
-class IntentViewController: UIViewController, INUIHostedViewControlling {
-    var contentVC: TodayViewController?
-    var callback: ((Bool, Set<INParameter>, CGSize) -> Void)?
-    var done = false
-        
-    // MARK: - INUIHostedViewControlling
-    override func viewDidLoad() {
-        super.viewDidLoad()
+class IntentViewController: UIHostingController<BGStatusView>, INUIHostedViewControlling {
+    let state = WidgetState()
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder, rootView: BGStatusView(entry: state, sizeClass: .medium))
     }
     
     // Prepare your view controller for the interaction to handle.
     func configureView(for parameters: Set<INParameter>, of interaction: INInteraction, interactiveBehavior: INUIInteractiveBehavior, context: INUIHostedViewContext, completion: @escaping (Bool, Set<INParameter>, CGSize) -> Void) {
-        // Do configuration here, including preparing views and calculating a desired size for presentation.
-        if done {
-            completion(true, parameters, self.desiredSize)
-        } else {
-            callback = completion
+        Task {
+            do {
+                let (points, records) = try await readData()
+                let entryDate = points.last?.date ?? Date()
+                await MainActor.run {
+                    state.points = points
+                    state.records = records
+                    state.date = entryDate
+                    completion(true, parameters, CGSize(width: UIScreen.main.bounds.width - 40, height: 250))
+                }
+            } catch {
+                completion(false, parameters, CGSize.zero)
+            }
         }
     }
     
-    var desiredSize: CGSize {
-        if var size = self.extensionContext?.hostedViewMaximumAllowedSize {
-            size.height = min(size.height, 250)
-            return size
+    private func readData() async throws -> ([GlucosePoint], [Entry]) {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global().async {
+                do {
+                    let p = try Storage.default.db.read {
+                        try GlucosePoint.filter(GlucosePoint.Column.date > Date() - 5.h).fetchAll($0)
+                    } + Storage.default.trendDb.read {
+                        try GlucosePoint.fetchAll($0)
+                    }
+                    Storage.default.reloadToday()
+                    let records = Storage.default.lastDay.entries
+                    continuation.resume(returning: (p.sorted(by: { $0.date < $1.date }), records))
+                    
+                } catch {
+                    logError("Error reading: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
+                }
+            }
         }
-        return CGSize(width: UIScreen.main.bounds.width - 40, height: 250)
     }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let ctr = segue.destination as? TodayViewController {
-            contentVC = ctr
-            ctr.readData()
-            self.done = true
-            ctr.widgetActiveDisplayModeDidChange(maximumSize: self.desiredSize)
-            self.callback?(true, [], self.desiredSize)
-        }
-    }
-    
 }
