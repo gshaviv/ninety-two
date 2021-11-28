@@ -48,7 +48,7 @@ struct BGStatusView : View {
     private var levelFont: Font {
         switch sizeClass {
         case .small:
-            return Font.system(.headline)
+            return Font.system(size: 20, weight: .bold, design: Font.Design.default)
         case .medium:
             return Font.system(size: 25, weight: .bold, design: Font.Design.default)
         case .large:
@@ -71,20 +71,20 @@ struct BGStatusView : View {
             HStack(spacing: 4) {
                 TimeIndicator
                     .lineLimit(1)
-                    .font(Font.monospacedDigit(Font.system(.caption))())
+                    .font(Font.monospacedDigit(sizeClass == .small ? Font.system(size: 11) : Font.system( .caption))())
                     .minimumScaleFactor(0.5)
                 
                 if iob > 0 {
                     Text("BOB\n\(iob % ".1lf")")
                         .lineLimit(2)
-                        .font(Font.monospacedDigit(Font.system(.caption))())
+                        .font(Font.monospacedDigit(sizeClass == .small ? Font.system(size: 11) : Font.system( .caption))())
                         .multilineTextAlignment(.center)
                         .layoutPriority(2)
                         .minimumScaleFactor(0.75)
                 } else {
                     Text("\n")
                         .lineLimit(2)
-                        .font(Font.monospacedDigit(Font.system(.caption))())
+                        .font(Font.monospacedDigit(sizeClass == .small ? Font.system(size: 11) : Font.system( .caption))())
                 }
                 
                 Spacer()
@@ -105,7 +105,7 @@ struct BGStatusView : View {
             if entry.points.isEmpty {
                 EmptyView()
             } else {
-                BGWidgetGraph(points: entry.points, records: entry.records , hours:  4, cornerRatio: 0.12)
+                BGWidgetGraph(points: entry.points, records: entry.records , hours:  sizeClass == .small ? 2 : 3.5, cornerRatio: 0.12)
                     .frame( maxWidth: .infinity,  maxHeight: .infinity)
             }
         }

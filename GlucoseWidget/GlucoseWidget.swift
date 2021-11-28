@@ -71,109 +71,29 @@ struct BGEntry: TimelineEntry {
 
 struct GlucoseWidgetEntryView : View {
     var entry: BGEntry
+    var status: WidgetState  {
+        let s = WidgetState()
+        s.points = entry.points
+        s.records = entry.records
+        s.date = entry.date
+        return s
+    }
     @Environment(\.widgetFamily) var family
     @Environment(\.colorScheme) var colorScheme
-
-    private var levelString: String {
-        guard let current = entry.points.last, entry.points.count > 1 else {
-            return "?"
-        }
-        let previous = entry.points[entry.points.count - 2]
-        let trend = (current.value - previous.value) / (current.date > previous.date ? current.date - previous.date : previous.date - current.date) * 60
-        let symbol = trendSymbol(for: trend)
-        return "\(current.value % "%.0lf")\(symbol)"
-    }
-    
-    private var trend: String {
-        guard let current = entry.points.last, entry.points.count > 3 else {
-            return ""
-        }
-        let previous = entry.points[entry.points.count - (current.value > 70 ? 4 : 2)]
-        let trend = (current.value - previous.value) / abs(current.date - previous.date) * 60
-        return "\(trend % ".1lf")"
-    }
-    
-    
-    private var levelFont: Font {
-        switch family {
-        case .systemSmall:
-            return Font.system(.headline)
-        case .systemMedium:
-            return Font.system(size: 25, weight: .bold, design: Font.Design.default)
-        case .systemLarge:
-            return Font.system(size: 36, weight: .black, design: Font.Design.default)
-        case .systemExtraLarge:
-            return Font.system(size: 36, weight: .black, design: Font.Design.default)
-        @unknown default:
-            return Font.system(.headline)
-        }
-    }
-    
-    private var TimeIndicator: some View {
-        if Date() - entry.date < 1.h {
-            return Text(entry.date, style: .timer)
-        } else {
-            return Text(">\(Int((Date()-entry.date)/1.h))h")
-        }
-    }
-    
-    let iob = Storage.default.insulinOnBoard(at: Date())
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 4) {
-                 TimeIndicator
-                    .lineLimit(1)
-                    .font(Font.monospacedDigit(Font.system(.caption))())
-                    .minimumScaleFactor(0.5)
-               
-                switch (iob > 0, family) {
-                case (true, .systemSmall):
-                    Text("\(iob % ".1lf")")
-                        .lineLimit(1)
-                        .font(Font.monospacedDigit(Font.system(.caption2))())
-                        .multilineTextAlignment(.center)
-                        .layoutPriority(2)
-                        .minimumScaleFactor(0.75)
-                case (true, .systemMedium):
-                    Text("\(iob % ".1lf")")
-                        .lineLimit(1)
-                        .font(Font.monospacedDigit(Font.system(.caption2))())
-                        .layoutPriority(2)
-                        .minimumScaleFactor(0.75)
-                case (true, .systemLarge):
-                    Text("BOB\n\(iob % ".1lf")")
-                        .lineLimit(2)
-                        .font(Font.monospacedDigit(Font.system(.caption))())
-                        .multilineTextAlignment(.center)
-                        .layoutPriority(2)
-                        .minimumScaleFactor(0.75)
-                case (false, .systemLarge):
-                    Text("\n")
-                        .lineLimit(2)
-                        .font(Font.monospacedDigit(Font.system(.caption))())
-                default:
-                    EmptyView()
-                }
+        BGStatusView(entry: status, sizeClass: {
+            switch family {
+            case .systemSmall:
+                return .small
                 
-                Spacer()
+            case .systemMedium:
+                return .medium
                 
-                Text(trend)
-                    .font(Font.system(.caption))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-
-                Text(levelString)
-                    .font(levelFont)
-                    .lineLimit(1)
-                    .layoutPriority(3)
+            default:
+                return .large
             }
-            .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
-            .layoutPriority(4)
-            
-            BGWidgetGraph(points: entry.points, records: family == .systemLarge ? entry.records : [], hours: family == .systemSmall ? 2 : 4, cornerRatio: family == .systemLarge ? 0.16 : 0.08)
-                .frame( maxWidth: .infinity,  maxHeight: .infinity)
-        }
+        }())
         .background(colorScheme == .light ? Color(.lightGray) : Color(.darkGray))
     }
 }

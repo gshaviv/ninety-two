@@ -146,6 +146,7 @@
 		E49CB42C275259D400B4A598 /* BGWidgetGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B813AF24BB31BD008552CB /* BGWidgetGraph.swift */; };
 		E49CB42E275259ED00B4A598 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E41E50482521CA040041FD8A /* Assets.xcassets */; };
 		E49CB43027528D8400B4A598 /* BGStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49CB42F27528D8400B4A598 /* BGStatusView.swift */; };
+		E49CB4322753A87700B4A598 /* BGStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49CB42F27528D8400B4A598 /* BGStatusView.swift */; };
 		E4A14D7A2333C68900383814 /* GraphImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D792333C68900383814 /* GraphImage.swift */; };
 		E4A14D7C2333C70700383814 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7B2333C70700383814 /* ActivityIndicator.swift */; };
 		E4A14D7E2333C78F00383814 /* GlucoseFaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A14D7D2333C78F00383814 /* GlucoseFaceController.swift */; };
@@ -1257,6 +1258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42D37CA2521CCA100DECEF8 /* BGWidgetGraph.swift in Sources */,
+				E49CB4322753A87700B4A598 /* BGStatusView.swift in Sources */,
 				E41E50462521CA020041FD8A /* GlucoseWidget.swift in Sources */,
 				E41E504B2521CA040041FD8A /* GlucoseWidget.intentdefinition in Sources */,
 			);
