@@ -1,0 +1,41 @@
+{
+  "pins" : [
+    {
+      "identity" : "cocoapublisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gshaviv/CocoaPublisher",
+      "state" : {
+        "branch" : "master",
+        "revision" : "7285ca36c0243bed256f50c49716cc5677aa0ec9"
+      }
+    },
+    {
+      "identity" : "efcolorpicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/EFPrefix/EFColorPicker.git",
+      "state" : {
+        "revision" : "706c8412c38df821d5bff2751e8961bc5fdd4154",
+        "version" : "5.2.2"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift",
+      "state" : {
+        "revision" : "dd7e7f39e8e4d7a22d258d9809a882f914690b01",
+        "version" : "5.26.1"
+      }
+    },
+    {
+      "identity" : "zip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/marmelroy/Zip",
+      "state" : {
+        "revision" : "67fa55813b9e7b3b9acee9c0ae501def28746d76",
+        "version" : "2.1.2"
+      }
+    }
+  ],
+  "version" : 2
+}
